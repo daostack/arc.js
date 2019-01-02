@@ -80,4 +80,12 @@ describe('DAO', () => {
     expect(members.length).toBeGreaterThan(0)
     const member = members[0]
   })
+
+  it('dao.getBalance() should work', async () => {
+    // TODO: because we have not setup with proposals, we are only testing if the current state returns the emty list
+    const dao = arc.dao(addresses.Avatar.toLowerCase())
+    const balance = await dao.ethBalance()
+    expect(balance).toBe(web3.utils.toWei('0'))
+  })
+
 })
