@@ -9,6 +9,8 @@ import { Proposal } from './proposal'
 import { Address } from './types'
 import * as utils from './utils'
 
+const Web3 = require('web3')
+
 export class Arc {
   public graphqlHttpProvider: string
   public graphqlWsProvider: string
@@ -64,8 +66,9 @@ export class Arc {
    * @param  address [description]
    * @return         [description]
    */
-  public getBalance(address: Address) {
-    // web3 = new Web3(this.web3 )
+  public async getBalance(address: Address): Promise < number > {
+    const web3 = new Web3(this.web3Provider)
+    return await web3.eth.getBalance(address)
   }
   /**
    * Returns an observable that:
