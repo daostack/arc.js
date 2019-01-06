@@ -7,12 +7,12 @@ import {
   IProposalQueryOptions,
   IStake,
   IStakeQueryOptions,
-  IVote,
   IVoteQueryOptions,
   Proposal
 } from './proposal'
 import { Reward } from './reward'
 import { Address, ICommonQueryOptions, IStateful } from './types'
+import { IVote } from './vote'
 
 export interface IMemberState {
   address: Address
@@ -87,9 +87,9 @@ export class Member implements IStateful<IMemberState> {
   }
 
   public votes(options: IVoteQueryOptions = {}): Observable<IVote[]> {
-    throw new Error('not implemented')
-    // const dao = new DAO(this.dao)
-    // return dao.votes(options)
+    const dao = new DAO(this.dao.toString(), this.context)
+    options.member = this.id
+    return dao.votes(options)
   }
 }
 

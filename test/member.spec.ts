@@ -48,4 +48,16 @@ describe('Member', () => {
     expect(proposals.length).toBeGreaterThan(0)
     expect(proposals[0].id).toBe(proposalId)
   })
+
+  it('Member votes works', async () => {
+    const { Avatar, proposalId } = DAOstackMigration.migration('private').test
+
+    id = '0x40163b1a33965a2d41f1c2888cdd2ffec4b5fb25a5071846bfbece19c8e13a81'
+    const member = new Member(id, Avatar, arc)
+    const votes = await member.votes().pipe(first()).toPromise()
+    expect(votes.length).toBeGreaterThan(0)
+    const vote = votes[0]
+    expect(vote.proposalId).toBe(proposalId)
+    expect(vote.dao).toBe(Avatar.toLowerCase())
+  })
 })
