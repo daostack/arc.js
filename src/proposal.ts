@@ -1,6 +1,6 @@
 import gql from 'graphql-tag'
 import { Observable, of } from 'rxjs'
-import { flatMap, map } from 'rxjs/operators'
+import { switchMap, map } from 'rxjs/operators'
 
 import { Arc } from './arc'
 import { DAO } from './dao'
@@ -176,7 +176,7 @@ export class Proposal implements IStateful<IProposalState> {
 
   public votes(options: IVoteQueryOptions = {}): Observable < IVote[] > {
     return this.dao().pipe(
-      flatMap((dao) => {
+      switchMap((dao) => {
         options.proposal = this.id
         return dao.votes(options)
     }))
