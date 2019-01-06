@@ -1,5 +1,6 @@
 import gql from 'graphql-tag'
-import { Observable, of } from 'rxjs'
+import { Observable } from 'rxjs'
+import { flatMap, map } from 'rxjs/operators'
 import { Arc } from './arc'
 import { DAO } from './dao'
 
@@ -37,7 +38,7 @@ export class Member implements IStateful<IMemberState> {
    * @param dao address of the DAO
    * @param context the Arc object used
    */
-  constructor(public id: string, public dao: Address, public context: Arc) {
+  constructor(public id: string, public context: Arc) {
     const query = gql`
       {
         member (id: "${id}") {
@@ -70,14 +71,24 @@ export class Member implements IStateful<IMemberState> {
 
   }
 
+  public dao(): Observable<DAO> {
+    return this.state.pipe(
+      map((state) => {
+        return state.dao
+      })
+    )
+  }
+
   public rewards(): Observable<Reward[]> {
     throw new Error('not implemented')
   }
 
   public proposals(options: IProposalQueryOptions = {}): Observable<Proposal[]> {
-    const dao = new DAO(this.dao.toString(), this.context)
-    options.proposer = this.id
-    return dao.proposals(options)
+    return this.dao().pipe(
+      flatMap((dao) => {
+        options.proposer = this.id
+        return dao.proposals(options)
+    }))
   }
 
   public stakes(options: IStakeQueryOptions = {}): Observable<IStake[]> {
@@ -87,9 +98,11 @@ export class Member implements IStateful<IMemberState> {
   }
 
   public votes(options: IVoteQueryOptions = {}): Observable<IVote[]> {
-    const dao = new DAO(this.dao.toString(), this.context)
-    options.member = this.id
-    return dao.votes(options)
+    return this.dao().pipe(
+      flatMap((dao) => {
+        options.member = this.id
+        return dao.votes(options)
+    }))
   }
 }
 

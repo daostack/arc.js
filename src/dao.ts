@@ -78,7 +78,7 @@ export class DAO implements IStateful<IDAOState> {
         id
       }
     }`
-    const itemMap = (item: any): Member => new Member(item.id, this.address, this.context)
+    const itemMap = (item: any): Member => new Member(item.id, this.context)
     return this.context._getObservableList(query, 'members', itemMap) as Observable<Member[]>
   }
 

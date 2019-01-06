@@ -1,6 +1,6 @@
 import gql from 'graphql-tag'
 import { Observable, of } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { flatMap, map } from 'rxjs/operators'
 
 import { Arc } from './arc'
 import { DAO } from './dao'
@@ -175,12 +175,11 @@ export class Proposal implements IStateful<IProposalState> {
   }
 
   public votes(options: IVoteQueryOptions = {}): Observable < IVote[] > {
-    throw new Error('not implemented')
-    // return this.dao().pipe(
-    //   switchMap((dao) => {
-    //     return dao.votes({ ...options, proposalId: this.id })
-    //   })
-    // )
+    return this.dao().pipe(
+      flatMap((dao) => {
+        options.proposal = this.id
+        return dao.votes(options)
+    }))
   }
 
   public vote(outcome: ProposalOutcome): Operation < void > {
@@ -231,7 +230,7 @@ export interface IProposalQueryOptions extends ICommonQueryOptions {
 
 export interface IVoteQueryOptions extends ICommonQueryOptions {
   member?: Address
-  proposalId?: string
+  proposal?: string
   [key: string]: any
 }
 

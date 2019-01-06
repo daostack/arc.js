@@ -26,12 +26,12 @@ describe('Member', () => {
   })
 
   it('Member is instantiable', () => {
-    const member = new Member(id, addresses.Avatar, arc)
+    const member = new Member(id, arc)
     expect(member).toBeInstanceOf(Member)
   })
 
   it('Member state works', async () => {
-    const member = new Member(id, addresses.Avatar, arc)
+    const member = new Member(id, arc)
     const memberState = await member.state.pipe(first()).toPromise()
     expect(memberState.reputation).toEqual(1e21)
     expect(memberState.tokens).toEqual(1e21)
@@ -43,7 +43,7 @@ describe('Member', () => {
     const { Avatar, proposalId } = DAOstackMigration.migration('private').test
 
     id = '0x1cea1e112ec409762ab4795daead616b5a3acf72879303434a87cbcd3a1785b9'
-    const member = new Member(id, Avatar, arc)
+    const member = new Member(id, arc)
     const proposals = await member.proposals().pipe(first()).toPromise()
     expect(proposals.length).toBeGreaterThan(0)
     expect(proposals[0].id).toBe(proposalId)
@@ -53,7 +53,7 @@ describe('Member', () => {
     const { Avatar, proposalId } = DAOstackMigration.migration('private').test
 
     id = '0x40163b1a33965a2d41f1c2888cdd2ffec4b5fb25a5071846bfbece19c8e13a81'
-    const member = new Member(id, Avatar, arc)
+    const member = new Member(id, arc)
     const votes = await member.votes().pipe(first()).toPromise()
     expect(votes.length).toBeGreaterThan(0)
     const vote = votes[0]
