@@ -33,10 +33,11 @@ export class Member implements IStateful<IMemberState> {
 
   /**
    * [constructor description]
-   * @param address address of the user
-   * @param dao     address of the DAO
+   * @param id id of the member
+   * @param dao address of the DAO
+   * @param context the Arc object used
    */
-  constructor(public id: string, public context: Arc) {
+  constructor(public id: string, public dao: Address, public context: Arc) {
     const query = gql`
       {
         member (id: "${id}") {
@@ -74,9 +75,9 @@ export class Member implements IStateful<IMemberState> {
   }
 
   public proposals(options: IProposalQueryOptions = {}): Observable<Proposal[]> {
-    throw new Error('not implemented')
-    // const dao = new DAO(this.dao)
-    // return dao.proposals(options)
+    const dao = new DAO(this.dao.toString(), this.context)
+    options.proposer = this.id
+    return dao.proposals(options)
   }
 
   public stakes(options: IStakeQueryOptions = {}): Observable<IStake[]> {
