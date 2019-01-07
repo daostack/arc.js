@@ -102,19 +102,16 @@ export class Proposal implements IStateful<IProposalState> {
           }
           stakesFor
           stakesAgainst
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
+          preBoostedVoteRequiredPercentage
           boostedVotePeriodLimit
           preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
+          thresholdConstA
+          thresholdConstB
           quietEndingPeriod
-          proposingRepReward
+          proposingRepRewardConstA
+          proposingRepRewardConstB
           minimumStakingFee
           # votersReputationLossRatio FIXME
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
           voteOnBehalf
           beneficiary
           reputationReward
@@ -129,6 +126,7 @@ export class Proposal implements IStateful<IProposalState> {
     `
 
     const itemMap = (item: any) => {
+      console.log(item)
       if (item === null) {
         throw Error(`Could not find a Proposal with id '${id}'`)
       }
@@ -163,6 +161,7 @@ export class Proposal implements IStateful<IProposalState> {
       }
     }
 
+    console.log(query.loc.source.body)
     this.state = context._getObservableObject(query, 'proposal', itemMap) as Observable<IProposalState>
   }
 
