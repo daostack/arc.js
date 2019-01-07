@@ -1,6 +1,6 @@
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { switchMap, map } from 'rxjs/operators'
+import { map, switchMap } from 'rxjs/operators'
 import { Arc } from './arc'
 import { DAO } from './dao'
 
