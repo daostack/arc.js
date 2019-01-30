@@ -1,4 +1,4 @@
-import { first} from 'rxjs/operators'
+import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { Proposal, ProposalStage } from '../src/proposal'
 import { getArc,  getWeb3 } from './utils'
@@ -73,7 +73,7 @@ describe('Proposal', () => {
         ethReward: 10,
         executedAt: null,
         externalTokenReward: 10,
-        // id: '0xc31f2952787d52a41a2b2afd8844c6e295f1bed932a3a433542d4c420965028e',
+        nativeTokenReward: 10,
         preBoostedVotePeriodLimit: 259200,
         proposer: '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1',
         proposingRepReward: 5000000000,
@@ -84,7 +84,6 @@ describe('Proposal', () => {
         stakesAgainst: 0,
         stakesFor: 0,
         title: null,
-        nativeTokenReward: 10,
         url: null,
         votesAgainst: web3.utils.toWei('1000'),
         votesFor: web3.utils.toWei('1000'),
@@ -123,4 +122,5 @@ describe('Proposal', () => {
     const stakes = await proposal.stakes().pipe(first()).toPromise()
     expect(stakes.length).toEqual(0)
   })
+
 })

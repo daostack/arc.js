@@ -34,7 +34,6 @@ describe('Vote on a ContributionReward', () => {
   })
 
   it('throws a meaningful error if the proposal does not exist', async () => {
-
     const dao = new DAO(arc.contractAddresses.dao.Avatar, arc)
     // a non-existing proposal
     const proposal = new Proposal(
