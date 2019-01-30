@@ -24,7 +24,7 @@ export class Stake implements IStake {
     context: Arc,
     options: IStakeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable <IStake[]> {
+  ): Observable<IStake[]> {
 
     let where = ''
     let daoFilter: (r: any) => boolean

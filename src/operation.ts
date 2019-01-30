@@ -41,7 +41,7 @@ export function sendTransaction<T>(
   transaction: any,
   map: (receipt: web3receipt) => T,
   errorHandler: (error: Error) => Promise<Error> | Error = (error) => error
-): Operation < T > {
+): Operation<T> {
   const observable = Observable.create(async (observer: Observer<ITransactionUpdate<T>>) => {
     let transactionHash: string
     let result: any
