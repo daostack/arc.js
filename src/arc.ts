@@ -32,6 +32,7 @@ export class Arc {
     graphqlWsProvider: string
     web3HttpProvider?: string
     web3WsProvider?: string
+    defaultAccount?: Address // web3 default account
     ipfsProvider?: string
     contractAddresses?: IContractAddresses
   }) {
@@ -48,6 +49,10 @@ export class Arc {
 
     if (this.web3HttpProvider) {
       this.web3 = new Web3(Web3.givenProvider || this.web3WsProvider || this.web3HttpProvider)
+
+      if (options.defaultAccount) {
+        this.web3.eth.defaultAccount = options.defaultAccount
+      }
     }
     this.contractAddresses = options.contractAddresses || { base: {}, dao: {}}
 
