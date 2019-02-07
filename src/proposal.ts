@@ -20,6 +20,7 @@ export enum ProposalStage {
   Open,
   Boosted,
   QuietEndingPeriod,
+  Queued,
   Resolved
 }
 
@@ -230,6 +231,9 @@ export class Proposal implements IStateful<IProposalState> {
         case 'Boosted':
           proposalStage = ProposalStage.Boosted
           break
+        case 'Queued':
+          proposalStage = ProposalStage.Queued
+          break
         case 'QuietEndingPeriod':
           proposalStage = ProposalStage.QuietEndingPeriod
           break
@@ -318,7 +322,6 @@ export class Proposal implements IStateful<IProposalState> {
       (receipt: any) => {
         const event = receipt.events.VoteProposal
         if (!event) {
-          console.log(receipt)
           // for some reason, a transaction was mined but no error was raised before
           throw new Error(`Error voting: no VoteProposal event was found - ${Object.keys(receipt.events)}`)
         }
@@ -360,7 +363,7 @@ export class Proposal implements IStateful<IProposalState> {
     const stakeMethod = this.votingMachine().methods.stake(
       this.id,  // proposalId
       outcome, // a value between 0 to and the proposal number of choices.
-      amount // amount the reputation amount to stake with . if _amount == 0 it will use all staker reputation.
+      amount // amount the amount to stake with . if _amount == 0 it will use all staker reputation.
       // nullAddress
     )
 
@@ -369,7 +372,6 @@ export class Proposal implements IStateful<IProposalState> {
       (receipt: any) => { // map extracts Stake instance from receipt
         const event = receipt.events.Stake
         if (!event) {
-          console.log(receipt)
           // for some reason, a transaction was mined but no error was raised before
           throw new Error(`Error voting: no "Stake" event was found - ${Object.keys(receipt.events)}`)
         }
@@ -399,6 +401,7 @@ export class Proposal implements IStateful<IProposalState> {
           // staker has sufficient balance
           const defaultAccount = this.context.web3.eth.defaultAccount
           const balance = await stakingToken.methods.balanceOf(defaultAccount).call()
+
           if (Number(balance) < amount) {
             return new Error(`Staker has insufficient balance to stake ${amount} (balance is ${balance})`)
           }
