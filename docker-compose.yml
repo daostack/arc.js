@@ -28,14 +28,14 @@ services:
       - 5001:5001
 
   postgres:
-    image: postgres
+    image: daostack/subgraph-postgres:ganache-0.0.1-rc.11-v3-0.0.1-rc.10
     ports:
       - 9432:5432
     environment:
       POSTGRES_PASSWORD: 'letmein'
 
   ganache:
-    image: daostack/migration:0.0.1-rc.11-v2
+    image: daostack/migration:0.0.1-rc.11-v3
     ports:
       - 8545:8545
     command: >
