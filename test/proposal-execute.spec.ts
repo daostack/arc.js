@@ -27,7 +27,10 @@ describe('Proposal execute()', () => {
       periodLength: 12,
       periods: 5,
       reputationReward: toWei('1'),
-      type: 'ContributionReward'
+      type: 'ContributionReward',
+      title: 'title',
+      url: 'url',
+      description: 'description'
     }
     const response = await dao.createProposal(options).send()
     const proposalId = (response.result as any).id
