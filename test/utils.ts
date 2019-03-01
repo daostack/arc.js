@@ -136,10 +136,10 @@ export async function createAProposal(dao?: DAO) {
   if (!dao) {
     dao = await getTestDAO()
   }
-  const arc = await getArc()
 
   const options = {
     beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+    description: 'Description',
     ethReward: toWei('300'),
     externalTokenAddress: undefined,
     externalTokenReward: toWei('0'),
@@ -147,7 +147,9 @@ export async function createAProposal(dao?: DAO) {
     periodLength: 12,
     periods: 5,
     reputationReward: toWei('10'),
-    type: 'ContributionReward'
+    title: 'Proposal X',
+    type: 'ContributionReward',
+    url: 'http://some.url'
   }
 
   // collect the first 4 results of the observable in a a listOfUpdates array
