@@ -2,7 +2,8 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { Proposal, ProposalOutcome } from '../src/proposal'
 import { Stake } from '../src/stake'
-import { createAProposal, fromWei, getArc, getTestDAO, toWei, waitUntilTrue } from './utils'
+import { fromWei, toWei } from '../src/utils'
+import { createAProposal, getArc, getTestDAO, waitUntilTrue } from './utils'
 
 jest.setTimeout(10000)
 

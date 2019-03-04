@@ -11,13 +11,14 @@ import { Logger } from './logger'
 import { Address } from './types'
 
 const Web3 = require('web3')
+const web3utils = require('web3-utils')
 
 export function fromWei(amount: BN): string {
-  return Web3.utils.fromWei(amount, 'ether')
+  return web3utils.fromWei(amount, 'ether')
 }
 
 export function toWei(amount: string | number): BN {
-  return Web3.utils.toWei(amount.toString(), 'ether')
+  return web3utils.toWei(amount.toString(), 'ether')
 }
 
 export function createApolloClient(options: {
@@ -158,7 +159,7 @@ export function whereClause(options: any) {
 }
 
 export function isAddress(address: Address) {
-  if (!Web3.utils.isAddress(address)) {
+  if (!web3utils.isAddress(address)) {
     throw new Error(`Not a valid address: ${address}`)
   }
 }

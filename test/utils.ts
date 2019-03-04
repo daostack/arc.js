@@ -6,8 +6,7 @@ import { DAO } from '../src/dao'
 import Arc from '../src/index'
 import { Proposal } from '../src/proposal'
 import { Reputation } from '../src/reputation'
-
-const Web3 = require('web3')
+import { fromWei, toWei } from '../src/utils'
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
 export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/daostack'
@@ -30,14 +29,14 @@ const pks = [
   '0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773' // 9
 ]
 
-export function fromWei(amount: BN): string {
-  return Web3.utils.fromWei(amount, 'ether')
-}
-
-export function toWei(amount: string | number): BN {
-  return new BN(Web3.utils.toWei(amount.toString(), 'ether'))
-}
-
+// export function fromWei(amount: BN): string {
+//   return Web3.utils.fromWei(amount, 'ether')
+// }
+//
+// export function toWei(amount: string | number): BN {
+//   return new BN(Web3.utils.toWei(amount.toString(), 'ether'))
+// }
+//
 export function getContractAddresses(): IContractAddresses {
   const path = '@daostack/migration/migration.json'
   const addresses = require(path)

@@ -1,7 +1,8 @@
 import BN = require('bn.js')
 import { Arc } from '../src/arc'
 import { Proposal } from '../src/proposal'
-import { createAProposal, getArc, getTestDAO, toWei } from './utils'
+import { toWei } from '../src/utils'
+import { createAProposal, getArc, getTestDAO } from './utils'
 
 describe('Claim rewards', () => {
   let arc: Arc

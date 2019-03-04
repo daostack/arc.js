@@ -1,8 +1,8 @@
 import BN = require('bn.js')
-import { first, take } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { IProposalStage, IProposalState, Proposal, ProposalOutcome } from '../src/proposal'
-import { createAProposal, fromWei, getArc, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
+import { fromWei, toWei } from '../src/utils'
+import { createAProposal, getArc, getTestDAO, mineANewBlock, waitUntilTrue } from './utils'
 
 jest.setTimeout(10000)
 

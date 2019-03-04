@@ -1,7 +1,8 @@
 import Arc from '../src/index'
 import { Logger } from '../src/logger'
 import { Address } from '../src/types'
-import { fromWei, getArc, toWei, waitUntilTrue } from './utils'
+import { fromWei, toWei } from '../src/utils'
+import { getArc, waitUntilTrue } from './utils'
 
 Logger.setLevel(Logger.OFF)
 jest.setTimeout(10000)

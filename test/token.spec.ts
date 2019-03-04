@@ -3,7 +3,8 @@ import { first} from 'rxjs/operators'
 import { Arc, IContractAddresses } from '../src/arc'
 import { Token } from '../src/token'
 import { Address } from '../src/types'
-import { fromWei, getArc, getContractAddresses, toWei, waitUntilTrue } from './utils'
+import { fromWei, toWei } from '../src/utils'
+import { getArc, getContractAddresses, waitUntilTrue } from './utils'
 
 jest.setTimeout(10000)
 /**

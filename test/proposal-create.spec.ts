@@ -3,6 +3,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { Logger } from '../src/logger'
 import { IProposalStage, Proposal } from '../src/proposal'
+import { fromWei, toWei } from '../src/utils'
 import {
   fromWei,
   getArc,
