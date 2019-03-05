@@ -1,4 +1,4 @@
-import { first, take } from 'rxjs/operators'
+import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { Proposal, ProposalOutcome } from '../src/proposal'
