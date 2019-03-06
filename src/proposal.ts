@@ -461,7 +461,8 @@ export interface IProposalQueryOptions extends ICommonQueryOptions {
   stage?: IProposalStage
   orderBy?: ProposalQuerySortOptions
   // the options above should be ok for the current alchemy; will add more options as needed
-  executedAfter?: Date
+  executedat_gt?: Date
+  executedat_lt?: Date
   executedBefore?: Date
   [key: string]: any
 }

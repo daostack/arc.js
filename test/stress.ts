@@ -1,3 +1,8 @@
+/**
+ * Load tests for the subgraph.
+ * This test tries to break the websocket connectionsu un er load
+ */
+
 import BN = require('bn.js')
 import { first, take } from 'rxjs/operators'
 import { Arc } from '../src/arc'
@@ -5,7 +10,7 @@ import { DAO } from '../src/dao'
 import { IProposalStage, IProposalState, Proposal, ProposalOutcome } from '../src/proposal'
 import { createAProposal, fromWei, getArc, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
 
-jest.setTimeout(100000)
+jest.setTimeout(120000) // 120000 = 120 seconds  = 2 minutes
 
 describe('Stress test', () => {
   let arc: Arc
@@ -28,7 +33,6 @@ describe('Stress test', () => {
       reputationReward: toWei('10'),
       type: 'ContributionReward'
     }
-
     const response = await dao.createProposal(options).send()
     return response.result
   }
@@ -37,6 +41,7 @@ describe('Stress test', () => {
     const TIMES = 100
     const subscriptions = []
     const results: {[index: number]: any } = {}
+    console.log(`Creating ${TIMES} subscriptions to proposals`)
     for (let i = 0; i < TIMES; i++) {
       // console.log(`[${i + 1}/${TIMES}] subscribing to query`)
       results[i] = []
@@ -49,7 +54,7 @@ describe('Stress test', () => {
       // creates a proposal and checks if the subscription gets updated
       console.log(`Checking if ${i} is responding`)
       const proposal = await createProposal()
-      // await waitUntilTrue(() => results[i].length > 0)
+
       // wait until the proposal is indexed
       await  waitUntilTrue(() => {
         const proposalIds = results[i][results[i].length - 1].map((p: Proposal) => p.id)
@@ -67,7 +72,8 @@ describe('Stress test', () => {
   })
 
   it.only('many different queries', async () => {
-    const TIMES = 100
+    const TIMES = 300
+    console.log(`Creating ${TIMES} various subscriptions`)
     const subscriptions = []
     const results: {[index: number]: any } = {}
     for (let i = 0; i < TIMES; i++) {
@@ -85,7 +91,7 @@ describe('Stress test', () => {
       subscriptions[i] = dao.state().subscribe((then) => {
         results[index1].push(then)
       })
-
+      //
       i++
       results[i] = []
       const index2 = i
@@ -95,9 +101,9 @@ describe('Stress test', () => {
 
       i++
       results[i] = []
-      const proposal = await createProposal()
+      // const proposal = await createProposal()
       const index3 = i
-      subscriptions[i] = proposal.state().subscribe((then: IProposalState) => {
+      subscriptions[i] = Proposal.search({executedAt_gt: i}, arc).subscribe((then) => {
         results[index3].push(then)
       })
     }
@@ -115,12 +121,11 @@ describe('Stress test', () => {
     }
 
     await checkProposalSubscriptionIsResponsive(0)
-    await checkProposalSubscriptionIsResponsive(88)
-    await checkProposalSubscriptionIsResponsive(88)
-    await checkProposalSubscriptionIsResponsive(96)
+    // await checkProposalSubscriptionIsResponsive(88)
+    // await checkProposalSubscriptionIsResponsive(88)
+    // await checkProposalSubscriptionIsResponsive(96)
     await checkProposalSubscriptionIsResponsive(4)
     await checkProposalSubscriptionIsResponsive(12)
 
-    console.log('--------------------------------------------')
   })
 })
