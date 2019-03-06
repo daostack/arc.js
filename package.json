@@ -33,7 +33,7 @@
     "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
     "test": "jest --runInBand --forceExit",
     "test:watch": "jest --watch",
-    "test:stress": "jest --testRegex=\"test/stress.ts\"",
+    "test:stress": "jest --runInBand --forceExit --testRegex=\"test/stress.ts\"",
     "tslint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'"
   },
   "config": {

@@ -5,7 +5,7 @@ import { DAO } from '../src/dao'
 import { IProposalStage, IProposalState, Proposal, ProposalOutcome } from '../src/proposal'
 import { createAProposal, fromWei, getArc, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
 
-jest.setTimeout(10000)
+jest.setTimeout(100000)
 
 describe('Stress test', () => {
   let arc: Arc

@@ -5,7 +5,7 @@ import { DAO } from '../src/dao'
 import { IProposalStage, IProposalState, Proposal, ProposalOutcome } from '../src/proposal'
 import { createAProposal, fromWei, getArc, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
 
-jest.setTimeout(10000)
+jest.setTimeout(100000)
 
 describe('Stress test', () => {
   let arc: Arc
@@ -64,8 +64,7 @@ describe('Stress test', () => {
     await checkSubscriptionIsResponsive(3)
     await checkSubscriptionIsResponsive(12)
 
-    console.log('--------------------------------------------')
-  }, 20000)
+  })
 
   it.only('many different queries', async () => {
     const TIMES = 100
@@ -123,5 +122,5 @@ describe('Stress test', () => {
     await checkProposalSubscriptionIsResponsive(12)
 
     console.log('--------------------------------------------')
-  }, 30000)
+  })
 })
