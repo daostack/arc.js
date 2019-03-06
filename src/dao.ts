@@ -18,23 +18,6 @@ import { IVote, IVoteQueryOptions, Vote } from './vote'
 
 const Web3 = require('web3')
 
-export interface IDAOState {
-  address: Address // address of the avatar
-  memberCount: number
-  name: string
-  reputation: Reputation
-  reputationTotalSupply: BN,
-  token: Token,
-  tokenBalance: BN,
-  tokenName: string,
-  tokenSymbol: string,
-  tokenTotalSupply: BN,
-  externalTokenAddress: Address | undefined,
-  externalTokenBalance: BN | undefined,
-  externalTokenSymbol: string | undefined,
-  threshold: number
-}
-
 export class DAO implements IStateful<IDAOState> {
 
   constructor(public address: Address, public context: Arc) {
@@ -142,6 +125,23 @@ export class DAO implements IStateful<IDAOState> {
   public ethBalance(): Observable<BN> {
     return this.context.ethBalance(this.address)
   }
+}
+
+export interface IDAOState {
+  address: Address // address of the avatar
+  memberCount: number
+  name: string
+  reputation: Reputation
+  reputationTotalSupply: BN,
+  token: Token,
+  tokenBalance: BN,
+  tokenName: string,
+  tokenSymbol: string,
+  tokenTotalSupply: BN,
+  externalTokenAddress: Address | undefined,
+  externalTokenBalance: BN | undefined,
+  externalTokenSymbol: string | undefined,
+  threshold: number
 }
 
 export interface IDAOQueryOptions extends ICommonQueryOptions {

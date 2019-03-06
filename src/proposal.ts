@@ -13,77 +13,7 @@ import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { nullAddress } from './utils'
 import { IVote, IVoteQueryOptions, Vote } from './vote'
 
-export enum ProposalOutcome {
-  None,
-  Pass,
-  Fail
-}
-
-export enum IProposalStage {
-  ExpiredInQueue,
-  Executed,
-  Queued,
-  PreBoosted,
-  Boosted,
-  QuietEndingPeriod
-}
-
-export enum IExecutionState {
-  None,
-  QueueBarCrossed,
-  QueueTimeOut,
-  PreBoostedBarCrossed,
-  BoostedTimeOut,
-  BoostedBarCrossed
-}
-
-export interface IProposalState {
-  activationTime: number
-  beneficiary: Address
-  boostedAt: Date
-  boostedVotePeriodLimit: number
-  confidenceThreshold: number
-  createdAt: Date
-  dao: DAO
-  daoBountyConst: number
-  descriptionHash?: string
-  description?: string
-  ethReward: BN
-  executedAt: Date
-  externalTokenReward: BN
-  executionState: IExecutionState
-  expiresInQueueAt: Date
-  externalToken: Address
-  id: string
-  nativeTokenReward: BN
-  organizationId: string
-  periods: number
-  periodLength: number
-  paramsHash: string
-  preBoostedAt: Date
-  preBoostedVotePeriodLimit: number
-  proposer: Address
-  proposingRepReward: BN
-  queuedVoteRequiredPercentage: number
-  queuedVotePeriodLimit: number
-  quietEndingPeriodBeganAt: Date
-  reputationReward: BN
-  resolvedAt: Date|null
-  stage: IProposalStage
-  stakesFor: BN
-  stakesAgainst: BN
-  thresholdConst: number
-  title?: string
-  totalRepWhenExecuted: BN
-  url?: string
-  votesFor: BN
-  votesAgainst: BN
-  votingMachine: Address
-  winningOutcome: ProposalOutcome
-}
-
 export class Proposal implements IStateful<IProposalState> {
-
   /**
    * Proposal.create() creates a new proposal
    * @param  options cf. IProposalCreateOptions
@@ -158,6 +88,14 @@ export class Proposal implements IStateful<IProposalState> {
 
     return context.sendTransaction(createTransaction, map)
   }
+
+  /**
+   * Search for proposals
+   * @param  options            [description]
+   * @param  context            An instance of Arc
+   * @param  apolloQueryOptions Appollo query options, cf IApolloQueryOptions
+   * @return                    An Observable of lists of proposals
+   */
   public static search(
     options: IProposalQueryOptions,
     context: Arc,
@@ -543,4 +481,73 @@ export interface IProposalCreateOptions {
   title?: string
   type?: string
   url?: string
+}
+
+export enum ProposalOutcome {
+  None,
+  Pass,
+  Fail
+}
+
+export enum IProposalStage {
+  ExpiredInQueue,
+  Executed,
+  Queued,
+  PreBoosted,
+  Boosted,
+  QuietEndingPeriod
+}
+
+export enum IExecutionState {
+  None,
+  QueueBarCrossed,
+  QueueTimeOut,
+  PreBoostedBarCrossed,
+  BoostedTimeOut,
+  BoostedBarCrossed
+}
+
+export interface IProposalState {
+  activationTime: number
+  beneficiary: Address
+  boostedAt: Date
+  boostedVotePeriodLimit: number
+  confidenceThreshold: number
+  createdAt: Date
+  dao: DAO
+  daoBountyConst: number
+  descriptionHash?: string
+  description?: string
+  ethReward: BN
+  executedAt: Date
+  externalTokenReward: BN
+  executionState: IExecutionState
+  expiresInQueueAt: Date
+  externalToken: Address
+  id: string
+  nativeTokenReward: BN
+  organizationId: string
+  periods: number
+  periodLength: number
+  paramsHash: string
+  preBoostedAt: Date
+  preBoostedVotePeriodLimit: number
+  proposer: Address
+  proposingRepReward: BN
+  queuedVoteRequiredPercentage: number
+  queuedVotePeriodLimit: number
+  quietEndingPeriodBeganAt: Date
+  reputationReward: BN
+  resolvedAt: Date|null
+  stage: IProposalStage
+  stakesFor: BN
+  stakesAgainst: BN
+  thresholdConst: number
+  title?: string
+  totalRepWhenExecuted: BN
+  url?: string
+  votesFor: BN
+  votesAgainst: BN
+  votingMachine: Address
+  winningOutcome: ProposalOutcome
 }
