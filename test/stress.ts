@@ -65,7 +65,7 @@ describe('Stress test', () => {
     await checkSubscriptionIsResponsive(12)
 
     console.log('--------------------------------------------')
-  }, 100000)
+  }, 20000)
 
   it.only('many different queries', async () => {
     const TIMES = 100
@@ -123,5 +123,5 @@ describe('Stress test', () => {
     await checkProposalSubscriptionIsResponsive(12)
 
     console.log('--------------------------------------------')
-  }, 100000)
+  }, 30000)
 })
