@@ -71,7 +71,7 @@ describe('Stress test', () => {
 
   })
 
-  it.only('many different queries', async () => {
+  it('many different queries', async () => {
     const TIMES = 300
     console.log(`Creating ${TIMES} various subscriptions`)
     const subscriptions = []
