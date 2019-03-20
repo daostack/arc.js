@@ -1,6 +1,6 @@
 import { first} from 'rxjs/operators'
 import { Arc } from '../src/arc'
-import { ProposalOutcome} from '../src/proposal'
+import { IProposalOutcome} from '../src/proposal'
 import { Stake } from '../src/stake'
 import { createAProposal, getArc, toWei, waitUntilTrue } from './utils'
 
@@ -17,7 +17,7 @@ describe('Stake', () => {
 
   it('Stake is instantiable', () => {
     const stake = new Stake('0x1234id', '0x124staker', new Date(),
-      ProposalOutcome.Fail, toWei('300'), '0x12445proposalId')
+      IProposalOutcome.Fail, toWei('300'), '0x12445proposalId')
     expect(stake).toBeInstanceOf(Stake)
   })
 
@@ -30,7 +30,7 @@ describe('Stake', () => {
     const stakeAmount = toWei('18')
     await proposal.stakingToken().mint(arc.web3.eth.defaultAccount, stakeAmount).send()
     await arc.approveForStaking(stakeAmount).send()
-    await proposal.stake(ProposalOutcome.Pass, stakeAmount).send()
+    await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
 
     // wait until we have the we received the stake update
     await waitUntilTrue(() => stakes.length > 0 && stakes[stakes.length - 1].length > 0)
@@ -45,6 +45,7 @@ describe('Stake', () => {
     result = await Stake.search({proposal: proposal.id}, arc)
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
+    expect(result[0].outcome).toEqual(IProposalOutcome.Pass)
 
     result = await Stake
       .search({staker: stake.staker, proposal: proposal.id}, arc)

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Arc } from './arc'
 import { Address, ICommonQueryOptions, IStateful } from './types'
+import { isAddress } from './utils'
 
 export interface IRewardState {
   id: string
@@ -15,10 +16,10 @@ export interface IRewardState {
   daoBountyForStaker: BN,
   reputationForProposer: BN,
   tokenAddress: Address,
-  redeemedReputationForVoter: BN,
-  redeemedTokensForStaker: BN,
-  redeemedReputationForProposer: BN,
-  redeemedDaoBountyForStaker: BN
+  reputationForVoterRedeemedAt: BN,
+  tokensForStakerRedeemedAt: BN,
+  reputationForProposerRedeemedAt: BN,
+  daoBountyForStakerRedeemedAt: BN
 
 }
 
@@ -46,6 +47,7 @@ export class Reward implements IStateful<IRewardState> {
     for (const key of Object.keys(options)) {
       if (options[key] !== undefined) {
         if (key === 'beneficiary') {
+          isAddress(options[key])
           options[key] = options[key].toLowerCase()
         }
         where += `${key}: "${options[key] as string}"\n`
@@ -60,18 +62,18 @@ export class Reward implements IStateful<IRewardState> {
           id
         }
         beneficiary
+        daoBountyForStaker
         proposal {
            id
         }
         reputationForVoter
-        tokensForStaker
-        daoBountyForStaker
+        reputationForVoterRedeemedAt
         reputationForProposer
+        reputationForProposerRedeemedAt
         tokenAddress
-        redeemedReputationForVoter
-        redeemedTokensForStaker
-        redeemedReputationForProposer
-        redeemedDaoBountyForStaker
+        tokensForStaker
+        tokensForStakerRedeemedAt
+        daoBountyForStakerRedeemedAt
       }
     } `
 
@@ -80,17 +82,17 @@ export class Reward implements IStateful<IRewardState> {
         beneficiary: item.beneficiary,
         createdAt: item.createdAt,
         daoBountyForStaker: new BN(item.daoBountyForStaker),
+        daoBountyForStakerRedeemedAt: new BN(item.daoBountyForStakerRedeemedAt),
         id: item.id,
         // proposal: new Proposal(item.proposal.id, item.dao.id, context),
         proposalId: item.proposal.id,
-        redeemedDaoBountyForStaker: new BN(item.redeemedDaoBountyForStaker),
-        redeemedReputationForProposer: new BN(item.redeemedReputationForProposer),
-        redeemedReputationForVoter: new BN(item.redeemedReputationForVoter),
-        redeemedTokensForStaker: new BN(item.redeemedTokensForStaker),
         reputationForProposer: new BN(item.reputationForProposer),
+        reputationForProposerRedeemedAt: new BN(item.reputationForProposerRedeemedAt),
         reputationForVoter: new BN(item.reputationForVoter),
+        reputationForVoterRedeemedAt: new BN(item.reputationForVoterRedeemedAt),
         tokenAddress: item.tokenAddress,
-        tokensForStaker: new BN(item.tokensForStaker)
+        tokensForStaker: new BN(item.tokensForStaker),
+        tokensForStakerRedeemedAt: new BN(item.tokensForStakerRedeemedAt)
       }
     }
 

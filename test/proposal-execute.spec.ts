@@ -38,7 +38,7 @@ describe('Proposal execute()', () => {
     let proposalIsIndexed: boolean = false
     const proposalStates: IProposalState[] = []
     proposal.state().subscribe(
-      (next: any) => {
+      (next: IProposalState) => {
         if (next) {
           proposalIsIndexed = true
         }
@@ -54,10 +54,10 @@ describe('Proposal execute()', () => {
     // calling execute in this stage has no effect on the stage
     await proposal.execute().send()
 
-    await proposal.vote(ProposalOutcome.Pass).send()
+    await proposal.vote(IProposalOutcome.Pass).send()
     // let's vote for the proposal with accounts[1]
     proposal.context.web3.eth.accounts.defaultAccount = accounts[1]
-    await proposal.vote(ProposalOutcome.Pass).send()
+    await proposal.vote(IProposalOutcome.Pass).send()
     proposal.context.web3.eth.accounts.defaultAccount = accounts[0]
 
     // wait until the votes have been counted
@@ -73,7 +73,7 @@ describe('Proposal execute()', () => {
     await proposal.stakingToken().mint(accounts[0].address, toWei('1000')).send()
     await proposal.stakingToken().approveForStaking(toWei('1000')).send()
 
-    await proposal.stake(ProposalOutcome.Pass, toWei('200')).send()
+    await proposal.stake(IProposalOutcome.Pass, toWei('200')).send()
     await waitUntilTrue(async () => {
       proposalState = proposalStates[proposalStates.length - 1]
       return proposalState.stakesFor.gt(new BN(0))

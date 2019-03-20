@@ -13,7 +13,7 @@ import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { nullAddress } from './utils'
 import { IVote, IVoteQueryOptions, Vote } from './vote'
 
-export enum ProposalOutcome {
+export enum IProposalOutcome {
   None,
   Pass,
   Fail
@@ -38,6 +38,7 @@ export enum IExecutionState {
 }
 
 export interface IProposalState {
+  accountsWithUnclaimedRewards: Address[],
   activationTime: number
   beneficiary: Address
   boostedAt: Date
@@ -78,8 +79,9 @@ export interface IProposalState {
   url?: string
   votesFor: BN
   votesAgainst: BN
+  votesCount: number
   votingMachine: Address
-  winningOutcome: ProposalOutcome
+  winningOutcome: IProposalOutcome
 }
 
 export class Proposal implements IStateful<IProposalState> {
@@ -214,6 +216,7 @@ export class Proposal implements IStateful<IProposalState> {
       {
         proposal(id: "${this.id}") {
           id
+          accountsWithUnclaimedRewards
           activationTime
           boostedAt
           boostedVotePeriodLimit
@@ -282,6 +285,7 @@ export class Proposal implements IStateful<IProposalState> {
       }
 
       return {
+        accountsWithUnclaimedRewards: item.accountsWithUnclaimedRewards,
         activationTime: Number(item.activationTime),
         beneficiary: item.contributionReward.beneficiary,
         boostedAt: Number(item.boostedAt),
@@ -321,9 +325,10 @@ export class Proposal implements IStateful<IProposalState> {
         totalRepWhenExecuted: new BN(item.totalRepWhenExecuted),
         url: item.url,
         votesAgainst: new BN(item.votesAgainst),
+        votesCount: item.votes.length,
         votesFor: new BN(item.votesFor),
         votingMachine: item.votingMachine,
-        winningOutcome: item.winningOutcome
+        winningOutcome: IProposalOutcome[item.winningOutcome] as any
       }
     }
 
@@ -349,12 +354,12 @@ export class Proposal implements IStateful<IProposalState> {
 
   /**
    * Vote for this proposal
-   * @param  outcome one of ProposalOutcome.Pass (0) or ProposalOutcome.FAIL (1)
+   * @param  outcome one of IProposalOutcome.Pass (0) or IProposalOutcome.FAIL (1)
    * @param  amount the amount of reputation to vote with. Defaults to 0 - in that case,
    *  all the sender's rep will be used
    * @return  an observable Operation<Vote>
    */
-  public vote(outcome: ProposalOutcome, amount: number = 0): Operation<Vote|null> {
+  public vote(outcome: IProposalOutcome, amount: number = 0): Operation<Vote|null> {
 
     const votingMachine = this.votingMachine()
 
@@ -409,7 +414,7 @@ export class Proposal implements IStateful<IProposalState> {
     return Stake.search(options, this.context)
   }
 
-  public stake(outcome: ProposalOutcome, amount: BN ): Operation<Stake> {
+  public stake(outcome: IProposalOutcome, amount: BN ): Operation<Stake> {
     const stakeMethod = this.votingMachine().methods.stake(
       this.id,  // proposalId
       outcome, // a value between 0 to and the proposal number of choices.
