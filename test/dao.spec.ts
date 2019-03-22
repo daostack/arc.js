@@ -3,7 +3,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { fromWei, toWei } from '../src/utils'
-import { getArc, getTestDAO } from './utils'
+import { getTestDAO, newArc } from './utils'
 
 /**
  * DAO test
@@ -12,7 +12,7 @@ describe('DAO', () => {
   let arc: Arc
 
   beforeAll(async () => {
-    arc = getArc()
+    arc = newArc()
 })
 
   it('DAO is instantiable', () => {

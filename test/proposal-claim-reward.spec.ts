@@ -2,13 +2,13 @@ import BN = require('bn.js')
 import { Arc } from '../src/arc'
 import { Proposal } from '../src/proposal'
 import { toWei } from '../src/utils'
-import { createAProposal, getArc, getTestDAO } from './utils'
+import { createAProposal, getTestDAO, newArc } from './utils'
 
 describe('Claim rewards', () => {
   let arc: Arc
 
   beforeAll(async () => {
-    arc = getArc()
+    arc = newArc()
   })
 
   it('works ', async () => {
