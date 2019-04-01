@@ -1,3 +1,4 @@
+import BN = require('bn.js')
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { IProposalOutcome, Proposal } from '../src/proposal'
@@ -16,7 +17,6 @@ describe('Stake on a ContributionReward', () => {
     arc = newArc()
     web3 = arc.web3
     accounts = web3.eth.accounts.wallet
-    web3.eth.defaultAccount = accounts[0].address
   })
 
   it('works and gets indexed', async () => {
@@ -25,12 +25,13 @@ describe('Stake on a ContributionReward', () => {
     const proposal = await createAProposal(dao)
     const stakingToken =  await proposal.stakingToken()
 
-    // apporve the spend, for staking
-    const defaultAccount = web3.eth.defaultAccount
-    await stakingToken.mint(defaultAccount, toWei('10000')).send()
+    // const defaultAccount = web3.eth.defaultAccount
+    // await stakingToken.mint(defaultAccount, toWei('10000')).send()
+
+    // approve the spend, for staking
     await stakingToken.approveForStaking(toWei('100')).send()
 
-    const stake = await proposal.stake(IProposalOutcome.Pass, toWei('100')).send()
+    const stake = await proposal.stake(IProposalOutcome.Pass, new BN(100)).send()
 
     expect(stake.result).toMatchObject({
       outcome : IProposalOutcome.Pass

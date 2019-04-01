@@ -9,7 +9,7 @@ import { Logger } from './logger'
 import { Operation, sendTransaction, web3receipt } from './operation'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
-import { createApolloClient, getWeb3Options, isAddress } from './utils'
+import { createApolloClient, getWeb3Options, isAddress, zenToRxjsObservable } from './utils'
 const IPFSClient = require('ipfs-http-client')
 const Web3 = require('web3')
 
@@ -165,32 +165,36 @@ export class Arc {
       Logger.debug(query.loc.source.body)
 
       if (!apolloQueryOptions.fetchPolicy) {
-        // apolloQueryOptions.fetchPolicy = 'cache-and-network'
         apolloQueryOptions.fetchPolicy = 'network-only'
       }
-
-      // queryPromise sends a query and featches the results
-      const queryPromise: Promise<ApolloQueryResult<{[key: string]: object[]}>> = this.apolloClient.query(
-        { query, ...apolloQueryOptions })
 
       // subscriptionQuery subscribes to get notified of updates to the query
       const subscriptionQuery = gql`
           subscription ${query}
         `
       // subscribe
-      const zenObservable: ZenObservable<object[]> = this.apolloClient.subscribe<object[]>({ query: subscriptionQuery })
-      // convert the zenObservable returned by appolloclient to an rx.js.Observable
-      const subscriptionObservable = Observable.create((obs: Observer<any>) => {
-          const subscription = zenObservable.subscribe(obs)
-          return () => subscription.unsubscribe()
-        })
+      const zenObservable: ZenObservable<object[]> = this.apolloClient.subscribe<object[]>({
+        fetchPolicy: 'network-only',
+        query: subscriptionQuery
+       })
+      zenObservable.subscribe((next: any) => {
+          this.apolloClient.writeQuery({
+            data: next.data,
+            query
+          })
+      })
 
-      // concatenate the two queries: first the simple fetch result, then the updates from the subscription
-      const sub = from(queryPromise)
+      const sub = zenToRxjsObservable(
+        this.apolloClient.watchQuery({
+          fetchPolicy: 'cache-and-network',
+          fetchResults: true,
+          query
+        })
+      )
         .pipe(
-          concat(subscriptionObservable)
-        )
-        .pipe(
+          filter((r: ApolloQueryResult<any>) => {
+            return !r.loading
+          }), // filter empty results
           catchError((err: Error) => {
             throw Error(`${err.name}: ${err.message}\n${query.loc.source.body}`)
           })
@@ -227,7 +231,9 @@ export class Arc {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
     return this.getObservable(query, apolloQueryOptions).pipe(
       map((r: ApolloQueryResult<any>) => {
-        if (!r.data[entity]) { throw Error(`Could not find entity "${entity}" in ${Object.keys(r.data)}`)}
+        if (!r.data[entity]) {
+          throw Error(`Could not find entity "${entity}" in ${Object.keys(r.data)}`)
+        }
         return r.data[entity]
       }),
       map((rs: object[]) => rs.map(itemMap))
@@ -381,6 +387,7 @@ export class Arc {
     this.web3.eth.accounts.wallet[0] = address
     this.web3.eth.defaultAccount = address
   }
+
   public approveForStaking(amount: BN) {
     return this.GENToken().approveForStaking(amount)
   }
@@ -413,6 +420,7 @@ export class Arc {
   ) {
     return sendTransaction(transaction, mapToObject, errorHandler, this)
   }
+
   public sendQuery(query: any) {
     const queryPromise = this.apolloClient.query({ query })
     return queryPromise

@@ -69,11 +69,15 @@ describe('Reputation', () => {
   })
   it('mint() throws a meaningful error if the sender is not the contract owner', async () => {
     const reputation = new Reputation(addresses.test.Reputation, arc)
-    expect(reputation.mint(accounts[3].address, toWei(1)).send()).rejects.toThrow(
+    await expect(reputation.mint(accounts[3].address, toWei(1)).send()).rejects.toThrow(
       /is not the owner/i
     )
   })
-  it.skip('reputationOf throws a meaningful error if an invalid address is provided', async () => {
-    // write this test
+
+  it('reputationOf throws a meaningful error if an invalid address is provided', async () => {
+    const reputation = new Reputation(addresses.test.Reputation, arc)
+    await expect(() => reputation.reputationOf('0xInvalidAddress')).toThrow(
+      /not a valid address/i
+    )
   })
 })
