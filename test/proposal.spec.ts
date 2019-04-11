@@ -2,7 +2,8 @@ import BN = require('bn.js')
 import { first} from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { IExecutionState, IProposalOutcome, IProposalStage, IProposalState, Proposal  } from '../src/proposal'
-import { createAProposal, fromWei, newArc, toWei, waitUntilTrue} from './utils'
+import { fromWei, toWei } from '../src/utils'
+import { createAProposal, newArc, waitUntilTrue} from './utils'
 const DAOstackMigration = require('@daostack/migration')
 
 jest.setTimeout(10000)
