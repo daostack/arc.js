@@ -5,7 +5,6 @@ version: "3"
 services:
   graph-node:
     image: graphprotocol/graph-node:latest@sha256:c3a539c724a997154037fa80f00fdb9e5e7ab294f2de7494cd95a61d829626d1
-
     ports:
       - 8000:8000
       - 8001:8001
@@ -24,20 +23,18 @@ services:
       GRAPH_LOG: "graph.log"
 
   ipfs:
-    image: daostack/subgraph-ipfs:ganache-0.0.1-rc.14-v4-0.0.6
+    image: daostack/subgraph-ipfs:ganache-0.0.1-rc.16-v0-0.0.9
     ports:
       - 5001:5001
 
   postgres:
-    image: daostack/subgraph-postgres:ganache-0.0.1-rc.14-v4-0.0.6
+    image: daostack/subgraph-postgres:ganache-0.0.1-rc.16-v0-0.0.9
     ports:
       - 9432:5432
     environment:
       POSTGRES_PASSWORD: 'letmein'
 
   ganache:
-    image: daostack/migration:0.0.1-rc.14-v4
+    image: daostack/migration:0.0.1-rc.16-v0
     ports:
       - 8545:8545
-    command: >
-      --gasLimit 8000000

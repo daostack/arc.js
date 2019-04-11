@@ -95,8 +95,9 @@ describe('Token', () => {
     const amount = toWei('31415')
     await token.approveForStaking(amount).send()
     let allowances: any[] = []
+    const genesisProtocol = arc.getContract('GenesisProtocol')
 
-    token.allowances({ owner: arc.web3.eth.defaultAccount}).subscribe(
+    token.allowances({ owner: arc.web3.eth.defaultAccount, spender: genesisProtocol.options.address}).subscribe(
       (next: any) => allowances = next
     )
     await waitUntilTrue(() => allowances.length > 0 && allowances[0].amount.gte(amount))
