@@ -23,7 +23,7 @@ describe('Proposal', () => {
     expect(proposal).toBeInstanceOf(Proposal)
   })
 
-  it('get list of proposals', async () => {
+  it.only('get list of proposals', async () => {
     const { Avatar, queuedProposalId } = DAOstackMigration.migration('private').test
     const dao = arc.dao(Avatar.toLowerCase())
     const proposals = dao.proposals()

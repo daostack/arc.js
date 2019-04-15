@@ -1,7 +1,9 @@
+import { ApolloQueryResult } from 'apollo-client'
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
+import { map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { Logger } from './logger'
@@ -10,7 +12,7 @@ import { IRewardQueryOptions, IRewardState, Reward } from './reward'
 import { IStake, IStakeQueryOptions, Stake } from './stake'
 import { Token } from './token'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
-import { nullAddress, realMathToNumber } from './utils'
+import { isAddress, nullAddress, realMathToNumber } from './utils'
 import { IVote, IVoteQueryOptions, Vote } from './vote'
 
 export enum IProposalOutcome {
@@ -146,61 +148,77 @@ export class Proposal implements IStateful<IProposalState> {
       return transaction
     }
 
-    const map = (receipt: any) => {
+    const mapResult = (receipt: any) => {
       const proposalId = receipt.events.NewContributionProposal.returnValues._proposalId
       return new Proposal(proposalId, options.dao as string, context)
     }
 
-    return context.sendTransaction(createTransaction, map)
+    return context.sendTransaction(createTransaction, mapResult)
   }
   public static search(
     options: IProposalQueryOptions,
     context: Arc,
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Proposal[]> {
+  ): Observable < Proposal[] > {
     let where = ''
-    for (const key of Object.keys(options)) {
-      if (key === 'stage' && options[key] !== undefined) {
+    const dao = options.dao as Address
+    isAddress(dao)
+    for (const k of Object.keys(options)) {
+      const key: keyof IProposalQueryOptions = k as keyof IProposalQueryOptions
+      if (key === 'dao') {
+        // the dao is the root of the query
+      } else if (key === 'stage' && options[key] !== undefined) {
         where += `stage: "${IProposalStage[options[key] as IProposalStage]}"\n`
-      } else if (key === 'stage_in' && Array.isArray(options[key])) {
-        const stageValues = options[key].map((stage: number) => '"' + IProposalStage[stage as IProposalStage] + '"')
+      } else if (key === 'stage_in' && options[key] && Array.isArray(options[key])) {
+        const stageValues = (options[key] as IProposalStage[])
+          .map((stage: number) => '"' + IProposalStage[stage as IProposalStage] + '"')
         where += `stage_in: [${stageValues.join(',')}]\n`
       } else if (Array.isArray(options[key])) {
         // Support for operators like _in
-        const values = options[key].map((value: number) => '"' + value + '"')
+        const values = (options[key] as any[]).map((value: number) => '"' + value + '"')
         where += `${key}: [${values.join(',')}]\n`
-      } else {
-
-        if (key === 'proposer' || key === 'beneficiary' || key === 'dao') {
+      } else if (key === 'proposer' || key === 'beneficiary') {
           where += `${key}: "${(options[key] as string).toLowerCase()}"\n`
-        } else {
-          where += `${key}: "${options[key] as string}"\n`
-
-        }
+      } else {
+        where += `${key}: "${options[key] as string}"\n`
       }
     }
 
     // TODO: we only manage contributionReward proposals
-    where += `contributionReward_not: null`
+    // wait for https://github.com/daostack/subgraph/issues/182 to be resolved!
+    // where += `contributionReward_not: null`
+    console.log(options)
+
+    if (where) {
+      where = `(where: { $where })`
+    }
 
     const query = gql`
       {
-        proposals(where: {
-          ${where}
-        }) {
-          id
-          dao {
+        dao(id: "${dao.toLowerCase()}") {
+          proposals
+            ${where}
+          {
             id
+            dao {
+              id
+            }
           }
         }
       }
     `
 
-    return context._getObservableList(
-      query,
-      (r: any) => new Proposal(r.id, r.dao.id, context),
-      apolloQueryOptions
-    ) as Observable<Proposal[]>
+    const itemMap = (r: any) => new Proposal(r.id, dao.toLowerCase(), context)
+
+    return context.getObservable(query, apolloQueryOptions).pipe(
+      map((r: ApolloQueryResult<any>) => {
+        if (!r.data.dao) {
+          throw Error(`Could not find entity 'dao' in ${Object.keys(r.data)}`)
+        }
+        return r.data.dao.proposals
+      }),
+      map((rs: object[]) => rs.map(itemMap))
+    )
   }
   /**
    * `state` is an observable of the proposal state
@@ -208,13 +226,13 @@ export class Proposal implements IStateful<IProposalState> {
   public context: Arc
   public dao: DAO
 
-  constructor(public id: string, public daoAddress: Address, context: Arc) {
+constructor(public id: string, public daoAddress: Address, context: Arc) {
     this.id = id
     this.context = context
     this.dao = new DAO(daoAddress, context)
   }
 
-  public state(): Observable<IProposalState> {
+  public state(): Observable < IProposalState > {
     const query = gql`
       {
         proposal(id: "${this.id}") {
@@ -381,7 +399,7 @@ export class Proposal implements IStateful<IProposalState> {
     return this.context.getContract('Redeemer')
   }
 
-  public votes(options: IVoteQueryOptions = {}): Observable<IVote[]> {
+  public votes(options: IVoteQueryOptions = {}): Observable < IVote[] > {
     options.proposal = this.id
     return Vote.search(options, this.context)
   }
@@ -393,7 +411,7 @@ export class Proposal implements IStateful<IProposalState> {
    *  all the sender's rep will be used
    * @return  an observable Operation<Vote>
    */
-  public vote(outcome: IProposalOutcome, amount: number = 0): Operation<Vote|null> {
+  public vote(outcome: IProposalOutcome, amount: number = 0): Operation < Vote | null > {
 
     const votingMachine = this.votingMachine()
 
@@ -441,12 +459,12 @@ export class Proposal implements IStateful<IProposalState> {
     return new Token(this.context.getContract('GEN').options.address, this.context)
   }
 
-  public stakes(options: IStakeQueryOptions = {}): Observable<IStake[]> {
+  public stakes(options: IStakeQueryOptions = {}): Observable < IStake[] > {
     options.proposal = this.id
     return Stake.search(options, this.context)
   }
 
-  public stake(outcome: IProposalOutcome, amount: BN ): Operation<Stake> {
+  public stake(outcome: IProposalOutcome, amount: BN ): Operation < Stake > {
     const stakeMethod = this.votingMachine().methods.stake(
       this.id,  // proposalId
       outcome, // a value between 0 to and the proposal number of choices.
@@ -506,7 +524,7 @@ export class Proposal implements IStateful<IProposalState> {
     return this.context.sendTransaction(stakeMethod, map, errorHandler)
   }
 
-  public rewards(options: IRewardQueryOptions = {}): Observable<IRewardState[]> {
+  public rewards(options: IRewardQueryOptions = {}): Observable < IRewardState[] > {
     options.proposal = this.id
     return Reward.search(options, this.context)
   }
@@ -518,7 +536,7 @@ export class Proposal implements IStateful<IProposalState> {
    * @param  beneficiary Addresss of the beneficiary, optional, defaults to the defaultAccount
    * @return  an Operation
    */
-  public claimRewards(beneficiary?: Address): Operation<boolean> {
+  public claimRewards(beneficiary ?: Address): Operation < boolean > {
     // const transaction = this.votingMachine().methods.redeem(this.id, account)
     if (!beneficiary) {
       beneficiary = this.context.web3.eth.defaultAccount
@@ -531,7 +549,7 @@ export class Proposal implements IStateful<IProposalState> {
     return this.context.sendTransaction(transaction, () => true)
   }
 
-  public execute(): Operation<any> {
+  public execute(): Operation < any > {
     const transaction = this.votingMachine().methods.execute(this.id)
     const map = (receipt: any) => {
       if (Object.keys(receipt.events).length  === 0) {
@@ -579,15 +597,16 @@ enum ProposalQuerySortOptions {
 
 export interface IProposalQueryOptions extends ICommonQueryOptions {
   active?: boolean
+  beneficiary?: Address
   boosted?: boolean
+  dao?: Address
   proposer?: Address
   proposalId?: string
   stage?: IProposalStage
+  stage_in?: IProposalStage[]
   orderBy?: ProposalQuerySortOptions
-  // the options above should be ok for the current alchemy; will add more options as needed
   executedAfter?: Date
   executedBefore?: Date
-  [key: string]: any
 }
 
 export interface IProposalCreateOptions {
