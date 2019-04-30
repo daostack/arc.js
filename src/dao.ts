@@ -49,7 +49,7 @@ export class DAO implements IStateful<IDAOState> {
         nativeReputation { id, totalSupply }
         nativeToken { id, name, symbol, totalSupply }
         membersCount
-        members (where: {address:"${this.address}"}) {
+        members {
          tokens
          reputation
         }

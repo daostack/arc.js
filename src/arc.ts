@@ -96,6 +96,14 @@ export class Arc {
       {
         daos {
           id
+          name
+          nativeReputation { id, totalSupply }
+          nativeToken { id, name, symbol, totalSupply }
+          membersCount
+          members {
+           tokens
+           reputation
+          }
         }
       }
     `
@@ -173,7 +181,7 @@ export class Arc {
       Logger.debug(query.loc.source.body)
 
       if (!apolloQueryOptions.fetchPolicy) {
-        apolloQueryOptions.fetchPolicy = 'network-only'
+        apolloQueryOptions.fetchPolicy = 'cache-first'
       }
 
       // subscriptionQuery subscribes to get notified of updates to the query
@@ -182,7 +190,7 @@ export class Arc {
         `
       // subscribe
       const zenObservable: ZenObservable<object[]> = this.apolloClient.subscribe<object[]>({
-        fetchPolicy: 'network-only',
+        fetchPolicy: 'cache-first',
         query: subscriptionQuery
        })
       zenObservable.subscribe((next: any) => {
@@ -194,7 +202,7 @@ export class Arc {
 
       const sub = zenToRxjsObservable(
         this.apolloClient.watchQuery({
-          fetchPolicy: 'cache-and-network',
+          fetchPolicy: 'cache-first',
           fetchResults: true,
           query
         })
