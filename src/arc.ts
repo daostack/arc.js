@@ -10,6 +10,7 @@ import { Operation, sendTransaction, web3receipt } from './operation'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { createApolloClient, getWeb3Options, isAddress, zenToRxjsObservable } from './utils'
+import { Reputation } from './reputation';
 const IPFSClient = require('ipfs-http-client')
 const Web3 = require('web3')
 
@@ -103,6 +104,31 @@ export class Arc {
       query,
       (r: any) => new DAO(r.id, this)
     ) as Observable<DAO[]>
+  }
+
+  /**
+   * [reputation description]
+   * @param  address address of the reputation Token
+   * @return an instance of a Reputation
+   */
+  public reputation(address: Address): Reputation {
+    isAddress(address)
+    return new Reputation(address, this)
+  }
+
+  public reputations(): Observable < Reputation[] > {
+    const query = gql`
+      {
+        reputationContracts {
+          id,
+          address
+        }
+      }
+    `
+    return this._getObservableList(
+      query,
+      (r: any) => new Reputation(r.address, this)
+    ) as Observable<Reputation[]>
   }
 
   public ethBalance(owner: Address): Observable<BN> {
