@@ -7,10 +7,10 @@ import { catchError, filter, map } from 'rxjs/operators'
 import { DAO } from './dao'
 import { Logger } from './logger'
 import { Operation, sendTransaction, web3receipt } from './operation'
+import { Reputation } from './reputation'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { createApolloClient, getWeb3Options, isAddress, zenToRxjsObservable } from './utils'
-import { Reputation } from './reputation';
 const IPFSClient = require('ipfs-http-client')
 const Web3 = require('web3')
 
