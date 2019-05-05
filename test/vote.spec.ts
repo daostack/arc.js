@@ -2,19 +2,19 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { IProposalOutcome} from '../src/proposal'
 import { Vote } from '../src/vote'
-import { createAProposal, newArc, getTestDAO, toWei, waitUntilTrue } from './utils'
+import { createAProposal, getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
 
 jest.setTimeout(10000)
 
 /**
  * Stake test
  */
-describe('Stake', () => {
+describe('vote', () => {
 
   let arc: Arc
 
-  beforeAll(() => {
-    arc = newArc()
+  beforeAll(async () => {
+    arc = await newArc()
   })
 
   it('Vote is instantiable', () => {

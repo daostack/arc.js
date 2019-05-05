@@ -1,34 +1,38 @@
-import { ApolloClient, ApolloQueryResult } from 'apollo-client'
-import { Observable as ZenObservable } from 'apollo-link'
 import BN = require('bn.js')
 import gql from 'graphql-tag'
-import { from, Observable, Observer, of, Subscription } from 'rxjs'
-import { catchError, concat, filter, map } from 'rxjs/operators'
+import { Observable, Observer, of, Subscription } from 'rxjs'
+import { catchError, filter, first, map } from 'rxjs/operators'
 import { DAO } from './dao'
+import { GraphNodeObserver } from './graphnode'
 import { Logger } from './logger'
 import { Operation, sendTransaction, web3receipt } from './operation'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
-import { createApolloClient, getWeb3Options, isAddress, zenToRxjsObservable } from './utils'
+import { getWeb3Options, isAddress } from './utils'
 const IPFSClient = require('ipfs-http-client')
 const Web3 = require('web3')
 
-export class Arc {
-  public graphqlHttpProvider: string
-  public graphqlWsProvider: string
+export class Arc extends GraphNodeObserver {
   public web3Provider: Web3Provider = ''
   public ipfsProvider: IPFSProvider
 
   public pendingOperations: Observable<Array<Operation<any>>> = of()
-  public apolloClient: ApolloClient<object>
 
   public ipfs: any
   public web3: any
   public contractAddresses: IContractAddresses | undefined
 
+  public Logger = Logger
+
   // accounts obseved by ethBalance
   public blockHeaderSubscription: Subscription|undefined = undefined
-  public observedAccounts: { [address: string]: {observer: Observer<BN>, lastBalance?: number}}  = {}
+  public observedAccounts: { [address: string]: {
+      observable?: Observable<BN>,
+      observer?: Observer<BN>,
+      lastBalance?: number
+      subscriptionsCount: number
+    }
+  } = {}
 
   constructor(options: {
     graphqlHttpProvider: string
@@ -37,14 +41,11 @@ export class Arc {
     ipfsProvider?: IPFSProvider
     contractAddresses?: IContractAddresses
   }) {
-    this.graphqlHttpProvider = options.graphqlHttpProvider
-    this.graphqlWsProvider = options.graphqlWsProvider
-    this.ipfsProvider = options.ipfsProvider || ''
-
-    this.apolloClient = createApolloClient({
-      graphqlHttpProvider: this.graphqlHttpProvider,
-      graphqlWsProvider: this.graphqlWsProvider
+    super({
+      graphqlHttpProvider: options.graphqlHttpProvider,
+      graphqlWsProvider: options.graphqlWsProvider
     })
+    this.ipfsProvider = options.ipfsProvider || ''
 
     let web3provider: any
 
@@ -98,40 +99,38 @@ export class Arc {
       (r: any) => new DAO(r.id, this)
     ) as Observable<DAO[]>
   }
-  /**
-   * getBalance returns an observer with a stream of ETH balances
-   * @param  address [description]
-   * @return         [description]
-   */
-  public ethBalance(address: Address): Observable<BN> {
+
+  public ethBalance(owner: Address): Observable<BN> {
+    if (!this.observedAccounts[owner]) {
+      this.observedAccounts[owner] = {
+        subscriptionsCount: 1
+       }
+    }
+    if (this.observedAccounts[owner].observable) {
+        this.observedAccounts[owner].subscriptionsCount += 1
+        return this.observedAccounts[owner].observable as Observable<BN>
+    }
 
     const observable = Observable.create((observer: Observer<BN>) => {
+      this.observedAccounts[owner].observer = observer
+
       // get the current balance and return it
-      this.observedAccounts[address] = {
-        lastBalance: undefined,
-        observer
-      }
-
-      this.web3.eth.getBalance(address).then((currentBalance: number) => {
-        const accInfo = this.observedAccounts[address]
-        if (accInfo) {
-          // in theory it is possible that the client unsubscribed before reaching this callback
-
-          accInfo.observer.next(new BN(currentBalance))
-          accInfo.lastBalance = currentBalance
-        }
+      this.web3.eth.getBalance(owner).then((currentBalance: number) => {
+        const accInfo = this.observedAccounts[owner];
+        (accInfo.observer as Observer<BN>).next(new BN(currentBalance))
+        accInfo.lastBalance = currentBalance
       })
       // set up the blockheadersubscription if it does not exist yet
       if (!this.blockHeaderSubscription) {
-        this.blockHeaderSubscription = this.web3.eth.subscribe('newBlockHeaders', (err: Error, result: any) => {
+        this.blockHeaderSubscription = this.web3.eth.subscribe('newBlockHeaders', (err: Error) => {
           Object.keys(this.observedAccounts).forEach((addr) => {
             const accInfo = this.observedAccounts[addr]
             if (err) {
-              accInfo.observer.error(err)
+            (accInfo.observer as Observer<BN>).error(err)
             } else {
               this.web3.eth.getBalance(addr).then((balance: any) => {
                 if (balance !== accInfo.lastBalance) {
-                  accInfo.observer.next(new BN(balance))
+                  (accInfo.observer as Observer<BN>).next(new BN(balance))
                   accInfo.lastBalance = balance
                 }
               })
@@ -140,8 +139,11 @@ export class Arc {
         })
       }
       // unsubscribe
-      return () => {
-        delete this.observedAccounts[address]
+      return( ) => {
+        this.observedAccounts[owner].subscriptionsCount -= 1
+        if (this.observedAccounts[owner].subscriptionsCount <= 0) {
+          delete this.observedAccounts[owner]
+        }
         if (Object.keys(this.observedAccounts).length === 0 && this.blockHeaderSubscription) {
           this.blockHeaderSubscription.unsubscribe()
           this.blockHeaderSubscription = undefined
@@ -149,150 +151,9 @@ export class Arc {
       }
     })
 
+    this.observedAccounts[owner].observable = observable
     return observable
       .pipe(map((item: any) => new BN(item)))
-  }
-
-  /**
-   * Given a gql query, will return an observable of query results
-   * @param  query              a gql query object to execute
-   * @param  apolloQueryOptions options to pass on to Apollo, cf ..
-   * @return an Obsevable that will first yield the current result, and yields updates every time the data changes
-   */
-  public getObservable(query: any, apolloQueryOptions: IApolloQueryOptions = {}) {
-
-    return Observable.create(async (observer: Observer<ApolloQueryResult<any>>) => {
-      Logger.debug(query.loc.source.body)
-
-      if (!apolloQueryOptions.fetchPolicy) {
-        apolloQueryOptions.fetchPolicy = 'network-only'
-      }
-
-      // subscriptionQuery subscribes to get notified of updates to the query
-      const subscriptionQuery = gql`
-          subscription ${query}
-        `
-      // subscribe
-      const zenObservable: ZenObservable<object[]> = this.apolloClient.subscribe<object[]>({
-        fetchPolicy: 'network-only',
-        query: subscriptionQuery
-       })
-      zenObservable.subscribe((next: any) => {
-          this.apolloClient.writeQuery({
-            data: next.data,
-            query
-          })
-      })
-
-      const sub = zenToRxjsObservable(
-        this.apolloClient.watchQuery({
-          fetchPolicy: 'cache-and-network',
-          fetchResults: true,
-          query
-        })
-      )
-        .pipe(
-          filter((r: ApolloQueryResult<any>) => {
-            return !r.loading
-          }), // filter empty results
-          catchError((err: Error) => {
-            throw Error(`${err.name}: ${err.message}\n${query.loc.source.body}`)
-          })
-        )
-        .subscribe(observer)
-      return () => sub.unsubscribe()
-    })
-  }
-
-  /**
-   * Returns an observable that:
-   * - sends a query over http and returns the current list of results
-   * - subscribes over a websocket to changes, and returns the updated list
-   * example:
-   *    const query = gql`
-   *    {
-   *      daos {
-   *        id
-   *        address
-   *      }
-   *    }`
-   *    _getObservableList(query, (r:any) => new DAO(r.address))
-   *
-   * @param query The query to be run
-   * @param  entity  name of the graphql entity to be queried.
-   * @param  itemMap (optional) a function that takes elements of the list and creates new objects
-   * @return
-   */
-  public _getObservableList(
-    query: any,
-    itemMap: (o: object) => object | null = (o) => o,
-    apolloQueryOptions: IApolloQueryOptions = {}
-  ) {
-    const entity = query.definitions[0].selectionSet.selections[0].name.value
-    return this.getObservable(query, apolloQueryOptions).pipe(
-      map((r: ApolloQueryResult<any>) => {
-        if (!r.data[entity]) {
-          throw Error(`Could not find entity "${entity}" in ${Object.keys(r.data)}`)
-        }
-        return r.data[entity]
-      }),
-      map((rs: object[]) => rs.map(itemMap))
-    )
-  }
-
-  /**
-   * Returns an observable that:
-   * - sends a query over http and returns the current list of results
-   * - subscribes over a websocket to changes, and returns the updated list
-   * example:
-   *    const query = gql`
-   *    {
-   *      daos {
-   *        id
-   *        address
-   *      }
-   *    }`
-   *    _getObservableList(query, (r:any) => new DAO(r.address), filter((r:any) => r.address === "0x1234..."))
-   *
-   * @param query The query to be run
-   * @param  entity  name of the graphql entity to be queried.
-   * @param  itemMap (optional) a function that takes elements of the list and creates new objects
-   * @param filter filter the results
-   * @return
-   */
-  public _getObservableListWithFilter(
-    query: any,
-    itemMap: (o: object) => object | null = (o) => o,
-    filterFunc: (o: object) => boolean,
-    apolloQueryOptions: IApolloQueryOptions = {}
-  ) {
-    const entity = query.definitions[0].selectionSet.selections[0].name.value
-    return this.getObservable(query, apolloQueryOptions).pipe(
-      map((r: ApolloQueryResult<object[]>) => {
-        if (!r.data[entity]) { throw Error(`Could not find ${entity} in ${r.data}`)}
-        return r.data[entity]
-      }),
-      filter(filterFunc),
-      map((rs: object[]) => rs.map(itemMap))
-    )
-  }
-
-  public _getObservableObject(
-    query: any,
-    itemMap: (o: object) => object | null = (o) => o,
-    apolloQueryOptions: IApolloQueryOptions = {}
-  ) {
-    const entity = query.definitions[0].selectionSet.selections[0].name.value
-
-    return this.getObservable(query, apolloQueryOptions).pipe(
-      map((r: ApolloQueryResult<any>) => {
-        if (!r.data) {
-          return null
-        }
-        return r.data[entity]
-      }),
-      map(itemMap)
-    )
   }
 
   /**
@@ -309,32 +170,39 @@ export class Arc {
     if (!addresses) {
       throw new Error(`Cannot get contract: no contractAddress set`)
     }
+    if (!addresses[name]) {
+      throw new Error(`No contract named ${name} could be found in the provided contract addresses`)
+    }
     let contractClass
     let contract
     switch (name) {
       case 'AbsoluteVote':
         contractClass = require('@daostack/arc/build/contracts/AbsoluteVote.json')
-        contract = new this.web3.eth.Contract(contractClass.abi, addresses.base.AbsoluteVote, opts)
+        contract = new this.web3.eth.Contract(contractClass.abi, addresses.AbsoluteVote, opts)
         return contract
       case 'ContributionReward':
         contractClass = require('@daostack/arc/build/contracts/ContributionReward.json')
-        contract = new this.web3.eth.Contract(contractClass.abi, addresses.base.ContributionReward, opts)
+        contract = new this.web3.eth.Contract(contractClass.abi, addresses.ContributionReward, opts)
         return contract
       case 'GEN':
         contractClass = require('@daostack/arc/build/contracts/DAOToken.json')
-        contract = new this.web3.eth.Contract(contractClass.abi, addresses.base.GEN, opts)
+        contract = new this.web3.eth.Contract(contractClass.abi, addresses.GEN, opts)
+        return contract
+      case 'GenericScheme':
+        contractClass = require('@daostack/arc/build/contracts/GenericScheme.json')
+        contract = new this.web3.eth.Contract(contractClass.abi, addresses.GenericScheme, opts)
         return contract
       case 'GenesisProtocol':
         contractClass = require('@daostack/arc/build/contracts/GenesisProtocol.json')
-        contract = new this.web3.eth.Contract(contractClass.abi, addresses.base.GenesisProtocol, opts)
+        contract = new this.web3.eth.Contract(contractClass.abi, addresses.GenesisProtocol, opts)
         return contract
       case 'Redeemer':
         contractClass = require('@daostack/arc/build/contracts/Redeemer.json')
-        contract = new this.web3.eth.Contract(contractClass.abi, addresses.base.Redeemer, opts)
+        contract = new this.web3.eth.Contract(contractClass.abi, addresses.Redeemer, opts)
         return contract
-      case 'Reputation':
-        contractClass = require('@daostack/arc/build/contracts/Reputation.json')
-        contract = new this.web3.eth.Contract(contractClass.abi, addresses.dao.Reputation, opts)
+      case 'SchemeRegistrar':
+        contractClass = require('@daostack/arc/build/contracts/SchemeRegistrar.json')
+        contract = new this.web3.eth.Contract(contractClass.abi, addresses.SchemeRegistrar, opts)
         return contract
       default:
         throw Error(`Unknown contract: ${name}`)
@@ -343,13 +211,13 @@ export class Arc {
 
   public GENToken() {
     if (this.contractAddresses) {
-      return new Token(this.contractAddresses.base.GEN, this)
+      return new Token(this.contractAddresses.GEN, this)
     } else {
       throw Error(`Cannot get GEN Token because no contract addresses were provided`)
     }
   }
 
-  public getAccount(): Observable<Address> {
+  public getAccount(): Observable < Address > {
     // this complex logic is to get the correct account both from the Web3 as well as from the Metamaask provider
     // Polling is Evil!
     // cf. https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
@@ -384,7 +252,6 @@ export class Arc {
   }
 
   public setAccount(address: Address) {
-    this.web3.eth.accounts.wallet[0] = address
     this.web3.eth.defaultAccount = address
   }
 
@@ -397,22 +264,10 @@ export class Arc {
    * @param  owner owner for which to check the allowance
    * @return An allowance { amount: BN, owner: string, spender: string }
    */
-  public allowance(owner: string): Observable < any > {
-    const itemMap = (rs: any[]) => {
-      return rs.length > 0 ? {
-        amount: new BN(rs[0].amount),
-        owner: rs[0].owner,
-        spender: rs[0].spender
-      } : undefined
-    }
+  public allowance(owner: string): Observable < BN > {
     const genesisProtocol = this.getContract('GenesisProtocol')
     const spender = genesisProtocol.options.address
-    return this.GENToken().allowances({
-      owner,
-      spender
-    }).pipe(
-      map(itemMap)
-    )
+    return this.GENToken().allowance(owner, spender)
   }
 
   public sendTransaction<T>(
@@ -434,8 +289,5 @@ export interface IApolloQueryOptions {
 }
 
 export interface IContractAddresses {
-  base: { [key: string]: Address }
-  dao: { [key: string]: Address }
-  organs: { [key: string]: Address }
-  test: { [key: string]: Address }
+  [key: string]: Address
 }

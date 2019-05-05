@@ -1,10 +1,11 @@
 import BN = require('bn.js')
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
+import { DAO } from '../src/dao'
 import { IProposalOutcome, Proposal } from '../src/proposal'
 import { Stake } from '../src/stake'
-import { toWei } from '../src/utils'
-import { createAProposal, getTestDAO, newArc, waitUntilTrue } from './utils'
+import { createAProposal, getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
+const DAOstackMigration = require('@daostack/migration')
 
 jest.setTimeout(10000)
 
@@ -14,7 +15,7 @@ describe('Stake on a ContributionReward', () => {
   let accounts: any
 
   beforeAll(async () => {
-    arc = newArc()
+    arc = await newArc()
     web3 = arc.web3
     accounts = web3.eth.accounts.wallet
   })

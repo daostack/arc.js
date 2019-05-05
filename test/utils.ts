@@ -1,19 +1,20 @@
-import { ApolloQueryResult } from 'apollo-client'
 import BN = require('bn.js')
-import gql from 'graphql-tag'
-import { IContractAddresses } from '../src/arc'
+import { Observable } from 'rxjs'
+import { first } from 'rxjs/operators'
 import { DAO } from '../src/dao'
 import Arc from '../src/index'
-import { Proposal } from '../src/proposal'
+import { IProposalOutcome, IProposalType, Proposal } from '../src/proposal'
 import { Reputation } from '../src/reputation'
-import { fromWei, toWei } from '../src/utils'
+import { Address } from '../src/types'
+import { getContractAddresses } from '../src/utils'
+const Web3 = require('web3')
+const web3utils = require('web3-utils')
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
+export const graphqlHttpMetaProvider: string = 'http://127.0.0.1:8000/subgraphs'
 export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/daostack'
 export const web3Provider: string = 'ws://127.0.0.1:8545'
 export const ipfsProvider: string = '/ip4/127.0.0.1/tcp/5001'
-
-export const nullAddress: string  = '0x' + padZeros('', 40)
 
 export function padZeros(str: string, max = 36): string {
   str = str.toString()
@@ -31,18 +32,24 @@ const pks = [
   '0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773' // 9
 ]
 
-// export function fromWei(amount: BN): string {
-//   return Web3.utils.fromWei(amount, 'ether')
-// }
-//
-// export function toWei(amount: string | number): BN {
-//   return new BN(Web3.utils.toWei(amount.toString(), 'ether'))
-// }
-//
-export function getContractAddresses(): IContractAddresses {
+export function fromWei(amount: BN): string {
+  return web3utils.fromWei(amount, 'ether')
+}
+
+export function toWei(amount: string | number): BN {
+  return new BN(web3utils.toWei(amount.toString(), 'ether'))
+}
+
+export interface IContractAddressesFromMigration {
+  base: { [key: string]: Address }
+  dao: { [key: string]: Address }
+  organs: { [key: string]: Address }
+  test: { [key: string]: Address }
+}
+
+export function getContractAddressesFromMigration(): IContractAddressesFromMigration {
   const path = '@daostack/migration/migration.json'
   const addresses = require(path)
-  // const addresses = { base: require(path).private.base, dao: require(path).private.dao }
   if (!addresses || addresses === {}) {
     throw Error(`No addresses found, does the file at ${path} exist?`)
   }
@@ -57,9 +64,9 @@ export async function getOptions(web3: any) {
   }
 }
 
-export function newArc() {
+export async function newArc() {
   const arc = new Arc({
-    contractAddresses: getContractAddresses(),
+    contractAddresses: await getContractAddresses(graphqlHttpMetaProvider, 'daostack'),
     graphqlHttpProvider,
     graphqlWsProvider,
     ipfsProvider,
@@ -75,8 +82,8 @@ export function newArc() {
 }
 
 export async function mintSomeReputation() {
-  const arc = newArc()
-  const addresses = getContractAddresses()
+  const arc = await newArc()
+  const addresses = getContractAddressesFromMigration()
   const token = new Reputation(addresses.organs.DemoReputation, arc)
   const accounts = arc.web3.eth.accounts.wallet
   await token.mint(accounts[1].address, toWei('99')).send()
@@ -95,42 +102,12 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
   })
 }
 
-export async function getContractAddressesFromSubgraph(): Promise<{ daos: any }> {
-  const arc = newArc()
-  const query = gql`
-        {
-              daos { id
-              nativeReputation {
-                id
-              }
-              nativeToken {
-                id
-              }
-          }
-      }
-    `
-  const response = await arc.apolloClient.query({query}) as ApolloQueryResult<{ daos: any[]}>
-  const daos = response.data.daos
-  return { daos: daos.map((dao: any) => {
-    return {
-      address: dao.id,
-      membersCount: dao.membersCount,
-      nativeReputation: dao.nativeReputation.id,
-      nativeToken: dao.nativeToken.id
-    }
-  })
-}
-}
-
 export async function getTestDAO() {
   // we have two indexed daos with the same name, but one has 6 members, and that is the one
   // we are using for testing
   const arc = await newArc()
-  if (arc.contractAddresses) {
-    return arc.dao(arc.contractAddresses.dao.Avatar)
-  } else {
-    return arc.dao('0xnotfound')
-  }
+  const contractAddressesfromMigration = await getContractAddressesFromMigration()
+  return arc.dao(contractAddressesfromMigration.test.Avatar)
 }
 
 export async function createAProposal(dao?: DAO, options: any = {}) {
@@ -144,14 +121,66 @@ export async function createAProposal(dao?: DAO, options: any = {}) {
     externalTokenAddress: undefined,
     externalTokenReward: toWei('0'),
     nativeTokenReward: toWei('1'),
-    periodLength: 12,
-    periods: 5,
+    periodLength: 0,
+    periods: 1,
     reputationReward: toWei('10'),
-    type: 'ContributionReward',
+    type: IProposalType.ContributionReward,
     ...options
   }
 
   const response = await dao.createProposal(options).send()
   return response.result as Proposal
+}
 
+// Vote and vote and vote for proposal until it is accepted
+export async function voteToAcceptProposal(proposal: Proposal) {
+  const arc = proposal.context
+  const accounts = arc.web3.eth.accounts.wallet
+
+  for (let i = 0; i <= 3; i ++) {
+    try {
+      arc.setAccount(accounts[i].address)
+      await proposal.vote(IProposalOutcome.Pass).send()
+    } catch (err) {
+      // TODO: this sometimes fails with uninformatie `revert`, cannot find out why
+      // if (err.message.match(/already executed/) === null) {
+      //   throw err
+      // }
+      return
+    } finally {
+      arc.setAccount(accounts[0].address)
+    }
+  }
+  arc.setAccount(accounts[0].address)
+  await proposal.execute()
+  return
+}
+
+export async function timeTravel(seconds: number, web3: any) {
+  const jsonrpc = '2.0'
+  const id = 1
+  web3 = new Web3('http://localhost:8545')
+  web3.providers.HttpProvider.prototype.sendAsync = web3.providers.HttpProvider.prototype.send
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.sendAsync({
+      id,
+      jsonrpc,
+      method: 'evm_increaseTime',
+      params: [seconds]
+    }, (err1: Error) => {
+      if (err1) { return reject(err1) }
+
+      web3.currentProvider.sendAsync({
+        id: id + 1,
+        jsonrpc,
+        method: 'evm_mine'
+      }, (err2: Error, res: any) => {
+        return err2 ? reject(err2) : resolve(res)
+      })
+    })
+  })
+}
+
+export async function firstResult(observable: Observable<any>) {
+  return observable.pipe(first()).toPromise()
 }

@@ -12,7 +12,7 @@ describe('DAO', () => {
   let arc: Arc
 
   beforeAll(async () => {
-    arc = newArc()
+    arc = await newArc()
 })
 
   it('DAO is instantiable', () => {
@@ -44,17 +44,8 @@ describe('DAO', () => {
     const dao = await getTestDAO()
     expect(dao).toBeInstanceOf(DAO)
     const state = await dao.state().pipe(first()).toPromise()
-    const expected = {
-       address: dao.address,
-       memberCount: 6,
-       tokenBalance: new BN('0')
-    }
-    expect(state).toMatchObject(expected)
     expect(Object.keys(state)).toEqual([
       'address',
-      'externalTokenAddress',
-      'externalTokenBalance',
-      'externalTokenSymbol',
       'memberCount',
       'name',
       'reputation',
@@ -65,6 +56,10 @@ describe('DAO', () => {
       'tokenSymbol',
       'tokenTotalSupply'
     ])
+    expect(typeof state.tokenBalance).toEqual(typeof new BN(0))
+    expect(state.address).toEqual(dao.address)
+    // the created DAO has 6 members but other tests may add rep
+    expect(state.memberCount).toBeGreaterThanOrEqual(6)
   })
 
   it('throws a reasonable error if the contract does not exist', async () => {
@@ -79,7 +74,7 @@ describe('DAO', () => {
     const dao = await getTestDAO()
     const members = await dao.members().pipe(first()).toPromise()
     expect(typeof members).toEqual(typeof [])
-    expect(members.length).toEqual(6)
+    expect(members.length).toBeGreaterThanOrEqual(6)
     const member = members[0]
     const memberState = await member.state().pipe(first()).toPromise()
     expect(Number(fromWei(memberState.reputation))).toBeGreaterThan(0)

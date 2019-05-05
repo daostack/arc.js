@@ -1,12 +1,11 @@
+const DAOstackMigration = require('@daostack/migration')
 import BN = require('bn.js')
 import { first} from 'rxjs/operators'
 import { Arc } from '../src/arc'
-import { IExecutionState, IProposalOutcome, IProposalStage, IProposalState, Proposal  } from '../src/proposal'
-import { fromWei, toWei } from '../src/utils'
-import { createAProposal, newArc, waitUntilTrue} from './utils'
-const DAOstackMigration = require('@daostack/migration')
-
-jest.setTimeout(10000)
+import { IContributionReward, IExecutionState, IProposalOutcome, IProposalStage, IProposalState,
+  IProposalType,
+  Proposal } from '../src/proposal'
+import { createAProposal, fromWei, newArc, toWei, waitUntilTrue} from './utils'
 
 /**
  * Proposal test
@@ -15,7 +14,7 @@ describe('Proposal', () => {
   let arc: Arc
 
   beforeAll(async () => {
-    arc = newArc()
+    arc = await newArc()
   })
 
   it('Proposal is instantiable', () => {
@@ -31,7 +30,7 @@ describe('Proposal', () => {
     const proposalsList = await proposals.pipe(first()).toPromise()
     expect(typeof proposalsList).toBe('object')
     expect(proposalsList.length).toBeGreaterThan(0)
-    expect(proposalsList[proposalsList.length - 1].id).toBe(queuedProposalId)
+    expect(proposalsList.map((p) => p.id)).toContain(queuedProposalId)
   })
 
   it('proposal.search() accepts expiresInQueueAt argument', async () => {
@@ -41,7 +40,18 @@ describe('Proposal', () => {
     const expiryDate = (await l1[0].state().pipe(first()).toPromise()).expiresInQueueAt
     const l2 = await Proposal.search({expiresInQueueAt_gt: expiryDate}, arc).pipe(first()).toPromise()
     expect(l2.length).toBeLessThan(l1.length)
+  })
 
+  it('proposal.search() accepts type argument', async () => {
+    let ls
+    ls = await Proposal.search({type: IProposalType.ContributionReward}, arc).pipe(first()).toPromise()
+    expect(ls.length).toBeGreaterThan(0)
+    ls = await Proposal.search({type: IProposalType.GenericScheme }, arc).pipe(first()).toPromise()
+    expect(ls.length).toBeGreaterThan(0)
+    ls = await Proposal.search({type: IProposalType.SchemeRegistrarPropose}, arc).pipe(first()).toPromise()
+    // expect(ls.length).toEqual(0)
+    ls = await Proposal.search({type: IProposalType.SchemeRegistrarProposeToRemove}, arc).pipe(first()).toPromise()
+    // expect(ls.length).toEqual(0)
   })
 
   it('proposal.search ignores case in address', async () => {
@@ -115,45 +125,78 @@ describe('Proposal', () => {
     expect(proposalState).toEqual(null)
   })
 
-  it('Check proposal state is correct', async () => {
+  it('Check queued proposal state is correct', async () => {
     const { queuedProposalId } = DAOstackMigration.migration('private').test
 
     const proposal = new Proposal(queuedProposalId, '', arc)
-    const proposalState = await proposal.state().pipe(first()).toPromise()
+    const pState = await proposal.state().pipe(first()).toPromise()
     expect(proposal).toBeInstanceOf(Proposal)
 
     // TODO: these amounts seem odd, I guess not using WEI when proposal created?
-    expect(fromWei(proposalState.nativeTokenReward)).toEqual('10')
-    expect(fromWei(proposalState.stakesAgainst)).toEqual('0.0000001')
-    expect(fromWei(proposalState.stakesFor)).toEqual('0')
-    expect(fromWei(proposalState.reputationReward)).toEqual('10')
-    expect(fromWei(proposalState.ethReward)).toEqual('10')
-    expect(fromWei(proposalState.externalTokenReward)).toEqual('10')
-    expect(fromWei(proposalState.votesFor)).toEqual('1000')
-    expect(fromWei(proposalState.votesAgainst)).toEqual('1000')
-    expect(fromWei(proposalState.proposingRepReward)).toEqual('0.000000005')
+    const contributionReward = pState.contributionReward as IContributionReward
+    expect(fromWei(contributionReward.nativeTokenReward)).toEqual('10')
+    expect(fromWei(pState.stakesAgainst)).toEqual('0.0000001')
+    expect(fromWei(pState.stakesFor)).toEqual('0')
+    expect(fromWei(contributionReward.reputationReward)).toEqual('10')
+    expect(fromWei(contributionReward.ethReward)).toEqual('10')
+    expect(fromWei(contributionReward.externalTokenReward)).toEqual('10')
+    expect(fromWei(pState.votesFor)).toEqual('1000')
+    expect(fromWei(pState.votesAgainst)).toEqual('1000')
 
-    expect(proposalState).toMatchObject({
-        beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+    expect(pState).toMatchObject({
         boostedAt: 0,
         boostedVotePeriodLimit: 600,
         description: null,
         descriptionHash: '0x000000000000000000000000000000000000000000000000000000000000abcd',
-        executedAt: null,
+        downStakeNeededToQueue: new BN(0),
+        executedAt: 0,
         executionState: IExecutionState.None,
-        // externalToken: '0xff6049b87215476abf744eaa3a476cbad46fb1ca',
-        periodLength: 0,
-        periods: 1,
         preBoostedVotePeriodLimit: 600,
         proposer: '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1',
-        quietEndingPeriodBeganAt: null,
-        resolvedAt: null,
+        quietEndingPeriod: 300,
+        quietEndingPeriodBeganAt: 0,
+        resolvedAt: 0,
         stage: IProposalStage.Queued,
-        thresholdConst: 2199023255552,
-        title: null,
+        thresholdConst: new BN(2),
+        title: '',
         url: null,
         winningOutcome: IProposalOutcome.Fail
     })
+    expect(pState.contributionReward).toMatchObject({
+        beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+        periodLength: 0,
+        periods: 1
+    })
+
+    expect(pState.queue.threshold.toNumber()).toBeGreaterThan(0)
+    // check if the upstakeNeededToPreBoost value is correct
+    //  (S+/S-) > AlphaConstant^NumberOfBoostedProposal.
+    const boostedProposals = await pState.dao
+      .proposals({stage: IProposalStage.Boosted}).pipe(first()).toPromise()
+    const numberOfBoostedProposals = boostedProposals.length
+    expect(pState.queue.threshold.toString())
+      .toEqual(new BN(pState.thresholdConst).pow(new BN(numberOfBoostedProposals)).toString())
+
+    expect(pState.stakesFor.add(pState.upstakeNeededToPreBoost).div(pState.stakesAgainst).toString())
+      .toEqual((new BN(pState.thresholdConst)).pow(new BN(numberOfBoostedProposals)).toString())
+  })
+
+  it('Check preboosted proposal state is correct', async () => {
+    const { preBoostedProposalId } = DAOstackMigration.migration('private').test
+
+    const proposal = new Proposal(preBoostedProposalId, '', arc)
+    const pState = await proposal.state().pipe(first()).toPromise()
+    expect(proposal).toBeInstanceOf(Proposal)
+
+    expect(pState.upstakeNeededToPreBoost).toEqual(new BN(0))
+    // check if the upstakeNeededToPreBoost value is correct
+    //  (S+/S-) > AlphaConstant^NumberOfBoostedProposal.
+    const boostedProposals = await pState.dao
+      .proposals({stage: IProposalStage.Boosted}).pipe(first()).toPromise()
+    const numberOfBoostedProposals = boostedProposals.length
+
+    expect(pState.stakesFor.div(pState.stakesAgainst.add(pState.downStakeNeededToQueue)).toString())
+      .toEqual((new BN(pState.thresholdConst)).pow(new BN(numberOfBoostedProposals)).toString())
   })
 
   it('get proposal rewards', async () => {

@@ -4,6 +4,8 @@ import { IProposalOutcome} from '../src/proposal'
 import { Stake } from '../src/stake'
 import { createAProposal, newArc, toWei, waitUntilTrue } from './utils'
 
+jest.setTimeout(10000)
+
 /**
  * Stake test
  */
@@ -11,8 +13,8 @@ describe('Stake', () => {
 
   let arc: Arc
 
-  beforeAll(() => {
-    arc = newArc()
+  beforeAll(async () => {
+    arc = await newArc()
   })
 
   it('Stake is instantiable', () => {
