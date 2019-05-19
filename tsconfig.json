@@ -1,8 +1,13 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "lib": ["es2016", "es2017", "dom", "esnext.asynciterable"],
-    "module":"commonjs",
+    "lib": [
+      "es2016",
+      "es2017",
+      "dom",
+      "esnext.asynciterable"
+    ],
+    "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true,
     "declarationDir": "dist/types",
