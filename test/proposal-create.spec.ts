@@ -58,7 +58,7 @@ describe('Create a ContributionReward proposal', () => {
     expect(proposal.id).toBeDefined()
     const proposalState = await proposal.state().pipe(first()).toPromise()
 
-    const contributionReward = proposalState.contributionReward as IContributionReward
+    const contributionReward = proposalState.schemeInfo as IContributionReward
     expect(fromWei(contributionReward.externalTokenReward)).toEqual('0')
     expect(fromWei(contributionReward.ethReward)).toEqual('300')
     expect(fromWei(contributionReward.nativeTokenReward)).toEqual('1')

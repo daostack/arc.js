@@ -5,6 +5,7 @@ import { IExecutionState, IProposalOutcome, IProposalStage, IProposalState,
   IProposalType,
   Proposal } from '../src/proposal'
 import { IContributionReward } from '../src/schemes/contributionReward'
+import { ContributionRewardProposal } from '../src/schemes/contributionRewardClass'
 import { BN } from './utils'
 import { createAProposal,
   fromWei,
@@ -138,7 +139,7 @@ describe('Proposal', () => {
 
     const proposal = queuedProposal
     const pState = await proposal.state().pipe(first()).toPromise()
-    expect(proposal).toBeInstanceOf(Proposal)
+    expect(proposal).toBeInstanceOf(ContributionRewardProposal)
 
     // TODO: these amounts seem odd, I guess not using WEI when proposal created?
     const contributionReward = pState.contributionReward as IContributionReward
@@ -180,7 +181,7 @@ describe('Proposal', () => {
         url: null,
         winningOutcome: IProposalOutcome.Fail
     })
-    expect(pState.contributionReward).toMatchObject({
+    expect(pState.schemeState).toMatchObject({
         beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
         periodLength: 0,
         periods: 1
