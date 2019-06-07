@@ -80,7 +80,7 @@ export class Reward implements IStateful<IRewardState> {
   public state(): Observable<IRewardState> {
 
     const query = gql`{
-      gpreward ( id: "${this.id}" )
+      gprewards ( id: "${this.id}" )
       {
         id
         createdAt
