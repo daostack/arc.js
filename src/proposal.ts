@@ -1,5 +1,6 @@
 import gql from 'graphql-tag'
 const Web3 = require('web3')
+const ethereumjs = require('ethereumjs-abi')
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
@@ -534,7 +535,7 @@ export class Proposal implements IStateful<IProposalState> {
     return this.context.getContract(this.schemeAddress)
   }
   /**
-   * [votingMachine description]
+   * get a web3 Contract instance of the votingMachine that is used in this proposal
    * @return a web3 Contract instance
    */
   public votingMachine() {
@@ -616,18 +617,109 @@ export class Proposal implements IStateful<IProposalState> {
     return this.context.GENToken()
   }
 
-  public stakes(options: IStakeQueryOptions = {}): Observable < IStake[] > {
+  /**
+   * get all Stakes for this proposal
+   * @param  options [description]
+   * @return an observable of a list of IStakes
+   */
+  public stakes(options: IStakeQueryOptions = {}): Observable<IStake[]> {
     options.proposal = this.id
     return Stake.search(this.context, options)
   }
 
-  public stake(outcome: IProposalOutcome, amount: typeof BN ): Operation < Stake > {
+  /**
+   * stake for or against this proposal
+   * @param  outcome [description]
+   * @param  amount  [description]
+   * @return         [description]
+   */
+  public stake(outcome: IProposalOutcome, amount: typeof BN): Operation<Stake> {
     const stakeMethod = this.votingMachine().methods.stake(
       this.id,  // proposalId
       outcome, // a value between 0 to and the proposal number of choices.
       amount.toString() // the amount of tokens to stake
     )
+    return this.sendStakeTransaction(stakeMethod, outcome, amount)
+  }
 
+  public async approveAndStake(outcome: IProposalOutcome, amount: typeof BN): Promise<Operation<Stake>> {
+    const signatureType = 1
+    const staker = await this.context.getAccount().pipe(first()).toPromise()
+    const genesisProtocolContract = this.votingMachine()
+    const nonce = await genesisProtocolContract.methods.stakesNonce(staker).call()
+    console.log(nonce)
+    const textMsg = '0x' + ethereumjs.soliditySHA3(
+       ['address', 'bytes32', 'uint', 'uint', 'uint'],
+       [genesisProtocolContract.address, this.id, outcome, Number(amount), nonce]
+     ).toString('hex')
+    const signature = await this.context.web3.eth.sign(textMsg, staker)
+    const encodeABI = await genesisProtocolContract.methods.stakeWithSignature(
+      this.id, outcome, Number(amount), nonce, signatureType, signature).encodeABI()
+    const transaction = await this.stakingToken().contract().methods.approveAndCall(
+     genesisProtocolContract.address, amount, encodeABI , {from : staker}
+    )
+    return this.sendStakeTransaction(transaction, outcome, amount)
+
+  }
+
+  public rewards(options: IRewardQueryOptions = {}): Observable < Reward[] > {
+    options.proposal = this.id
+    return Reward.search(this.context, options)
+  }
+
+  /**
+   * [claimRewards description] Execute the proposal and distribute the rewards
+   * to the beneficiary.
+   * This uses the Redeemer.sol helper contract
+   * @param  beneficiary Addresss of the beneficiary, optional,
+   *    if undefined will only redeem the ContributionReward rewards
+   * @return  an Operation
+   */
+  public claimRewards(beneficiary ?: Address): Operation < boolean > {
+    if (!beneficiary) {
+      beneficiary = NULL_ADDRESS
+    }
+    const transaction = this.redeemerContract().methods.redeem(
+      this.id,
+      this.dao.address,
+      beneficiary
+    )
+    return this.context.sendTransaction(transaction, () => true)
+  }
+
+  /**
+   * calll the 'execute()' function on the votingMachine.
+   * the main purpose of this function is to set the stage of the proposals
+   * this call may (or may not) "execute" the proposal itself (i.e. do what the proposal proposes)
+   * @return an Operation that, when sucessful, wil lcontain the receipt of the transaction
+   */
+  public execute(): Operation < any > {
+    const transaction = this.votingMachine().methods.execute(this.id)
+    const map = (receipt: any) => {
+      if (Object.keys(receipt.events).length  === 0) {
+        // this does not mean that anything failed
+        return receipt
+      } else {
+        return receipt
+      }
+    }
+    const errorHandler = async (err: Error) => {
+      const votingMachine = this.votingMachine()
+      const proposalDataFromVotingMachine = await votingMachine.methods.proposals(this.id).call()
+
+      if (proposalDataFromVotingMachine.callbacks === NULL_ADDRESS) {
+        const msg = `Error in proposal.execute(): A proposal with id ${this.id} does not exist`
+        return Error(msg)
+      } else if (proposalDataFromVotingMachine.state === '2') {
+        const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
+        return Error(msg)
+      }
+      return err
+    }
+    return this.context.sendTransaction(transaction, map, errorHandler)
+  }
+
+  private sendStakeTransaction(stakeMethod: any, outcome: IProposalOutcome, amount: typeof BN): Operation<Stake> {
     const map = (receipt: any) => { // map extracts Stake instance from receipt
         const event = receipt.events.Stake
         if (!event) {
@@ -645,7 +737,7 @@ export class Proposal implements IStateful<IProposalState> {
           event.returnValues._reputation, // amount
           this.id // proposalID
         )
-    }
+      }
 
     const errorHandler =  async (error: Error) => {
       if (error.message.match(/revert/)) {
@@ -681,63 +773,6 @@ export class Proposal implements IStateful<IProposalState> {
       return error
     }
     return this.context.sendTransaction(stakeMethod, map, errorHandler)
-  }
-
-  public rewards(options: IRewardQueryOptions = {}): Observable<Reward[]> {
-    options.proposal = this.id
-    return Reward.search(this.context, options)
-  }
-
-  /**
-   * [claimRewards description] Execute the proposal and distribute the rewards
-   * to the beneficiary.
-   * This uses the Redeemer.sol helper contract
-   * @param  beneficiary Addresss of the beneficiary, optional,
-   *    if undefined will only redeem the ContributionReward rewards
-   * @return  an Operation
-   */
-  public claimRewards(beneficiary?: Address): Operation<boolean> {
-    if (!beneficiary) {
-      beneficiary = NULL_ADDRESS
-    }
-    const transaction = this.redeemerContract().methods.redeem(
-      this.id,
-      this.dao.address,
-      beneficiary
-    )
-    return this.context.sendTransaction(transaction, () => true)
-  }
-
-  /**
-   * calll the 'execute()' function on the votingMachine.
-   * the main purpose of this function is to set the stage of the proposals
-   * this call may (or may not) "execute" the proposal itself (i.e. do what the proposal proposes)
-   * @return an Operation that, when sucessful, wil lcontain the receipt of the transaction
-   */
-  public execute(): Operation<any> {
-    const transaction = this.votingMachine().methods.execute(this.id)
-    const map = (receipt: any) => {
-      if (Object.keys(receipt.events).length  === 0) {
-        // this does not mean that anything failed
-        return receipt
-      } else {
-        return receipt
-      }
-    }
-    const errorHandler = async (err: Error) => {
-      const votingMachine = this.votingMachine()
-      const proposalDataFromVotingMachine = await votingMachine.methods.proposals(this.id).call()
-
-      if (proposalDataFromVotingMachine.callbacks === NULL_ADDRESS) {
-        const msg = `Error in proposal.execute(): A proposal with id ${this.id} does not exist`
-        return Error(msg)
-      } else if (proposalDataFromVotingMachine.state === '2') {
-        const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
-        return Error(msg)
-      }
-      return err
-    }
-    return this.context.sendTransaction(transaction, map, errorHandler)
   }
 }
 

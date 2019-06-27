@@ -228,7 +228,7 @@ export class Arc extends GraphNodeObserver {
       abiName = contractInfo.name
       version = contractInfo.version
       if (abiName === 'GEN') {
-        abiName = 'ERC20'
+        abiName = 'ERC827'
       }
     }
 

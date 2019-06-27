@@ -175,9 +175,10 @@ export class Token implements IStateful<ITokenState> {
    */
   public contract() {
     // TODO: this a  bit hacky - we shuld have this contractInfo in our "contractAddresses" registry
-    const LATEST_ARC_VERSION = '0.0.1-rc.19'
-    const abi = require(`@daostack/migration/abis/${LATEST_ARC_VERSION}/DAOToken.json`)
-    return this.context.getContract(this.address, abi)
+    // const LATEST_ARC_VERSION = '0.0.1-rc.19'
+    // const abi = require(`@daostack/migration/abis/${LATEST_ARC_VERSION}/DAOToken.json`)
+    // return this.context.getContract(this.address, abi)
+    return this.context.getContract(this.address)
   }
 
   public mint(beneficiary: Address, amount: typeof BN) {

@@ -54,6 +54,34 @@ describe('Stake on a ContributionReward', () => {
     expect(stakes.length).toEqual(1)
   })
 
+  it.only('approveAndStake works and gets indexed', async () => {
+
+    const proposal = await createAProposal(dao)
+
+    // approve the spend, for staking
+
+    // TODO: stll need to implement the "approveAndStake" function as returning an Observable
+    // (instead of a promise of an observable)
+    // const stakeObservable = await proposal.approveAndStake(IProposalOutcome.Pass, new BN(100))
+    const stakeObservable = proposal.approveAndStake(IProposalOutcome.Pass, new BN(100))
+    const stake = await stakeObservable.send()
+
+    expect(stake.result).toMatchObject({
+      outcome : IProposalOutcome.Pass
+    })
+
+    let stakes: Stake[] = []
+
+    const stakeIsIndexed = async () => {
+      // we pass no-cache to make sure we hit the server on each request
+      stakes = await Stake.search(arc, {proposal: proposal.id}, { fetchPolicy: 'no-cache' })
+        .pipe(first()).toPromise()
+      return stakes.length > 0
+    }
+    await waitUntilTrue(stakeIsIndexed)
+
+    expect(stakes.length).toEqual(1)
+  })
   it('throws a meaningful error if an insufficient amount tokens is approved for staking', async () => {
     const stakingToken =  arc.GENToken().contract()
     const proposal = await createAProposal(dao)
