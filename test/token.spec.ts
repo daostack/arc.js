@@ -100,4 +100,27 @@ describe('Token', () => {
     await waitUntilTrue(() => allowances.length > 0 && lastAllowance().gte(amount))
     expect(lastAllowance()).toMatchObject(amount)
   })
+
+  it('get balance of a non-existing token', async () => {
+    const token = new Token('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1', arc)
+    const promise = token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
+      .pipe(first()).toPromise()
+    await expect(promise).rejects.toThrow(
+      'no contract'
+    )
+  })
+
+  it('paging and sorting works', async () => {
+    const ls1 = await Token.search(arc, { first: 3, orderBy: 'id' }).pipe(first()).toPromise()
+    expect(ls1.length).toEqual(3)
+    expect(ls1[0].id <= ls1[1].id).toBeTruthy()
+
+    const ls2 = await Token.search(arc, { first: 2, skip: 2, orderBy: 'id' }).pipe(first()).toPromise()
+    expect(ls2.length).toEqual(2)
+    expect(ls1[2].id).toEqual(ls2[0].id)
+
+    const ls3 = await Token.search(arc, {  orderBy: 'id', orderDirection: 'desc'}).pipe(first()).toPromise()
+    expect(ls3[0].id >= ls3[1].id).toBeTruthy()
+  })
+
 })

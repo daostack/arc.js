@@ -4,7 +4,7 @@ import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { Address, Hash, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
 import { BN } from './utils'
-import { isAddress } from './utils'
+import { createGraphQlQuery, isAddress } from './utils'
 
 export interface ITokenState {
   address: Address
@@ -15,11 +15,13 @@ export interface ITokenState {
 }
 
 export interface ITokenQueryOptions extends ICommonQueryOptions {
-  address?: Address
-  name?: string
-  owner?: Address
-  symbol?: string
-  [key: string]: any
+  where?: {
+    address?: Address
+    name?: string
+    owner?: Address
+    symbol?: string
+    [key: string]: any
+  }
 }
 
 export interface IApproval {
@@ -51,8 +53,9 @@ export class Token implements IStateful<ITokenState> {
     options: ITokenQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Token[]> {
+    if (!options.where) { options.where = {}}
     let where = ''
-    for (const key of Object.keys(options)) {
+    for (const key of Object.keys(options.where)) {
       if (options[key] === undefined) {
         continue
       }
@@ -67,9 +70,7 @@ export class Token implements IStateful<ITokenState> {
     }
 
     const query = gql`{
-      tokens(where: {
-        ${where}
-      }) {
+      tokens ${createGraphQlQuery(options, where)} {
         id
       }
     }`
@@ -81,11 +82,14 @@ export class Token implements IStateful<ITokenState> {
     ) as Observable<Token[]>
   }
 
-  constructor(public address: Address, public context: Arc) {
-    if (!address) {
+  public address: string
+
+  constructor(public id: Address, public context: Arc) {
+    if (!id) {
       throw Error(`No address provided - cannot create Token instance`)
     }
-    isAddress(address)
+    isAddress(id)
+    this.address = id
   }
 
   public state(): Observable<ITokenState> {
@@ -117,6 +121,17 @@ export class Token implements IStateful<ITokenState> {
   }
 
   public balanceOf(owner: string): Observable<typeof BN> {
+    const errHandler = async (err: Error) => {
+      if (err.message.match(/Returned values aren't valid/g)) {
+        // check if there is actually a contract deployed there
+        const code = await this.context.web3.eth.getCode(this.address)
+        if (code === '0x') {
+          return new Error(`Cannot get balanceOf(): there is no contract at this address ${this.address}`)
+        }
+      }
+      return err
+
+    }
     const observable = Observable.create(async (observer: Observer<typeof BN>) => {
       const contract = this.contract()
       let subscription: Subscription
@@ -134,7 +149,9 @@ export class Token implements IStateful<ITokenState> {
               })
             })
         })
-        .catch((err: Error) => { observer.error(err)})
+        .catch(async (err: Error) => {
+          observer.error(await errHandler(err))
+        })
       return () => {
         if (subscription) { subscription.unsubscribe() }
       }

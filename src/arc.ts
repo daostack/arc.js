@@ -36,8 +36,8 @@ export class Arc extends GraphNodeObserver {
   // accounts obseved by ethBalance
   public blockHeaderSubscription: Subscription|undefined = undefined
   public observedAccounts: { [address: string]: {
-      observable?: Observable<typeof BN>,
-      observer?: Observer<typeof BN>,
+      observable?: Observable<typeof BN>
+      observer?: Observer<typeof BN>
       lastBalance?: number
       subscriptionsCount: number
     }
@@ -45,21 +45,19 @@ export class Arc extends GraphNodeObserver {
 
   constructor(options: {
     contractAddresses?: IContractInfo[]
-    graphqlHttpProvider: string
-    graphqlWsProvider: string
+    graphqlHttpProvider?: string
+    graphqlWsProvider?: string
     ipfsProvider: IPFSProvider
     web3Provider: string
-  }) {
+}) {
     super({
       graphqlHttpProvider: options.graphqlHttpProvider,
       graphqlWsProvider: options.graphqlWsProvider
     })
     this.ipfsProvider = options.ipfsProvider
 
-    const web3provider = options.web3Provider
-
-    if (web3provider) {
-      this.web3 = new Web3(web3provider)
+    if (options.web3Provider) {
+      this.web3 = new Web3(options.web3Provider)
     }
 
     this.contractAddresses = options.contractAddresses || []
@@ -112,7 +110,7 @@ export class Arc extends GraphNodeObserver {
   }
 
   public async scheme(id: string): Promise<Scheme> {
-    const schemes = await Scheme.search(this, { id }).pipe(first()).toPromise()
+    const schemes = await Scheme.search(this, {where: { id }}).pipe(first()).toPromise()
     if (schemes.length === 0) {
       throw Error(`No scheme with id ${id} is known`)
     }
@@ -124,7 +122,7 @@ export class Arc extends GraphNodeObserver {
   }
 
   public async proposal(id: string): Promise<Proposal> {
-    const proposals = await Proposal.search(this, {id }).pipe(first()).toPromise()
+    const proposals = await Proposal.search(this, { where: {id }}).pipe(first()).toPromise()
     if (proposals.length === 0) {
       throw Error(`No proposal with id ${id} was found`)
     }
