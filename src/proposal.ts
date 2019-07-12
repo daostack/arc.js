@@ -711,7 +711,18 @@ export class Proposal implements IStateful<IProposalState> {
       this.dao.address,
       beneficiary
     )
-    return this.context.sendTransaction(transaction, () => true)
+    const errorHandler = async (error: Error) => {
+      if (error.message.match(/always failing transaction/) || error.message.match(/revert/)) {
+        const proposal = this
+        const proposalDataFromVotingMachine = await this.votingMachine().methods.proposals(proposal.id).call()
+        if (proposalDataFromVotingMachine.proposer === NULL_ADDRESS ) {
+          return Error(`Error in vote(): unknown proposal with id ${proposal.id}`)
+        }
+      }
+      // if we have found no known error, we return the original error
+      return error
+    }
+    return this.context.sendTransaction(transaction, () => true, errorHandler)
   }
 
   /**

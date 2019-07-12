@@ -118,7 +118,6 @@ describe('Claim rewards', () => {
     })
 
     const prevTokenBalance = await firstResult(arc.GENToken().balanceOf(beneficiary))
-
     await proposal.claimRewards(beneficiary).send()
 
     const newTokenBalance = await firstResult(arc.GENToken().balanceOf(beneficiary))
@@ -128,6 +127,11 @@ describe('Claim rewards', () => {
 
   it('claimRewards should also work without providing a "beneficiary" argument', async () => {
     const proposal: Proposal = await createAProposal()
+    await proposal.claimRewards().send()
+  })
+
+  it('claimRewards should also work for expired proposals', async () => {
+    const proposal: Proposal = await arc.proposal(testAddresses.test.queuedProposalId)
     await proposal.claimRewards().send()
   })
 
