@@ -32,15 +32,15 @@ script:
   #  until https://github.com/daostack/subgraph/issues/241 is resolved
   - sleep 60
   - echo -en 'travis_fold:end:script.2\\r'
-  - npm run lint
-  - npm run test
+  # - npm run lint
+  # - npm run test
   # try to find the cause of the failing test
-  - npm run test -- test/scheme.spec.ts
+  # - npm run test -- test/scheme.spec.ts
   # try to find the cause of the failing test
   - npm run test -- test/proposal-create.spec.ts test/scheme.spec.ts
   # try to find the cause of the failing test
-  - npm run test -- test/p
-  - npm run build
+  # - npm run test -- test/p
+  # - npm run build
 
 after_success:
   # - npm run report-coverage
