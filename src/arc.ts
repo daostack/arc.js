@@ -2,12 +2,12 @@ import gql from 'graphql-tag'
 import { Observable, Observer, of, Subscription } from 'rxjs'
 import { first, map } from 'rxjs/operators'
 import { DAO, IDAOQueryOptions } from './dao'
+import { GENToken } from './gentoken'
 import { GraphNodeObserver } from './graphnode'
 import { Logger } from './logger'
 import { Operation, sendTransaction, web3receipt } from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
 import { ISchemeQueryOptions, Scheme } from './scheme'
-import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { BN } from './utils'
 import { isAddress } from './utils'
@@ -293,14 +293,14 @@ export class Arc extends GraphNodeObserver {
       if (this.contractInfos) {
         for (const contractInfo of this.contractInfos) {
           if (contractInfo.name === 'GEN' && contractInfo.version === LATEST_ARC_VERSION) {
-            return new Token(contractInfo.address, this)
+            return new GENToken(contractInfo.address, this)
           }
         }
       }
 
       for (const contractInfo of this.contractInfos) {
         if (contractInfo.name === 'GEN') {
-          return new Token(contractInfo.address, this)
+          return new GENToken(contractInfo.address, this)
         }
       }
       throw Error(`Cannot find address of GEN Token`)
