@@ -635,9 +635,9 @@ export class Proposal implements IStateful<IProposalState> {
 
   /**
    * stake for or against this proposal
-   * @param  outcome [description]
-   * @param  amount  [description]
-   * @return         [description]
+   * @param  outcome the predicted outcome, a value from IProposalOutcome
+   * @param  amount  the amount to stake, a BN instance
+   * @return an IOperationObservable
    */
   public stake(outcome: IProposalOutcome, amount: typeof BN ): Operation<Stake> {
     const observable = from(this.votingMachine()).pipe(
@@ -657,7 +657,7 @@ export class Proposal implements IStateful<IProposalState> {
     const observable = from(
       this.votingMachine().then(async (votingMachine: any) => {
         const staker = await this.context.getAccount().pipe(first()).toPromise()
-        const nonce = await votingMachine.methods.stakesNonce(staker).call()
+        const nonce = await votingMachine.methods.stakesNonce(staker.toLowerCase()).call()
         const signatureType = 1
         const textMsg = '0x' + ethereumjs.soliditySHA3(
            ['address', 'bytes32', 'uint', 'uint', 'uint'],
@@ -667,9 +667,8 @@ export class Proposal implements IStateful<IProposalState> {
         const encodeABI = await votingMachine.methods.stakeWithSignature(
           this.id, outcome, Number(amount), nonce, signatureType, signature).encodeABI()
         const stakingToken = await this.stakingToken()
-        console.log(stakingToken.contract().methods)
         const transaction = stakingToken.contract().methods.approveAndCall(
-         votingMachine.address, amount, encodeABI , {from : staker}
+         votingMachine.options.address, Number(amount), encodeABI
         )
         return transaction
       })).pipe(

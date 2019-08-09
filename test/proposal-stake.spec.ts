@@ -100,10 +100,6 @@ describe('Stake on a ContributionReward', () => {
    const proposal = await createAProposal(dao)
 
    // approve the spend, for staking
-
-   // TODO: stll need to implement the "approveAndStake" function as returning an Observable
-   // (instead of a promise of an observable)
-   // const stakeObservable = await proposal.approveAndStake(IProposalOutcome.Pass, new BN(100))
    const stakeObservable = proposal.approveAndStake(IProposalOutcome.Pass, new BN(100))
    const stake = await stakeObservable.send()
 
