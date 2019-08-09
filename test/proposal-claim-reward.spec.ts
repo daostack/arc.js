@@ -152,7 +152,8 @@ describe('Claim rewards', () => {
       value: 0
     })
 
-    await arc.GENToken().approveForStaking(beneficiary, stakeAmount).send()
+    const proposalState = await proposal.fetchStaticState()
+    await arc.GENToken().approveForStaking(proposalState.votingMachine, stakeAmount).send()
     await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
 
     // vote for the proposal with all the votest
