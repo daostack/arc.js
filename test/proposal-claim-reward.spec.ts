@@ -152,6 +152,7 @@ describe('Claim rewards', () => {
       value: 0
     })
 
+    await arc.GENToken().approveForStaking(beneficiary, stakeAmount).send()
     await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
 
     // vote for the proposal with all the votest
