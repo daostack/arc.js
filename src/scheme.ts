@@ -176,7 +176,7 @@ export class Scheme implements IStateful<ISchemeState> {
     }
   }
 
-  public state(): Observable < ISchemeState > {
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ISchemeState> {
     const query = gql`
         {
         controllerScheme (id: "${this.id}") {
@@ -294,7 +294,7 @@ export class Scheme implements IStateful<ISchemeState> {
         } : null
       }
     }
-    return this.context.getObservableObject(query, itemMap) as Observable<ISchemeState>
+    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
   }
 
     /**
@@ -341,10 +341,10 @@ export class Scheme implements IStateful<ISchemeState> {
       return toIOperationObservable(observable)
     }
 
-    public proposals(options: IProposalQueryOptions = {}): Observable < Proposal[] > {
+    public proposals(options: IProposalQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Proposal[]> {
       if (!options.where) { options.where = {}}
       options.where.scheme = this.id
-      return Proposal.search(this.context, options)
+      return Proposal.search(this.context, options, apolloQueryOptions)
     }
 
 }

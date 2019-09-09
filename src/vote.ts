@@ -120,7 +120,7 @@ export class Vote implements IStateful<IVoteState> {
     }
   }
 
-  public state(): Observable<IVoteState> {
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IVoteState> {
     const query = gql`{
       proposalVote (id: "${this.id}") {
         id
