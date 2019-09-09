@@ -184,7 +184,10 @@ export class Member implements IStateful<IMemberState> {
     throw new Error('not implemented')
   }
 
-  public proposals(options: IProposalQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Proposal[]> {
+  public proposals(
+    options: IProposalQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Proposal[]> {
     const observable = Observable.create(async (observer: any) => {
       const state = await this.fetchStaticState()
       if (!options.where) { options.where = {} }

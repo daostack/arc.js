@@ -150,7 +150,7 @@ export class Vote implements IStateful<IVoteState> {
         voter: item.voter
       }
     }
-    return this.context.getObservableObject(query, itemMap)
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
   public setStaticState(opts: IVoteStaticState) {

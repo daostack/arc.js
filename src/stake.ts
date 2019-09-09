@@ -142,7 +142,7 @@ export class Stake implements IStateful<IStakeState> {
         staker: item.staker
       }
     }
-    return this.context.getObservableObject(query, itemMap)
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
   public setStaticState(opts: IStakeStaticState) {

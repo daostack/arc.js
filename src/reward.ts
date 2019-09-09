@@ -124,7 +124,7 @@ export class Reward implements IStateful<IRewardState> {
       }
     }
 
-    return this.context.getObservableObject(query, itemMap)
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
 }

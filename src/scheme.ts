@@ -341,7 +341,10 @@ export class Scheme implements IStateful<ISchemeState> {
       return toIOperationObservable(observable)
     }
 
-    public proposals(options: IProposalQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Proposal[]> {
+    public proposals(
+      options: IProposalQueryOptions = {},
+      apolloQueryOptions: IApolloQueryOptions = {}
+    ): Observable<Proposal[]> {
       if (!options.where) { options.where = {}}
       options.where.scheme = this.id
       return Proposal.search(this.context, options, apolloQueryOptions)

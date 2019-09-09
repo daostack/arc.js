@@ -698,7 +698,10 @@ export class Proposal implements IStateful<IProposalState> {
 
   }
 
-  public rewards(options: IRewardQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Reward[]> {
+  public rewards(
+    options: IRewardQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Reward[]> {
     if (!options.where) { options.where = {}}
     options.where.proposal = this.id
     return Reward.search(this.context, options, apolloQueryOptions)
