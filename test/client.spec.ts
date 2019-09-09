@@ -83,7 +83,7 @@ describe('apolloClient', () => {
     subscription.unsubscribe()
   })
 
-  it.skip('getObservable works', async () => {
+  it('getObservable works', async () => {
     const arc = new Arc({
       contractInfos: getContractAddressesFromMigration('private'),
       graphqlHttpProvider,
@@ -101,6 +101,45 @@ describe('apolloClient', () => {
     `
 
     const observable = arc.getObservable(query)
+
+    const returnedData: object[] = []
+
+    const subscription = observable.subscribe(
+      (eventData: any) => {
+        // Do something on receipt of the event
+        returnedData.push(eventData.data)
+      },
+      (err: any) => {
+        throw err
+      }
+    )
+
+    await mintSomeReputation()
+    await mintSomeReputation()
+
+    await waitUntilTrue(() => returnedData.length >= 2 )
+    // expect(cntr).toEqual(3)
+    subscription.unsubscribe()
+  })
+
+  it('subscribe manually', async () => {
+    const arc = new Arc({
+      contractInfos: getContractAddressesFromMigration('private'),
+      graphqlHttpProvider,
+      graphqlWsProvider,
+      ipfsProvider: '',
+      web3Provider: 'ws://127.0.0.1:8545'
+    })
+    const query = gql`{
+        reputationMints {
+          contract
+          amount
+          address
+        }
+      }
+    `
+
+    const observable = arc.getObservable(query, {fetchPolicy: 'cache-only'})
 
     const returnedData: object[] = []
 

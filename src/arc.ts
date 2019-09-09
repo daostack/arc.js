@@ -3,6 +3,7 @@ import { Observable, Observer, of, Subscription } from 'rxjs'
 import { first, map } from 'rxjs/operators'
 import { DAO, IDAOQueryOptions } from './dao'
 import { GraphNodeObserver } from './graphnode'
+export { IApolloQueryOptions } from './graphnode'
 import { Logger } from './logger'
 import { Operation, sendTransaction, web3receipt } from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
@@ -406,10 +407,6 @@ export class Arc extends GraphNodeObserver {
     Logger.debug(`Data saved successfully as ${descriptionHash}`)
     return descriptionHash
   }
-}
-
-export interface IApolloQueryOptions {
-  fetchPolicy?: 'cache-first' | 'cache-and-network' | 'network-only' | 'cache-only' | 'no-cache' | 'standby'
 }
 
 export interface IContractAddresses {

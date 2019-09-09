@@ -6,6 +6,11 @@ import { catchError, filter, first, map } from 'rxjs/operators'
 import { Logger } from './logger'
 import { createApolloClient, zenToRxjsObservable } from './utils'
 
+export interface IApolloQueryOptions {
+  fetchPolicy?: 'cache-first' | 'cache-and-network' | 'network-only' | 'cache-only' | 'no-cache' | 'standby',
+  subscribe?: true | false
+}
+
 export interface IObservable<T> extends Observable<T> {
   first: () => T
 }
@@ -17,7 +22,7 @@ export class GraphNodeObserver {
   public graphqlHttpProvider?: string
   public graphqlWsProvider?: string
   public Logger = Logger
-  private apolloClient?: ApolloClient<object>
+  public apolloClient?: ApolloClient<object>
 
   constructor(options: {
     graphqlHttpProvider?: string
@@ -47,6 +52,7 @@ export class GraphNodeObserver {
     if (!this.apolloClient) {
       throw Error(`No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`)
     }
+
     const apolloClient = this.apolloClient as ApolloClient<object>
     const observable = Observable.create(async (observer: Observer<ApolloQueryResult<any>>) => {
       Logger.debug(query.loc.source.body)
@@ -54,24 +60,25 @@ export class GraphNodeObserver {
       if (!apolloQueryOptions.fetchPolicy) {
         apolloQueryOptions.fetchPolicy = 'cache-first'
       }
-
-      // subscriptionQuery subscribes to get notified of updates to the query
-      const subscriptionQuery = gql`
+      if (apolloQueryOptions.subscribe === true || apolloQueryOptions.subscribe === undefined) {
+        // subscriptionQuery subscribes to get notified of updates to the query
+        const subscriptionQuery = gql`
           subscription ${query}
         `
-      // subscribe
-      const zenObservable: ZenObservable<FetchResult<object[], Record<string, any>, Record<string, any>>>
-        = apolloClient.subscribe<object[]>({
-        fetchPolicy: 'cache-first',
-        query: subscriptionQuery
-       })
+        // subscribe
+        const zenObservable: ZenObservable<FetchResult<object[], Record<string, any>, Record<string, any>>>
+          = apolloClient.subscribe<object[]>({
+          fetchPolicy: 'cache-first',
+          query: subscriptionQuery
+         })
 
-      zenObservable.subscribe((next: any) => {
-          apolloClient.writeQuery({
-            data: next.data,
-            query
-          })
-      })
+        zenObservable.subscribe((next: any) => {
+            apolloClient.writeQuery({
+              data: next.data,
+              query
+            })
+        })
+      }
 
       const sub = zenToRxjsObservable(
         apolloClient.watchQuery({
@@ -201,8 +208,4 @@ export class GraphNodeObserver {
     return apolloClient.query({ query })
   }
 
-}
-
-export interface IApolloQueryOptions {
-  fetchPolicy?: 'cache-first' | 'cache-and-network' | 'network-only' | 'cache-only' | 'no-cache' | 'standby'
 }
