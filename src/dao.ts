@@ -40,6 +40,16 @@ export interface IDAOQueryOptions extends ICommonQueryOptions {
 }
 
 export class DAO implements IStateful<IDAOState> {
+  public static fragments = {
+    DAOFields: gql`
+      fragment DAOFields on DAO {
+        id
+        name
+        nativeReputation { id, totalSupply }
+        nativeToken { id, name, symbol, totalSupply }
+        reputationHoldersCount
+    }`
+  }
 
   /**
    * DAO.search(context, options) searches for DAO entities
@@ -70,11 +80,22 @@ export class DAO implements IStateful<IDAOState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    const query = gql`{
-      daos ${createGraphQlQuery(options, where)} {
-        id
-      }
-    }`
+    let query
+    if (apolloQueryOptions.fetchAllData === true) {
+      query = gql`{
+        daos ${createGraphQlQuery(options, where)} {
+          ...DAOFields
+          }
+        }
+        ${DAO.fragments.DAOFields}`
+    } else {
+      query = gql`{
+        daos ${createGraphQlQuery(options, where)} {
+          id
+        }
+      }`
+
+    }
 
     return context.getObservableList(
       query,
@@ -123,15 +144,13 @@ export class DAO implements IStateful<IDAOState> {
    * @return an Observable of IDAOState
    */
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IDAOState> {
-    const query = gql`{
-      dao(id: "${this.id}") {
-        id
-        name
-        nativeReputation { id, totalSupply }
-        nativeToken { id, name, symbol, totalSupply }
-        reputationHoldersCount
+    const query = gql`query DAOById {
+        dao(id: "${this.id}") {
+          ...DAOFields
+        }
       }
-    }`
+      ${DAO.fragments.DAOFields}
+     `
 
     const itemMap = (item: any): IDAOState => {
       if (item === null) {
@@ -186,14 +205,15 @@ export class DAO implements IStateful<IDAOState> {
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
     for (const key of Object.keys(options.where)) {
-      where += `${key}: "${options.where[key]}"\n`
+      where += `${key}: '${options.where[key]}'\n`
     }
     const query = gql`{
-      reputationHolders ${createGraphQlQuery(options, where)} {
-        id
-        address
+        reputationHolders ${createGraphQlQuery(options, where)} {
+            ...ReputationHolderFields
+        }
       }
-    }`
+      ${Member.fragments.ReputationHolderFields}
+      `
     const itemMap = (item: any): Member => new Member({address: item.address, dao: this.id}, this.context)
     return this.context.getObservableList(query, itemMap, apolloQueryOptions) as Observable<Member[]>
   }

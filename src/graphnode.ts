@@ -1,4 +1,4 @@
-import { InMemoryCache } from 'apollo-cache-inmemory'
+import { defaultDataIdFromObject, InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient, ApolloQueryResult } from 'apollo-client'
 import { FetchResult, Observable as ZenObservable } from 'apollo-link'
 import { split } from 'apollo-link'
@@ -15,7 +15,8 @@ import { zenToRxjsObservable } from './utils'
 
 export interface IApolloQueryOptions {
   fetchPolicy?: 'cache-first' | 'cache-and-network' | 'network-only' | 'cache-only' | 'no-cache' | 'standby',
-  subscribe?: true | false
+  subscribe?: true | false,
+  fetchAllData?: true | false
 }
 
 export interface IObservable<T> extends Observable<T> {
@@ -63,6 +64,7 @@ export function createApolloClient(options: {
   //     }),
   //     wsorhttplink
   //   ])
+
   const client = new ApolloClient({
     cache: new InMemoryCache({
       cacheRedirects: {
@@ -72,8 +74,21 @@ export function createApolloClient(options: {
             // console.log('cache key: ', [args, getCacheKey({ __typename: 'Proposal', id: args.id })])
             return getCacheKey({ __typename: 'Proposal', id: args.id })
           }
+          // reputationHolder: (_, args, { getCacheKey }) =>  {
+          //   console.log(args)
+          //   return getCacheKey({ __typename: 'ReputationHolder', id: args.id })
+          // }
         }
-      }
+      },
+      dataIdFromObject: (object) => {
+        switch (object.__typename) {
+          case 'ReputationHolder':
+            // @ts-ignore
+            return `${object.__typename}:${object.address}_${object.dao.id}`
+          default:
+            return defaultDataIdFromObject(object) // fall back to default handling
+        }
+  }
     }),
     connectToDevTools: true,
     link: wsOrHttpLink
@@ -129,10 +144,19 @@ export class GraphNodeObserver {
       }
       if (apolloQueryOptions.subscribe === true || apolloQueryOptions.subscribe === undefined) {
         // subscriptionQuery subscribes to get notified of updates to the query
-        const subscriptionQuery = gql`
-          subscription ${query}
-        `
-        // subscribe
+        let subscriptionQuery
+        if (query.loc.source.body.trim().startsWith('query')) {
+          // remove the "query" part from the string
+          subscriptionQuery = gql`
+            subscription ${query.loc.source.body.trim().substring('query'.length)}
+          `
+        } else {
+          subscriptionQuery = gql`
+            subscription ${query}
+          `
+
+        }
+      // subscribe
         const zenObservable: ZenObservable<FetchResult<object[], Record<string, any>, Record<string, any>>>
           = apolloClient.subscribe<object[]>({
           fetchPolicy: 'cache-first',
