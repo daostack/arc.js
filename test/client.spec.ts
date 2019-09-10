@@ -2,7 +2,8 @@ import { ApolloClient } from 'apollo-client'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { Arc } from '../src/arc'
-import { createApolloClient, getContractAddressesFromMigration } from '../src/utils'
+import { createApolloClient } from '../src/graphnode'
+import { getContractAddressesFromMigration } from '../src/utils'
 import { graphqlHttpProvider, graphqlWsProvider, mintSomeReputation, waitUntilTrue } from './utils'
 
 function getClient() {

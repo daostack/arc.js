@@ -34,6 +34,19 @@ export interface IMemberQueryOptions extends ICommonQueryOptions {
 
 export class Member implements IStateful<IMemberState> {
 
+  public static fragments = {
+    ReputationHolderFields: gql`
+      fragment ReputationHolderFields on ReputationHolder {
+        id
+        address
+        dao {
+          id
+        }
+        balance
+      }
+    `
+  }
+
   /**
    * Member.search(context, options) searches for member entities
    * @param  context an Arc instance that provides connection information
@@ -62,15 +75,14 @@ export class Member implements IStateful<IMemberState> {
     }
     where += ' dao_not: null\n'
 
-    const query = gql`{
-      reputationHolders ${createGraphQlQuery(options, where)} {
-        id
-        address
-        dao {
-          id
+    const query = gql`
+      query ReputationHolderSearch {
+        reputationHolders ${createGraphQlQuery(options, where)} {
+          ...ReputationHolderFields
         }
       }
-    }`
+      ${Member.fragments.ReputationHolderFields}
+    `
 
     return context.getObservableList(
       query,
@@ -125,15 +137,15 @@ export class Member implements IStateful<IMemberState> {
           reputationHolder (
               id: "${this.id}"
           ) {
-            id
-            address
-            dao {
-              id
-            }
-            balance
+            ...ReputationHolderFields
           }
-        }`
+        }
+      }
+        ${Member.fragments.ReputationHolderFields}
+      `
     } else {
+      // try to read directly from the cache first
+
       const staticState = this.staticState as IMemberStaticState
       query = gql`{
           reputationHolders (
@@ -142,14 +154,12 @@ export class Member implements IStateful<IMemberState> {
               dao: "${staticState.dao}"
             }
           ) {
-            id
-            address
-            dao {
-              id
-            }
-            balance
+            ...ReputationHolderFields
           }
-        }`
+        }
+
+        ${Member.fragments.ReputationHolderFields}
+        `
     }
 
     const itemMap = (items: any) => {
@@ -172,7 +182,7 @@ export class Member implements IStateful<IMemberState> {
           reputation: new BN(item.balance)
         }
       }
-    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IMemberState>
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IMemberState>
   }
 
   public async dao(): Promise<DAO> {

@@ -189,11 +189,12 @@ export class DAO implements IStateful<IDAOState> {
       where += `${key}: "${options.where[key]}"\n`
     }
     const query = gql`{
-      reputationHolders ${createGraphQlQuery(options, where)} {
-        id
-        address
+        reputationHolders ${createGraphQlQuery(options, where)} {
+            ...ReputationHolderFields
+        }
       }
-    }`
+      ${Member.fragments.ReputationHolderFields}
+    `
     const itemMap = (item: any): Member => new Member({address: item.address, dao: this.id}, this.context)
     return this.context.getObservableList(query, itemMap, apolloQueryOptions) as Observable<Member[]>
   }

@@ -24,6 +24,7 @@
     "build:watch": "tsc --watch",
     "bundle": "rollup -c rollup.config.ts -w",
     "deploy-docs": "ts-node tools/gh-pages-publish",
+    "graphql-codegen": "graphql-codegen",
     "lint": "npm run tslint",
     "prepare": "npm run build",
     "prebuild": "rimraf dist",
@@ -65,6 +66,8 @@
     ]
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^1.7.0",
+    "@graphql-codegen/typescript": "^1.7.0",
     "@types/graphql": "^14.2.2",
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/jest": "^24.0.15",
