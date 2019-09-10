@@ -288,10 +288,10 @@ export class Arc extends GraphNodeObserver {
    */
   public GENToken() {
     if (this.contractInfos) {
-      // TODO: remove this reference to LATEST_ARC_VERSION
-      // (it's aworkaround for https://github.com/daostack/subgraph/issues/257)
       if (this.contractInfos) {
         for (const contractInfo of this.contractInfos) {
+          // TODO: remove this reference to LATEST_ARC_VERSION
+          // (it's aworkaround for https://github.com/daostack/subgraph/issues/257)
           if (contractInfo.name === 'GEN' && contractInfo.version === LATEST_ARC_VERSION) {
             return new Token(contractInfo.address, this)
           }
