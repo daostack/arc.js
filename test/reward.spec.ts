@@ -93,7 +93,7 @@ describe('Reward', () => {
     expect(rewardFromId.staticState).not.toBeTruthy()
     await rewardFromId.fetchStaticState()
     expect(rewardFromId.staticState).toBeTruthy()
-    const  rewardFromStaticState = new Reward(reward.stsaticState)
+    const  rewardFromStaticState = new Reward(reward.staticState)
     expect(rewardFromStaticState.staticState).toBeTruthy()
   })
 })
