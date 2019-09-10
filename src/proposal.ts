@@ -4,6 +4,7 @@ import { concatMap, filter, first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
+import { IObservable } from './graphnode'
 import { Operation, toIOperationObservable } from './operation'
 import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
@@ -211,7 +212,7 @@ export class Proposal implements IStateful<IProposalState> {
       query,
       (r: any) => new Proposal(r.id, context),
       apolloQueryOptions
-    ) as Observable<Proposal[]>
+    ) as IObservable<Proposal[]>
   }
 
   public context: Arc

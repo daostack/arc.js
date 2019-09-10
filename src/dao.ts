@@ -201,25 +201,20 @@ export class DAO implements IStateful<IDAOState> {
     options: IMemberQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Member[]> {
-    let where = ''
+    // const where = ''
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
-    for (const key of Object.keys(options.where)) {
-      where += `${key}: '${options.where[key]}'\n`
-    }
-    const query = gql`{
-        reputationHolders ${createGraphQlQuery(options, where)} {
-            ...ReputationHolderFields
-        }
-      }
-      ${Member.fragments.ReputationHolderFields}
-      `
-    const itemMap = (item: any): Member => new Member({address: item.address, dao: this.id}, this.context)
-    return this.context.getObservableList(query, itemMap, apolloQueryOptions) as Observable<Member[]>
+    return Member.search(this.context, options, apolloQueryOptions)
   }
 
   public member(address: Address): Member {
-    return new Member({ address, dao: this.id}, this.context)
+    if (this.staticState) {
+      // construct member with the reputationcontract address, if this is known
+      // so it can make use of the apollo cache
+      return new Member({ address, contract: this.staticState.reputation.address}, this.context)
+    } else {
+      return new Member({ address, dao: this.id}, this.context)
+    }
   }
 
   /**

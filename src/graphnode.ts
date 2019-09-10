@@ -71,20 +71,15 @@ export function createApolloClient(options: {
         Query: {
           dao: (_, args, { getCacheKey }) =>  getCacheKey({ __typename: 'DAO', id: args.id }),
           proposal: (_, args, { getCacheKey }) => {
-            // console.log('cache key: ', [args, getCacheKey({ __typename: 'Proposal', id: args.id })])
             return getCacheKey({ __typename: 'Proposal', id: args.id })
+          },
+          reputationHolder: (_, args, { getCacheKey }) => {
+            return getCacheKey({ __typename: 'ReputationHolder', id: args.id })
           }
-          // reputationHolder: (_, args, { getCacheKey }) =>  {
-          //   console.log(args)
-          //   return getCacheKey({ __typename: 'ReputationHolder', id: args.id })
-          // }
         }
       },
       dataIdFromObject: (object) => {
         switch (object.__typename) {
-          case 'ReputationHolder':
-            // @ts-ignore
-            return `${object.__typename}:${object.address}_${object.dao.id}`
           default:
             return defaultDataIdFromObject(object) // fall back to default handling
         }
@@ -285,7 +280,6 @@ export class GraphNodeObserver {
         return r.data[entity]
       }),
       map(itemMap)
-      // filter((o) => !!o)
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable

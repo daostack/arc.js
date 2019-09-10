@@ -1,28 +1,14 @@
 import { first } from 'rxjs/operators'
-// import { ApolloClient } from 'apollo-client'
-// import gql from 'graphql-tag'
-// import { Observable, Observer } from 'rxjs'
 import { Arc } from '../src/arc'
-// import { createApolloClient } from '../src/graphnode'
+import { Member } from '../src/member'
 import { getContractAddressesFromMigration } from '../src/utils'
-import { graphqlHttpProvider, graphqlWsProvider
-  // , mintSomeReputation, waitUntilTrue
-} from './utils'
-
-// function getClient() {
-//   const apolloClient = createApolloClient({
-//     graphqlHttpProvider,
-//     graphqlWsProvider
-//   })
-//   return apolloClient
-// }
+import { graphqlHttpProvider, graphqlWsProvider } from './utils'
 
 jest.setTimeout(20000)
 /**
- * Token test
+ * Tests to see if the apollo cache works as expected
  */
-describe('apolloClient', () => {
-  // let client: any
+describe('apolloClient caching checks', () => {
 
   it('pre-fetching DAOs works', async () => {
     const arc = new Arc({
@@ -33,46 +19,88 @@ describe('apolloClient', () => {
       web3Provider: 'ws://127.0.0.1:8545'
     })
 
-    const client = arc.apolloClient
+    // const client = arc.apolloClient
     // get all DAOs
     const daos = await arc.daos().pipe(first()).toPromise()
-    // @ts-ignore
-    console.log(client.cache.data.data)
-    // we should now be able to get data of individual DAOs without hitting the server
+
+    // we will still hit the server when getting the DAO state, because the previous query did not fetch all state data
+    // so the next line with 'cache-only' will throw an Error
     const p = arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
     expect(p).rejects.toThrow()
 
     // now get all the DAOs with defailed data
     await arc.daos({}, { fetchAllData: true }).pipe(first()).toPromise()
-    const dao = await arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
-    // @ts-ignore
-    // console.log(client.cache.data.data)
-    console.log(dao.address)
+    // now we have all data in the cache - and we can get the whole state from the cache without error
+    await arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+  })
+  it.only('pre-fetching Proposals works', async () => {
+    const arc = new Arc({
+      contractInfos: getContractAddressesFromMigration('private'),
+      graphqlHttpProvider,
+      graphqlWsProvider,
+      ipfsProvider: '',
+      web3Provider: 'ws://127.0.0.1:8545'
+    })
 
-    //
-    const result = await arc.daos({ where: { name: dao.name}}, { fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
-    console.log(result)
+    // const client = arc.apolloClient
+    // get all DAOs
+    const daos = await arc.daos().pipe(first()).toPromise()
+    const dao = daos[0]
+    const proposals = Proposal.search(arc).pipe(first()).toPromise()
 
-    // const observable = arc.getObservable(query)
-    //
-    // const returnedData: object[] = []
-    //
-    // const subscription = observable.subscribe(
-    //   (eventData: any) => {
-    //     // Do something on receipt of the event
-    //     returnedData.push(eventData.data)
-    //   },
-    //   (err: any) => {
-    //     throw err
-    //   }
-    // )
-    //
-    // await mintSomeReputation()
-    // await mintSomeReputation()
-    //
-    // await waitUntilTrue(() => returnedData.length >= 2 )
-    // expect(cntr).toEqual(3)
-    // subscription.unsubscribe()
+    // we will still hit the server when getting the DAO state, because the previous query did not fetch all state data
+    // so the next line with 'cache-only' will throw an Error
+    const p = arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+    expect(p).rejects.toThrow()
+
+    // now get all the DAOs with defailed data
+    await arc.daos({}, { fetchAllData: true }).pipe(first()).toPromise()
+    // now we have all data in the cache - and we can get the whole state from the cache without error
+    await arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+  })
+
+  it('pre-fetching Members with Member.search() works', async () => {
+    const arc = new Arc({
+      contractInfos: getContractAddressesFromMigration('private'),
+      graphqlHttpProvider,
+      graphqlWsProvider,
+      ipfsProvider: '',
+      web3Provider: 'ws://127.0.0.1:8545'
+    })
+
+    // get all members of the dao
+    const members = await Member.search(arc).pipe(first()).toPromise()
+    const member = members[0]
+
+    // we will still hit the server when getting the DAO state, because the previous query did not fetch all state data
+    // so the next line with 'cache-only' will throw an Error
+    expect(member.id).toBeTruthy()
+    // await new Member(member.id as string , arc).state().pipe(first()).toPromise()
+    await new Member(member.id as string , arc).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+  })
+
+  it('pre-fetching Members with dao.members() works', async () => {
+    const arc = new Arc({
+      contractInfos: getContractAddressesFromMigration('private'),
+      graphqlHttpProvider,
+      graphqlWsProvider,
+      ipfsProvider: '',
+      web3Provider: 'ws://127.0.0.1:8545'
+    })
+
+    // const client = arc.apolloClient
+    // get all DAOs
+    const daos = await arc.daos().pipe(first()).toPromise()
+    const dao = daos[0]
+    // get all members of the dao
+    const members = await dao.members().pipe(first()).toPromise()
+    const member = members[0]
+
+    // we will still hit the server when getting the DAO state, because the previous query did not fetch all state data
+    // so the next line with 'cache-only' will throw an Error
+    expect(member.id).toBeTruthy()
+    // await new Member(member.id as string , arc).state().pipe(first()).toPromise()
+    await new Member(member.id as string , arc).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
   })
 
 })
