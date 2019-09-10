@@ -1,3 +1,4 @@
+import { Observable as ZenObservable } from 'apollo-link'
 import * as WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
 import { IContractInfo } from './arc'
