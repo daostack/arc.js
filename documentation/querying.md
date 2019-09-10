@@ -31,9 +31,9 @@ By default, subscribing to an observable will do to things:
 
 Because subscriptions can be expensive, this behavior can be turned off, so only the query will be sent.
 ```
-const observable1 = arc.daos({}, { subscribe: true})
+const observable1 = arc.daos({}, { subscribe: false})
 const observable2 = dao.state({subscribe: false})
 ```
 In this example, observable2 will not open a subscription to the server
-This does not mean that you will not get any updates to your subscriptio
-You may still get updates if the data in the cache changes (as the result of another query, or because the cache was updates as a result of observable1)
+
+This does not mean that you will not get any updates to your subscription - the query will still watch the cache for changes, so if another query updates the cache, the observable will emit an updated result.
