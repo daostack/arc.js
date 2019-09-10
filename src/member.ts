@@ -9,15 +9,21 @@ import { Reward } from './reward'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { BN } from './utils'
-import { createGraphQlQuery, isAddress } from './utils'
+import { concat, createGraphQlQuery, hexStringToUint8Array,
+  isAddress
+  // stringToUint8Array
+ } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
 export interface IMemberStaticState {
+  id?: string,
   address: Address,
+  contract?: Address,
   dao: Address
 }
 export interface IMemberState extends IMemberStaticState {
-  id: string,
+  contract: Address
+  id: string
   reputation: typeof BN
 }
 
@@ -39,6 +45,7 @@ export class Member implements IStateful<IMemberState> {
       fragment ReputationHolderFields on ReputationHolder {
         id
         address
+        contract
         dao {
           id
         }
@@ -86,7 +93,7 @@ export class Member implements IStateful<IMemberState> {
 
     return context.getObservableList(
       query,
-      (r: any) => new Member({ address: r.address, dao: r.dao.id}, context),
+      (r: any) => new Member({ id: r.id, address: r.address, dao: r.dao.id, contract: r.contract}, context),
       apolloQueryOptions
     )
   }
@@ -116,18 +123,30 @@ export class Member implements IStateful<IMemberState> {
     } else {
       const state = await this.state().pipe(first()).toPromise()
       this.id = state.id
-      this.staticState = {
+
+      return this.setStaticState({
         address: state.address,
-        dao: state.dao
-      }
-      return this.staticState
+        contract: state.contract,
+        dao: state.dao,
+        id: state.id
+      })
     }
   }
   public setStaticState(opts: IMemberStaticState) {
+    if (!opts.id && opts.contract && opts.address) {
+      const seed = concat(
+        hexStringToUint8Array(opts.contract.toLowerCase()),
+        hexStringToUint8Array(opts.address.toLowerCase())
+      )
+      opts.id = this.context.web3.utils.keccak256(seed)
+    }
     this.staticState = {
       address: opts.address.toLowerCase(),
-      dao: opts.dao.toLowerCase()
+      contract: opts.contract && opts.contract.toLowerCase(),
+      dao: opts.dao.toLowerCase(),
+      id: opts.id
     }
+    return this.staticState
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IMemberState> {
@@ -178,7 +197,9 @@ export class Member implements IStateful<IMemberState> {
       const item = items[0]
       return {
           address: item.address,
+          contract: item.contract,
           dao: item.dao.id,
+          id: item.id,
           reputation: new BN(item.balance)
         }
       }

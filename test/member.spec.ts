@@ -105,7 +105,7 @@ describe('Member', () => {
     expect(proposalIds).toContain(proposal.id)
   })
 
-  it.skip('Members are searchable', async () => {
+  it('Members are searchable', async () => {
     let members: Member[] = []
 
     Member.search(arc)
@@ -130,5 +130,18 @@ describe('Member', () => {
     const ls3 = await Member.search(arc, {  orderBy: 'address', orderDirection: 'desc'}).pipe(first()).toPromise()
     expect((ls3[0].staticState as IMemberStaticState).address >=
       (ls3[1].staticState as IMemberStaticState).address).toBeTruthy()
+  })
+
+  it('member: generate id is correctly', async () => {
+    const members = await Member.search(arc).pipe(first()).toPromise()
+    const member = members[0]
+    const memberState = await member.state().pipe(first()).toPromise()
+    expect(memberState.contract).toBeTruthy()
+    const newMember = new Member(
+      { contract: memberState.contract, dao: memberState.dao, address: memberState.address}, arc)
+    const newMemberStaticState = await newMember.fetchStaticState()
+    expect(newMemberStaticState.id).toEqual(memberState.id)
+    const newMemberState = await newMember.state().pipe(first()).toPromise()
+    expect(newMemberState.id).toEqual(memberState.id)
   })
 })
