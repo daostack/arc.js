@@ -125,7 +125,6 @@ export class Member implements IStateful<IMemberState> {
       return this.staticState
     } else {
       const state = await this.state().pipe(first()).toPromise()
-
       return this.setStaticState({
         address: state.address,
         contract: state.contract,
@@ -159,8 +158,7 @@ export class Member implements IStateful<IMemberState> {
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IMemberState> {
     let query: any
     if (this.id) {
-
-    query = gql`query ReputionHolderState {
+      query = gql`query ReputionHolderStateFromId {
           reputationHolder (
               id: "${this.id}"
           ) {
@@ -168,26 +166,26 @@ export class Member implements IStateful<IMemberState> {
           }
         }
         ${Member.fragments.ReputationHolderFields}
-    `
-    return this.context.getObservableObject(
-      query,
-      (r: any) => {
-        if (r === null) {
-          // we return a dummy object with 0 reputation
-          const staticState = this.staticState as IMemberStaticState
-          return  {
-            address: staticState.address,
-            dao: staticState.dao,
-            reputation: new BN(0)
+      `
+      return this.context.getObservableObject(
+        query,
+        (r: any) => {
+          if (r === null) {
+            // we return a dummy object with 0 reputation
+            const staticState = this.staticState as IMemberStaticState
+            return  {
+              address: staticState.address,
+              dao: staticState.dao,
+              reputation: new BN(0)
+            }
           }
-        }
-        return { id: r.id, address: r.address, dao: r.dao.id, contract: r.contract, reputation: new BN(r.balance)}
-      },
-      apolloQueryOptions
-    )
+          return { id: r.id, address: r.address, dao: r.dao.id, contract: r.contract, reputation: new BN(r.balance)}
+        },
+        apolloQueryOptions
+      )
     } else {
       const staticState = this.staticState as IMemberStaticState
-      query = gql`{
+      query = gql`query ReputationHolderStateFromDAOAndAddress {
           reputationHolders (
             where: {
               address: "${staticState.address}"

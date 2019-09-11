@@ -156,14 +156,25 @@ export class DAO implements IStateful<IDAOState> {
       if (item === null) {
         throw Error(`Could not find a DAO with id ${this.id}`)
       }
+      const reputation = new Reputation(item.nativeReputation.id, this.context)
+      const token = new Token(item.nativeToken.id, this.context)
+      this.setStaticState({
+        address: item.id,
+        id: item.id,
+        name: item.name,
+        reputation,
+        token,
+        tokenName: item.nativeToken.name,
+        tokenSymbol: item.nativeToken.symbol
+      })
       return {
         address: item.id,
         id: item.id,
         memberCount: Number(item.reputationHoldersCount),
         name: item.name,
-        reputation: new Reputation(item.nativeReputation.id, this.context),
+        reputation,
         reputationTotalSupply: new BN(item.nativeReputation.totalSupply),
-        token: new Token(item.nativeToken.id, this.context),
+        token,
         tokenName: item.nativeToken.name,
         tokenSymbol: item.nativeToken.symbol,
         tokenTotalSupply: item.nativeToken.totalSupply
@@ -201,7 +212,6 @@ export class DAO implements IStateful<IDAOState> {
     options: IMemberQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Member[]> {
-    // const where = ''
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
     return Member.search(this.context, options, apolloQueryOptions)

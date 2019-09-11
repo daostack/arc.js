@@ -181,7 +181,7 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
   return new Promise((resolve) => {
     (async function waitForIt(): Promise<void> {
       if (await test()) { return resolve() }
-      setTimeout(waitForIt, 30)
+      setTimeout(waitForIt, 100)
     })()
   })
 }
@@ -191,7 +191,12 @@ export async function voteToAcceptProposal(proposal: Proposal) {
   const arc = proposal.context
   const accounts = arc.web3.eth.accounts.wallet
   // make sure the proposal is indexed
-  await waitUntilTrue(async () => !!(await proposal.state().pipe(first()).toPromise()))
+  console.log(`wait until prop is indexed`)
+  await waitUntilTrue(async () => {
+    const state = await proposal.state({ fetchPolicy: 'network-only'}).pipe(first()).toPromise()
+    return !!state
+  })
+  console.log(`prop is indexed`)
 
   for (let i = 0; i <= 3; i ++) {
     try {
