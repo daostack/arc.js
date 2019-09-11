@@ -40,7 +40,6 @@ describe('Member', () => {
     const member = members[0]
     const memberState = await member.state().pipe(first()).toPromise()
     expect(Number(memberState.reputation)).toBeGreaterThan(0)
-    expect(memberState.address).toEqual(defaultAccount.toLowerCase())
     expect(memberState.dao).toBe(dao.id.toLowerCase())
   })
 
