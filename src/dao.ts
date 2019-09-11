@@ -28,6 +28,7 @@ export interface IDAOState extends IDAOStaticState {
   memberCount: number
   reputationTotalSupply: typeof BN
   tokenTotalSupply: typeof BN
+  dao: DAO
 }
 
 export interface IDAOQueryOptions extends ICommonQueryOptions {
@@ -169,6 +170,7 @@ export class DAO implements IStateful<IDAOState> {
       })
       return {
         address: item.id,
+        dao: this,
         id: item.id,
         memberCount: Number(item.reputationHoldersCount),
         name: item.name,

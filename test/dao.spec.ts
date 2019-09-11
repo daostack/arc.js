@@ -64,6 +64,7 @@ describe('DAO', () => {
     const state = await dao.state().pipe(first()).toPromise()
     expect(Object.keys(state)).toEqual([
       'address',
+      'dao',
       'id',
       'memberCount',
       'name',
@@ -133,7 +134,8 @@ describe('DAO', () => {
     const proposal = response.result as Proposal
     let proposals: Proposal[] = []
     const proposalIsIndexed = async () => {
-      proposals = await Proposal.search(arc, {where: {id: proposal.id}}).pipe(first()).toPromise()
+      proposals = await Proposal.search(arc, {where: {id: proposal.id}}, { fetchPolicy: 'network-only'})
+        .pipe(first()).toPromise()
       return proposals.length > 0
     }
     await waitUntilTrue(proposalIsIndexed)
