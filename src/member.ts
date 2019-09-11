@@ -249,7 +249,7 @@ export class Member implements IStateful<IMemberState> {
     return toIOperationObservable(observable)
   }
 
-  public stakes(options: IStakeQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable < Stake[] > {
+  public stakes(options: IStakeQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Stake[]> {
     const observable = Observable.create(async (observer: any) => {
       const state = await this.fetchStaticState()
       if (!options.where) { options.where = {} }
