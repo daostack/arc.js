@@ -11,7 +11,7 @@ jest.setTimeout(20000)
  */
 describe('apolloClient caching checks', () => {
 
-  it.skip('pre-fetching DAOs works', async () => {
+  it('pre-fetching DAOs works', async () => {
     const arc = new Arc({
       contractInfos: getContractAddressesFromMigration('private'),
       graphqlHttpProvider,
@@ -35,7 +35,7 @@ describe('apolloClient caching checks', () => {
     await arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
   })
 
-  it.skip('pre-fetching Proposals works', async () => {
+  it('pre-fetching Proposals works', async () => {
     const arc = new Arc({
       contractInfos: getContractAddressesFromMigration('private'),
       graphqlHttpProvider,
@@ -44,7 +44,7 @@ describe('apolloClient caching checks', () => {
       web3Provider: 'ws://127.0.0.1:8545'
     })
 
-    const proposals = Proposal.search(arc).pipe(first()).toPromise()
+    const proposals = await Proposal.search(arc).pipe(first()).toPromise()
     const proposal = proposals[0]
     // so the next line with 'cache-only' will throw an Error
     const p = proposal.state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
