@@ -131,12 +131,14 @@ export class GraphNodeObserver {
     }
 
     const apolloClient = this.apolloClient as ApolloClient<object>
-    const observable = Observable.create(async (observer: Observer<ApolloQueryResult<any>>) => {
+    const observable = Observable.create((observer: Observer<ApolloQueryResult<any>>) => {
       Logger.debug(query.loc.source.body)
 
       if (!apolloQueryOptions.fetchPolicy) {
         apolloQueryOptions.fetchPolicy = 'cache-first'
       }
+
+      let subscriptionSubscription: any
       if (apolloQueryOptions.subscribe === true || apolloQueryOptions.subscribe === undefined) {
         // subscriptionQuery subscribes to get notified of updates to the query
         let subscriptionQuery
@@ -151,14 +153,14 @@ export class GraphNodeObserver {
           `
 
         }
-      // subscribe
-        const zenObservable: ZenObservable<FetchResult<object[], Record<string, any>, Record<string, any>>>
+        // send a subscription request to the server
+        const subscriptionObservable: ZenObservable<FetchResult<object[], Record<string, any>, Record<string, any>>>
           = apolloClient.subscribe<object[]>({
           fetchPolicy: 'cache-first',
           query: subscriptionQuery
          })
-
-        zenObservable.subscribe((next: any) => {
+         // subscribe to the results
+        subscriptionSubscription = subscriptionObservable.subscribe((next: any) => {
             apolloClient.writeQuery({
               data: next.data,
               query
@@ -171,8 +173,7 @@ export class GraphNodeObserver {
           fetchPolicy: apolloQueryOptions.fetchPolicy,
           fetchResults: true,
           query
-        })
-      )
+        }))
         .pipe(
           filter((r: ApolloQueryResult<any>) => {
             return !r.loading
@@ -182,7 +183,12 @@ export class GraphNodeObserver {
           })
         )
         .subscribe(observer)
-      return () => sub.unsubscribe()
+      return () => {
+        if (subscriptionSubscription) {
+          subscriptionSubscription.unsubscribe()
+        }
+        sub.unsubscribe()
+      }
     })
     observable.first = () => observable.pipe(first()).toPromise()
     return observable
