@@ -123,7 +123,7 @@ describe('Proposal', () => {
     expect(result.length).toEqual(1)
   })
 
-  it('dao.proposals() accepts different query arguments', async () => {
+  it.only('dao.proposals() accepts different query arguments', async () => {
     const { queuedProposalId } = addresses.test
     const proposals = await dao.proposals({ where: { stage: IProposalStage.Queued}}).pipe(first()).toPromise()
     expect(typeof proposals).toEqual(typeof [])
