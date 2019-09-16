@@ -21,7 +21,7 @@ describe('DAO', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-})
+  })
 
   it('is instantiable', () => {
     const address = '0x12345'
