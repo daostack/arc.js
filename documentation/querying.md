@@ -43,13 +43,13 @@ Regarding step 2, the creation of a subscription can be controlled by passing th
 arc.daos({}, { subscribe: false})
 dao.state({subscribe: false})
 ```
-Although these queries will not subscribe themselves to updates, the observable will still watch for changes in the Ajpollo cache and return updated results if the cache changes.
+Although these queries will not subscribe themselves to updates, the observable will still watch for changes in the Appollo cache and return updated results if the cache changes.
 
 Most of these methods are implemented in such a way that the queries will fetch (and subscribe to) just as much data as is needed to create the result set. For example, `dao.proposals()` will only fetch the proposal IDs. This can be controlled (in a limited way) by setting the parameter `fetchAllData` to true
 ```
 dao.proposals({orderBy: "creationDate"}, {fetchAllData: true})
 ```
-This is useful for cache handling, where it may be useful to have more complete control over what data is being fetched. Consider the following example, which will get the list of proposals fromt he dao, and then get the state for each of the proposals.
+This is useful for cache handling, where it may be useful to have more complete control over what data is being fetched. Consider the following example, which will get the list of proposals from the dao, and then get the state for each of the proposals.
 ```
 dao.proposals().subscribe(
   (props) => {
