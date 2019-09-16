@@ -83,14 +83,14 @@ export class DAO implements IStateful<IDAOState> {
 
     let query
     if (apolloQueryOptions.fetchAllData === true) {
-      query = gql`{
+      query = gql`query SearchDaosWithAllData {
         daos ${createGraphQlQuery(options, where)} {
           ...DAOFields
           }
         }
         ${DAO.fragments.DAOFields}`
     } else {
-      query = gql`{
+      query = gql`query SearchDaoIds {
         daos ${createGraphQlQuery(options, where)} {
           id
         }
