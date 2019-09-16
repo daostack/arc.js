@@ -159,6 +159,8 @@ export class Member implements IStateful<IMemberState> {
     let query: any
     if (this.id) {
       query = gql`query ReputionHolderStateFromId {
+          # contract: ${this.staticState && this.staticState.contract}
+          # address: ${this.staticState && this.staticState.address}
           reputationHolder (
               id: "${this.id}"
           ) {
