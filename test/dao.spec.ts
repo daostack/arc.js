@@ -39,6 +39,12 @@ describe('DAO', () => {
     expect(result.length).toBeGreaterThan(0)
   })
 
+  it('fetchAllData in DAO.search works', async () => {
+    let result: DAO[]
+    result = await DAO.search(arc, {}, { fetchAllData: true}).pipe(first()).toPromise()
+    expect(result.length).toBeGreaterThan(1)
+  })
+
   it('should be possible to get the token balance of the DAO', async () => {
     const dao = await getTestDAO()
     const { token } = await dao.state().pipe(first()).toPromise()
