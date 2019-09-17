@@ -175,10 +175,14 @@ export class Member implements IStateful<IMemberState> {
           if (r === null) {
             // we return a dummy object with 0 reputation
             const staticState = this.staticState as IMemberStaticState
-            return  {
-              address: staticState.address,
-              dao: staticState.dao,
-              reputation: new BN(0)
+            if (staticState) {
+              return  {
+                address: staticState.address,
+                dao: staticState.dao,
+                reputation: new BN(0)
+              }
+            } else {
+              throw Error(`No member with id ${this.id} was found`)
             }
           }
           return { id: r.id, address: r.address, dao: r.dao.id, contract: r.contract, reputation: new BN(r.balance)}
@@ -267,6 +271,7 @@ export class Member implements IStateful<IMemberState> {
       const state = await this.fetchStaticState()
       if (!options.where) { options.where = {} }
       options.where.voter = state.address
+      options.where.dao = state.dao
       const sub = Vote.search(this.context, options, apolloQueryOptions) .subscribe(observer)
       return () => sub.unsubscribe()
     })

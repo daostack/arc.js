@@ -1,4 +1,4 @@
-import { defaultDataIdFromObject, InMemoryCache } from 'apollo-cache-inmemory'
+import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient, ApolloQueryResult } from 'apollo-client'
 import { FetchResult, Observable as ZenObservable } from 'apollo-link'
 import { split } from 'apollo-link'
@@ -24,8 +24,9 @@ export interface IObservable<T> extends Observable<T> {
 }
 
 export function createApolloClient(options: {
-  graphqlHttpProvider: string
-  graphqlWsProvider: string
+  graphqlHttpProvider: string,
+  graphqlWsProvider: string,
+  prefetchHook?: any // a callback function that will be called for each query sent to the link
 }) {
   const httpLink = new HttpLink({
     credentials: 'same-origin',
@@ -44,6 +45,9 @@ export function createApolloClient(options: {
   const wsOrHttpLink = split(
     // split based on operation type
     ({ query }) => {
+      if (options.prefetchHook) {
+        options.prefetchHook(query)
+      }
       const definition = getMainDefinition(query)
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
     },
@@ -69,24 +73,58 @@ export function createApolloClient(options: {
     cache: new InMemoryCache({
       cacheRedirects: {
         Query: {
-          dao: (_, args, { getCacheKey }) =>  getCacheKey({ __typename: 'DAO', id: args.id }),
+          dao: (_, args, { getCacheKey }) =>  {
+            return getCacheKey({ __typename: 'DAO', id: args.id })
+          },
           proposal: (_, args, { getCacheKey }) => {
             return getCacheKey({ __typename: 'Proposal', id: args.id })
           },
           reputationHolder: (_, args, { getCacheKey }) => {
             return getCacheKey({ __typename: 'ReputationHolder', id: args.id })
+          },
+          reputationHolders: (cache, args, { getCacheKey }) => {
+            if (args.where.address && args.where.contract) {
+              // @ts-ignore
+              // for (const x in cache) { console.log(x)}
+              // const dao = cache.get(getCacheKey({__typename: 'DAO', id: args.id}))
+              // console.log(dao)
+            }
+            // console.log(args)
+          },
+          proposalVotes: (cache, args, otherargs) => {
+            // console.log(`cacheRedirects: proposalVotes`)
+            // console.log(cache)
+            // console.log(args)
+            // console.log(otherargs)
+            // return args.ids.map((id: string) => getCacheKey({ __typename: 'DAO', id}))
           }
+          // daos: (_, args, { getCacheKey }) => {
+          //   console.log(`daos cache redirect`)
+          //   console.log(_)
+          //   console.log(args)
+          //   return args.ids.map((id: string) => getCacheKey({ __typename: 'DAO', id}))
+          // }
         }
-      },
-      dataIdFromObject: (object) => {
-        switch (object.__typename) {
-          default:
-            return defaultDataIdFromObject(object) // fall back to default handling
-        }
-  }
+      }
+
     }),
     connectToDevTools: true,
-    link: wsOrHttpLink
+    link: wsOrHttpLink,
+    resolvers: {
+      Query: {
+        reputationHolders(obj, args, context, info) {
+          console.log('resolve daos..jjj')
+          console.log(obj)
+          console.log(args)
+          // console.log(context)
+          console.log(info.field.directives)
+          console.log(info.field.directives[0].arguments[0].value.fields)
+          console.log(info.field.directives[0].arguments[0].value.fields[0].value)
+          console.log(info.field.selectionSet.selections)
+          return 'something'
+        }
+      }
+    }
   })
   return client
 }
@@ -157,6 +195,7 @@ export class GraphNodeObserver {
         const subscriptionObservable: ZenObservable<FetchResult<object[], Record<string, any>, Record<string, any>>>
           = apolloClient.subscribe<object[]>({
           fetchPolicy: 'cache-first',
+          // fetchPolicy: 'network-only',
           query: subscriptionQuery
          })
          // subscribe to the results

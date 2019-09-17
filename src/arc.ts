@@ -98,7 +98,7 @@ export class Arc extends GraphNodeObserver {
    * @return a list of IContractInfo instances
    */
   public async fetchContractInfos(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IContractInfo[]> {
-    const query = gql`{
+    const query = gql`query AllContractInfos {
       contractInfos {
         id
         name

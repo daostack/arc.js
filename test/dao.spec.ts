@@ -120,7 +120,7 @@ describe('DAO', () => {
     const dao = await getTestDAO()
     const proposals = await dao.proposals().pipe(first()).toPromise()
     expect(typeof proposals).toEqual(typeof [])
-    expect(proposals.length).toBeGreaterThanOrEqual(6)
+    expect(proposals.length).toBeGreaterThanOrEqual(4)
   })
 
   it('createProposal should work', async () => {

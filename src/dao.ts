@@ -100,7 +100,23 @@ export class DAO implements IStateful<IDAOState> {
 
     return context.getObservableList(
       query,
-      (r: any) => new DAO(r.id, context),
+      (r: any) => {
+        if (apolloQueryOptions.fetchAllData) {
+          const reputation = new Reputation(r.nativeReputation.id, context)
+          const token = new Token(r.nativeToken.id, context)
+          return new DAO({
+            address: r.address,
+            id: r.id,
+            name: r.name,
+            reputation,
+            token,
+            tokenName: r.tokenName,
+            tokenSymbol: r.tokenSymbol
+          }, context)
+        } else {
+          return new DAO(r.id, context)
+        }
+      },
       apolloQueryOptions
     )
   }
