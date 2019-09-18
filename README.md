@@ -30,6 +30,7 @@ arc.daos()
 
 * [overview](./documentation/overview.md)
 * [development](./documentation/development.md)
+<<<<<<< Updated upstream
 * [example](./documentation/example-session.md)
 * [troubleshooting](./documentation/troubleshooting.md)
 
@@ -61,3 +62,7 @@ docker-compose down
  - `npm run build`: Generate bundles and typings, create docs
  - `npm run lint`: Lints code
  - `npm run test`: run all tests
+=======
+* [small demo](./documentation/demo.js)
+* [Generated documentation](./docs/globals.md)
+>>>>>>> Stashed changes
