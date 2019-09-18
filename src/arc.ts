@@ -180,21 +180,33 @@ export class Arc extends GraphNodeObserver {
 
       // set up the blockheadersubscription if it does not exist yet
       if (!this.blockHeaderSubscription) {
-        this.blockHeaderSubscription = this.web3Read.eth.subscribe('newBlockHeaders', (err: Error) => {
-          Object.keys(this.observedAccounts).forEach((addr) => {
-            const accInfo = this.observedAccounts[addr]
-            if (err) {
-              (accInfo.observer as Observer<typeof BN>).error(err)
-            } else {
-              this.web3Read.eth.getBalance(addr).then((balance: any) => {
-                if (balance !== accInfo.lastBalance) {
-                  (accInfo.observer as Observer<typeof BN>).next(new BN(balance))
-                  accInfo.lastBalance = balance
-                }
-              })
-            }
+        const subscribeToBlockHeaders = () =>   {
+          this.blockHeaderSubscription = this.web3Read.eth.subscribe('newBlockHeaders', (err: Error) => {
+            Object.keys(this.observedAccounts).forEach((addr) => {
+              const accInfo = this.observedAccounts[addr]
+              if (err) {
+                (accInfo.observer as Observer<typeof BN>).error(err)
+              } else {
+                this.web3Read.eth.getBalance(addr).then((balance: any) => {
+                  if (balance !== accInfo.lastBalance) {
+                    (accInfo.observer as Observer<typeof BN>).next(new BN(balance))
+                    accInfo.lastBalance = balance
+                  }
+                })
+              }
+            })
           })
-        })
+        }
+        try {
+          subscribeToBlockHeaders()
+        } catch (err) {
+          if (err.message.match(/connection not open/g)) {
+            // we need to re-establish the connection and then resubscribe
+            this.web3Read = new Web3(this.web3ProviderRead)
+            subscribeToBlockHeaders()
+          }
+          throw err
+        }
       }
       // unsubscribe
       return () => {
