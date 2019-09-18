@@ -1,74 +1,17 @@
-import { InMemoryCache } from 'apollo-cache-inmemory'
-import { ApolloClient, ApolloQueryResult } from 'apollo-client'
-import { split } from 'apollo-link'
 import { Observable as ZenObservable } from 'apollo-link'
-import { HttpLink } from 'apollo-link-http'
-import { WebSocketLink } from 'apollo-link-ws'
-import { getMainDefinition } from 'apollo-utilities'
-import BN = require('bn.js')
-import gql from 'graphql-tag'
-import fetch from 'isomorphic-fetch'
 import * as WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
-import { IContractAddresses } from './arc'
-import { Logger } from './logger'
-import { Address } from './types'
+import { IContractInfo } from './arc'
+import { Address, ICommonQueryOptions } from './types'
 const Web3 = require('web3')
+export const BN = require('bn.js')
 
-export function fromWei(amount: BN): string {
+export function fromWei(amount: typeof BN): string {
   return Web3.utils.fromWei(amount, 'ether')
 }
 
-export function toWei(amount: string | number): BN {
+export function toWei(amount: string | number): typeof BN {
   return Web3.utils.toWei(amount.toString(), 'ether')
-}
-
-export function createApolloClient(options: {
-  graphqlHttpProvider: string
-  graphqlWsProvider: string
-}) {
-  const httpLink = new HttpLink({
-    credentials: 'same-origin',
-    fetch,
-    uri: options.graphqlHttpProvider
-  })
-
-  const wsLink = new WebSocketLink({
-    options: {
-      reconnect: true
-    },
-    uri: options.graphqlWsProvider,
-    webSocketImpl: WebSocket
-  })
-
-  const wsOrHttpLink = split(
-    // split based on operation type
-    ({ query }) => {
-      const definition = getMainDefinition(query)
-      return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
-    },
-    wsLink,
-    httpLink
-  )
-  // we can also add error handling
-  // const errorHandlingLink = apollolink.from([
-  //     onerror(({ graphqlerrors, networkerror }) => {
-  //       if (graphqlerrors) {
-  //         graphqlerrors.map(({ message, locations, path }) =>
-  //           console.log(
-  //             `[graphql error]: message: ${message}, location: ${locations}, path: ${path}`,
-  //           ),
-  //         );
-  //       if (networkerror) { console.log(`[network error]: ${networkerror}`)}
-  //       }
-  //     }),
-  //     wsorhttplink
-  //   ])
-  const client = new ApolloClient({
-    cache: new InMemoryCache(),
-    link: wsOrHttpLink
-  })
-  return client
 }
 
 export function checkWebsocket(options: { url: string }) {
@@ -90,29 +33,6 @@ export function checkWebsocket(options: { url: string }) {
     setTimeout(function timeout() {
       ws.send(Date.now())
     }, 500)
-  }
-}
-
-export async function getOptionsFromChain(web3Instance: any) {
-  if (web3Instance.eth.defaultAccount === null) {
-    Logger.warn(`No defaultAccount was set -- cannot send transaction`)
-  }
-  const block = await web3Instance.eth.getBlock('latest')
-  return {
-    from: web3Instance.eth.defaultAccount,
-    gas: block.gasLimit - 100000
-  }
-}
-
-export function getWeb3Options(web3Instance: any) {
-  if (!web3Instance.eth.defaultAccount) {
-    const msg = `No defaultAccount was set -- cannot send transaction`
-    Logger.warn(msg)
-    throw Error(msg)
-  }
-  return {
-    from: web3Instance.eth.defaultAccount,
-    gas: 6000000
   }
 }
 
@@ -140,6 +60,9 @@ export function eventId(event: EthereumEvent): string {
 }
 
 export function isAddress(address: Address) {
+  if (!address) {
+    throw new Error(`Not a valid address: ${address}`)
+  }
   if (!Web3.utils.isAddress(address)) {
     throw new Error(`Not a valid address: ${address}`)
   }
@@ -157,72 +80,133 @@ export function zenToRxjsObservable(zenObservable: ZenObservable<any>) {
   })
 }
 
-/**
- * get the contract addresses by querying the "meta-url" of the subgraph deployment
- * (in the default configuration, if the subgraph is at a url of the form:
- *      http://some.thing/subgraphs/name/{subgraphName}/graphql
- * then the "metaurl" is:
- *      http://some.thing/subgraphs/graphql
- * @param  graphqlHttpProvider a URL of the form http://some.thing/subgraphs/graphql
- * @param  subgraphName        name of the subgraph
- * @return                     an array with contract names as keys and addresses as values
- */
-export async function getContractAddresses(graphqlHttpProvider: string, subgraphName: string) {
-
-  const query = gql`{
-    subgraphs (where: { name: "${subgraphName}"} ) {
-      id
-      name
-      currentVersion {
-        deployment {
-          manifest {
-            dataSources {
-              name
-              source {
-                abi
-                address
-              }
-            }
-          }
-        }
-      }
-    }
-  }`
-  const httpLink = new HttpLink({
-    credentials: 'same-origin',
-    fetch,
-    uri: graphqlHttpProvider
-  })
-
-  const client = new ApolloClient({
-    cache: new InMemoryCache(),
-    link: httpLink
-  })
-
-  let response: any
-  try {
-    response = await client.query({query}) as ApolloQueryResult<{ subgraphs: any[]}>
-  } catch (err) {
-    console.log(err)
-    throw err
-  }
-  const dataSources = response.data.subgraphs[0].currentVersion.deployment.manifest.dataSources
-  const result: IContractAddresses = {}
-  for (const record of dataSources) {
-    const name: string = record.name
-    const address = record.source.address
-    result[name] = address.toLowerCase()
-  }
-  return result
-}
+// /**
+//  * get the contract addresses by querying the "meta-url" of the subgraph deployment
+//  * (in the default configuration, if the subgraph is at a url of the form:
+//  *      http://some.thing/subgraphs/name/{subgraphName}/graphql
+//  * then the "metaurl" is:
+//  *      http://some.thing/subgraphs/graphql
+//  * @param  graphqlHttpProvider a URL of the form http://some.thing/subgraphs/graphql
+//  * @param  subgraphName        name of the subgraph
+//  * @return                     an array with contract names as keys and addresses as values
+//  */
+// export async function getContractAddresses(graphqlHttpProvider: string, subgraphName: string) {
+//
+//   const query = gql`{
+//     subgraphs (where: { name: "${subgraphName}"} ) {
+//       id
+//       name
+//       currentVersion {
+//         deployment {
+//           manifest {
+//             dataSources {
+//               name
+//               source {
+//                 abi
+//                 address
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }`
+//   const httpLink = new HttpLink({
+//     credentials: 'same-origin',
+//     fetch,
+//     uri: graphqlHttpProvider
+//   })
+//
+//   const client = new ApolloClient({
+//     cache: new InMemoryCache(),
+//     link: httpLink
+//   })
+//
+//   let response: any
+//   try {
+//     response = await client.query({query}) as ApolloQueryResult<{ subgraphs: any[]}>
+//   } catch (err) {
+//     throw err
+//   }
+//   if (response.data.subgraphs.length === 0) {
+//     throw Error(`Could not find a subgraph with this name: "${subgraphName}" -- does it exist?`)
+//   }
+//   const dataSources = response.data.subgraphs[0].currentVersion.deployment.manifest.dataSources
+//   const result: IContractAddresses = {}
+//   for (const record of dataSources) {
+//     const name: string = record.name
+//     const address = record.source.address
+//     result[name] = address.toLowerCase()
+//   }
+//   return result
+// }
 /** convert the number representation of RealMath.sol representations to real real numbers
  * @param  t a BN instance of a real number in the RealMath representation
  * @return  a BN
  */
-export function realMathToNumber(t: BN): number {
+export function realMathToNumber(t: typeof BN): number {
   const REAL_FBITS = 40
   const fraction = t.maskn(REAL_FBITS).toNumber() / Math.pow(2, REAL_FBITS)
   return t.shrn(REAL_FBITS).toNumber() + fraction
 }
 
 export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
+
+export function getContractAddressesFromMigration(environment: 'private'|'rinkeby'|'mainnet'): IContractInfo[] {
+  const migration = require('@daostack/migration/migration.json')[environment]
+  const contracts: IContractInfo[] = []
+  for (const version of Object.keys( migration.base)) {
+    for (const name of Object.keys(migration.base[version])) {
+      contracts.push({
+        address: migration.base[version][name],
+        id: migration.base[version][name],
+        name,
+        version
+      })
+    }
+
+  }
+  return contracts
+}
+
+/**
+ * creates a string to be plugsging into a graphql query
+ * @example
+ * `{  proposals ${createGraphQlQuery({ skip: 2}, 'id: "2"')}
+ *    { id }
+ * }`
+ * @param  options [description]
+ * @param  where   [description]
+ * @return         [description]
+ */
+export function createGraphQlQuery(options: ICommonQueryOptions, where: string = '') {
+  let queryString = ``
+
+  if (!where) {
+    for (const key of Object.keys(options.where)) {
+      where += `${key}: "${options.where[key]}"\n`
+    }
+  }
+  if (where) {
+    queryString += `where: {
+      ${where}
+    }`
+  }
+  if (options.first) {
+    queryString += `first: ${options.first}\n`
+  }
+  if (options.skip) {
+    queryString += `skip: ${options.skip}\n`
+  }
+  if (options.orderBy) {
+    queryString += `orderBy: ${options.orderBy}\n`
+  }
+  if (options.orderDirection) {
+    queryString += `orderDirection: ${options.orderDirection}\n`
+  }
+  if (queryString) {
+    return `(${queryString})`
+  } else {
+    return ''
+  }
+}

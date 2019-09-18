@@ -1,64 +1,68 @@
-import BN = require('bn.js')
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
-import { IProposalOutcome, IProposalStage, IProposalState, IProposalType, Proposal } from '../src/proposal'
-import { createAProposal, fromWei, getTestDAO, newArc,
-  timeTravel, toWei, voteToAcceptProposal, waitUntilTrue } from './utils'
+import { DAO } from '../src/dao'
+import { IProposalOutcome, IProposalStage, IProposalState, Proposal } from '../src/proposal'
+import { BN } from './utils'
+import { createAProposal, fromWei, getTestAddresses, getTestDAO, ITestAddresses,
+  newArc, timeTravel, toWei,
+  voteToAcceptProposal, waitUntilTrue } from './utils'
 
-jest.setTimeout(10000)
+jest.setTimeout(40000)
 
 describe('Proposal execute()', () => {
   let arc: Arc
+  let addresses: ITestAddresses
+  let dao: DAO
+  let executedProposal: Proposal
 
   beforeAll(async () => {
     arc = await newArc()
+    addresses = await getTestAddresses()
+    dao = await getTestDAO()
+    executedProposal = await dao.proposal(addresses.test.executedProposalId)
   })
 
   it('runs correctly through the stages', async () => {
 
-    const dao = await getTestDAO()
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
     const accounts = arc.web3.eth.accounts.wallet
+    const state = await executedProposal.fetchStaticState()
+    const schemeAddress = state.scheme.address
+
     const options = {
       beneficiary,
+      dao: dao.id,
       ethReward: toWei('4'),
       externalTokenAddress: undefined,
       externalTokenReward: toWei('3'),
       nativeTokenReward: toWei('2'),
       reputationReward: toWei('1'),
-      type: IProposalType.ContributionReward
+      scheme: schemeAddress
     }
-    const response = await dao.createProposal(options).send()
-    const proposalId = (response.result as any).id
 
-    const proposal = new Proposal(proposalId, dao.address, arc)
-
-    let proposalState
-    let proposalIsIndexed: boolean = false
+    let proposalState: IProposalState
     const proposalStates: IProposalState[] = []
+    const lastState = () => proposalStates[proposalStates.length - 1]
+
+    const proposal = (await dao.createProposal(options).send()).result
+
     proposal.state().subscribe(
       (next: IProposalState) => {
         if (next) {
-          proposalIsIndexed = true
+          proposalStates.push(next)
         }
-        proposalStates.push(next)
       },
       (error: Error) => { throw error }
     )
-    const lastState = () => proposalStates[proposalStates.length - 1]
-    await waitUntilTrue(() => proposalIsIndexed)
-    // check the state right after creation
-    await waitUntilTrue(() => proposalStates.length > 1)
-    expect(proposalStates[1].stage).toEqual(IProposalStage.Queued)
+
+    // wait until the propsal is indexed
+    await waitUntilTrue(() => proposalStates.length > 0)
+    expect(lastState().stage).toEqual(IProposalStage.Queued)
 
     // calling execute in this stage has no effect on the stage
     await proposal.execute().send()
 
     await proposal.vote(IProposalOutcome.Pass).send()
-    // let's vote for the proposal with accounts[1]
-    proposal.context.web3.eth.accounts.defaultAccount = accounts[1]
-    await proposal.vote(IProposalOutcome.Pass).send()
-    proposal.context.web3.eth.accounts.defaultAccount = accounts[0]
 
     // wait until the votes have been counted
     await waitUntilTrue(() => lastState().votesFor.gt(new BN(0)))
@@ -67,10 +71,14 @@ describe('Proposal execute()', () => {
     expect(Number(fromWei(proposalState.votesFor))).toBeGreaterThan(0)
     expect(fromWei(proposalState.votesAgainst)).toEqual('0')
 
-    await proposal.stakingToken().mint(accounts[0].address, toWei('1000')).send()
-    await proposal.stakingToken().approveForStaking(toWei('1000')).send()
+    const amountToStakeFor = toWei(10000)
+    await proposal.stakingToken().mint(accounts[0].address, amountToStakeFor).send()
+    await proposal.stakingToken()
+      .approveForStaking(proposalState.votingMachine, amountToStakeFor.add(new BN(1000))).send()
 
-    await proposal.stake(IProposalOutcome.Pass, toWei('200')).send()
+    await proposal.execute().send()
+
+    await proposal.stake(IProposalOutcome.Pass, amountToStakeFor).send()
 
     await waitUntilTrue(() => lastState().stakesFor.gt(new BN(0)))
     proposalState = lastState()
@@ -88,38 +96,35 @@ describe('Proposal execute()', () => {
       return lastState().stage === IProposalStage.Boosted
     })
     expect(lastState().stage).toEqual(IProposalStage.Boosted)
-  }, 10000)
+  })
 
   it('throws a meaningful error if the proposal does not exist', async () => {
-    const dao = await getTestDAO()
     // a non-existing proposal
     const proposal = new Proposal(
-      '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2', dao.address, arc
+      '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
+      // dao.address,
+      // executedProposal.schemeAddress,
+      // executedProposal.votingMachineAddress,
+      arc
     )
     await expect(proposal.execute().send()).rejects.toThrow(
-      /does not exist/i
+      /no proposal/i
     )
   })
 
   it('execute a proposal by voting only', async () => {
-    const dao = await getTestDAO()
-    arc = dao.context
     // daoBalance
     const daoState = await dao.state().pipe(first()).toPromise()
     const repTotalSupply = daoState.reputationTotalSupply
-    // const daoBalance = await dao.ethBalance().pipe(first()).toPromise()
-    // expect(daoBalance).toEqual(new BN(0))
-
     const proposalStates: IProposalState[] = []
-
     const lastState = () => proposalStates[proposalStates.length - 1]
     const proposal = await createAProposal(dao,  { ethReward: new BN(0)})
-    proposal.state().subscribe((state) => {
+    proposal.state().subscribe((state: IProposalState) => {
       proposalStates.push(state)
     })
     // calling "execute" immediately will have no effect, because the proposal is not
-    await waitUntilTrue(() => proposalStates.length === 2)
-    expect(proposalStates[proposalStates.length - 1].stage).toEqual(IProposalStage.Queued)
+    await waitUntilTrue(() => proposalStates.length === 1)
+    expect(lastState().stage).toEqual(IProposalStage.Queued)
     // this execution will not change the state, because the quorum is not met
     await proposal.execute().send()
     expect(lastState().stage).toEqual(IProposalStage.Queued)

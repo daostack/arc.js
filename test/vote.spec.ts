@@ -4,7 +4,7 @@ import { IProposalOutcome} from '../src/proposal'
 import { Vote } from '../src/vote'
 import { createAProposal, getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
 
-jest.setTimeout(10000)
+jest.setTimeout(60000)
 
 /**
  * Stake test
@@ -18,15 +18,14 @@ describe('vote', () => {
   })
 
   it('Vote is instantiable', () => {
-    const vote = new Vote(
-      '0x1234id',
-      '0x124votes',
-      0,
-      IProposalOutcome.Fail,
-      toWei('100'),
-      '0x12445proposalId',
-      '0x12445daoAddress'
-    )
+    const vote = new Vote({
+      amount: toWei('100'),
+      createdAt: 0,
+      id: '0x1234id',
+      outcome: IProposalOutcome.Fail,
+      proposal: '0x12445proposalId',
+      voter: '0x124votes'
+    }, arc)
     expect(vote).toBeInstanceOf(Vote)
   })
 
@@ -40,42 +39,52 @@ describe('vote', () => {
 
     const voteIsIndexed = async () => {
       // we pass no-cache to make sure we hit the server on each request
-      result = await Vote.search({proposal: proposal.id}, arc, { fetchPolicy: 'no-cache' })
+      result = await Vote.search(arc, {where:  {proposal: proposal.id}}, { fetchPolicy: 'no-cache' })
         .pipe(first()).toPromise()
       return result.length > 0
     }
     await waitUntilTrue(voteIsIndexed)
     if (result) {
       expect(result.length).toEqual(1)
-      expect(result[0].outcome).toEqual(IProposalOutcome.Pass)
+
+      expect((await result[0].fetchStaticState()).outcome).toEqual(IProposalOutcome.Pass)
     }
     const vote = result[0]
 
-    result = await Vote.search({}, arc)
+    result = await Vote.search(arc)
       .pipe(first()).toPromise()
     expect(Array.isArray(result)).toBe(true)
 
-    result = await Vote.search({proposal: '0x12345doesnotexist'}, arc)
+    result = await Vote.search(arc, {where: {proposal: '0x12345doesnotexist'}})
       .pipe(first()).toPromise()
     expect(result).toEqual([])
 
-    result = await Vote.search({id: '0x12345doesnotexist'}, arc)
+    result = await Vote.search(arc, {where:  {id: '0x12345doesnotexist'}})
       .pipe(first()).toPromise()
     expect(result).toEqual([])
 
-    result = await Vote.search({id: vote.id}, arc)
+    result = await Vote.search(arc, {where:  {id: vote.id}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
 
-    result = await Vote.search({id: vote.id, voter: arc.web3.utils.toChecksumAddress(vote.voter)}, arc)
+    const voteState = await vote.fetchStaticState()
+    result = await Vote.search(arc, {where: {id: vote.id, voter: arc.web3.utils.toChecksumAddress(voteState.voter)}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
 
-    // TODO: find out why the test below fails with a timeout error
-    // result = await Vote.search(arc, {
-    //   dao: '0xsomedao',
-    //   id: '0x12345doesnotexist'
-    // }).pipe(first()).toPromise()
-    // expect(result).toEqual([])
   })
+
+  it('paging and sorting works', async () => {
+    const ls1 = await Vote.search(arc, { first: 3, orderBy: 'voter' }).pipe(first()).toPromise()
+    expect(ls1.length).toEqual(3)
+    expect((await ls1[0].fetchStaticState()).voter <= (await ls1[1].fetchStaticState()).voter).toBeTruthy()
+
+    const ls2 = await Vote.search(arc, { first: 2, skip: 2, orderBy: 'voter' }).pipe(first()).toPromise()
+    expect(ls2.length).toEqual(2)
+    expect((await ls1[2].fetchStaticState()).voter).toEqual((await ls2[0].fetchStaticState()).voter)
+
+    const ls3 = await Vote.search(arc, {  orderBy: 'voter', orderDirection: 'desc'}).pipe(first()).toPromise()
+    expect((await ls3[0].fetchStaticState()).voter <= (await ls3[1].fetchStaticState()).voter).toBeTruthy()
+  })
+
 })

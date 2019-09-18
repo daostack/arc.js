@@ -1,8 +1,8 @@
 import { ITransactionState, ITransactionUpdate } from '../src/operation'
-import { IProposalType, Proposal } from '../src/proposal'
-import { getTestDAO, mineANewBlock, newArc, toWei, waitUntilTrue } from './utils'
+import { Proposal } from '../src/proposal'
+import { getTestAddresses, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
 
-jest.setTimeout(10000)
+jest.setTimeout(60000)
 
 describe('Operation', () => {
 
@@ -10,11 +10,12 @@ describe('Operation', () => {
     const dao = await getTestDAO()
     const options = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+      dao: dao.id,
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      type: IProposalType.ContributionReward
+      scheme: getTestAddresses().base.ContributionReward
     }
 
     // collect the first 4 results of the observable in a a listOfUpdates array
@@ -24,41 +25,46 @@ describe('Operation', () => {
     )
 
     // wait for the transaction to be mined
-    // (we expect first a 'transaction sent' update, then the 0 confirmation)
-    await waitUntilTrue(() => listOfUpdates.length === 2)
+    // (we expect first a
+    // 1 'transaction sending' update
+    // 2 'transaction sent' update,
+    // 3. then the 0 confirmation)
+    await waitUntilTrue(() => listOfUpdates.length === 3)
 
     // wait for all blocks mined in the reduce step
     for (let i = 0; i < 4; i++) {
       await mineANewBlock()
     }
-    // wait forl all pdates
-    await waitUntilTrue(() => listOfUpdates.length > 3)
+    // wait forl all updates
+    await waitUntilTrue(() => listOfUpdates.length > 4)
 
-    // the first returned value is expected to be the "sent" (i.e. not mined yet)
+    // the first returned value is expected to be the "sending" (i.e. not mined yet)
     expect(listOfUpdates[0]).toMatchObject({
-      state: ITransactionState.Sent
+      state: ITransactionState.Sending
     })
     expect(listOfUpdates[1]).toMatchObject({
+      state: ITransactionState.Sent
+    })
+    expect(listOfUpdates[2]).toMatchObject({
       confirmations: 0,
       state: ITransactionState.Mined
     })
-    expect(listOfUpdates[1].result).toBeDefined()
-    expect(listOfUpdates[1].receipt).toBeDefined()
-    expect(listOfUpdates[1].transactionHash).toBeDefined()
+    expect(listOfUpdates[2].result).toBeDefined()
+    expect(listOfUpdates[2].receipt).toBeDefined()
+    expect(listOfUpdates[2].transactionHash).toBeDefined()
 
-    expect( listOfUpdates[1].result ).toBeInstanceOf(Proposal)
+    expect( listOfUpdates[2].result ).toBeInstanceOf(Proposal)
 
-    expect(listOfUpdates[2]).toMatchObject({
+    expect(listOfUpdates[3]).toMatchObject({
       confirmations: 1,
       state: ITransactionState.Mined
     })
-    expect(listOfUpdates[3]).toMatchObject({
+    expect(listOfUpdates[4]).toMatchObject({
       confirmations: 2,
-      receipt: listOfUpdates[1].receipt,
-      // result: listOfUpdates[1].result,
+      receipt: listOfUpdates[2].receipt,
       state: ITransactionState.Mined,
-      transactionHash: listOfUpdates[1].transactionHash
+      transactionHash: listOfUpdates[2].transactionHash
     })
 
-  }, 20000)
+  })
 })

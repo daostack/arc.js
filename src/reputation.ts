@@ -1,28 +1,81 @@
 import { ApolloQueryResult } from 'apollo-client'
-import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { Arc } from './arc'
-import { Address, IStateful, Web3Receipt } from './types'
-import { getWeb3Options, isAddress } from './utils'
+import { Arc, IApolloQueryOptions } from './arc'
+import { REPUTATION_CONTRACT_VERSION } from './settings'
+import { Address, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
+import { BN, createGraphQlQuery, isAddress } from './utils'
 
 export interface IReputationState {
   address: Address
   totalSupply: number
+  dao: Address
+}
+
+export interface IReputationQueryOptions extends ICommonQueryOptions {
+  id?: string,
+  dao?: Address
+  [key: string]: any
 }
 
 export class Reputation implements IStateful<IReputationState> {
 
-  constructor(public address: Address, public context: Arc) {
-    isAddress(address)
-  }
-  public state(): Observable<IReputationState> {
+  /**
+   * Reputation.search(context, options) searches for reputation entities
+   * @param  context an Arc instance that provides connection information
+   * @param  options the query options, cf. IReputationQueryOptions
+   * @return         an observable of Reputation objects
+   */
+  public static search(
+    context: Arc,
+    options: IReputationQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Reputation[]> {
+    let where = ''
+    if (!options.where) { options.where = {}}
+    for (const key of Object.keys(options.where)) {
+      if (options[key] === undefined) {
+        continue
+      }
+
+      if (key === 'dao') {
+        const option = options[key] as string
+        isAddress(option)
+        options[key] = option.toLowerCase()
+      }
+
+      where += `${key}: "${options[key] as string}"\n`
+    }
+
     const query = gql`{
-      reputationContract (id: "${this.address.toLowerCase()}") {
-        id,
-        address,
+      reps
+      ${createGraphQlQuery(options, where)}
+      {
+        id
+      }
+    }`
+
+    return context.getObservableList(
+      query,
+      (r: any) => new Reputation(r.id, context),
+      apolloQueryOptions
+    )
+  }
+
+  public address: Address
+  constructor(public id: Address, public context: Arc) {
+    isAddress(id)
+    this.address = id
+  }
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IReputationState> {
+    const query = gql`{
+      rep (id: "${this.address.toLowerCase()}") {
+        id
         totalSupply
+        dao {
+          id
+        }
       }
     }`
     const itemMap = (item: any): IReputationState => {
@@ -30,14 +83,15 @@ export class Reputation implements IStateful<IReputationState> {
         throw Error(`Could not find a reputation contract with address ${this.address.toLowerCase()}`)
       }
       return {
-        address: item.address,
+        address: item.id,
+        dao: item.dao.id,
         totalSupply: item.totalSupply
       }
     }
-    return this.context.getObservableObject(query, itemMap) as Observable<IReputationState>
+    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IReputationState>
   }
 
-  public reputationOf(address: Address): Observable<BN> {
+  public reputationOf(address: Address): Observable<typeof BN> {
     isAddress(address)
 
     const query = gql`{
@@ -62,12 +116,11 @@ export class Reputation implements IStateful<IReputationState> {
    * get a web3 contract instance for this token
    */
   public contract() {
-    const opts = getWeb3Options(this.context.web3)
-    const ReputationContractInfo = require('@daostack/arc/build/contracts/Reputation.json')
-    return new this.context.web3.eth.Contract(ReputationContractInfo.abi, this.address, opts)
+    const abi = require(`@daostack/migration/abis/${REPUTATION_CONTRACT_VERSION}/Reputation.json`)
+    return this.context.getContract(this.address, abi)
   }
 
-  public mint(beneficiary: Address, amount: BN) {
+  public mint(beneficiary: Address, amount: typeof BN) {
     const contract = this.contract()
     const transaction = contract.methods.mint(beneficiary, amount.toString())
     const mapReceipt = (receipt: Web3Receipt) => receipt

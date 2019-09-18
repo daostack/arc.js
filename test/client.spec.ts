@@ -2,11 +2,9 @@ import { ApolloClient } from 'apollo-client'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { Arc } from '../src/arc'
-import { Logger } from '../src/logger'
-import { createApolloClient } from '../src/utils'
+import { createApolloClient } from '../src/graphnode'
+import { getContractAddressesFromMigration } from '../src/utils'
 import { graphqlHttpProvider, graphqlWsProvider, mintSomeReputation, waitUntilTrue } from './utils'
-
-Logger.setLevel(Logger.OFF)
 
 function getClient() {
   const apolloClient = createApolloClient({
@@ -16,12 +14,12 @@ function getClient() {
   return apolloClient
 }
 
+jest.setTimeout(20000)
 /**
  * Token test
  */
 describe('apolloClient', () => {
-  let client
-  jest.setTimeout(10000)
+  let client: any
 
   it('can be instantiated', () => {
     client = getClient()
@@ -56,7 +54,7 @@ describe('apolloClient', () => {
       }
     `
     // client.subcribe returns a zenObservable
-    const zenObservable = await client.subscribe({ query })
+    const zenObservable = await client.subscribe({ query, fetchPolicy: 'no-cache' })
     // cast it to an rxjs observable
     const observable = Observable.create((observer: Observer<any>) =>
       zenObservable.subscribe(observer)
@@ -88,8 +86,10 @@ describe('apolloClient', () => {
 
   it('getObservable works', async () => {
     const arc = new Arc({
+      contractInfos: getContractAddressesFromMigration('private'),
       graphqlHttpProvider,
       graphqlWsProvider,
+      ipfsProvider: '',
       web3Provider: 'ws://127.0.0.1:8545'
     })
     const query = gql`{
@@ -118,13 +118,47 @@ describe('apolloClient', () => {
     await mintSomeReputation()
     await mintSomeReputation()
 
-    // we should have received trhee reputation events
-    // - 1 the result of original query
-    // - 2 the two mint events
-    await waitUntilTrue(() => returnedData.length === 3 )
-    expect(returnedData.length).toBeGreaterThan(0)
+    await waitUntilTrue(() => returnedData.length >= 2 )
     // expect(cntr).toEqual(3)
     subscription.unsubscribe()
   })
 
+  it('subscribe manually', async () => {
+    const arc = new Arc({
+      contractInfos: getContractAddressesFromMigration('private'),
+      graphqlHttpProvider,
+      graphqlWsProvider,
+      ipfsProvider: '',
+      web3Provider: 'ws://127.0.0.1:8545'
+    })
+    const query = gql`{
+        reputationMints {
+          contract
+          amount
+          address
+        }
+      }
+    `
+
+    const observable = arc.getObservable(query, {fetchPolicy: 'cache-only'})
+
+    const returnedData: object[] = []
+
+    const subscription = observable.subscribe(
+      (eventData: any) => {
+        // Do something on receipt of the event
+        returnedData.push(eventData.data)
+      },
+      (err: any) => {
+        throw err
+      }
+    )
+
+    await mintSomeReputation()
+    await mintSomeReputation()
+
+    await waitUntilTrue(() => returnedData.length >= 2 )
+    // expect(cntr).toEqual(3)
+    subscription.unsubscribe()
+  })
 })

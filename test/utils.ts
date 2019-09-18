@@ -1,12 +1,11 @@
-import BN = require('bn.js')
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { DAO } from '../src/dao'
 import Arc from '../src/index'
-import { IProposalOutcome, IProposalType, Proposal } from '../src/proposal'
+import { IProposalCreateOptions, IProposalOutcome, Proposal } from '../src/proposal'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
-import { getContractAddresses } from '../src/utils'
+import { BN } from '../src/utils'
 const Web3 = require('web3')
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
@@ -14,6 +13,10 @@ export const graphqlHttpMetaProvider: string = 'http://127.0.0.1:8000/subgraphs'
 export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/daostack'
 export const web3Provider: string = 'ws://127.0.0.1:8545'
 export const ipfsProvider: string = '/ip4/127.0.0.1/tcp/5001'
+
+export const LATEST_ARC_VERSION = '0.0.1-rc.19'
+
+export { BN }
 
 export function padZeros(str: string, max = 36): string {
   str = str.toString()
@@ -31,30 +34,39 @@ const pks = [
   '0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773' // 9
 ]
 
-export function fromWei(amount: BN): string {
+export function fromWei(amount: typeof BN): string {
   return Web3.utils.fromWei(amount, 'ether')
 }
 
-export function toWei(amount: string | number): BN {
+export function toWei(amount: string | number): typeof BN {
   return new BN(Web3.utils.toWei(amount.toString(), 'ether'))
 }
 
-export interface IContractAddressesFromMigration {
+export interface ITestAddresses {
   base: { [key: string]: Address }
   dao: { [key: string]: Address }
-  organs: { [key: string]: Address }
-  test: { [key: string]: Address }
-}
-
-export function getContractAddressesFromMigration(): IContractAddressesFromMigration {
-  const path = '@daostack/migration/migration.json'
-  const addresses = require(path)
-  if (!addresses || addresses === {}) {
-    throw Error(`No addresses found, does the file at ${path} exist?`)
+  test: {
+    organs: { [key: string]: Address },
+    Avatar: Address,
+    boostedProposalId: Address,
+    executedProposalId: Address,
+    queuedProposalId: Address,
+    preBoostedProposalId: Address,
+    [key: string]: Address|{ [key: string]: Address }
   }
-  return addresses.private
 }
 
+export function getTestAddresses(): ITestAddresses {
+  const path = '@daostack/migration/migration.json'
+  const migration = require(path).private
+  const version = LATEST_ARC_VERSION
+  const addresses = {
+    base: migration.base[version],
+    dao: migration.dao[version],
+    test: migration.test[version]
+  }
+  return addresses
+}
 export async function getOptions(web3: any) {
   const block = await web3.eth.getBlock('latest')
   return {
@@ -63,15 +75,16 @@ export async function getOptions(web3: any) {
   }
 }
 
-export async function newArc() {
-  const arc = new Arc({
-    contractAddresses: await getContractAddresses(graphqlHttpMetaProvider, 'daostack'),
+export async function newArc(options: { [key: string]: string} = {}): Promise<Arc> {
+  const defaultOptions = {
     graphqlHttpProvider,
     graphqlWsProvider,
     ipfsProvider,
     web3Provider
-  })
-
+  }
+  const arc = new Arc(Object.assign(defaultOptions, options))
+  // get the contract addresses from the subgraph
+  await arc.fetchContractInfos()
   for (const pk of pks) {
     const account = arc.web3.eth.accounts.privateKeyToAccount(pk)
     arc.web3.eth.accounts.wallet.add(account)
@@ -80,12 +93,83 @@ export async function newArc() {
   return arc
 }
 
+/**
+ * Arc without a valid ethereum connection
+ * @return [description]
+ */
+export async function newArcWithoutEthereum(): Promise<Arc> {
+  const arc = new Arc({
+    graphqlHttpProvider,
+    graphqlWsProvider
+  })
+  return arc
+}
+
+/**
+ * Arc instance without a working graphql connection
+ * @return [description]
+ */
+
+export async function newArcWithoutGraphql(): Promise<Arc> {
+  const arc = new Arc({
+    ipfsProvider,
+    web3Provider
+  })
+  const normalArc = await newArc()
+  arc.setContractInfos(normalArc.contractInfos)
+  return arc
+}
+
+export async function getTestDAO(arc?: Arc) {
+  // we have two indexed daos with the same name, but one has 6 members, and that is the one
+  // we are using for testing
+  if (!arc) {
+    arc = await newArc()
+  }
+  const addresses = await getTestAddresses()
+  if (!addresses.test.Avatar) {
+    const msg = `Expected to find ".test.avatar" in the migration file, found ${addresses} instead`
+    throw Error(msg)
+  }
+  return arc.dao(addresses.test.Avatar)
+}
+
+export async function createAProposal(
+  dao?: DAO,
+  options: any = {}
+) {
+  if (!dao) {
+    dao = await getTestDAO()
+  }
+
+  options   = {
+    beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+    ethReward: toWei('300'),
+    externalTokenAddress: undefined,
+    externalTokenReward: toWei('0'),
+    nativeTokenReward: toWei('1'),
+    periodLength: 0,
+    periods: 1,
+    reputationReward: toWei('10'),
+    scheme: getTestAddresses().base.ContributionReward,
+    ...options
+  }
+
+  const response = await (dao as DAO).createProposal(options as IProposalCreateOptions).send()
+  const proposal = response.result as Proposal
+  // wait for the proposal to be indexed
+  let indexed = false
+  proposal.state().subscribe((next: any) => { if (next) { indexed = true } })
+  await waitUntilTrue(() => indexed)
+  return proposal
+}
+
 export async function mintSomeReputation() {
   const arc = await newArc()
-  const addresses = getContractAddressesFromMigration()
-  const token = new Reputation(addresses.organs.DemoReputation, arc)
+  const addresses = getTestAddresses()
+  const token = new Reputation(addresses.test.organs.DemoReputation, arc)
   const accounts = arc.web3.eth.accounts.wallet
-  await token.mint(accounts[1].address, toWei('99')).send()
+  await token.mint(accounts[1].address, new BN('99')).send()
 }
 
 export function mineANewBlock() {
@@ -101,57 +185,29 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
   })
 }
 
-export async function getTestDAO() {
-  // we have two indexed daos with the same name, but one has 6 members, and that is the one
-  // we are using for testing
-  const arc = await newArc()
-  const contractAddressesfromMigration = await getContractAddressesFromMigration()
-  return arc.dao(contractAddressesfromMigration.test.Avatar)
-}
-
-export async function createAProposal(dao?: DAO, options: any = {}) {
-  if (!dao) {
-    dao = await getTestDAO()
-  }
-
-  options = {
-    beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
-    ethReward: toWei('300'),
-    externalTokenAddress: undefined,
-    externalTokenReward: toWei('0'),
-    nativeTokenReward: toWei('1'),
-    periodLength: 0,
-    periods: 1,
-    reputationReward: toWei('10'),
-    type: IProposalType.ContributionReward,
-    ...options
-  }
-
-  const response = await dao.createProposal(options).send()
-  return response.result as Proposal
-}
-
 // Vote and vote and vote for proposal until it is accepted
 export async function voteToAcceptProposal(proposal: Proposal) {
   const arc = proposal.context
   const accounts = arc.web3.eth.accounts.wallet
+  // make sure the proposal is indexed
+  await waitUntilTrue(async () => !!(await proposal.state().pipe(first()).toPromise()))
 
   for (let i = 0; i <= 3; i ++) {
     try {
       arc.setAccount(accounts[i].address)
       await proposal.vote(IProposalOutcome.Pass).send()
     } catch (err) {
-      // TODO: this sometimes fails with uninformatie `revert`, cannot find out why
-      // if (err.message.match(/already executed/) === null) {
-      //   throw err
-      // }
-      return
+      // TODO: this sometimes fails with uninformative `revert`, cannot find out why
+      if (err.message.match(/already executed/)) {
+        return
+      } else {
+        // ignore?
+        throw err
+      }
     } finally {
       arc.setAccount(accounts[0].address)
     }
   }
-  arc.setAccount(accounts[0].address)
-  await proposal.execute()
   return
 }
 

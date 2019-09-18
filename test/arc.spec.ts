@@ -1,10 +1,20 @@
-import BN = require('bn.js')
+import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
 import Arc from '../src/index'
+import { Proposal } from '../src/proposal'
+import { Scheme } from '../src/scheme'
 import { Address } from '../src/types'
-import { fromWei, newArc, toWei, waitUntilTrue } from './utils'
+import { BN } from './utils'
+import { fromWei, getTestAddresses,
+  newArc,
+  newArcWithoutEthereum,
+  newArcWithoutGraphql,
+  toWei,
+  waitUntilTrue,
+  web3Provider
+} from './utils'
 
-jest.setTimeout(10000)
+jest.setTimeout(20000)
 
 /**
  * Arc test
@@ -12,6 +22,7 @@ jest.setTimeout(10000)
 describe('Arc ', () => {
   it('Arc is instantiable', () => {
     const arc = new Arc({
+      contractInfos: [],
       graphqlHttpProvider: 'https://graphql.provider',
       graphqlWsProvider: 'https://graphql.provider',
       ipfsProvider: {
@@ -24,24 +35,52 @@ describe('Arc ', () => {
     expect(arc).toBeInstanceOf(Arc)
   })
 
-  it('arc.getContract() works', async () => {
-    const arc = await newArc()
-    expect(arc.getContract('ContributionReward')).toBeInstanceOf(arc.web3.eth.Contract)
+  it('Arc is usable without subgraph connection', async () => {
+    const arc = await newArcWithoutGraphql()
+    expect(arc).toBeInstanceOf(Arc)
+
+    expect(() => arc.sendQuery(gql`{daos {id}}`)).toThrowError(/no connection/i)
   })
 
-  it('arc.allowance() should work', async () => {
+  it('Arc is usable without knowing about contracts', async () => {
+    const arc = await newArcWithoutEthereum()
+    expect(arc).toBeInstanceOf(Arc)
+
+    const daos = arc.sendQuery(gql`{daos {id}}`)
+    expect(daos).toBeTruthy()
+  })
+
+  it('arc.allowances() should work', async () => {
     const arc = await newArc()
-    const allowances: BN[] = []
+
+    const allowances: Array<typeof BN> = []
+    const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
     const amount = toWei(1001)
-    await arc.approveForStaking(amount).send()
-    arc.allowance(arc.web3.eth.defaultAccount).subscribe(
-      (next: BN) => {
+    await arc.approveForStaking(spender, amount).send()
+    arc.allowance(arc.web3.eth.defaultAccount, spender).subscribe(
+      (next: typeof BN) => {
         allowances.push(next)
       }
     )
     const lastAllowance = () => allowances[allowances.length - 1]
     await waitUntilTrue(() => (allowances.length > 0))
-     // && lastAllowance().eq(amount)))
+    expect(fromWei(lastAllowance())).toEqual('1001')
+  })
+
+  it('arc.allowance() should work', async () => {
+    const arc = await newArc()
+
+    const allowances: Array<typeof BN> = []
+    const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
+    const amount = toWei(1001)
+    await arc.approveForStaking(spender, amount).send()
+    arc.allowance(arc.web3.eth.defaultAccount, spender).subscribe(
+      (next: typeof BN) => {
+        allowances.push(next)
+      }
+    )
+    const lastAllowance = () => allowances[allowances.length - 1]
+    await waitUntilTrue(() => (allowances.length > 0))
     expect(fromWei(lastAllowance())).toEqual('1001')
   })
 
@@ -62,9 +101,9 @@ describe('Arc ', () => {
   it('arc.ethBalance() works with multiple subscriptions', async () => {
     const arc = await newArc()
     // observe two balances
-    const balances1: BN[] = []
-    const balances2: BN[] = []
-    const balances3: BN[] = []
+    const balances1: Array<typeof BN> = []
+    const balances2: Array<typeof BN> = []
+    const balances3: Array<typeof BN> = []
     const address1 = arc.web3.eth.accounts.wallet[1].address
     const address2 = arc.web3.eth.accounts.wallet[2].address
 
@@ -76,7 +115,7 @@ describe('Arc ', () => {
     })
     //
     // send some ether to the test accounts
-    async function sendEth(address: Address, amount: BN) {
+    async function sendEth(address: Address, amount: typeof BN) {
       await arc.web3.eth.sendTransaction({
         gas: 4000000,
         gasPrice: 100000000000,
@@ -124,4 +163,50 @@ describe('Arc ', () => {
     expect(arc.blockHeaderSubscription).toEqual(undefined)
 
   })
+
+  it('arc.proposal() should work', async () => {
+    const arc = await newArc()
+    const proposal = arc.proposal(getTestAddresses().test.executedProposalId)
+    expect(proposal).toBeInstanceOf(Proposal)
+  })
+
+  it('arc.proposals() should work', async () => {
+    const arc = await newArc()
+    const proposals = await arc.proposals().pipe(first()).toPromise()
+    expect(typeof proposals).toEqual(typeof [])
+    expect(proposals.length).toBeGreaterThanOrEqual(6)
+  })
+
+  it('separates reading and sending transactions correctly', async () => {
+    // these tests are a bit clumsy, because we have access to only a single node
+
+    // we now expect all read operations to fail, and all write operations to succeed
+    const arcWrite = await newArc({ web3ProviderRead: 'http://does.not.exist'})
+
+    expect(arcWrite.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
+      .rejects.toThrow()
+    expect(arcWrite.GENToken().balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
+      .rejects.toThrow()
+    expect(arcWrite.GENToken()
+      .allowance('0x90f8bf6a479f320ead074411a4b0e7944ea81111', '0x90f8bf6a479f320ead074411a4b0e7944ea81111')
+      .pipe(first()).toPromise())
+      .rejects.toThrow()
+    // we now expect all write operations to fail, and all read operations to succeed
+    const arcRead = await newArc({ web3Provider: 'http://doesnotexist.com', web3ProviderRead: web3Provider})
+    expect(await arcRead.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
+      .toEqual(new BN(0))
+  })
+  it('arc.scheme() should work', async () => {
+    const arc = await newArc()
+    const schemeId = '0x124355'
+    const scheme = arc.scheme(schemeId)
+    expect(scheme).toBeInstanceOf(Scheme)
+  })
+
+  it('arc.schemes() should work', async () => {
+    const arc = await newArc()
+    const schemes = await arc.schemes().pipe(first()).toPromise()
+    expect(schemes.length).toBeGreaterThan(0)
+  })
+
 })
