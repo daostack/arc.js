@@ -13,7 +13,7 @@ export interface IVoteStaticState {
   outcome: IProposalOutcome
   amount: typeof BN // amount of reputation that was voted with
   proposal: string
-  dao: Address
+  dao?: Address
 }
 
 export interface IVoteState extends IVoteStaticState {
