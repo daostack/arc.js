@@ -81,50 +81,12 @@ export function createApolloClient(options: {
           },
           reputationHolder: (_, args, { getCacheKey }) => {
             return getCacheKey({ __typename: 'ReputationHolder', id: args.id })
-          },
-          reputationHolders: (cache, args, { getCacheKey }) => {
-            if (args.where.address && args.where.contract) {
-              // @ts-ignore
-              // for (const x in cache) { console.log(x)}
-              // const dao = cache.get(getCacheKey({__typename: 'DAO', id: args.id}))
-              // console.log(dao)
-            }
-            // console.log(args)
-          },
-          proposalVotes: (cache, args, otherargs) => {
-            // console.log(`cacheRedirects: proposalVotes`)
-            // console.log(cache)
-            // console.log(args)
-            // console.log(otherargs)
-            // return args.ids.map((id: string) => getCacheKey({ __typename: 'DAO', id}))
           }
-          // daos: (_, args, { getCacheKey }) => {
-          //   console.log(`daos cache redirect`)
-          //   console.log(_)
-          //   console.log(args)
-          //   return args.ids.map((id: string) => getCacheKey({ __typename: 'DAO', id}))
-          // }
         }
       }
-
     }),
     connectToDevTools: true,
-    link: wsOrHttpLink,
-    resolvers: {
-      Query: {
-        reputationHolders(obj, args, context, info) {
-          console.log('resolve daos..jjj')
-          console.log(obj)
-          console.log(args)
-          // console.log(context)
-          console.log(info.field.directives)
-          console.log(info.field.directives[0].arguments[0].value.fields)
-          console.log(info.field.directives[0].arguments[0].value.fields[0].value)
-          console.log(info.field.selectionSet.selections)
-          return 'something'
-        }
-      }
-    }
+    link: wsOrHttpLink
   })
   return client
 }

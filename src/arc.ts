@@ -49,15 +49,16 @@ export class Arc extends GraphNodeObserver {
   } = {}
 
   constructor(options: {
-    /** informatino about the contracts */
+    /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
     contractInfos?: IContractInfo[]
     graphqlHttpProvider?: string
     graphqlWsProvider?: string
     ipfsProvider?: IPFSProvider
     web3Provider?: string
     web3ProviderRead?: string
+    /** this function will be called before a query is sent to the graphql provider */
     graphqlPrefetchHook?: (query: any) => void
-    /** should each query also subscribe to updates from the graphQl provider? */
+    /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
     graphqlSubscribeToQueries?: boolean
   }) {
     super({
