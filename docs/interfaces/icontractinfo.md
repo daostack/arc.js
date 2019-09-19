@@ -21,7 +21,7 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [arc.ts:447](https://github.com/daostack/client/blob/5e8078f/src/arc.ts#L447)*
+*Defined in [arc.ts:447](https://github.com/daostack/client/blob/3f46a94/src/arc.ts#L447)*
 
 ___
 
@@ -29,7 +29,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [arc.ts:445](https://github.com/daostack/client/blob/5e8078f/src/arc.ts#L445)*
+*Defined in [arc.ts:445](https://github.com/daostack/client/blob/3f46a94/src/arc.ts#L445)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [arc.ts:448](https://github.com/daostack/client/blob/5e8078f/src/arc.ts#L448)*
+*Defined in [arc.ts:448](https://github.com/daostack/client/blob/3f46a94/src/arc.ts#L448)*
 
 ___
 
@@ -45,4 +45,4 @@ ___
 
 • **version**: *string*
 
-*Defined in [arc.ts:446](https://github.com/daostack/client/blob/5e8078f/src/arc.ts#L446)*
+*Defined in [arc.ts:446](https://github.com/daostack/client/blob/3f46a94/src/arc.ts#L446)*

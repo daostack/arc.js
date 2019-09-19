@@ -35,7 +35,7 @@
 
 • **state**: *function*
 
-*Defined in [types.ts:10](https://github.com/daostack/client/blob/5e8078f/src/types.ts#L10)*
+*Defined in [types.ts:10](https://github.com/daostack/client/blob/3f46a94/src/types.ts#L10)*
 
 #### Type declaration:
 
