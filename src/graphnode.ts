@@ -26,7 +26,7 @@ export interface IObservable<T> extends Observable<T> {
 export function createApolloClient(options: {
   graphqlHttpProvider: string,
   graphqlWsProvider: string,
-  prefetchHook?: any // a callback function that will be called for each query sent to the link
+  graphqlPrefetchHook?: any // a callback function that will be called for each query sent to the link
 }) {
   const httpLink = new HttpLink({
     credentials: 'same-origin',
@@ -45,8 +45,8 @@ export function createApolloClient(options: {
   const wsOrHttpLink = split(
     // split based on operation type
     ({ query }) => {
-      if (options.prefetchHook) {
-        options.prefetchHook(query)
+      if (options.graphqlPrefetchHook) {
+        options.graphqlPrefetchHook(query)
       }
       const definition = getMainDefinition(query)
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
@@ -138,11 +138,16 @@ export class GraphNodeObserver {
   public graphqlWsProvider?: string
   public Logger = Logger
   public apolloClient?: ApolloClient<object>
+  public graphqlSubscribeToQueries?: boolean
 
   constructor(options: {
     graphqlHttpProvider?: string
     graphqlWsProvider?: string
+    graphqlSubscribeToQueries?: boolean
   }) {
+    this.graphqlSubscribeToQueries = (
+      options.graphqlSubscribeToQueries === undefined || options.graphqlSubscribeToQueries
+    )
     if (options.graphqlHttpProvider && options.graphqlWsProvider) {
       this.graphqlHttpProvider = options.graphqlHttpProvider
       this.graphqlWsProvider = options.graphqlWsProvider
@@ -169,6 +174,7 @@ export class GraphNodeObserver {
     }
 
     const apolloClient = this.apolloClient as ApolloClient<object>
+    const graphqlSubscribeToQueries = this.graphqlSubscribeToQueries
     const observable = Observable.create((observer: Observer<ApolloQueryResult<any>>) => {
       Logger.debug(query.loc.source.body)
 
@@ -177,7 +183,13 @@ export class GraphNodeObserver {
       }
 
       let subscriptionSubscription: any
-      if (apolloQueryOptions.subscribe === true || apolloQueryOptions.subscribe === undefined) {
+      let subscribe: boolean = true
+      if (apolloQueryOptions.subscribe !== undefined) {
+        subscribe = apolloQueryOptions.subscribe
+      } else if (graphqlSubscribeToQueries !== undefined) {
+        subscribe = graphqlSubscribeToQueries
+      }
+      if (subscribe) {
         // subscriptionQuery subscribes to get notified of updates to the query
         let subscriptionQuery
         if (query.loc.source.body.trim().startsWith('query')) {

@@ -34,7 +34,7 @@ describe('apolloClient caching checks', () => {
     arc.apolloClient = createApolloClient({
       graphqlHttpProvider,
       graphqlWsProvider,
-      prefetchHook: (query: any) => {
+      graphqlPrefetchHook: (query: any) => {
         const definition = getMainDefinition(query)
         // console.log(query)
         // @ts-ignore
