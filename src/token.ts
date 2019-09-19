@@ -70,7 +70,8 @@ export class Token implements IStateful<ITokenState> {
       where += `${key}: "${options[key] as string}"\n`
     }
 
-    const query = gql`{
+    const query = gql`query TokenSearch
+    {
       tokens ${createGraphQlQuery(options, where)} {
         id
       }
@@ -94,7 +95,7 @@ export class Token implements IStateful<ITokenState> {
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITokenState> {
-    const query = gql`{
+    const query = gql`query tokenState {
       token(id: "${this.address.toLowerCase()}") {
         id,
         dao {

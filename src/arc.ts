@@ -49,12 +49,15 @@ export class Arc extends GraphNodeObserver {
   } = {}
 
   constructor(options: {
+    /** informatino about the contracts */
     contractInfos?: IContractInfo[]
     graphqlHttpProvider?: string
     graphqlWsProvider?: string
     ipfsProvider?: IPFSProvider
     web3Provider?: string
     web3ProviderRead?: string
+    prefetchHook: (query: any) => void
+    subscribeToQueries: boolean
   }) {
     super({
       graphqlHttpProvider: options.graphqlHttpProvider,
@@ -78,6 +81,11 @@ export class Arc extends GraphNodeObserver {
 
     if (this.ipfsProvider) {
       this.ipfs = IPFSClient(this.ipfsProvider)
+    }
+
+    // by default, we subscribe to queries
+    if (options.subscribeToQueries === undefined) {
+      options.subscribeToQueries = true
     }
   }
 

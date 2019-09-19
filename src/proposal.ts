@@ -302,7 +302,7 @@ export class Proposal implements IStateful<IProposalState> {
     let query
 
     if (apolloQueryOptions.fetchAllData === true) {
-        query = gql`
+        query = gql`query ProposalsSearchAllData
         {
           proposals ${createGraphQlQuery(options, where)} {
             ...ProposalFields
@@ -312,7 +312,7 @@ export class Proposal implements IStateful<IProposalState> {
       `
 
     } else {
-      query = gql`
+      query = gql`query ProposalSearchPartialData
         {
           proposals ${createGraphQlQuery(options, where)} {
             id
@@ -360,7 +360,7 @@ export class Proposal implements IStateful<IProposalState> {
     if (!!this.staticState) {
       return this.staticState
     } else {
-      const state = await this.state().pipe(first()).toPromise()
+      const state = await this.state({subscribe: false}).pipe(first()).toPromise()
       if (state === null) {
         throw Error(`No proposal with id ${this.id} was found in the subgraph`)
       }
@@ -379,8 +379,8 @@ export class Proposal implements IStateful<IProposalState> {
    * `state` is an observable of the proposal state
    */
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IProposalState> {
-    const query = gql`
-      query ProposalState {
+    const query = gql`query ProposalState
+      {
         proposal(id: "${this.id}") {
           ...ProposalFields
         }
