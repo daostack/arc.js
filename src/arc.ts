@@ -56,14 +56,9 @@ export class Arc extends GraphNodeObserver {
     ipfsProvider?: IPFSProvider
     web3Provider?: string
     web3ProviderRead?: string
-<<<<<<< HEAD
     graphqlPrefetchHook?: (query: any) => void
     /** should each query also subscribe to updates from the graphQl provider? */
     graphqlSubscribeToQueries?: boolean
-=======
-    prefetchHook: (query: any) => void
-    subscribeToQueries: boolean
->>>>>>> a753999fcf7d662736eb647f862229200698dc14
   }) {
     super({
       graphqlHttpProvider: options.graphqlHttpProvider,
