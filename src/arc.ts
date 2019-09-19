@@ -91,13 +91,8 @@ export class Arc extends GraphNodeObserver {
     }
 
     // by default, we subscribe to queries
-<<<<<<< HEAD
     if (options.graphqlSubscribeToQueries === undefined) {
       options.graphqlSubscribeToQueries = true
-=======
-    if (options.subscribeToQueries === undefined) {
-      options.subscribeToQueries = true
->>>>>>> a753999fcf7d662736eb647f862229200698dc14
     }
   }
 
