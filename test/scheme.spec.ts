@@ -97,7 +97,7 @@ describe('Scheme', () => {
     const scheme = result[0]
     const state = await scheme.state().pipe(first()).toPromise()
     expect(state).toMatchObject({
-      address: testAddresses.base.GenericScheme.toLowerCase(),
+      address: testAddresses.base.UGenericScheme.toLowerCase(),
       id: scheme.id,
       name: 'UGenericScheme'
     })
