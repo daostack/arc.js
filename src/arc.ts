@@ -68,15 +68,6 @@ export class Arc extends GraphNodeObserver {
     })
     this.ipfsProvider = options.ipfsProvider || ''
 
-    if (options.web3Provider) {
-      this.web3 = new Web3(options.web3Provider)
-    }
-    if (options.web3ProviderRead) {
-      this.web3Read = new Web3(options.web3ProviderRead)
-    } else {
-      this.web3Read = this.web3
-    }
-
     this.contractInfos = options.contractInfos || []
     if (!this.contractInfos) {
       Logger.warn('No contract addresses given to the Arc.constructor: expect most write operations to fail!')
@@ -86,9 +77,22 @@ export class Arc extends GraphNodeObserver {
       this.ipfs = IPFSClient(this.ipfsProvider)
     }
 
+    this.setWeb3Provider(options)
+
     // by default, we subscribe to queries
     if (options.graphqlSubscribeToQueries === undefined) {
       options.graphqlSubscribeToQueries = true
+    }
+  }
+
+  public setWeb3Provider(options: any) {
+    if (options.web3Provider) {
+      this.web3 = new Web3(options.web3Provider)
+    }
+    if (options.web3ProviderRead) {
+      this.web3Read = new Web3(options.web3ProviderRead)
+    } else {
+      this.web3Read = this.web3
     }
   }
 
@@ -191,34 +195,42 @@ export class Arc extends GraphNodeObserver {
 
       // set up the blockheadersubscription if it does not exist yet
       if (!this.blockHeaderSubscription) {
-        const subscribeToBlockHeaders = () =>   {
-          this.blockHeaderSubscription = this.web3Read.eth.subscribe('newBlockHeaders', (err: Error) => {
-            Object.keys(this.observedAccounts).forEach((addr) => {
-              const accInfo = this.observedAccounts[addr]
-              if (err) {
-                (accInfo.observer as Observer<typeof BN>).error(err)
-              } else {
-                this.web3Read.eth.getBalance(addr).then((balance: any) => {
-                  if (balance !== accInfo.lastBalance) {
-                    (accInfo.observer as Observer<typeof BN>).next(new BN(balance))
-                    accInfo.lastBalance = balance
+        this.blockHeaderSubscription = this.web3Read.eth.subscribe('newBlockHeaders', (err: Error) => {
+          Object.keys(this.observedAccounts).forEach((addr) => {
+            const accInfo = this.observedAccounts[addr]
+            if (err) {
+              if (err.message.match(/connection not open/g)) {
+                this.setWeb3Provider({
+                  web3Provider: this.web3Provider,
+                  web3ProviderRead: this.web3ProvidndmrRead
+                })
+                // on connection errer we try to re-establish the connection and then resubscribe
+                this.blockHeaderSubscription = this.web3Read.eth.subscribe('newBlockHeaders', (err1: Error) => {
+                  if (err1) {
+                    (accInfo.observer as Observer<typeof BN>).error(err1)
+                  } else {
+
+                    this.web3Read.eth.getBalance(addr).then((balance: any) => {
+                      if (balance !== accInfo.lastBalance) {
+                        (accInfo.observer as Observer<typeof BN>).next(new BN(balance))
+                        accInfo.lastBalance = balance
+                      }
+                    })
                   }
                 })
               }
-            })
+            } else {
+              this.web3Read.eth.getBalance(addr).then((balance: any) => {
+                if (balance !== accInfo.lastBalance) {
+                  (accInfo.observer as Observer<typeof BN>).next(new BN(balance))
+                  accInfo.lastBalance = balance
+                }
+              })
+            }
           })
-        }
-        try {
-          subscribeToBlockHeaders()
-        } catch (err) {
-          if (err.message.match(/connection not open/g)) {
-            // we need to re-establish the connection and then resubscribe
-            this.web3Read = new Web3(this.web3ProviderRead)
-            subscribeToBlockHeaders()
-          }
-          throw err
-        }
+        })
       }
+
       // unsubscribe
       return () => {
         this.observedAccounts[owner].subscriptionsCount -= 1
@@ -267,7 +279,7 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-  public getABI(address: Address, abiName?: string, version?: string) {
+  public getABI(address: Address, abiName ?: string, version ?: string) {
     if (!abiName || !version) {
       const contractInfo = this.getContractInfo(address)
       abiName = contractInfo.name

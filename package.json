@@ -20,11 +20,10 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "tsc && npm run build:docs",
+    "build": "tsc",
     "build:watch": "tsc --watch",
     "build:docs": "typedoc --out docs --target commonjs --theme markdown --mode file --plugin typedoc-plugin-markdown src",
     "bundle": "rollup -c rollup.config.ts -w",
-    "deploy-docs": "ts-node tools/gh-pages-publish",
     "lint": "npm run tslint",
     "prepare": "npm run build",
     "prebuild": "rimraf dist",

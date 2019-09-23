@@ -27,7 +27,7 @@ export function createApolloClient(options: {
   graphqlHttpProvider: string,
   graphqlWsProvider: string,
   graphqlPrefetchHook?: any // a callback function that will be called for each query sent to the link
-}) {
+}): ApolloClient<object> {
   const httpLink = new HttpLink({
     credentials: 'same-origin',
     fetch,
