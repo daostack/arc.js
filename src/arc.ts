@@ -274,6 +274,14 @@ export class Arc extends GraphNodeObserver {
         abiName = 'ERC20'
       }
     }
+    // TODO: workaround for https://github.com/daostack/subgraph/pull/336
+    if (abiName === 'UGenericScheme') {
+      const versionNumber = Number(version.split('rc.')[1])
+      if (versionNumber < 24) {
+        abiName = 'GenericScheme'
+      }
+    }
+    // //End of workaround
 
     const abi = require(`@daostack/migration/abis/${version}/${abiName}.json`)
     return abi
