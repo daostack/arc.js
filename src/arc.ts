@@ -202,7 +202,7 @@ export class Arc extends GraphNodeObserver {
               if (err.message.match(/connection not open/g)) {
                 this.setWeb3Provider({
                   web3Provider: this.web3Provider,
-                  web3ProviderRead: this.web3ProvidndmrRead
+                  web3ProviderRead: this.web3ProviderRead
                 })
                 // on connection errer we try to re-establish the connection and then resubscribe
                 this.blockHeaderSubscription = this.web3Read.eth.subscribe('newBlockHeaders', (err1: Error) => {
@@ -300,7 +300,7 @@ export class Arc extends GraphNodeObserver {
    * @param  [version] (optional) Arc version of contract (https://www.npmjs.com/package/@daostack/arc)
    * @return   a web3 contract instance
    */
-  public getContract(address: Address, abi?: any, mode?: 'readonly') {
+  public getContract(address: Address, abi ?: any, mode ?: 'readonly') {
     // we use a contract "cache" because web3 contract instances add an event listener
 
     const readonlyContract = (mode === 'readonly' && this.web3Read !== this.web3)
@@ -351,7 +351,7 @@ export class Arc extends GraphNodeObserver {
     }
   }
 
-  public getAccount(): Observable<Address> {
+  public getAccount(): Observable < Address > {
     // this complex logic is to get the correct account both from the Web3 as well as from the Metamaask provider
     // This polls for changes. But polling is Evil!
     // cf. https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
@@ -399,7 +399,7 @@ export class Arc extends GraphNodeObserver {
    * @param  spender Address of the spender
    * @return
    */
-  public allowance(owner: Address, spender: Address): Observable<typeof BN> {
+  public allowance(owner: Address, spender: Address): Observable < typeof BN > {
     return this.GENToken().allowance(owner, spender)
   }
 
@@ -414,7 +414,7 @@ export class Arc extends GraphNodeObserver {
     transaction: any,
     mapToObject: (receipt: web3receipt) => T,
     errorHandler: (error: Error) => Promise<Error> | Error = (error) => error
-  ): Operation<T> {
+  ): Operation < T > {
     return sendTransaction(transaction, mapToObject, errorHandler, this)
   }
 
@@ -423,7 +423,7 @@ export class Arc extends GraphNodeObserver {
    * @param  options an Object to save. This object must have title, url and desction defined
    * @return  a Promise that resolves in the IPFS Hash where the file is saved
    */
-  public async saveIPFSData(options: { title: string, url: string, description: string}): Promise<string> {
+  public async saveIPFSData(options: { title: string, url: string, description: string}): Promise < string > {
     let ipfsDataToSave: object = {}
     if (options.title || options.url || options.description) {
       if (!this.ipfsProvider) {
