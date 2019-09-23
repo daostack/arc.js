@@ -19,22 +19,22 @@ services:
       postgres_pass: 'letmein'
       postgres_db: postgres
       ipfs: ipfs:5001
-      ethereum: development:http://ganache:8545
+      ethereum: private:http://ganache:8545
       GRAPH_LOG: "graph.log"
 
   ipfs:
-    image: daostack/subgraph-ipfs:0.0.1-rc.24-v3-3.0.2
+    image: daostack/subgraph-ipfs:0.0.1-rc.24-v3-3.0.3
     ports:
       - 5001:5001
 
   postgres:
-    image: daostack/subgraph-postgres:0.0.1-rc.24-v3-3.0.2
+    image: daostack/subgraph-postgres:0.0.1-rc.24-v3-3.0.3
     ports:
       - 9432:5432
     environment:
       POSTGRES_PASSWORD: 'letmein'
 
   ganache:
-    image: daostack/test-env:0.0.1-rc.24-v3-3.0.2
+    image: daostack/test-env:0.0.1-rc.24-v3-3.0.3
     ports:
       - 8545:8545
