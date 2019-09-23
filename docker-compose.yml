@@ -21,6 +21,7 @@ services:
       ipfs: ipfs:5001
       ethereum: private:http://ganache:8545
       GRAPH_LOG: "graph.log"
+      GRAPH_GRAPHQL_MAX_FIRST: 1000
 
   ipfs:
     image: daostack/subgraph-ipfs:0.0.1-rc.24-v3-3.0.3
