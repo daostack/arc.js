@@ -136,7 +136,7 @@ describe('Proposal', () => {
     // check if the executedProposalId indeed has the correct state
     const proposal = await dao.proposal(executedProposal.id)
     const proposalState = await proposal.state().pipe(first()).toPromise()
-    expect(proposalState.accountsWithUnclaimedRewards.length).toEqual(5)
+    expect(proposalState.accountsWithUnclaimedRewards.length).toEqual(4)
     const someAccount = proposalState.accountsWithUnclaimedRewards[1]
     // query for redeemable proposals
     const proposals = await dao.proposals({ where: {accountsWithUnclaimedRewards_contains: [someAccount]}})
