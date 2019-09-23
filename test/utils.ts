@@ -16,6 +16,7 @@ export const web3Provider: string = 'ws://127.0.0.1:8545'
 export const ipfsProvider: string = '/ip4/127.0.0.1/tcp/5001'
 
 export const LATEST_ARC_VERSION = '0.0.1-rc.24'
+// export const LATEST_ARC_VERSION = '0.0.1-rc.19'
 
 export { BN }
 
