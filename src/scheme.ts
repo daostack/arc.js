@@ -180,7 +180,6 @@ export class Scheme implements IStateful<ISchemeState> {
       if (this.staticState.name ===  'ReputationFromToken') {
         this.ReputationFromToken = new ReputationFromTokenScheme(this)
       }
-
       return state
     }
   }
