@@ -1,14 +1,96 @@
+import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient, ApolloQueryResult } from 'apollo-client'
 import { FetchResult, Observable as ZenObservable } from 'apollo-link'
+import { split } from 'apollo-link'
+import { HttpLink } from 'apollo-link-http'
+import { WebSocketLink } from 'apollo-link-ws'
+import { getMainDefinition } from 'apollo-utilities'
 import gql from 'graphql-tag'
+import fetch from 'isomorphic-fetch'
+import * as WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
 import { catchError, filter, first, map } from 'rxjs/operators'
 import { Logger } from './logger'
-import { createApolloClient, zenToRxjsObservable } from './utils'
+import { zenToRxjsObservable } from './utils'
+
+export interface IApolloQueryOptions {
+  fetchPolicy?: 'cache-first' | 'network-only' | 'cache-only' | 'no-cache' | 'standby',
+  subscribe?: true | false,
+  fetchAllData?: true | false
+}
 
 export interface IObservable<T> extends Observable<T> {
   first: () => T
 }
+
+export function createApolloClient(options: {
+  graphqlHttpProvider: string,
+  graphqlWsProvider: string,
+  graphqlPrefetchHook?: any // a callback function that will be called for each query sent to the link
+}) {
+  const httpLink = new HttpLink({
+    credentials: 'same-origin',
+    fetch,
+    uri: options.graphqlHttpProvider
+  })
+
+  const wsLink = new WebSocketLink({
+    options: {
+      reconnect: true
+    },
+    uri: options.graphqlWsProvider,
+    webSocketImpl: WebSocket
+  })
+
+  const wsOrHttpLink = split(
+    // split based on operation type
+    ({ query }) => {
+      if (options.graphqlPrefetchHook) {
+        options.graphqlPrefetchHook(query)
+      }
+      const definition = getMainDefinition(query)
+      return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
+    },
+    wsLink,
+    httpLink
+  )
+  // we can also add error handling
+  // const errorHandlingLink = apollolink.from([
+  //     onerror(({ graphqlerrors, networkerror }) => {
+  //       if (graphqlerrors) {
+  //         graphqlerrors.map(({ message, locations, path }) =>
+  //           console.log(
+  //             `[graphql error]: message: ${message}, location: ${locations}, path: ${path}`,
+  //           ),
+  //         );
+  //       if (networkerror) { console.log(`[network error]: ${networkerror}`)}
+  //       }
+  //     }),
+  //     wsorhttplink
+  //   ])
+
+  const client = new ApolloClient({
+    cache: new InMemoryCache({
+      cacheRedirects: {
+        Query: {
+          dao: (_, args, { getCacheKey }) =>  {
+            return getCacheKey({ __typename: 'DAO', id: args.id })
+          },
+          proposal: (_, args, { getCacheKey }) => {
+            return getCacheKey({ __typename: 'Proposal', id: args.id })
+          },
+          reputationHolder: (_, args, { getCacheKey }) => {
+            return getCacheKey({ __typename: 'ReputationHolder', id: args.id })
+          }
+        }
+      }
+    }),
+    connectToDevTools: true,
+    link: wsOrHttpLink
+  })
+  return client
+}
+
 /**
  * handles connections with the Graph
  * @param options [description]
@@ -17,12 +99,17 @@ export class GraphNodeObserver {
   public graphqlHttpProvider?: string
   public graphqlWsProvider?: string
   public Logger = Logger
-  private apolloClient?: ApolloClient<object>
+  public apolloClient?: ApolloClient<object>
+  public graphqlSubscribeToQueries?: boolean
 
   constructor(options: {
     graphqlHttpProvider?: string
     graphqlWsProvider?: string
+    graphqlSubscribeToQueries?: boolean
   }) {
+    this.graphqlSubscribeToQueries = (
+      options.graphqlSubscribeToQueries === undefined || options.graphqlSubscribeToQueries
+    )
     if (options.graphqlHttpProvider && options.graphqlWsProvider) {
       this.graphqlHttpProvider = options.graphqlHttpProvider
       this.graphqlWsProvider = options.graphqlWsProvider
@@ -47,39 +134,59 @@ export class GraphNodeObserver {
     if (!this.apolloClient) {
       throw Error(`No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`)
     }
+
     const apolloClient = this.apolloClient as ApolloClient<object>
-    const observable = Observable.create(async (observer: Observer<ApolloQueryResult<any>>) => {
+    const graphqlSubscribeToQueries = this.graphqlSubscribeToQueries
+    const observable = Observable.create((observer: Observer<ApolloQueryResult<any>>) => {
       Logger.debug(query.loc.source.body)
 
       if (!apolloQueryOptions.fetchPolicy) {
         apolloQueryOptions.fetchPolicy = 'cache-first'
       }
 
-      // subscriptionQuery subscribes to get notified of updates to the query
-      const subscriptionQuery = gql`
-          subscription ${query}
-        `
-      // subscribe
-      const zenObservable: ZenObservable<FetchResult<object[], Record<string, any>, Record<string, any>>>
-        = apolloClient.subscribe<object[]>({
-        fetchPolicy: 'cache-first',
-        query: subscriptionQuery
-       })
+      let subscriptionSubscription: any
+      let subscribe: boolean = true
+      if (apolloQueryOptions.subscribe !== undefined) {
+        subscribe = apolloQueryOptions.subscribe
+      } else if (graphqlSubscribeToQueries !== undefined) {
+        subscribe = graphqlSubscribeToQueries
+      }
+      if (subscribe) {
+        // subscriptionQuery subscribes to get notified of updates to the query
+        let subscriptionQuery
+        if (query.loc.source.body.trim().startsWith('query')) {
+          // remove the "query" part from the string
+          subscriptionQuery = gql`
+            subscription ${query.loc.source.body.trim().substring('query'.length)}
+          `
+        } else {
+          subscriptionQuery = gql`
+            subscription ${query}
+          `
 
-      zenObservable.subscribe((next: any) => {
-          apolloClient.writeQuery({
-            data: next.data,
-            query
-          })
-      })
+        }
+        // send a subscription request to the server
+        const subscriptionObservable: ZenObservable<FetchResult<object[], Record<string, any>, Record<string, any>>>
+          = apolloClient.subscribe<object[]>({
+          fetchPolicy: 'cache-first',
+          // fetchPolicy: 'network-only',
+          query: subscriptionQuery
+         })
+         // subscribe to the results
+        subscriptionSubscription = subscriptionObservable.subscribe((next: any) => {
+            apolloClient.writeQuery({
+              data: next.data,
+              query
+            })
+        })
+      }
 
       const sub = zenToRxjsObservable(
         apolloClient.watchQuery({
           fetchPolicy: apolloQueryOptions.fetchPolicy,
           fetchResults: true,
           query
-        })
-      )
+        }))
         .pipe(
           filter((r: ApolloQueryResult<any>) => {
             return !r.loading
@@ -89,7 +196,12 @@ export class GraphNodeObserver {
           })
         )
         .subscribe(observer)
-      return () => sub.unsubscribe()
+      return () => {
+        if (subscriptionSubscription) {
+          subscriptionSubscription.unsubscribe()
+        }
+        sub.unsubscribe()
+      }
     })
     observable.first = () => observable.pipe(first()).toPromise()
     return observable
@@ -187,22 +299,17 @@ export class GraphNodeObserver {
         return r.data[entity]
       }),
       map(itemMap)
-      // filter((o) => !!o)
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable
   }
 
-  public sendQuery(query: any) {
+  public sendQuery(query: any, apolloQueryOptions: IApolloQueryOptions = {}) {
     if (!this.apolloClient) {
       throw Error(`No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`)
     }
     const apolloClient = this.apolloClient as ApolloClient<object>
-    return apolloClient.query({ query })
+    return apolloClient.query({...apolloQueryOptions, ...{query}})
   }
 
-}
-
-export interface IApolloQueryOptions {
-  fetchPolicy?: 'cache-first' | 'cache-and-network' | 'network-only' | 'cache-only' | 'no-cache' | 'standby'
 }

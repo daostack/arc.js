@@ -6,6 +6,7 @@ import { IProposalCreateOptions, IProposalOutcome, Proposal } from '../src/propo
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
 import { BN } from '../src/utils'
+
 const Web3 = require('web3')
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
@@ -14,7 +15,8 @@ export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/d
 export const web3Provider: string = 'ws://127.0.0.1:8545'
 export const ipfsProvider: string = '/ip4/127.0.0.1/tcp/5001'
 
-export const LATEST_ARC_VERSION = '0.0.1-rc.19'
+export const LATEST_ARC_VERSION = '0.0.1-rc.24'
+// export const LATEST_ARC_VERSION = '0.0.1-rc.19'
 
 export { BN }
 
@@ -43,8 +45,8 @@ export function toWei(amount: string | number): typeof BN {
 }
 
 export interface ITestAddresses {
-  base: { [key: string]: Address }
-  dao: { [key: string]: Address }
+  base: { [key: string]: Address },
+  dao: { [key: string]: Address },
   test: {
     organs: { [key: string]: Address },
     Avatar: Address,
@@ -57,7 +59,7 @@ export interface ITestAddresses {
 }
 
 export function getTestAddresses(): ITestAddresses {
-  const path = '@daostack/migration/migration.json'
+  const path = './migration.json'
   const migration = require(path).private
   const version = LATEST_ARC_VERSION
   const addresses = {
@@ -180,7 +182,7 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
   return new Promise((resolve) => {
     (async function waitForIt(): Promise<void> {
       if (await test()) { return resolve() }
-      setTimeout(waitForIt, 30)
+      setTimeout(waitForIt, 100)
     })()
   })
 }
@@ -190,7 +192,10 @@ export async function voteToAcceptProposal(proposal: Proposal) {
   const arc = proposal.context
   const accounts = arc.web3.eth.accounts.wallet
   // make sure the proposal is indexed
-  await waitUntilTrue(async () => !!(await proposal.state().pipe(first()).toPromise()))
+  await waitUntilTrue(async () => {
+    const state = await proposal.state({ fetchPolicy: 'network-only'}).pipe(first()).toPromise()
+    return !!state
+  })
 
   for (let i = 0; i <= 3; i ++) {
     try {

@@ -41,5 +41,5 @@ arc.daos().subscribe(
 
 * [overview](./documentation/overview.md)
 * [development](./documentation/development.md)
-* [small demo](./documentation/demo.js) 
-* Generated documentation [TODO!]
+* [small demo](./documentation/demo.js)
+* [Generated documentation](./docs/globals.md)

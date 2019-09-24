@@ -109,7 +109,7 @@ export class Scheme implements IStateful<ISchemeState> {
       where += `${key}: ${options.where[key] as string}\n`
     }
 
-    const query = gql`{
+    const query = gql`query SchemeSearch {
       controllerSchemes ${createGraphQlQuery(options, where)}
       {
           id
@@ -166,7 +166,7 @@ export class Scheme implements IStateful<ISchemeState> {
     if (!!this.staticState) {
       return this.staticState
     } else {
-      const state = await this.state().pipe(first()).toPromise()
+      const state = await this.state({ subscribe: false}).pipe(first()).toPromise()
       if (state === null) {
         throw Error(`No scheme with id ${this.id} was found in the subgraph`)
       }
@@ -184,9 +184,9 @@ export class Scheme implements IStateful<ISchemeState> {
     }
   }
 
-  public state(): Observable < ISchemeState > {
-    const query = gql`
-        {
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ISchemeState> {
+    const query = gql`query SchemeState
+      {
         controllerScheme (id: "${this.id}") {
           id
           address
@@ -302,7 +302,7 @@ export class Scheme implements IStateful<ISchemeState> {
         } : null
       }
     }
-    return this.context.getObservableObject(query, itemMap) as Observable<ISchemeState>
+    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
   }
 
     /**
@@ -325,6 +325,7 @@ export class Scheme implements IStateful<ISchemeState> {
             map = ContributionReward.createTransactionMap(options, this.context)
             break
 
+          case 'UGenericScheme':
           case 'GenericScheme':
             createTransaction  = GenericScheme.createTransaction(options, this.context)
             map = GenericScheme.createTransactionMap(options, this.context)
@@ -349,10 +350,13 @@ export class Scheme implements IStateful<ISchemeState> {
       return toIOperationObservable(observable)
     }
 
-    public proposals(options: IProposalQueryOptions = {}): Observable < Proposal[] > {
+    public proposals(
+      options: IProposalQueryOptions = {},
+      apolloQueryOptions: IApolloQueryOptions = {}
+    ): Observable<Proposal[]> {
       if (!options.where) { options.where = {}}
       options.where.scheme = this.id
-      return Proposal.search(this.context, options)
+      return Proposal.search(this.context, options, apolloQueryOptions)
     }
 
 }

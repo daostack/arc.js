@@ -62,7 +62,8 @@ export class Reward implements IStateful<IRewardState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    const query = gql`{
+    const query = gql`query RewardSearch
+    {
       gprewards ${createGraphQlQuery(options, where)} {
         id
       }
@@ -80,9 +81,9 @@ export class Reward implements IStateful<IRewardState> {
     this.context = context
   }
 
-  public state(): Observable<IRewardState> {
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IRewardState> {
 
-    const query = gql`{
+    const query = gql`query RewardState {
       gpreward ( id: "${this.id}" )
       {
         id
@@ -124,7 +125,7 @@ export class Reward implements IStateful<IRewardState> {
       }
     }
 
-    return this.context.getObservableObject(query, itemMap)
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
 }

@@ -1,6 +1,6 @@
 {
   "name": "@daostack/client",
-  "version": "0.2.6",
+  "version": "0.2.9",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",
@@ -20,8 +20,9 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "tsc && typedoc --out docs --target commonjs --theme minimal --mode file src",
+    "build": "tsc && npm run build:docs",
     "build:watch": "tsc --watch",
+    "build:docs": "typedoc --out docs --target commonjs --theme markdown --mode file --plugin typedoc-plugin-markdown src",
     "bundle": "rollup -c rollup.config.ts -w",
     "deploy-docs": "ts-node tools/gh-pages-publish",
     "lint": "npm run tslint",
@@ -35,7 +36,7 @@
   },
   "jest": {
     "transform": {
-      ".(ts|tsx)": "ts-jest"
+      ".(ts|tsx)$": "ts-jest"
     },
     "testEnvironment": "node",
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
@@ -94,11 +95,12 @@
     "tslint": "^5.18.0",
     "tslint-config-standard": "^8.0.1",
     "typedoc": "^0.14.2",
+    "typedoc-plugin-markdown": "^2.2.4",
     "typescript": "^3.5.3",
     "u": "^0.1.0"
   },
   "dependencies": {
-    "@daostack/migration": "0.0.1-rc.23-v0",
+    "@daostack/migration": "0.0.1-rc.24-v3",
     "apollo-cache-inmemory": "^1.6.2",
     "apollo-client": "^2.6.3",
     "apollo-client-ws": "^2.5.0",

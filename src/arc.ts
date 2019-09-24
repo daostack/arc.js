@@ -1,13 +1,13 @@
 import gql from 'graphql-tag'
 import { Observable, Observer, of, Subscription } from 'rxjs'
-import { first, map } from 'rxjs/operators'
+import { map } from 'rxjs/operators'
 import { DAO, IDAOQueryOptions } from './dao'
-import { GraphNodeObserver } from './graphnode'
+import { GraphNodeObserver, IApolloQueryOptions } from './graphnode'
+export { IApolloQueryOptions } from './graphnode'
 import { Logger } from './logger'
 import { Operation, sendTransaction, web3receipt } from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
 import { ISchemeQueryOptions, Scheme } from './scheme'
-import { LATEST_ARC_VERSION } from './settings'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { BN } from './utils'
@@ -48,15 +48,21 @@ export class Arc extends GraphNodeObserver {
   } = {}
 
   constructor(options: {
+    /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
     contractInfos?: IContractInfo[]
     graphqlHttpProvider?: string
     graphqlWsProvider?: string
     ipfsProvider?: IPFSProvider
     web3Provider?: string
     web3ProviderRead?: string
-}) {
+    /** this function will be called before a query is sent to the graphql provider */
+    graphqlPrefetchHook?: (query: any) => void
+    /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
+    graphqlSubscribeToQueries?: boolean
+  }) {
     super({
       graphqlHttpProvider: options.graphqlHttpProvider,
+      graphqlSubscribeToQueries: options.graphqlSubscribeToQueries,
       graphqlWsProvider: options.graphqlWsProvider
     })
     this.ipfsProvider = options.ipfsProvider || ''
@@ -78,6 +84,11 @@ export class Arc extends GraphNodeObserver {
     if (this.ipfsProvider) {
       this.ipfs = IPFSClient(this.ipfsProvider)
     }
+
+    // by default, we subscribe to queries
+    if (options.graphqlSubscribeToQueries === undefined) {
+      options.graphqlSubscribeToQueries = true
+    }
   }
 
   /**
@@ -96,19 +107,18 @@ export class Arc extends GraphNodeObserver {
    * fetch contractInfos from the subgraph
    * @return a list of IContractInfo instances
    */
-  public async fetchContractInfos(): Promise<IContractInfo[]> {
-    const query = gql`{
-      contractInfos {
+  public async fetchContractInfos(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IContractInfo[]> {
+    const query = gql`query AllContractInfos {
+      contractInfos (first: 1000) {
         id
         name
         version
         address
       }
     }`
-    const itemMap = (record: any): IContractInfo => {
-      return record
-    }
-    const result = await this.getObservableList(query, itemMap).pipe(first()).toPromise()
+    // const result = await this.getObservableList(query, itemMap, apolloQueryOptions).pipe(first()).toPromise()
+    const response = await this.sendQuery(query, apolloQueryOptions)
+    const result = response.data.contractInfos as IContractInfo[]
     this.setContractInfos(result)
     return result
   }
@@ -128,24 +138,30 @@ export class Arc extends GraphNodeObserver {
    * @param options options to pass on to the query
    * @return [description]
    */
-  public daos(options: IDAOQueryOptions = {}): Observable<DAO[]> {
-    return DAO.search(this, options)
+  public daos(options: IDAOQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<DAO[]> {
+    return DAO.search(this, options, apolloQueryOptions)
   }
 
   public scheme(id: string): Scheme {
     return new Scheme(id, this)
   }
 
-  public schemes(options: ISchemeQueryOptions = {}): Observable<Scheme[]> {
-    return Scheme.search(this, options)
+  public schemes(
+    options: ISchemeQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Scheme[]> {
+    return Scheme.search(this, options, apolloQueryOptions)
   }
 
   public proposal(id: string): Proposal {
     return new Proposal(id, this)
   }
 
-  public proposals(options: IProposalQueryOptions = {}): Observable<Proposal[]> {
-    return Proposal.search(this, options)
+  public proposals(
+    options: IProposalQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Proposal[]> {
+    return Proposal.search(this, options, apolloQueryOptions)
   }
 
   public ethBalance(owner: Address): Observable<typeof BN> {
@@ -173,21 +189,33 @@ export class Arc extends GraphNodeObserver {
 
       // set up the blockheadersubscription if it does not exist yet
       if (!this.blockHeaderSubscription) {
-        this.blockHeaderSubscription = this.web3Read.eth.subscribe('newBlockHeaders', (err: Error) => {
-          Object.keys(this.observedAccounts).forEach((addr) => {
-            const accInfo = this.observedAccounts[addr]
-            if (err) {
-              (accInfo.observer as Observer<typeof BN>).error(err)
-            } else {
-              this.web3Read.eth.getBalance(addr).then((balance: any) => {
-                if (balance !== accInfo.lastBalance) {
-                  (accInfo.observer as Observer<typeof BN>).next(new BN(balance))
-                  accInfo.lastBalance = balance
-                }
-              })
-            }
+        const subscribeToBlockHeaders = () =>   {
+          this.blockHeaderSubscription = this.web3Read.eth.subscribe('newBlockHeaders', (err: Error) => {
+            Object.keys(this.observedAccounts).forEach((addr) => {
+              const accInfo = this.observedAccounts[addr]
+              if (err) {
+                (accInfo.observer as Observer<typeof BN>).error(err)
+              } else {
+                this.web3Read.eth.getBalance(addr).then((balance: any) => {
+                  if (balance !== accInfo.lastBalance) {
+                    (accInfo.observer as Observer<typeof BN>).next(new BN(balance))
+                    accInfo.lastBalance = balance
+                  }
+                })
+              }
+            })
           })
-        })
+        }
+        try {
+          subscribeToBlockHeaders()
+        } catch (err) {
+          if (err.message.match(/connection not open/g)) {
+            // we need to re-establish the connection and then resubscribe
+            this.web3Read = new Web3(this.web3ProviderRead)
+            subscribeToBlockHeaders()
+          }
+          throw err
+        }
       }
       // unsubscribe
       return () => {
@@ -246,6 +274,14 @@ export class Arc extends GraphNodeObserver {
         abiName = 'ERC20'
       }
     }
+    // TODO: workaround for https://github.com/daostack/subgraph/pull/336
+    if (abiName === 'UGenericScheme') {
+      const versionNumber = Number(version.split('rc.')[1])
+      if (versionNumber < 24) {
+        abiName = 'GenericScheme'
+      }
+    }
+    // //End of workaround
 
     const abi = require(`@daostack/migration/abis/${version}/${abiName}.json`)
     return abi
@@ -288,16 +324,6 @@ export class Arc extends GraphNodeObserver {
    */
   public GENToken() {
     if (this.contractInfos) {
-      if (this.contractInfos) {
-        for (const contractInfo of this.contractInfos) {
-          // TODO: remove this reference to LATEST_ARC_VERSION
-          // (it's aworkaround for https://github.com/daostack/subgraph/issues/257)
-          if (contractInfo.name === 'GEN' && contractInfo.version === LATEST_ARC_VERSION) {
-            return new Token(contractInfo.address, this)
-          }
-        }
-      }
-
       for (const contractInfo of this.contractInfos) {
         if (contractInfo.name === 'GEN') {
           return new Token(contractInfo.address, this)
@@ -406,10 +432,6 @@ export class Arc extends GraphNodeObserver {
     Logger.debug(`Data saved successfully as ${descriptionHash}`)
     return descriptionHash
   }
-}
-
-export interface IApolloQueryOptions {
-  fetchPolicy?: 'cache-first' | 'cache-and-network' | 'network-only' | 'cache-only' | 'no-cache' | 'standby'
 }
 
 export interface IContractAddresses {
