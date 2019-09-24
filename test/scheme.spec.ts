@@ -15,7 +15,7 @@ describe('Scheme', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = await getTestAddresses()
+    testAddresses = await getTestAddresses(arc)
   })
 
   it('Scheme is instantiable', () => {
