@@ -82,6 +82,10 @@ describe('Token', () => {
     await token.mint(account, amount).send()
     await waitUntilTrue(() => balances.length > 1)
     expect(balances[1].sub(balances[0]).toString()).toEqual(amount.toString())
+    const amountToSend = new BN('444')
+    token.transfer('0x72939947e7a1c4ac94bb840e3304b322237ad1a8', amountToSend)
+    await waitUntilTrue(() => balances.length > 2)
+    expect(balances[2].sub(balances[1].sub(balances[0])).toString()).toEqual(amount.toString())
   })
 
   it('approveForStaking() and allowance() work', async () => {
