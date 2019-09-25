@@ -1,11 +1,12 @@
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
+import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { BN } from './utils'
 import { createGraphQlQuery, isAddress } from './utils'
 
-export interface IRewardState {
+export interface IRewardStaticState {
   id: string
   beneficiary: Address
   createdAt: Date
@@ -15,6 +16,9 @@ export interface IRewardState {
   daoBountyForStaker: typeof BN,
   reputationForProposer: typeof BN,
   tokenAddress: Address,
+}
+
+export interface IRewardState extends IRewardStaticState {
   reputationForVoterRedeemedAt: number,
   tokensForStakerRedeemedAt: number,
   reputationForProposerRedeemedAt: number,
@@ -76,9 +80,17 @@ export class Reward implements IStateful<IRewardState> {
     ) as Observable<Reward[]>
   }
 
-  constructor(public id: string, public context: Arc) {
-    this.id = id
+  public id: string
+  public staticState: IRewardStaticState|undefined
+
+  constructor(public idOrOpts: string|IRewardStaticState, public context: Arc) {
     this.context = context
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setStaticState(idOrOpts as IRewardStaticState)
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IRewardState> {
@@ -108,6 +120,17 @@ export class Reward implements IStateful<IRewardState> {
     }`
 
     const itemMap = (item: any): IRewardState => {
+      this.setStaticState({
+        beneficiary: item.beneficiary,
+        createdAt: item.createdAt,
+        daoBountyForStaker: new BN(item.daoBountyForStaker),
+        id: item.id,
+        proposalId: item.proposal.id,
+        reputationForProposer: new BN(item.reputationForProposer),
+        reputationForVoter: new BN(item.reputationForVoter),
+        tokenAddress: item.tokenAddress,
+        tokensForStaker: new BN(item.tokensForStaker)
+      })
       return {
         beneficiary: item.beneficiary,
         createdAt: item.createdAt,
@@ -126,6 +149,20 @@ export class Reward implements IStateful<IRewardState> {
     }
 
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+  }
+
+  public setStaticState(opts: IRewardStaticState) {
+    this.staticState = opts
+  }
+
+  public async fetchStaticState(): Promise<IRewardStaticState> {
+    if (!!this.staticState) {
+      return this.staticState
+    } else {
+      const state = await this.state({ subscribe: false }).pipe(first()).toPromise()
+      this.setStaticState(state)
+      return state
+    }
   }
 
 }

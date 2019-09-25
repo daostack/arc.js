@@ -2,7 +2,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { Proposal } from '../src/proposal'
-import { Reward } from '../src/reward'
+import { IRewardStaticState, Reward } from '../src/reward'
 import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei } from './utils'
 
 /**
@@ -89,11 +89,11 @@ describe('Reward', () => {
     const reward = rewards[0]
     // staticState should be set on search
     expect(reward.staticState).toBeTruthy()
-    const rewardFromId = new Reward(reward.id)
+    const rewardFromId = new Reward(reward.id, arc)
     expect(rewardFromId.staticState).not.toBeTruthy()
     await rewardFromId.fetchStaticState()
     expect(rewardFromId.staticState).toBeTruthy()
-    const  rewardFromStaticState = new Reward(reward.staticState)
+    const  rewardFromStaticState = new Reward(reward.staticState as IRewardStaticState, arc)
     expect(rewardFromStaticState.staticState).toBeTruthy()
   })
 })
