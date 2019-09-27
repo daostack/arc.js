@@ -271,6 +271,25 @@ export class Scheme implements IStateful<ISchemeState> {
               activationTime
               voteOnBehalf
             }
+            ugenericSchemeParams {
+              votingMachine
+              contractToCall
+              voteParams {
+                queuedVoteRequiredPercentage
+                queuedVotePeriodLimit
+                boostedVotePeriodLimit
+                preBoostedVotePeriodLimit
+                thresholdConst
+                limitExponentValue
+                quietEndingPeriod
+                proposingRepReward
+                votersReputationLossRatio
+                minimumDaoBounty
+                daoBountyConst
+                activationTime
+                voteOnBehalf
+              }
+            }
           }
         }
       }
@@ -317,7 +336,13 @@ export class Scheme implements IStateful<ISchemeState> {
           voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
           voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
           votingMachine: item.schemeRegistrarParams.votingMachine
+        } : null,
+        ugenericSchemeParams: item.ugenericSchemeParams ? {
+          contractToCall: item.ugenericSchemeParams.contractToCall,
+          voteParams: mapGenesisProtocolParams(item.ugenericSchemeParams.voteParams),
+          votingMachine: item.ugenericSchemeParams.votingMachine
         } : null
+
       }
     }
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
