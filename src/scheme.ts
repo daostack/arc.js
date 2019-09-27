@@ -41,7 +41,7 @@ export interface ISchemeState extends ISchemeStaticState {
     voteRemoveParams: IGenesisProtocolParams
     voteRegisterParams: IGenesisProtocolParams
   } | null
-  ugenericSchemeParams?: {
+  uGenericSchemeParams?: {
     votingMachine: Address
     contractToCall: Address
     voteParams: IGenesisProtocolParams
@@ -271,27 +271,26 @@ export class Scheme implements IStateful<ISchemeState> {
               activationTime
               voteOnBehalf
             }
-            ugenericSchemeParams {
-              votingMachine
-              contractToCall
-              voteParams {
-                queuedVoteRequiredPercentage
-                queuedVotePeriodLimit
-                boostedVotePeriodLimit
-                preBoostedVotePeriodLimit
-                thresholdConst
-                limitExponentValue
-                quietEndingPeriod
-                proposingRepReward
-                votersReputationLossRatio
-                minimumDaoBounty
-                daoBountyConst
-                activationTime
-                voteOnBehalf
-              }
-            }
           }
-        }
+          uGenericSchemeParams {
+            votingMachine
+            contractToCall
+            voteParams {
+              queuedVoteRequiredPercentage
+              queuedVotePeriodLimit
+              boostedVotePeriodLimit
+              preBoostedVotePeriodLimit
+              thresholdConst
+              limitExponentValue
+              quietEndingPeriod
+              proposingRepReward
+              votersReputationLossRatio
+              minimumDaoBounty
+              daoBountyConst
+              activationTime
+              voteOnBehalf
+            }
+          }        }
       }
         `
 
@@ -337,10 +336,10 @@ export class Scheme implements IStateful<ISchemeState> {
           voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
           votingMachine: item.schemeRegistrarParams.votingMachine
         } : null,
-        ugenericSchemeParams: item.ugenericSchemeParams ? {
-          contractToCall: item.ugenericSchemeParams.contractToCall,
-          voteParams: mapGenesisProtocolParams(item.ugenericSchemeParams.voteParams),
-          votingMachine: item.ugenericSchemeParams.votingMachine
+        uGenericSchemeParams: item.uGenericSchemeParams ? {
+          contractToCall: item.uGenericSchemeParams.contractToCall,
+          voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
+          votingMachine: item.uGenericSchemeParams.votingMachine
         } : null
 
       }
