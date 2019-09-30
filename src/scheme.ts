@@ -44,6 +44,11 @@ export interface ISchemeState extends ISchemeStaticState {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
+  uGenericSchemeParams?: {
+    votingMachine: Address
+    contractToCall: Address
+    voteParams: IGenesisProtocolParams
+  } | null
 }
 
 export interface ISchemeQueryOptions extends ICommonQueryOptions {
@@ -273,9 +278,27 @@ export class Scheme implements IStateful<ISchemeState> {
           numberOfQueuedProposals
           numberOfPreBoostedProposals
           numberOfBoostedProposals
+          uGenericSchemeParams {
+            votingMachine
+            contractToCall
+            voteParams {
+              queuedVoteRequiredPercentage
+              queuedVotePeriodLimit
+              boostedVotePeriodLimit
+              preBoostedVotePeriodLimit
+              thresholdConst
+              limitExponentValue
+              quietEndingPeriod
+              proposingRepReward
+              votersReputationLossRatio
+              minimumDaoBounty
+              daoBountyConst
+              activationTime
+              voteOnBehalf
+            }
+          }
         }
-      }
-        `
+      }`
 
     const itemMap = (item: any): ISchemeState|null => {
       if (!item) {
@@ -321,7 +344,13 @@ export class Scheme implements IStateful<ISchemeState> {
           voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
           voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
           votingMachine: item.schemeRegistrarParams.votingMachine
+        } : null,
+        uGenericSchemeParams: item.uGenericSchemeParams ? {
+          contractToCall: item.uGenericSchemeParams.contractToCall,
+          voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
+          votingMachine: item.uGenericSchemeParams.votingMachine
         } : null
+
       }
     }
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
