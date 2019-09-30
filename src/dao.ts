@@ -18,6 +18,7 @@ export interface IDAOStaticState {
   id: Address
   address: Address // address of the avatar
   name: string
+  register: 'na'|'proposed'|'registered'|'unRegistered'
   reputation: Reputation
   token: Token
   tokenName: string
@@ -49,6 +50,7 @@ export class DAO implements IStateful<IDAOState> {
         nativeReputation { id, totalSupply }
         nativeToken { id, name, symbol, totalSupply }
         reputationHoldersCount
+        register
     }`
   }
 
@@ -108,6 +110,7 @@ export class DAO implements IStateful<IDAOState> {
             address: r.id,
             id: r.id,
             name: r.name,
+            register: r.register,
             reputation,
             token,
             tokenName: r.tokenName,
@@ -146,6 +149,7 @@ export class DAO implements IStateful<IDAOState> {
         address: state.address,
         id: state.id,
         name: state.name,
+        register: state.register,
         reputation: state.reputation,
         token: state.token,
         tokenName: state.tokenName,
@@ -179,6 +183,7 @@ export class DAO implements IStateful<IDAOState> {
         address: item.id,
         id: item.id,
         name: item.name,
+        register: item.register,
         reputation,
         token,
         tokenName: item.nativeToken.name,
@@ -190,6 +195,7 @@ export class DAO implements IStateful<IDAOState> {
         id: item.id,
         memberCount: Number(item.reputationHoldersCount),
         name: item.name,
+        register: item.register,
         reputation,
         reputationTotalSupply: new BN(item.nativeReputation.totalSupply),
         token,
