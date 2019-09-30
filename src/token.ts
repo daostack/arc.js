@@ -159,7 +159,7 @@ export class Token implements IStateful<ITokenState> {
                 observer.next(new BN(newBalance))
               })
             })
-          subscription1 = contract.events.Transfer({ filter: { _from: owner }})
+          subscription2 = contract.events.Transfer({ filter: { _from: owner }})
             .on('data', () => {
               // const newBalance = data.returnValues.value
               contract.methods.balanceOf(owner).call().then((newBalance: number) => {
