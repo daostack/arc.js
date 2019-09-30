@@ -152,16 +152,21 @@ export class Token implements IStateful<ITokenState> {
             observer.error(`balanceOf ${owner} returned null`)
           }
           observer.next(new BN(balance))
-          subscription1 = contract.events.Transfer({ filter: { _to: owner }})
-            .on('data', () => {
+          subscription1 = contract.events.Transfer({ filter: { to: owner }})
+            .on('data', (data: any) => {
               // const newBalance = data.returnValues.value
+              console.log(`Transfer to ${owner} event!@`)
+              console.log(data)
               contract.methods.balanceOf(owner).call().then((newBalance: number) => {
                 observer.next(new BN(newBalance))
               })
             })
-          subscription2 = contract.events.Transfer({ filter: { _from: owner }})
-            .on('data', () => {
+          subscription2 = contract.events.Transfer({ filter: { from: owner }})
+            .on('data', (data: any) => {
               // const newBalance = data.returnValues.value
+              console.log(`Transfer from ${owner} event!`)
+              console.log(data)
+
               contract.methods.balanceOf(owner).call().then((newBalance: number) => {
                 observer.next(new BN(newBalance))
               })
