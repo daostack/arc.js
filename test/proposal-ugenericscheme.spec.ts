@@ -25,13 +25,15 @@ describe('Proposal', () => {
     dao = await getTestDAO()
   })
 
+  it.skip('the calldata argument must be provided', async () => {
+    await expect(createAProposal(dao, {
+      scheme: testAddresses.base.GenericScheme
+    })).rejects.toThrow(/missing argument "callData"/i)
+  })
+
   it('Check proposal state is correct', async () => {
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
-
-    // get a genericScheme contract
-    // console.log(arc.contractInfos.filter((r: any) => r.name === 'GenericScheme'))
-    const genericScheme = arc.getContractInfoByName('GenericScheme', '0.0.1-rc.28')
 
     const actionMockABI = require(`@daostack/migration/abis/${LATEST_ARC_VERSION}/ActionMock.json`)
     const actionMock = new arc.web3.eth.Contract(actionMockABI, testAddresses.test.ActionMock)
@@ -39,7 +41,7 @@ describe('Proposal', () => {
 
     const proposal = await createAProposal(dao, {
       callData,
-      scheme: genericScheme.address,
+      scheme: testAddresses.base.UGenericScheme,
       schemeToRegister: actionMock.options.address,
       value: 0
     })
