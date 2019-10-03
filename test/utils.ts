@@ -130,8 +130,6 @@ export async function newArcWithoutGraphql(): Promise<Arc> {
 }
 
 export async function getTestDAO(arc?: Arc) {
-  // we have two indexed daos with the same name, but one has 6 members, and that is the one
-  // we are using for testing
   if (!arc) {
     arc = await newArc()
   }

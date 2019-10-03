@@ -6,7 +6,7 @@ import {
   Proposal
   } from '../src/proposal'
 import { IGenericScheme} from '../src/schemes/genericScheme'
-import { createAProposal, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION,
+import { createAProposal, getTestAddresses, ITestAddresses, LATEST_ARC_VERSION,
   newArc, voteToAcceptProposal, waitUntilTrue } from './utils'
 
 jest.setTimeout(60000)
@@ -22,7 +22,9 @@ describe('Proposal', () => {
   beforeAll(async () => {
     arc = await newArc()
     testAddresses = getTestAddresses(arc)
-    dao = await getTestDAO()
+    // @ts-ignore
+    const daos = await arc.daos({where: { name: 'Nectar DAO'}}).first()
+    dao = daos[0]
   })
 
   it('Check proposal state is correct', async () => {
