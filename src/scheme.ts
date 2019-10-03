@@ -19,6 +19,7 @@ export interface ISchemeStaticState {
   dao: Address
   name: string
   paramsHash: string
+  version: string
 }
 
 export interface ISchemeState extends ISchemeStaticState {
@@ -126,6 +127,7 @@ export class Scheme implements IStateful<ISchemeState> {
           name
           dao { id }
           paramsHash
+          version
       }
     }   `
     const itemMap = (item: any): Scheme|null => {
@@ -136,7 +138,8 @@ export class Scheme implements IStateful<ISchemeState> {
         dao: item.dao.id,
         id: item.id,
         name: item.name,
-        paramsHash: item.paramsHash
+        paramsHash: item.paramsHash,
+        version: item.version
       }, context)
       return scheme
     }
@@ -184,7 +187,8 @@ export class Scheme implements IStateful<ISchemeState> {
         dao: state.dao,
         id: this.id,
         name: state.name,
-        paramsHash: state.paramsHash
+        paramsHash: state.paramsHash,
+        version: state.version
       }
       if (this.staticState.name ===  'ReputationFromToken') {
         this.ReputationFromToken = new ReputationFromTokenScheme(this)
@@ -260,6 +264,7 @@ export class Scheme implements IStateful<ISchemeState> {
               activationTime
               voteOnBehalf
             }
+            scheme
             voteRegisterParams {
               queuedVoteRequiredPercentage
               queuedVotePeriodLimit
@@ -350,8 +355,8 @@ export class Scheme implements IStateful<ISchemeState> {
           contractToCall: item.uGenericSchemeParams.contractToCall,
           voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
           votingMachine: item.uGenericSchemeParams.votingMachine
-        } : null
-
+        } : null,
+        version: item.version
       }
     }
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
@@ -378,14 +383,22 @@ export class Scheme implements IStateful<ISchemeState> {
             break
 
           case 'UGenericScheme':
-            createTransaction  = UGenericScheme.createTransaction(options, this.context)
-            map = UGenericScheme.createTransactionMap(options, this.context)
-            break
+              createTransaction  = UGenericScheme.createTransaction(options, this.context)
+              map = UGenericScheme.createTransactionMap(options, this.context)
+              break
 
           case 'GenericScheme':
-            createTransaction  = GenericScheme.createTransaction(options, this.context)
-            map = GenericScheme.createTransactionMap(options, this.context)
-            break
+            const versionNumber = Number(state.version.split('rc.')[1])
+            if (versionNumber < 23) {
+                // older versions are in reality a UGenericScheme
+              createTransaction  = UGenericScheme.createTransaction(options, this.context)
+              map = UGenericScheme.createTransactionMap(options, this.context)
+              break
+            } else {
+              createTransaction  = GenericScheme.createTransaction(options, this.context)
+              map = GenericScheme.createTransactionMap(options, this.context)
+              break
+            }
 
           case 'SchemeRegistrar':
             createTransaction  = SchemeRegistrar.createTransaction(options, this.context)

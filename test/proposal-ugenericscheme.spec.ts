@@ -21,8 +21,6 @@ describe('Proposal', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = getTestAddresses(arc)
-    dao = await getTestDAO()
   })
 
   it.skip('the calldata argument must be provided', async () => {
@@ -31,7 +29,9 @@ describe('Proposal', () => {
     })).rejects.toThrow(/missing argument "callData"/i)
   })
 
-  it('Check proposal state is correct', async () => {
+  it('proposal flow works for LATEST_ARC_VERSION', async () => {
+    testAddresses = getTestAddresses(arc)
+    dao = await getTestDAO()
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
 
@@ -42,6 +42,51 @@ describe('Proposal', () => {
     const proposal = await createAProposal(dao, {
       callData,
       scheme: testAddresses.base.UGenericScheme,
+      schemeToRegister: actionMock.options.address,
+      value: 0
+    })
+    expect(proposal).toBeInstanceOf(Proposal)
+
+    proposal.state().subscribe((pState: IProposalState) => {
+      states.push(pState)
+    })
+
+    await waitUntilTrue(() => states.length > 0)
+
+    expect(lastState().genericScheme).toMatchObject({
+      callData,
+      executed: false,
+      returnValue: null
+    })
+
+    // accept the proposal by voting the hell out of it
+    await voteToAcceptProposal(proposal)
+
+    await waitUntilTrue(() => (lastState().genericScheme as IGenericScheme).executed)
+    expect(lastState()).toMatchObject({
+      stage: IProposalStage.Executed
+    })
+    expect(lastState().genericScheme).toMatchObject({
+      callData,
+      executed: true,
+      returnValue: '0x0000000000000000000000000000000000000000000000000000000000000001'
+    })
+  })
+
+  it('proposal flow works for 0.0.1-rc.19', async () => {
+    const version = '0.0.1-rc.19'
+    testAddresses = getTestAddresses(arc, version)
+    dao = await getTestDAO(arc, version)
+    const states: IProposalState[] = []
+    const lastState = (): IProposalState => states[states.length - 1]
+
+    const actionMockABI = require(`@daostack/migration/abis/${LATEST_ARC_VERSION}/ActionMock.json`)
+    const actionMock = new arc.web3.eth.Contract(actionMockABI, testAddresses.test.ActionMock)
+    const callData = await actionMock.methods.test2(dao.id).encodeABI()
+
+    const proposal = await createAProposal(dao, {
+      callData,
+      scheme: testAddresses.base.GenericScheme, // the contract _was_ called GenericScheme
       schemeToRegister: actionMock.options.address,
       value: 0
     })

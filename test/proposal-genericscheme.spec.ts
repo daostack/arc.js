@@ -17,17 +17,15 @@ jest.setTimeout(60000)
 describe('Proposal', () => {
   let arc: Arc
   let testAddresses: ITestAddresses
-  let dao: DAO
 
   beforeAll(async () => {
     arc = await newArc()
     testAddresses = getTestAddresses(arc)
-    // @ts-ignore
-    const daos = await arc.daos({where: { name: 'Nectar DAO'}}).first()
-    dao = daos[0]
   })
 
   it('Check proposal state is correct', async () => {
+    const daos = await arc.daos({where: { name: 'Nectar DAO'}}).first()
+    const dao = daos[0]
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
 
