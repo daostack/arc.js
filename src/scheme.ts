@@ -9,6 +9,7 @@ import * as ContributionReward from './schemes/contributionReward'
 import * as GenericScheme from './schemes/genericScheme'
 import { ReputationFromTokenScheme } from './schemes/reputationFromToken'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
+import * as UGenericScheme from './schemes/uGenericScheme'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
@@ -377,6 +378,10 @@ export class Scheme implements IStateful<ISchemeState> {
             break
 
           case 'UGenericScheme':
+            createTransaction  = UGenericScheme.createTransaction(options, this.context)
+            map = UGenericScheme.createTransactionMap(options, this.context)
+            break
+
           case 'GenericScheme':
             createTransaction  = GenericScheme.createTransaction(options, this.context)
             map = GenericScheme.createTransactionMap(options, this.context)

@@ -8,6 +8,7 @@ import { Address } from '../src/types'
 import { BN } from '../src/utils'
 
 const Web3 = require('web3')
+const path =require('path')
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
 export const graphqlHttpMetaProvider: string = 'http://127.0.0.1:8000/subgraphs'
@@ -15,8 +16,7 @@ export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/d
 export const web3Provider: string = 'ws://127.0.0.1:8545'
 export const ipfsProvider: string = '/ip4/127.0.0.1/tcp/5001'
 
-export const LATEST_ARC_VERSION = '0.0.1-rc.24'
-// export const LATEST_ARC_VERSION = '0.0.1-rc.19'
+export const LATEST_ARC_VERSION = '0.0.1-rc.28'
 
 export { BN }
 
@@ -61,8 +61,8 @@ export interface ITestAddresses {
 export function getTestAddresses(arc: Arc): ITestAddresses {
   const version = LATEST_ARC_VERSION
   // const contractInfos = arc.contractInfos
-  const path = './migration.json'
-  const migration = require(path).private
+  const migrationFile = path.resolve(`${require.resolve('@daostack/migration' )}/../migration.json`)
+  const migration = require(migrationFile).private
   const addresses = {
     base: {
       ContributionReward: arc.getContractInfoByName('ContributionReward', version).address,

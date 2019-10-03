@@ -69,7 +69,7 @@ describe('Proposal', () => {
     expect(lastState().genericScheme).toMatchObject({
       callData,
       executed: true,
-      returnValue: '0x0000000000000000000000000000000000000000000000000000000000000001'
+      returnValue: '0x'
     })
   })
 })
