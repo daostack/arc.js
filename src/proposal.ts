@@ -175,6 +175,7 @@ export class Proposal implements IStateful<IProposalState> {
         numberOfQueuedProposals
         numberOfPreBoostedProposals
         numberOfBoostedProposals
+        version
       }
       gpQueue {
         id
@@ -498,7 +499,8 @@ export class Proposal implements IStateful<IProposalState> {
         numberOfBoostedProposals: Number(scheme.numberOfBoostedProposals),
         numberOfPreBoostedProposals: Number(scheme.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(scheme.numberOfQueuedProposals),
-        paramsHash: scheme.paramsHash
+        paramsHash: scheme.paramsHash,
+        version: scheme.version
       }
       const queueState: IQueueState = {
         dao: item.dao.id,
