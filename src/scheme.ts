@@ -264,7 +264,6 @@ export class Scheme implements IStateful<ISchemeState> {
               activationTime
               voteOnBehalf
             }
-            scheme
             voteRegisterParams {
               queuedVoteRequiredPercentage
               queuedVotePeriodLimit
@@ -303,6 +302,7 @@ export class Scheme implements IStateful<ISchemeState> {
               voteOnBehalf
             }
           }
+          version
         }
       }`
 
@@ -390,7 +390,7 @@ export class Scheme implements IStateful<ISchemeState> {
           case 'GenericScheme':
             const versionNumber = Number(state.version.split('rc.')[1])
             if (versionNumber < 23) {
-                // older versions are in reality a UGenericScheme
+              // the pre-24 " GenericScheme" contracts have beeen renamed to UGenericScheme
               createTransaction  = UGenericScheme.createTransaction(options, this.context)
               map = UGenericScheme.createTransactionMap(options, this.context)
               break

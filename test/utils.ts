@@ -45,7 +45,7 @@ export function toWei(amount: string | number): typeof BN {
 }
 
 export interface ITestAddresses {
-  base: { [key: string]: Address|undefined },
+  base: { [key: string]: Address },
   dao: { [key: string]: Address },
   test: {
     organs: { [key: string]: Address },
@@ -62,7 +62,7 @@ export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION)
   // const contractInfos = arc.contractInfos
   const migrationFile = path.resolve(`${require.resolve('@daostack/migration' )}/../migration.json`)
   const migration = require(migrationFile).private
-  let UGenericScheme
+  let UGenericScheme: string = ''
   try {
     UGenericScheme = arc.getContractInfoByName('UGenericScheme', version).address
   } catch (err) {
@@ -79,7 +79,7 @@ export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION)
       GEN: arc.GENToken().address,
       GenericScheme: arc.getContractInfoByName('GenericScheme', version).address,
       SchemeRegistrar: arc.getContractInfoByName('SchemeRegistrar', version).address,
-      UGenericScheme,
+      UGenericScheme
     },
     dao: migration.dao[version],
     test: migration.test[version]

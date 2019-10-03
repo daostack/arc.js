@@ -1,4 +1,4 @@
-import { DAO } from '../src//dao'
+import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import {
   IProposalStage,
@@ -24,7 +24,7 @@ describe('Proposal', () => {
   })
 
   it('Check proposal state is correct', async () => {
-    const daos = await arc.daos({where: { name: 'Nectar DAO'}}).first()
+    const daos = await arc.daos({where: { name: 'Nectar DAO'}}).pipe(first()).toPromise()
     const dao = daos[0]
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
