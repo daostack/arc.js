@@ -172,6 +172,10 @@ export class Proposal implements IStateful<IProposalState> {
         canRegisterSchemes
         canUpgradeController
         name
+        numberOfQueuedProposals
+        numberOfPreBoostedProposals
+        numberOfBoostedProposals
+        version
       }
       gpQueue {
         id
@@ -237,7 +241,7 @@ export class Proposal implements IStateful<IProposalState> {
     const observable = schemesQuery.pipe(
       first(),
       concatMap((schemes) => {
-        if (schemes) {
+        if (schemes && schemes.length > 0) {
           return schemes[0].createProposal(options)
         } else {
           throw Error(`No scheme was found with address ${options.scheme} registered with dao ${options.dao}`)
@@ -492,7 +496,11 @@ export class Proposal implements IStateful<IProposalState> {
         dao: item.dao.id,
         id: scheme.id,
         name: schemeName,
-        paramsHash: scheme.paramsHash
+        numberOfBoostedProposals: Number(scheme.numberOfBoostedProposals),
+        numberOfPreBoostedProposals: Number(scheme.numberOfPreBoostedProposals),
+        numberOfQueuedProposals: Number(scheme.numberOfQueuedProposals),
+        paramsHash: scheme.paramsHash,
+        version: scheme.version
       }
       const queueState: IQueueState = {
         dao: item.dao.id,

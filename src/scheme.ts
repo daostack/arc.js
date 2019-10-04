@@ -9,6 +9,7 @@ import * as ContributionReward from './schemes/contributionReward'
 import * as GenericScheme from './schemes/genericScheme'
 import { ReputationFromTokenScheme } from './schemes/reputationFromToken'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
+import * as UGenericScheme from './schemes/uGenericScheme'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
@@ -18,6 +19,7 @@ export interface ISchemeStaticState {
   dao: Address
   name: string
   paramsHash: string
+  version: string
 }
 
 export interface ISchemeState extends ISchemeStaticState {
@@ -40,6 +42,14 @@ export interface ISchemeState extends ISchemeStaticState {
     votingMachine: Address
     voteRemoveParams: IGenesisProtocolParams
     voteRegisterParams: IGenesisProtocolParams
+  } | null
+  numberOfQueuedProposals: number
+  numberOfPreBoostedProposals: number
+  numberOfBoostedProposals: number
+  uGenericSchemeParams?: {
+    votingMachine: Address
+    contractToCall: Address
+    voteParams: IGenesisProtocolParams
   } | null
 }
 
@@ -117,6 +127,7 @@ export class Scheme implements IStateful<ISchemeState> {
           name
           dao { id }
           paramsHash
+          version
       }
     }   `
     const itemMap = (item: any): Scheme|null => {
@@ -127,7 +138,8 @@ export class Scheme implements IStateful<ISchemeState> {
         dao: item.dao.id,
         id: item.id,
         name: item.name,
-        paramsHash: item.paramsHash
+        paramsHash: item.paramsHash,
+        version: item.version
       }, context)
       return scheme
     }
@@ -175,7 +187,8 @@ export class Scheme implements IStateful<ISchemeState> {
         dao: state.dao,
         id: this.id,
         name: state.name,
-        paramsHash: state.paramsHash
+        paramsHash: state.paramsHash,
+        version: state.version
       }
       if (this.staticState.name ===  'ReputationFromToken') {
         this.ReputationFromToken = new ReputationFromTokenScheme(this)
@@ -267,9 +280,31 @@ export class Scheme implements IStateful<ISchemeState> {
               voteOnBehalf
             }
           }
+          numberOfQueuedProposals
+          numberOfPreBoostedProposals
+          numberOfBoostedProposals
+          uGenericSchemeParams {
+            votingMachine
+            contractToCall
+            voteParams {
+              queuedVoteRequiredPercentage
+              queuedVotePeriodLimit
+              boostedVotePeriodLimit
+              preBoostedVotePeriodLimit
+              thresholdConst
+              limitExponentValue
+              quietEndingPeriod
+              proposingRepReward
+              votersReputationLossRatio
+              minimumDaoBounty
+              daoBountyConst
+              activationTime
+              voteOnBehalf
+            }
+          }
+          version
         }
-      }
-        `
+      }`
 
     const itemMap = (item: any): ISchemeState|null => {
       if (!item) {
@@ -307,12 +342,21 @@ export class Scheme implements IStateful<ISchemeState> {
         } : null,
         id: item.id,
         name,
+        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
         paramsHash: item.paramsHash,
         schemeRegistrarParams: item.schemeRegistrarParams ? {
           voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
           voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
           votingMachine: item.schemeRegistrarParams.votingMachine
-        } : null
+        } : null,
+        uGenericSchemeParams: item.uGenericSchemeParams ? {
+          contractToCall: item.uGenericSchemeParams.contractToCall,
+          voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
+          votingMachine: item.uGenericSchemeParams.votingMachine
+        } : null,
+        version: item.version
       }
     }
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
@@ -339,10 +383,22 @@ export class Scheme implements IStateful<ISchemeState> {
             break
 
           case 'UGenericScheme':
+              createTransaction  = UGenericScheme.createTransaction(options, this.context)
+              map = UGenericScheme.createTransactionMap(options, this.context)
+              break
+
           case 'GenericScheme':
-            createTransaction  = GenericScheme.createTransaction(options, this.context)
-            map = GenericScheme.createTransactionMap(options, this.context)
-            break
+            const versionNumber = Number(state.version.split('rc.')[1])
+            if (versionNumber < 23) {
+              // the pre-24 " GenericScheme" contracts have beeen renamed to UGenericScheme
+              createTransaction  = UGenericScheme.createTransaction(options, this.context)
+              map = UGenericScheme.createTransactionMap(options, this.context)
+              break
+            } else {
+              createTransaction  = GenericScheme.createTransaction(options, this.context)
+              map = GenericScheme.createTransactionMap(options, this.context)
+              break
+            }
 
           case 'SchemeRegistrar':
             createTransaction  = SchemeRegistrar.createTransaction(options, this.context)
