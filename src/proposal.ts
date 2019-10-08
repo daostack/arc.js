@@ -89,6 +89,7 @@ export interface IProposalState extends IProposalStaticState {
   stage: IProposalStage
   stakesFor: typeof BN
   stakesAgainst: typeof BN
+  tags?: string[]
   title?: string
   totalRepWhenCreated: typeof BN
   totalRepWhenExecuted: typeof BN
@@ -841,6 +842,7 @@ interface IProposalBaseCreateOptions {
   description?: string
   descriptionHash?: string
   title?: string
+  tags?: string[]
   scheme: Address
   url?: string
 }
