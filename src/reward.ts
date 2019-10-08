@@ -7,9 +7,9 @@ import { BN } from './utils'
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IRewardStaticState {
-  id: string
-  beneficiary: Address
-  createdAt: Date
+  id: string,
+  beneficiary: Address,
+  createdAt: Date,
   proposalId: string,
   reputationForVoter: typeof BN,
   tokensForStaker: typeof BN,
@@ -27,17 +27,41 @@ export interface IRewardState extends IRewardStaticState {
 
 export interface IRewardQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string
-    beneficiary?: Address
-    dao?: Address
-    proposal?: string
-    createdAtAfter?: Date
-    createdAtBefore?: Date
+    id?: string,
+    beneficiary?: Address,
+    dao?: Address,
+    proposal?: string,
+    createdAtAfter?: Date,
+    createdAtBefore?: Date,
     [key: string]: any
   }
 }
 
 export class Reward implements IStateful<IRewardState> {
+
+  public static fragments = {
+    RewardFields: gql`fragment RewardFields on GPReward {
+      id
+      createdAt
+      dao {
+        id
+      }
+      beneficiary
+      daoBountyForStaker
+      proposal {
+         id
+      }
+      reputationForVoter
+      reputationForVoterRedeemedAt
+      reputationForProposer
+      reputationForProposerRedeemedAt
+      tokenAddress
+      tokensForStaker
+      tokensForStakerRedeemedAt
+      daoBountyForStakerRedeemedAt
+    }`
+  }
+
 
   /**
    * Reward.search(context, options) searches for reward entities
@@ -69,13 +93,25 @@ export class Reward implements IStateful<IRewardState> {
     const query = gql`query RewardSearch
     {
       gprewards ${createGraphQlQuery(options, where)} {
-        id
+        ...RewardFields
       }
-    }`
+    }
+    ${Reward.fragments.RewardFields}
+    `
 
     return context.getObservableList(
       query,
-      (r: any) => new Reward(r.id, context),
+      (item: any) => new Reward({
+        id: item.id,
+        beneficiary: item.beneficiary,
+        createdAt: item.createdAt,
+        daoBountyForStaker: new BN(item.daoBountyForStaker),
+        proposalId: item.proposalId,
+        reputationForProposer: new BN(item.reputationForProposer),
+        reputationForVoter: new BN(item.reputationForVoter),
+        tokenAddress: item.tokenAddress,
+        tokensForStaker: new BN(item.tokensForStaker),
+      }, context),
       apolloQueryOptions
     ) as Observable<Reward[]>
   }
@@ -95,29 +131,15 @@ export class Reward implements IStateful<IRewardState> {
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IRewardState> {
 
-    const query = gql`query RewardState {
+    const query = gql`
+    query RewardState {
       gpreward ( id: "${this.id}" )
       {
-        id
-        createdAt
-        dao {
-          id
-        }
-        beneficiary
-        daoBountyForStaker
-        proposal {
-           id
-        }
-        reputationForVoter
-        reputationForVoterRedeemedAt
-        reputationForProposer
-        reputationForProposerRedeemedAt
-        tokenAddress
-        tokensForStaker
-        tokensForStakerRedeemedAt
-        daoBountyForStakerRedeemedAt
+        ...RewardFields
       }
-    }`
+    }
+    ${Reward.fragments.RewardFields}
+    `
 
     const itemMap = (item: any): IRewardState => {
       this.setStaticState({
