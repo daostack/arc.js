@@ -68,6 +68,9 @@ export class Queue implements IStateful<IQueueState> {
             id
             address
             name
+            numberOfBoostedProposals
+            numberOfPreBoostedProposals
+            numberOfQueuedProposals
           }
         }
       }
@@ -112,6 +115,10 @@ export class Queue implements IStateful<IQueueState> {
             canUpgradeController
             canManageGlobalConstraints
             paramsHash
+            numberOfBoostedProposals
+            numberOfPreBoostedProposals
+            numberOfQueuedProposals
+            version
           }
           votingMachine
           threshold
@@ -138,7 +145,11 @@ export class Queue implements IStateful<IQueueState> {
           dao: item.dao.id,
           id: item.scheme.id,
           name: schemeName,
-          paramsHash: item.scheme.paramsHash
+          numberOfBoostedProposals: Number(item.scheme.numberOfBoostedProposals),
+          numberOfPreBoostedProposals: Number(item.scheme.numberOfPreBoostedProposals),
+          numberOfQueuedProposals: Number(item.scheme.numberOfQueuedProposals),
+          paramsHash: item.scheme.paramsHash,
+          version: item.scheme.version
         },
         threshold,
         votingMachine: item.votingMachine
