@@ -71,7 +71,7 @@ describe('Token', () => {
     expect(balances[1].sub(balances[0]).toString()).toEqual(amount.toString())
   })
 
-  it.only('balanceOf GEN token works', async () => {
+  it('balanceOf GEN token works', async () => {
     const token = arc.GENToken()
     const account = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
     const balances: Array<typeof BN> = []
@@ -83,12 +83,8 @@ describe('Token', () => {
     await waitUntilTrue(() => balances.length > 1)
     expect(balances[1].sub(balances[0]).toString()).toEqual(amountToMint.toString())
     const amountToSend = new BN('23456')
-    token.transfer('0x72939947e7a1c4ac94bb840e3304b322237ad1a8', amountToSend)
+    await token.transfer('0x72939947e7a1c4ac94bb840e3304b322237ad1a8', amountToSend).send()
     await waitUntilTrue(() => balances.length > 2)
-    console.log(arc.web3.eth.defaultAccount)
-    console.log(balances[0].toString())
-    console.log(balances[1].toString())
-    console.log(balances[2].toString())
     expect(balances[1].sub(balances[2]).toString()).toEqual(amountToSend.toString())
   })
 

@@ -144,29 +144,22 @@ export class Token implements IStateful<ITokenState> {
     }
     const observable = Observable.create(async (observer: Observer<typeof BN>) => {
       const contract = this.contract('readonly')
-      let subscription1: Subscription
-      let subscription2: Subscription
+      let subscriptionReceive: Subscription
+      let subscriptionSend: Subscription
       contract.methods.balanceOf(owner).call()
         .then((balance: number) => {
           if (balance === null) {
             observer.error(`balanceOf ${owner} returned null`)
           }
           observer.next(new BN(balance))
-          subscription1 = contract.events.Transfer({ filter: { to: owner }})
+          subscriptionReceive = contract.events.Transfer({ filter: { to: owner }})
             .on('data', (data: any) => {
-              // const newBalance = data.returnValues.value
-              console.log(`Transfer to ${owner} event!@`)
-              console.log(data)
               contract.methods.balanceOf(owner).call().then((newBalance: number) => {
                 observer.next(new BN(newBalance))
               })
             })
-          subscription2 = contract.events.Transfer({ filter: { from: owner }})
+          subscriptionSend = contract.events.Transfer({ filter: { from: owner }})
             .on('data', (data: any) => {
-              // const newBalance = data.returnValues.value
-              console.log(`Transfer from ${owner} event!`)
-              console.log(data)
-
               contract.methods.balanceOf(owner).call().then((newBalance: number) => {
                 observer.next(new BN(newBalance))
               })
@@ -182,8 +175,8 @@ export class Token implements IStateful<ITokenState> {
           }
         })
       return () => {
-        if (subscription1) { subscription1.unsubscribe() }
-        if (subscription2) { subscription2.unsubscribe() }
+        if (subscriptionReceive) { subscriptionReceive.unsubscribe() }
+        if (subscriptionSend) { subscriptionSend.unsubscribe() }
       }
     })
     observable.first = () => observable.pipe(first()).toPromise()
