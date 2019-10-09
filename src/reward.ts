@@ -62,7 +62,6 @@ export class Reward implements IStateful<IRewardState> {
     }`
   }
 
-
   /**
    * Reward.search(context, options) searches for reward entities
    * @param  context an Arc instance that provides connection information
@@ -102,15 +101,15 @@ export class Reward implements IStateful<IRewardState> {
     return context.getObservableList(
       query,
       (item: any) => new Reward({
-        id: item.id,
         beneficiary: item.beneficiary,
         createdAt: item.createdAt,
         daoBountyForStaker: new BN(item.daoBountyForStaker),
+        id: item.id,
         proposalId: item.proposalId,
         reputationForProposer: new BN(item.reputationForProposer),
         reputationForVoter: new BN(item.reputationForVoter),
         tokenAddress: item.tokenAddress,
-        tokensForStaker: new BN(item.tokensForStaker),
+        tokensForStaker: new BN(item.tokensForStaker)
       }, context),
       apolloQueryOptions
     ) as Observable<Reward[]>
