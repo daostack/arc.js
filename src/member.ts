@@ -207,7 +207,7 @@ export class Member implements IStateful<IMemberState> {
     }
 
     const itemMap = (items: any) => {
-      if (items === undefined || items.length === 0) {
+      if (items.length === 0) {
         const staticState = this.staticState as IMemberStaticState
         return  {
           address: staticState.address,
