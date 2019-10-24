@@ -308,22 +308,4 @@ describe('Proposal', () => {
     expect(Number(fromWei(states[states.length - 1].votesFor))).toBeGreaterThan(0)
     expect(states[states.length - 1].winningOutcome).toEqual(IProposalOutcome.Pass)
   })
-
-  it('ipfs state works', async () => {
-    const dao = await getTestDAO()
-    const response = await Proposal.create({
-      dao: dao.id,
-      scheme: getTestAddresses(dao.context).base.ContributionReward,
-      beneficiary: dao.id,
-      title: 'title_123',
-      description: 'description_123',
-      tags: ['tag1', 'tag2']
-    }, arc).send()
-    const proposal = response.result
-    expect(proposal.id).toBeTruthy()
-
-    // TODO:  check if data is indexed properly
-    // waiting for https://github.com/daostack/subgraph/issues/354
-    expect(`wait for subgraph implementation`).toBeFalsy()
-  })
 })
