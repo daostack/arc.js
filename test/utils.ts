@@ -1,4 +1,4 @@
-import { of, Observable } from 'rxjs'
+import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { DAO } from '../src/dao'
 import Arc from '../src/index'

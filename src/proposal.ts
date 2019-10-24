@@ -203,6 +203,9 @@ export class Proposal implements IStateful<IProposalState> {
       }
       stakesFor
       stakesAgainst
+      tags {
+        id
+      }
       totalRepWhenCreated
       totalRepWhenExecuted
       title
@@ -540,6 +543,7 @@ export class Proposal implements IStateful<IProposalState> {
         stage,
         stakesAgainst,
         stakesFor,
+        tags: item.tags.map((t: any) => t.id),
         title: item.title,
         totalRepWhenCreated: new BN(item.totalRepWhenCreated),
         totalRepWhenExecuted: new BN(item.totalRepWhenExecuted),
