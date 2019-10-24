@@ -58,7 +58,7 @@ export class Tag implements IStateful<ITagState> {
     let query
     const itemMap = (r: any) => {
       return new Tag({
-        id: r.id,
+        id: r.id
       }, context)
     }
 
@@ -132,10 +132,10 @@ export class Tag implements IStateful<ITagState> {
         throw Error(`Could not find a Tag with id ${this.id}`)
       }
       this.setStaticState({
-        id: item.id,
+        id: item.id
       })
       return {
-        id: item.id,
+        id: item.id
       }
     }
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
