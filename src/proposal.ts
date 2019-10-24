@@ -248,7 +248,7 @@ export class Proposal implements IStateful<IProposalState> {
         if (schemes && schemes.length > 0) {
           return schemes[0].createProposal(options)
         } else {
-          throw Error(`No scheme was found with address ${options.scheme} registered with dao ${options.dao}`)
+          throw Error(`No scheme with address ${options.scheme} is registered with dao ${options.dao}`)
         }
       }
     ))
