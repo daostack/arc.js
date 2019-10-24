@@ -12,8 +12,6 @@ import { IContributionReward } from '../src/schemes/contributionReward'
 import { BN } from './utils'
 import { createAProposal,
   fromWei,
-  getTestDAO,
-  getTestAddresses,
   ITestAddresses,
   newArc,
   toWei,
