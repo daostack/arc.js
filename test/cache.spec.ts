@@ -92,7 +92,7 @@ describe('apolloClient caching checks', () => {
     await new Member(member.id as string , arc).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
   })
 
-  it('pre-fetching ProposalVotes works', async () => {
+  it.only('pre-fetching ProposalVotes works', async () => {
     // find a proposal in a scheme that has some votes
     const votes = await Vote.search(arc).pipe(first()).toPromise()
     const vote = votes[0] as Vote
@@ -128,13 +128,44 @@ describe('apolloClient caching checks', () => {
     // we now get all proposal data without hitting the cache
     const proposalData = await proposal.state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
     expect(proposalData.scheme.id).toEqual(scheme.id)
+    console.log(`EXECUTING VOTE QUERY NOW`)
     const proposalVotes = await proposal.votes({ where: { voter: voterAddress}}, { fetchPolicy: 'cache-only'})
       .pipe(first()).toPromise()
-    expect(proposalVotes.map((v: Vote) => v.id)).toContain(vote.id)
+    console.log(' DONE...')
+    console.log(proposalVotes.length)
+    const qry = gql`   query ProposalVotesSearchFromProposal
+            {
+              proposal (id: "0x1097d1273337dbf6e1380e4dccf647c8ddf948751b5daeb9e81606ccbfdc4f46") {
+                id
+                votes (where: {
+          voter: "0xffcf8fdee72ac11b5c542428b35eef5769c409f0"
+
+        }) {
+                  ...VoteFields
+                }
+              }
+            }
+            fragment VoteFields on ProposalVote {
+          id
+          createdAt
+          dao {
+            id
+          }
+          voter
+          proposal {
+            id
+          }
+          outcome
+          reputation
+        }
+      `
+    const xx = await arc.sendQuery(qry)
+    console.log(xx.data.proposal.votes.length)
+    expect(proposalVotes.map((v: Vote) => v.id)).toEqual([vote.id])
   })
 
   it('pre-fetching ProposalStakes works', async () => {
-    // find a proposal in a scheme that has some votes
+    // find a proposal in a scheme that has some stakes
     const stakes = await Stake.search(arc).pipe(first()).toPromise()
     const stake = stakes[0] as Stake
     const stakeState = await stake.state().pipe(first()).toPromise()
@@ -172,9 +203,14 @@ describe('apolloClient caching checks', () => {
 
     const proposalStakes = await proposal.stakes({ where: { staker: stakerAddress}}, { fetchPolicy: 'cache-only'})
       .pipe(first()).toPromise()
-    expect(proposalStakes.map((v: Stake) => v.id)).toContain(stake.id)
+    expect(proposalStakes.map((v: Stake) => v.id)).toEqual([stake.id])
 
   })
+
+  it('pre-fetching ProposalRewards works [TODO]', async () => {
+    console.log('implement this')
+  })
+
 
   it('pre-fetching Members with dao.members() works', async () => {
 
