@@ -28,7 +28,7 @@ export class Tag implements IStateful<ITagState> {
   }
 
   /**
-   * Tga.search(context, options) searches for stake entities
+   * Tag.search(context, options) searches for stake entities
    * @param  context an Arc instance that provides connection information
    * @param  options the query options, cf. ITagQueryOptions
    * @return         an observable of Tag objects
