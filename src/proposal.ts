@@ -198,9 +198,7 @@ export class Proposal implements IStateful<IProposalState> {
         schemeRemoved
       }
       stage
-      stakes {
-        id
-      }
+      # stakes { id }
       stakesFor
       stakesAgainst
       tags {
@@ -210,9 +208,7 @@ export class Proposal implements IStateful<IProposalState> {
       totalRepWhenExecuted
       title
       url
-      votes {
-        id
-      }
+      # votes { id }
       votesAgainst
       votesFor
       votingMachine
@@ -310,14 +306,25 @@ export class Proposal implements IStateful<IProposalState> {
     let query
 
     if (apolloQueryOptions.fetchAllData === true) {
-        query = gql`query ProposalsSearchAllData
+      query = gql`query ProposalsSearchAllData
         {
           proposals ${createGraphQlQuery(options, where)} {
             ...ProposalFields
+            votes {
+              id
+            }
+            stakes {
+              id
+            }
           }
         }
         ${Proposal.fragments.ProposalFields}
       `
+      return context.getObservableList(
+        query,
+        (r: any) => new Proposal(r, context),
+        apolloQueryOptions
+      ) as IObservable<Proposal[]>
     } else {
       query = gql`query ProposalSearchPartialData
         {
@@ -334,13 +341,12 @@ export class Proposal implements IStateful<IProposalState> {
           }
         }
       `
+      return context.getObservableList(
+        query,
+        (r: any) => new Proposal(r.id, context),
+        apolloQueryOptions
+      ) as IObservable<Proposal[]>
     }
-
-    return context.getObservableList(
-      query,
-      (r: any) => new Proposal(r.id, context),
-      apolloQueryOptions
-    ) as IObservable<Proposal[]>
   }
 
   public context: Arc
@@ -390,6 +396,12 @@ export class Proposal implements IStateful<IProposalState> {
       {
         proposal(id: "${this.id}") {
           ...ProposalFields
+          votes {
+            id
+          }
+          stakes {
+            id
+          }
         }
       }
       ${Proposal.fragments.ProposalFields}
@@ -457,7 +469,7 @@ export class Proposal implements IStateful<IProposalState> {
       } else {
         throw Error(`Unknown proposal type or incomplete proposal data`)
       }
-      // the  formule to enter into the preboosted state is:
+      // the  formule to enter into the preboosted ttate is:
       // (S+/S-) > AlphaConstant^NumberOfBoostedProposal.
       // (stakesFor/stakesAgainst) > gpQueue.threshold
       const stage: any = IProposalStage[item.stage]

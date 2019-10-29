@@ -121,6 +121,7 @@ export class Stake implements IStateful<IStakeState> {
           if (r === null) { // no such proposal was found
             return []
           }
+          console.log(r)
           const stakes = r.stakes
           return stakes.map(itemMap)
         },
