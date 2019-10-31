@@ -68,6 +68,7 @@ export interface IProposalState extends IProposalStaticState {
   boostedAt: Date
   contributionReward: ContributionReward.IContributionReward|null
   confidenceThreshold: number
+  closingAt: Date
   createdAt: Date
   descriptionHash?: string
   description?: string
@@ -109,6 +110,7 @@ export class Proposal implements IStateful<IProposalState> {
       id
       accountsWithUnclaimedRewards
       boostedAt
+      closingAt
       confidenceThreshold
       contributionReward {
         id
@@ -529,6 +531,7 @@ export class Proposal implements IStateful<IProposalState> {
       return {
         accountsWithUnclaimedRewards: item.accountsWithUnclaimedRewards,
         boostedAt: Number(item.boostedAt),
+        closingAt: Number(item.closingAt),
         confidenceThreshold: Number(item.confidenceThreshold),
         contributionReward,
         createdAt: Number(item.createdAt),

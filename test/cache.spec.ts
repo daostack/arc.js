@@ -119,13 +119,10 @@ describe('apolloClient caching checks', () => {
     await proposal
       .votes({ where: { voter: '0x2a5994b501e6a560e727b6c2de5d856396aadd38' }})
       .pipe(first()).toPromise()
-    let proposalStakes = await proposal.stakes({}, { fetchPolicy: 'cache-only'})
+    await proposal.stakes({}, { fetchPolicy: 'cache-only'})
       .pipe(first()).toPromise()
-    console.log(proposalStakes)
-    proposalStakes = await proposal.stakes({where: { staker: voterAddress }})
+    await proposal.stakes({where: { staker: voterAddress }})
       .pipe(first()).toPromise()
-    console.log(proposalStakes)
-
   })
 
   it.skip('pre-fetching ProposalStakes works', async () => {
@@ -134,7 +131,6 @@ describe('apolloClient caching checks', () => {
 
     const accounts = arc.web3.eth.accounts.wallet
     async function approveAndStake(address: Address) {
-      console.log(`staking on ${address}`)
       arc.setAccount(address)
       const stakingToken =  await proposal.stakingToken()
       // approve the spend, for staking
