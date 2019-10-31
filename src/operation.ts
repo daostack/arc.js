@@ -78,19 +78,20 @@ export function sendTransaction<T>(
     }
 
     const from = await context.getAccount().pipe(first()).toPromise()
-    let gasEstimate: number = 0
-    try {
-      gasEstimate = await tx.estimateGas({ from })
-    } catch (error) {
-      let errToReturn: Error
-      try {
-        errToReturn = await errorHandler(error)
-      } catch (err) {
-        errToReturn = err
-      }
-      observer.error(errToReturn)
-      return
-    }
+    const gasEstimate: number = 0
+    //
+    // try {
+    //   gasEstimate = await tx.estimateGas({ from })
+    // } catch (error) {
+    //   let errToReturn: Error
+    //   try {
+    //     errToReturn = await errorHandler(error)
+    //   } catch (err) {
+    //     errToReturn = err
+    //   }
+    //   observer.error(errToReturn)
+    //   return
+    // }
     let gas: number
     if (gasEstimate) {
       gas = gasEstimate * 2
