@@ -1,6 +1,6 @@
 import { first} from 'rxjs/operators'
 import { Arc, DAO, Proposal, Tag } from '../src'
-import { createAProposal, newArc, getTestDAO } from './utils'
+import { createAProposal, getTestDAO, newArc } from './utils'
 
 /**
  * Tag test
@@ -19,7 +19,7 @@ describe('Tag', () => {
 
   it('Tag is instantiable', () => {
     const tag = new Tag({
-      id: '0x1234id',
+      id: '0x1234id'
     }, arc)
     expect(tag).toBeInstanceOf(Tag)
   })
@@ -47,6 +47,10 @@ describe('Tag', () => {
       .search(arc, {where:  {id: 'hi_there'}})
       .pipe(first()).toPromise()
     expect(result).toEqual([])
+  })
+
+  it('arc.tags(..) works', async () => {
+    await arc.tags().pipe(first()).toPromise()
   })
 
   it('paging and sorting works', async () => {
