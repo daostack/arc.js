@@ -70,7 +70,7 @@ describe('apolloClient caching checks', () => {
     await new Member(member.id as string , arc).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
   })
 
-  it.only('pre-fetching ProposalVotes works', async () => {
+  it('pre-fetching ProposalVotes works', async () => {
     // find a proposal in a scheme that has > 1 votes
     let proposals = await Proposal.search(arc, {}, { fetchAllData: true }).pipe(first()).toPromise()
     // @ts-ignore
@@ -92,10 +92,12 @@ describe('apolloClient caching checks', () => {
       proposals (where: { scheme: "${scheme.id}"}){
         ...ProposalFields
         stakes { ...StakeFields }
+        rewards { ...RewardFields }
         votes (where: { voter: "${voterAddress}"}) {
           ...VoteFields
           }
         }
+        rewards { ...RewardFields }
       }
       ${Proposal.fragments.ProposalFields}
       ${Vote.fragments.VoteFields}
@@ -126,7 +128,7 @@ describe('apolloClient caching checks', () => {
 
   })
 
-  it.only('pre-fetching ProposalStakes works', async () => {
+  it.skip('pre-fetching ProposalStakes works', async () => {
     // create a proposal with 2 stakes to test with
     const proposal = await createAProposal()
 
