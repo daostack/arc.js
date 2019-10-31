@@ -2,6 +2,8 @@ import { first} from 'rxjs/operators'
 import { Arc, DAO, Proposal, Tag } from '../src'
 import { createAProposal, getTestDAO, newArc } from './utils'
 
+jest.setTimeout(20000)
+
 /**
  * Tag test
  */
