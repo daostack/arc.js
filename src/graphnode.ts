@@ -155,7 +155,6 @@ export class GraphNodeObserver {
     const graphqlSubscribeToQueries = this.graphqlSubscribeToQueries
     const observable = Observable.create((observer: Observer<ApolloQueryResult<any>>) => {
       Logger.debug(query.loc.source.body)
-      console.log(query.loc.source.body)
       if (!apolloQueryOptions.fetchPolicy) {
         apolloQueryOptions.fetchPolicy = 'cache-first'
       }

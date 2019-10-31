@@ -1,10 +1,10 @@
 import { getMainDefinition } from 'apollo-utilities'
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
-import { Address, IProposalOutcome, Member, Proposal, Scheme, Stake } from '../src'
+import { Member, Proposal, Scheme, Stake } from '../src'
 import { createApolloClient } from '../src/graphnode'
 import { Vote } from '../src/vote'
-import { createAProposal, graphqlHttpProvider, graphqlWsProvider, newArc, waitUntilTrue } from './utils'
+import { graphqlHttpProvider, graphqlWsProvider, newArc, waitUntilTrue } from './utils'
 
 jest.setTimeout(20000)
 /**
@@ -92,12 +92,10 @@ describe('apolloClient caching checks', () => {
       proposals (where: { scheme: "${scheme.id}"}){
         ...ProposalFields
         stakes { ...StakeFields }
-        rewards { ...RewardFields }
         votes (where: { voter: "${voterAddress}"}) {
           ...VoteFields
           }
         }
-        rewards { ...RewardFields }
       }
       ${Proposal.fragments.ProposalFields}
       ${Vote.fragments.VoteFields}
@@ -123,83 +121,6 @@ describe('apolloClient caching checks', () => {
       .pipe(first()).toPromise()
     await proposal.stakes({where: { staker: voterAddress }})
       .pipe(first()).toPromise()
-  })
-
-  it.skip('pre-fetching ProposalStakes works', async () => {
-    // create a proposal with 2 stakes to test with
-    const proposal = await createAProposal()
-
-    const accounts = arc.web3.eth.accounts.wallet
-    async function approveAndStake(address: Address) {
-      arc.setAccount(address)
-      const stakingToken =  await proposal.stakingToken()
-      // approve the spend, for staking
-      const votingMachine = await proposal.votingMachine()
-      await stakingToken.approveForStaking(votingMachine.options.address, 100).send()
-      return proposal.stake(IProposalOutcome.Pass, 100).send()
-    }
-    await approveAndStake(accounts[0].address)
-    console.log(await approveAndStake(accounts[1].address))
-    console.log(await approveAndStake(accounts[2].address))
-
-    // this proposal should have some stakes now
-    console.log(proposal.id)
-    const stakes = await proposal.stakes().pipe(first()).toPromise()
-    expect(stakes.length).toBeGreaterThan(1)
-    const stake = stakes[0]
-    const stakeState = await stake.state().pipe(first()).toPromise()
-    const stakerAddress = stakeState.staker
-    const proposalState = await proposal.state({ fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
-    const scheme = new Scheme(proposalState.scheme.id, arc)
-
-    // now we have our objects, reset the cache
-    await arc.apolloClient.cache.reset()
-    expect(arc.apolloClient.cache.data.data).toEqual({})
-
-    // construct our superquery
-    const query = gql`query {
-      proposals (where: { scheme: "${scheme.id}"})
-        {
-          ...ProposalFields
-          votes {
-            ...VoteFields
-          }
-          stakes (where: { staker: "${stakerAddress}"}) {
-            ...StakeFields
-          }
-        }
-      }
-      ${Proposal.fragments.ProposalFields}
-      ${Stake.fragments.StakeFields}
-      ${Vote.fragments.VoteFields}
-    `
-    let subscribed = false
-    //
-    const data: any[] = []
-    arc.getObservable(query, { subscribe: true }).subscribe((x: any) => {
-      data.push(x)
-      subscribed = true
-    })
-    await waitUntilTrue(() => subscribed)
-
-    // we now get all proposal data without hitting the cache
-    // const proposalData = await proposal.state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
-    // expect(proposalData.scheme.id).toEqual(scheme.id)
-    //
-    console.log('Subcription of superquery was a success')
-    // console.log(data[data.length - 1].data.proposals)
-    // console.log(arc.apolloClient.cache.data.data)
-    const proposalStakes = await proposal.stakes({ where: { staker: stakerAddress}}, { fetchPolicy: 'cache-only'})
-      .pipe(first()).toPromise()
-    // @ts-ignore
-    console.log(proposalStakes[0].staticState.staker)
-    console.log(stakerAddress)
-    expect(proposalStakes.map((v: Stake) => v.id)).toEqual([stake.id])
-
-  })
-
-  it.skip('pre-fetching ProposalRewards works [TODO]', async () => {
-    console.log('implement this')
   })
 
   it('pre-fetching Members with dao.members() works', async () => {
