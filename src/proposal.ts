@@ -471,7 +471,7 @@ export class Proposal implements IStateful<IProposalState> {
       } else {
         throw Error(`Unknown proposal type or incomplete proposal data`)
       }
-      // the  formule to enter into the preboosted ttate is:
+      // the  formule to enter into the preboosted state is:
       // (S+/S-) > AlphaConstant^NumberOfBoostedProposal.
       // (stakesFor/stakesAgainst) > gpQueue.threshold
       const stage: any = IProposalStage[item.stage]

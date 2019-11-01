@@ -28,7 +28,6 @@ describe('apolloClient caching checks', () => {
   })
 
   it('pre-fetching DAOs works', async () => {
-    // const client = arc.apolloClient
     // get all DAOs
     const daos = await arc.daos().pipe(first()).toPromise()
 
@@ -108,8 +107,6 @@ describe('apolloClient caching checks', () => {
       results.push(x)
     })
     await waitUntilTrue(() => subscribed)
-    // const proposalData = await proposal.state().pipe(first()).toPromise()
-    // expect(proposalData.scheme.id).toEqual(scheme.id)
     const proposalVotes = await proposal.votes({ where: { voter: voterAddress}}, { fetchPolicy: 'cache-only'})
       .pipe(first()).toPromise()
     expect(proposalVotes.map((v: Vote) => v.id)).toEqual([vote.id])
@@ -163,12 +160,6 @@ describe('apolloClient caching checks', () => {
     await member.state({ subscribe: false}).subscribe()
     expect(networkQueries.length).toEqual(2)
     expect(networkSubscriptions.length).toEqual(1)
-
-    // TODO: dieally, we would also be smart enough to not subscribe to an individaul state if we
-    // are already subscribed ...
-    // await member.state().subscribe()
-    // expect(networkQueries.length).toEqual(2)
-    // expect(networkSubscriptions.length).toEqual(1)
 
     // for sanity, check fi we actually ahve the member info
     const memberState = await member.state({fetchPolicy: 'cache-only', subscribe: false}).pipe(first()).toPromise()
