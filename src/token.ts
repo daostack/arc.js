@@ -140,7 +140,6 @@ export class Token implements IStateful<ITokenState> {
         }
       }
       return err
-
     }
     const observable = Observable.create(async (observer: Observer<typeof BN>) => {
       const contract = this.contract('readonly')
@@ -174,11 +173,12 @@ export class Token implements IStateful<ITokenState> {
             console.warn(`An error occurred: resubscribing (the error was ${err.message})`)
             // reset provider and resubscribe
             this.context.web3.setProvider(this.context.web3Provider)
-            subscribe()
+            await subscribe()
           } else {
             observer.error(await errHandler(err))
           }
         })
+      await subscribe()
       return () => unsubscribe()
     })
     observable.first = () => observable.pipe(first()).toPromise()
