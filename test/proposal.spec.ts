@@ -14,7 +14,11 @@ import { createAProposal,
   fromWei,
   getTestAddresses,
   ITestAddresses,
-  newArc, toWei, waitUntilTrue } from './utils'
+  newArc,
+  toWei,
+  voteToPassProposal,
+  waitUntilTrue
+} from './utils'
 
 jest.setTimeout(20000)
 /**
@@ -275,6 +279,19 @@ describe('Proposal', () => {
     expect(stakes[stakes.length - 1].length).toEqual(1)
   })
 
+  it('get proposal votes', async () => {
+    const proposal = await createAProposal()
+    // vote with several accounts
+    await voteToPassProposal(proposal)
+    const votes = await proposal.votes({}, { fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
+    expect(votes.length).toBeGreaterThanOrEqual(1)
+    // @ts-ignore
+    const someAccount = votes[0].staticState.voter
+    const votesForAccount = await proposal.votes({where: {voter: someAccount}}, { fetchPolicy: 'no-cache'})
+      .pipe(first()).toPromise()
+    expect(votesForAccount.length).toEqual(1)
+  })
+
   it('state gets all updates', async () => {
     // TODO: write this test!
     const states: IProposalState[] = []
@@ -301,8 +318,6 @@ describe('Proposal', () => {
       }
     })
 
-    // we expect our first state to be null
-    // (we just created the proposal and subscribed immediately)
     expect(Number(fromWei(states[states.length - 1].votesFor))).toBeGreaterThan(0)
     expect(states[states.length - 1].winningOutcome).toEqual(IProposalOutcome.Pass)
   })

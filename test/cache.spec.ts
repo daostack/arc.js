@@ -1,14 +1,10 @@
 import { getMainDefinition } from 'apollo-utilities'
-// import gql from 'graphql-tag'
+import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import {DAO } from '../src/dao'
+import { Member, Proposal, Scheme, Stake } from '../src'
 import { createApolloClient } from '../src/graphnode'
-import { Member } from '../src/member'
-import { Proposal } from '../src/proposal'
-import { getContractAddressesFromMigration } from '../src/utils'
 import { Vote } from '../src/vote'
-import { graphqlHttpProvider, graphqlWsProvider, waitUntilTrue } from './utils'
+import { graphqlHttpProvider, graphqlWsProvider, newArc, waitUntilTrue } from './utils'
 
 jest.setTimeout(20000)
 /**
@@ -23,33 +19,15 @@ describe('apolloClient caching checks', () => {
   beforeEach(async () => {
     networkSubscriptions = []
     networkQueries = []
-    arc = new Arc({
-      contractInfos: getContractAddressesFromMigration('private'),
+    arc = await newArc({
       graphqlHttpProvider,
       graphqlWsProvider,
       ipfsProvider: '',
       web3Provider: 'ws://127.0.0.1:8545'
     })
-
-    arc.apolloClient = createApolloClient({
-      graphqlHttpProvider,
-      graphqlWsProvider,
-      graphqlPrefetchHook: (query: any) => {
-        const definition = getMainDefinition(query)
-        // console.log(query)
-        // @ts-ignore
-        if (definition.operation === 'subscription') {
-          networkSubscriptions.push(definition)
-        } else {
-          networkQueries.push(definition)
-        }
-        // console.log(definition)
-      }
-    })
   })
 
   it('pre-fetching DAOs works', async () => {
-    // const client = arc.apolloClient
     // get all DAOs
     const daos = await arc.daos().pipe(first()).toPromise()
 
@@ -92,35 +70,73 @@ describe('apolloClient caching checks', () => {
   })
 
   it('pre-fetching ProposalVotes works', async () => {
-    // get all votes of a member
-    const votes = await Vote.search(arc).pipe(first()).toPromise()
-    const vote = votes[0] as Vote
-    // console.log(vote.staticState)
+    // find a proposal in a scheme that has > 1 votes
+    let proposals = await Proposal.search(arc, {}, { fetchAllData: true }).pipe(first()).toPromise()
     // @ts-ignore
-    const dao = new DAO(vote.staticState.dao as string, arc)
+    proposals = proposals.filter((p) => p.staticState.votes.length > 1)
+    const proposal = proposals[0]
     // @ts-ignore
-    const proposal = new Proposal(vote.staticState.proposal, arc)
-    // @ts-ignore
-    const member = dao.member(vote.staticState.voter)
-    expect(networkQueries.length).toEqual(1)
-    expect(networkSubscriptions.length).toEqual(1)
-    let hasResults = false
-    await member.votes().subscribe(() => hasResults = true)
-    await waitUntilTrue(() => hasResults)
-    expect(networkQueries.length).toEqual(2)
-    expect(networkSubscriptions.length).toEqual(2)
+    const vote = new Vote(proposals[0].staticState.votes[0], arc)
+    const voteState = await vote.state().pipe(first()).toPromise()
+    const voterAddress = voteState.voter
+    const proposalState = await proposal.state().pipe(first()).toPromise()
+    const scheme = new Scheme(proposalState.scheme.id, arc)
 
-    // if we now get the vote of this member for a particualr proposal, we should not send a query at all
-    // @ts-ignore
-    await proposal.votes({ where: { voter: vote.staticState.voter}})
-    // console.log(networkQueries)
-    // @ts-ignore
-    // console.log(arc.apolloClient.cache.data.data)
+    // now we have our objects, reset the cache
+    await arc.apolloClient.cache.reset()
+    expect(arc.apolloClient.cache.data.data).toEqual({})
 
+    // construct our superquery
+    const query = gql`query {
+      proposals (where: { scheme: "${scheme.id}"}){
+        ...ProposalFields
+        stakes { ...StakeFields }
+        votes (where: { voter: "${voterAddress}"}) {
+          ...VoteFields
+          }
+        }
+      }
+      ${Proposal.fragments.ProposalFields}
+      ${Vote.fragments.VoteFields}
+      ${Stake.fragments.StakeFields}
+    `
+    let subscribed = false
+    const results: any[] = []
+    arc.getObservable(query, { subscribe: true, fetchPolicy: 'no-cache'}).subscribe((x: any) => {
+      subscribed = true
+      results.push(x)
+    })
+    await waitUntilTrue(() => subscribed)
+    const proposalVotes = await proposal.votes({ where: { voter: voterAddress}}, { fetchPolicy: 'cache-only'})
+      .pipe(first()).toPromise()
+    expect(proposalVotes.map((v: Vote) => v.id)).toEqual([vote.id])
+
+    await proposal
+      .votes({ where: { voter: '0x2a5994b501e6a560e727b6c2de5d856396aadd38' }})
+      .pipe(first()).toPromise()
+    await proposal.stakes({}, { fetchPolicy: 'cache-only'})
+      .pipe(first()).toPromise()
+    await proposal.stakes({where: { staker: voterAddress }})
+      .pipe(first()).toPromise()
   })
 
   it('pre-fetching Members with dao.members() works', async () => {
 
+    arc.apolloClient = createApolloClient({
+      graphqlHttpProvider,
+      graphqlPrefetchHook: (query: any) => {
+        const definition = getMainDefinition(query)
+        // console.log(query)
+        // @ts-ignore
+        if (definition.operation === 'subscription') {
+          networkSubscriptions.push(definition)
+        } else {
+          networkQueries.push(definition)
+        }
+        // console.log(definition)
+      },
+      graphqlWsProvider
+    })
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(0)
     const daos = await arc.daos({}, { subscribe: false, fetchAllData: true}).pipe(first()).toPromise()
@@ -145,12 +161,6 @@ describe('apolloClient caching checks', () => {
     expect(networkQueries.length).toEqual(2)
     expect(networkSubscriptions.length).toEqual(1)
 
-    // TODO: dieally, we would also be smart enough to not subscribe to an individaul state if we
-    // are already subscribed ...
-    // await member.state().subscribe()
-    // expect(networkQueries.length).toEqual(2)
-    // expect(networkSubscriptions.length).toEqual(1)
-
     // for sanity, check fi we actually ahve the member info
     const memberState = await member.state({fetchPolicy: 'cache-only', subscribe: false}).pipe(first()).toPromise()
     expect(memberState.reputation.isZero()).toBeFalsy()
@@ -160,97 +170,4 @@ describe('apolloClient caching checks', () => {
     expect(networkSubscriptions.length).toEqual(1)
 
   })
-
-  it('try to understand the caching of queries', async () => {
-    const arc = new Arc({
-      contractInfos: getContractAddressesFromMigration('private'),
-      graphqlHttpProvider,
-      graphqlWsProvider,
-      ipfsProvider: '',
-      web3Provider: 'ws://127.0.0.1:8545'
-    })
-
-    // const daos = await arc.daos().pipe(first()).toPromise()
-    // const daoId = '0xa92a766d62318b9c06eb548753bd34acbd7c5f3c'
-    const daoName = 'Querulous Unicorn'
-    // const dao1 = daos[0]
-    // const dao2 = daos[0]
-    // so if i get the same query twice, the second time I should get the result from the cache
-    // await arc.daos({where: { id: dao1.id }}).pipe(first()).toPromise()
-    // await arc.daos({where: { id: dao1.id }}, { fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
-    // console.log(rs2)
-    // let x
-    if (arc.apolloClient) {
-      // const client = arc.apolloClient
-      arc.daos({ where: { name: daoName}}).subscribe()
-      // (dao: any) =>
-        // console.log(dao)
-      // )
-      // x = await arc.apolloClient.query({
-      //   // fetchPolicy: 'xx-only',
-      //   query: gql`query daoQuery {dao (id: "${daoId}") { id name }}`
-      //   // variables: { id: dao1.id}
-      // })
-      // console.log(x)
-      // x = await client.readQuery({
-      //   query: gql`query daoQuery($id: String!) {dao (id:$id) { id name }}`,
-      //   variables: { id: daoId}
-      // })
-      // let query: any
-      // query = gql`query daoQuery ($name: String! ) {daos  @client (where: {name: $name})  { id name }}`
-      // x = await client.query({query, variables: {name: daoName}})
-      // console.log(x)
-      // console.log(`readQuery: ...............................`)
-      // await client.readQuery({query, variables: {name: daoName}})
-      // console.log(await client.getResolvers())
-      // @ts-ignore
-      // console.log(client.cache.config.cacheRedirects)
-      // await client.readQuery({query})
-      // arc.apolloClient.writeQuery({query, data: [x]})
-      // console.log('-------------------')
-      // x = await client.query({ query })
-      // console.log(x)
-      // console.log(`queries`)
-      // @ts-ignore
-      // console.log(client.queryManager.queries)
-
-    }
-    // @ts-ignore
-    // console.log(arc.apolloClient.cache.data.data)
-    // @ts-ignore
-    // console.log(arc.apolloClient.cache.data.data.ROOT_QUERY)
-    // throw Error('faillllle')
-  })
 })
-    // const client = arc.apolloClient
-    // function getQueries() {
-    //   // @ts-ignore
-    //   return client.queryManager.queries
-    // }
-    // we should have one query running, with one subscription
-    // const queries = getQueries()
-    // expect(queries.size).toEqual(1)
-    // const entries = Array.from(queries.entries())
-    // @ts-ignore
-    // console.log(entries[0][1].subscriptions.size)
-    // console.log(getQueries())
-    // @ts-ignore
-    // expect(entries[0][1].subscriptions.size).toEqual(1)
-    // @ts-ignore
-    // console.log(Array.from(entries[0][1].subscriptions)[0])
-
-    // now get an invidual member
-    // subscribe to this member
-
-    // console.log(getQueries())
-    // for (const query of [...queries.values()]) {
-    //   console.log('xxx')
-    //   console.log(query)
-    // }
-    // const member = members[0]
-
-    // we will still hit the server when getting the DAO state, because the previous query did not fetch all state data
-    // so the next line with 'cache-only' will throw an Error
-    // expect(member.id).toBeTruthy()
-    // await new Member(member.id as string , arc).state().pipe(first()).toPromise()
-    // await new Member(member.id as string , arc).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()

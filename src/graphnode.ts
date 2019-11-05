@@ -1,4 +1,4 @@
-import { InMemoryCache } from 'apollo-cache-inmemory'
+import { defaultDataIdFromObject, InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient, ApolloQueryResult } from 'apollo-client'
 import { FetchResult, Observable as ZenObservable } from 'apollo-link'
 import { split } from 'apollo-link'
@@ -73,15 +73,31 @@ export function createApolloClient(options: {
     cache: new InMemoryCache({
       cacheRedirects: {
         Query: {
+          controllerScheme: (_, args, { getCacheKey }) => {
+            return getCacheKey({ __typename: 'ControllerScheme', id: args.id })
+          },
           dao: (_, args, { getCacheKey }) =>  {
             return getCacheKey({ __typename: 'DAO', id: args.id })
           },
           proposal: (_, args, { getCacheKey }) => {
             return getCacheKey({ __typename: 'Proposal', id: args.id })
           },
+          proposalStake: (_, args, { getCacheKey }) => {
+            return getCacheKey({ __typename: 'ProposalStake', id: args.id })
+          },
+          proposalVote: (_, args, { getCacheKey }) => {
+            return getCacheKey({ __typename: 'ProposalVote', id: args.id })
+          },
           reputationHolder: (_, args, { getCacheKey }) => {
             return getCacheKey({ __typename: 'ReputationHolder', id: args.id })
           }
+        }
+      },
+      dataIdFromObject: (object) => {
+        switch (object.__typename) {
+          case 'ProposalVote': return undefined
+          case 'ProposalStake': return undefined
+          default: return defaultDataIdFromObject(object) // fall back to default handling
         }
       }
     }),
@@ -139,7 +155,6 @@ export class GraphNodeObserver {
     const graphqlSubscribeToQueries = this.graphqlSubscribeToQueries
     const observable = Observable.create((observer: Observer<ApolloQueryResult<any>>) => {
       Logger.debug(query.loc.source.body)
-
       if (!apolloQueryOptions.fetchPolicy) {
         apolloQueryOptions.fetchPolicy = 'cache-first'
       }
