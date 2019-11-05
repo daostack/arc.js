@@ -8,6 +8,7 @@ import { Logger } from './logger'
 import { Operation, sendTransaction, web3receipt } from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
 import { ISchemeQueryOptions, Scheme } from './scheme'
+import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { BN } from './utils'
@@ -140,6 +141,10 @@ export class Arc extends GraphNodeObserver {
    */
   public daos(options: IDAOQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<DAO[]> {
     return DAO.search(this, options, apolloQueryOptions)
+  }
+
+  public tags(options: ITagQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Tag[]> {
+    return Tag.search(this, options, apolloQueryOptions)
   }
 
   public scheme(id: string): Scheme {
@@ -407,14 +412,16 @@ export class Arc extends GraphNodeObserver {
    * @param  options an Object to save. This object must have title, url and desction defined
    * @return  a Promise that resolves in the IPFS Hash where the file is saved
    */
-  public async saveIPFSData(options: { title: string, url: string, description: string}): Promise<string> {
+  public async saveIPFSData(options: { title: string, url: string, description: string, tags: string[]}):
+    Promise<string> {
     let ipfsDataToSave: object = {}
-    if (options.title || options.url || options.description) {
+    if (options.title || options.url || options.description || options.tags !== undefined) {
       if (!this.ipfsProvider) {
         throw Error(`No ipfsProvider set on Arc instance - cannot save data on IPFS`)
       }
       ipfsDataToSave = {
         description: options.description,
+        tags: options.tags,
         title: options.title,
         url: options.url
       }

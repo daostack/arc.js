@@ -1,4 +1,4 @@
-import { InMemoryCache } from 'apollo-cache-inmemory'
+import { defaultDataIdFromObject, InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient, ApolloQueryResult } from 'apollo-client'
 import { ApolloLink, FetchResult, Observable as ZenObservable, split } from 'apollo-link'
 import { onError } from 'apollo-link-error'
@@ -97,6 +97,13 @@ export function createApolloClient(options: {
             return getCacheKey({ __typename: 'ReputationHolder', id: args.id })
           }
         }
+      },
+      dataIdFromObject: (object) => {
+        switch (object.__typename) {
+          case 'ProposalVote': return undefined
+          case 'ProposalStake': return undefined
+          default: return defaultDataIdFromObject(object) // fall back to default handling
+        }
       }
     }),
     connectToDevTools: true,
@@ -153,7 +160,6 @@ export class GraphNodeObserver {
     const graphqlSubscribeToQueries = this.graphqlSubscribeToQueries
     const observable = Observable.create((observer: Observer<ApolloQueryResult<any>>) => {
       Logger.debug(query.loc.source.body)
-
       if (!apolloQueryOptions.fetchPolicy) {
         apolloQueryOptions.fetchPolicy = 'cache-first'
       }
