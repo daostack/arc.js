@@ -207,7 +207,7 @@ export class Arc extends GraphNodeObserver {
                     (accInfo.observer as Observer<typeof BN>).next(new BN(balance))
                     accInfo.lastBalance = balance
                   }
-                } catch(err){
+                } catch (err) {
                   observer.error(err)
                 }
               }
