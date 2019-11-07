@@ -149,7 +149,7 @@ export class Token implements IStateful<ITokenState> {
         if (subscriptionReceive) { subscriptionReceive.unsubscribe() }
         if (subscriptionSend) { subscriptionSend.unsubscribe() }
       }
-      const subscribe = () => contract.methods.balanceOf(owner).call()
+      const subscribe = (retryAfter: number = 500) => contract.methods.balanceOf(owner).call()
         .then((balance: number) => {
           if (balance === null) {
             observer.error(`balanceOf ${owner} returned null`)
@@ -170,10 +170,13 @@ export class Token implements IStateful<ITokenState> {
         })
         .catch(async (err: Error) => {
           if (err.message.match(/connection not open/g)) {
-            console.warn(`An error occurred: resubscribing (the error was ${err.message})`)
+            console.warn(`Cannot connect to Ethereum node, retrying after ${retryAfter} ms (${err.message})`)
             // reset provider and resubscribe
+            // TODO: emit 0 only if we had not emitted a value yet
+            observer.next(new BN(0))
             this.context.web3.setProvider(this.context.web3Provider)
-            await subscribe()
+            retryAfter = Math.min(retryAfter * 2, 4000)
+            setTimeout(() => subscribe(retryAfter), retryAfter)
           } else {
             observer.error(await errHandler(err))
           }
