@@ -4,7 +4,6 @@ import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 const BN = require('bn.js')
-import  { } from './utils'
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IRewardStaticState {

@@ -17,7 +17,7 @@ import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSION } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 const BN = require('bn.js')
-import  { isAddress } from './utils'
+import { isAddress } from './utils'
 import { createGraphQlQuery, NULL_ADDRESS, realMathToNumber } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 

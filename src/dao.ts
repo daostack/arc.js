@@ -12,7 +12,7 @@ import { IStakeQueryOptions, Stake } from './stake'
 import { Token } from './token'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 const BN = require('bn.js')
-import  { createGraphQlQuery, isAddress } from './utils'
+import { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
 export interface IDAOStaticState {

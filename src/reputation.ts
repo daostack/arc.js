@@ -6,7 +6,7 @@ import { Arc, IApolloQueryOptions } from './arc'
 import { REPUTATION_CONTRACT_VERSION } from './settings'
 import { Address, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
 const BN = require('bn.js')
-import  { createGraphQlQuery, isAddress } from './utils'
+import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IReputationState {
   address: Address

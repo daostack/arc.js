@@ -5,7 +5,6 @@ import { Proposal } from '../src/proposal'
 import { Scheme } from '../src/scheme'
 import { Address } from '../src/types'
 const BN = require('bn.js')
-import  { } from './utils'
 import {
   fromWei,
   getTestAddresses,

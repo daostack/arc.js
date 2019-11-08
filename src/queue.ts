@@ -5,7 +5,7 @@ import { DAO } from './dao'
 import { ISchemeState } from './scheme'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 const BN = require('bn.js')
-import  { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
+import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
 
 export interface IQueueStaticState {
   dao: DAO

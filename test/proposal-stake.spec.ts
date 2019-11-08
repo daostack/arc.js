@@ -4,7 +4,6 @@ import { DAO } from '../src/dao'
 import { IProposalOutcome, Proposal } from '../src/proposal'
 import { Stake } from '../src/stake'
 const BN = require('bn.js')
-import  { } from './utils'
 import { createAProposal,
   // getTestAddresses,
   getTestDAO,

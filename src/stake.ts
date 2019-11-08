@@ -5,7 +5,7 @@ import { Arc, IApolloQueryOptions } from './arc'
 import { IProposalOutcome} from './proposal'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 const BN = require('bn.js')
-import  { createGraphQlQuery, isAddress } from './utils'
+import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IStakeStaticState {
   id?: string

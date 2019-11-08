@@ -4,7 +4,6 @@ import { Arc } from './arc'
 import { Logger } from './logger'
 import { Web3Receipt } from './types'
 const BN = require('bn.js')
-import  { } from './utils'
 
 export enum ITransactionState {
   Sending,
