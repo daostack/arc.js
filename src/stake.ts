@@ -1,10 +1,10 @@
+import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { IProposalOutcome} from './proposal'
 import { Address, ICommonQueryOptions, IStateful } from './types'
-import BN = require('bn.js')
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IStakeStaticState {

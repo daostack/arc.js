@@ -1,10 +1,10 @@
+import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable, Observer, Subscription } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAOTOKEN_CONTRACT_VERSION } from './settings'
 import { Address, Hash, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
-import BN = require('bn.js')
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface ITokenState {
