@@ -85,66 +85,6 @@ export function zenToRxjsObservable(zenObservable: ZenObservable<any>) {
   })
 }
 
-// /**
-//  * get the contract addresses by querying the "meta-url" of the subgraph deployment
-//  * (in the default configuration, if the subgraph is at a url of the form:
-//  *      http://some.thing/subgraphs/name/{subgraphName}/graphql
-//  * then the "metaurl" is:
-//  *      http://some.thing/subgraphs/graphql
-//  * @param  graphqlHttpProvider a URL of the form http://some.thing/subgraphs/graphql
-//  * @param  subgraphName        name of the subgraph
-//  * @return                     an array with contract names as keys and addresses as values
-//  */
-// export async function getContractAddresses(graphqlHttpProvider: string, subgraphName: string) {
-//
-//   const query = gql`{
-//     subgraphs (where: { name: "${subgraphName}"} ) {
-//       id
-//       name
-//       currentVersion {
-//         deployment {
-//           manifest {
-//             dataSources {
-//               name
-//               source {
-//                 abi
-//                 address
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }`
-//   const httpLink = new HttpLink({
-//     credentials: 'same-origin',
-//     fetch,
-//     uri: graphqlHttpProvider
-//   })
-//
-//   const client = new ApolloClient({
-//     cache: new InMemoryCache(),
-//     link: httpLink
-//   })
-//
-//   let response: any
-//   try {
-//     response = await client.query({query}) as ApolloQueryResult<{ subgraphs: any[]}>
-//   } catch (err) {
-//     throw err
-//   }
-//   if (response.data.subgraphs.length === 0) {
-//     throw Error(`Could not find a subgraph with this name: "${subgraphName}" -- does it exist?`)
-//   }
-//   const dataSources = response.data.subgraphs[0].currentVersion.deployment.manifest.dataSources
-//   const result: IContractAddresses = {}
-//   for (const record of dataSources) {
-//     const name: string = record.name
-//     const address = record.source.address
-//     result[name] = address.toLowerCase()
-//   }
-//   return result
-// }
 /** convert the number representation of RealMath.sol representations to real real numbers
  * @param  t a BN instance of a real number in the RealMath representation
  * @return  a BN
@@ -163,7 +103,7 @@ export function getContractAddressesFromMigration(environment: 'private'|'rinkeb
   for (const version of Object.keys( migration.base)) {
     for (const name of Object.keys(migration.base[version])) {
       contracts.push({
-        address: migration.base[version][name],
+        address: migration.base[version][name].toLowerCase(),
         id: migration.base[version][name],
         name,
         version
