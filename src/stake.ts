@@ -4,7 +4,7 @@ import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { IProposalOutcome} from './proposal'
 import { Address, ICommonQueryOptions, IStateful } from './types'
-const BN = require('bn.js')
+import BN = require('bn.js')
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IStakeStaticState {
@@ -12,7 +12,7 @@ export interface IStakeStaticState {
   staker: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome
-  amount: typeof BN // amount staked
+  amount: BN // amount staked
   proposal: string
 }
 

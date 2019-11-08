@@ -8,7 +8,7 @@ import { IProposalQueryOptions, Proposal } from './proposal'
 import { Reward } from './reward'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions, IStateful } from './types'
-const BN = require('bn.js')
+import BN = require('bn.js')
 import { concat, createGraphQlQuery, hexStringToUint8Array,
   isAddress
   // stringToUint8Array
@@ -24,7 +24,7 @@ export interface IMemberStaticState {
 export interface IMemberState extends IMemberStaticState {
   contract: Address
   id: string
-  reputation: typeof BN
+  reputation: BN
 }
 
 export interface IMemberQueryOptions extends ICommonQueryOptions {

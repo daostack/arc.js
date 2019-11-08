@@ -1,8 +1,8 @@
+import BN = require('bn.js')
 import { first} from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
-const BN = require('bn.js')
 import { getTestAddresses, newArc, toWei, waitUntilTrue } from './utils'
 
 /**
@@ -37,6 +37,7 @@ describe('Reputation', () => {
        address: address.toLowerCase()
     }
     expect(state).toMatchObject(expected)
+    export (typeof state.totalSupply).toEqual(BN)
   })
 
   it('throws a reasonable error if the contract does not exist', async () => {

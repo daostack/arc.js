@@ -4,13 +4,13 @@ import { Observable, Observer } from 'rxjs'
 import { IContractInfo } from './arc'
 import { Address, ICommonQueryOptions } from './types'
 const Web3 = require('web3')
-const BN = require('bn.js')
+import BN = require('bn.js')
 
-export function fromWei(amount: typeof BN): string {
+export function fromWei(amount: BN): string {
   return Web3.utils.fromWei(amount, 'ether')
 }
 
-export function toWei(amount: string | number): typeof BN {
+export function toWei(amount: string | number): BN {
   return Web3.utils.toWei(amount.toString(), 'ether')
 }
 
@@ -149,7 +149,7 @@ export function zenToRxjsObservable(zenObservable: ZenObservable<any>) {
  * @param  t a BN instance of a real number in the RealMath representation
  * @return  a BN
  */
-export function realMathToNumber(t: typeof BN): number {
+export function realMathToNumber(t: BN): number {
   const REAL_FBITS = 40
   const fraction = t.maskn(REAL_FBITS).toNumber() / Math.pow(2, REAL_FBITS)
   return t.shrn(REAL_FBITS).toNumber() + fraction

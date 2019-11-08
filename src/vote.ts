@@ -4,7 +4,7 @@ import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { IProposalOutcome } from './proposal'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
-const BN = require('bn.js')
+import BN = require('bn.js')
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IVoteStaticState {
@@ -12,7 +12,7 @@ export interface IVoteStaticState {
   voter: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome
-  amount: typeof BN // amount of reputation that was voted with
+  amount: BN // amount of reputation that was voted with
   proposal: string
   dao?: Address
 }

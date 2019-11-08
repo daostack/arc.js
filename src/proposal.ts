@@ -16,7 +16,7 @@ import * as SchemeRegistrar from './schemes/schemeRegistrar'
 import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSION } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
-const BN = require('bn.js')
+import BN = require('bn.js')
 import { isAddress } from './utils'
 import { createGraphQlQuery, NULL_ADDRESS, realMathToNumber } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
@@ -73,7 +73,7 @@ export interface IProposalState extends IProposalStaticState {
   createdAt: Date
   descriptionHash?: string
   description?: string
-  downStakeNeededToQueue: typeof BN
+  downStakeNeededToQueue: BN
   executedAt: Date
   executionState: IExecutionState
   expiresInQueueAt: Date
@@ -89,17 +89,17 @@ export interface IProposalState extends IProposalStaticState {
   schemeRegistrar: SchemeRegistrar.ISchemeRegistrar|null
   resolvedAt: Date
   stage: IProposalStage
-  stakesFor: typeof BN
-  stakesAgainst: typeof BN
+  stakesFor: BN
+  stakesAgainst: BN
   tags?: string[]
   title?: string
-  totalRepWhenCreated: typeof BN
-  totalRepWhenExecuted: typeof BN
+  totalRepWhenCreated: BN
+  totalRepWhenExecuted: BN
   type: IProposalType,
-  upstakeNeededToPreBoost: typeof BN
+  upstakeNeededToPreBoost: BN
   url?: string
-  votesFor: typeof BN
-  votesAgainst: typeof BN
+  votesFor: BN
+  votesAgainst: BN
   votesCount: number
   voteOnBehalf: Address
   winningOutcome: IProposalOutcome
@@ -483,7 +483,7 @@ export class Proposal implements IStateful<IProposalState> {
       // upstakeNeededToPreBoost is the amount of tokens needed to upstake to move to the preboost queue
       // this is only non-zero for Queued proposals
       // note that the number can be negative!
-      let upstakeNeededToPreBoost: typeof BN = new BN(0)
+      let upstakeNeededToPreBoost: BN = new BN(0)
       const PRECISION = Math.pow(2, 40)
       if (stage === IProposalStage.Queued) {
 
@@ -495,7 +495,7 @@ export class Proposal implements IStateful<IProposalState> {
       // upstakeNeededToPreBoost is the amount of tokens needed to upstake to move to the Queued queue
       // this is only non-zero for Preboosted proposals
       // note that the number can be negative!
-      let downStakeNeededToQueue: typeof BN = new BN(0)
+      let downStakeNeededToQueue: BN = new BN(0)
       if (stage === IProposalStage.PreBoosted) {
         downStakeNeededToQueue = stakesFor.mul(new BN(PRECISION))
           .div(new BN(threshold * PRECISION))
@@ -685,7 +685,7 @@ export class Proposal implements IStateful<IProposalState> {
    * @param  amount  the amount, in GEn, to stake
    * @return  An observable that can be sent, or subscribed to
    */
-  public stake(outcome: IProposalOutcome, amount: typeof BN ): Operation<Stake> {
+  public stake(outcome: IProposalOutcome, amount: BN ): Operation<Stake> {
     const map = (receipt: any) => { // map extracts Stake instance from receipt
         const event = receipt.events.Stake
         if (!event) {

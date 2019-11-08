@@ -4,7 +4,7 @@ import Arc from '../src/index'
 import { Proposal } from '../src/proposal'
 import { Scheme } from '../src/scheme'
 import { Address } from '../src/types'
-const BN = require('bn.js')
+import BN = require('bn.js')
 import {
   fromWei,
   getTestAddresses,
@@ -55,12 +55,12 @@ describe('Arc ', () => {
   it('arc.allowances() should work', async () => {
     const arc = await newArc()
 
-    const allowances: Array<typeof BN> = []
+    const allowances: Array<BN> = []
     const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
     const amount = toWei(1001)
     await arc.approveForStaking(spender, amount).send()
     arc.allowance(arc.web3.eth.defaultAccount, spender).subscribe(
-      (next: typeof BN) => {
+      (next: BN) => {
         allowances.push(next)
       }
     )
@@ -72,12 +72,12 @@ describe('Arc ', () => {
   it('arc.allowance() should work', async () => {
     const arc = await newArc()
 
-    const allowances: Array<typeof BN> = []
+    const allowances: Array<BN> = []
     const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
     const amount = toWei(1001)
     await arc.approveForStaking(spender, amount).send()
     arc.allowance(arc.web3.eth.defaultAccount, spender).subscribe(
-      (next: typeof BN) => {
+      (next: BN) => {
         allowances.push(next)
       }
     )
@@ -103,9 +103,9 @@ describe('Arc ', () => {
   it('arc.ethBalance() works with multiple subscriptions', async () => {
     const arc = await newArc()
     // observe two balances
-    const balances1: Array<typeof BN> = []
-    const balances2: Array<typeof BN> = []
-    const balances3: Array<typeof BN> = []
+    const balances1: Array<BN> = []
+    const balances2: Array<BN> = []
+    const balances3: Array<BN> = []
     const address1 = arc.web3.eth.accounts.wallet[1].address
     const address2 = arc.web3.eth.accounts.wallet[2].address
 
@@ -117,7 +117,7 @@ describe('Arc ', () => {
     })
     //
     // send some ether to the test accounts
-    async function sendEth(address: Address, amount: typeof BN) {
+    async function sendEth(address: Address, amount: BN) {
       await arc.web3.eth.sendTransaction({
         gas: 4000000,
         gasPrice: 100000000000,
