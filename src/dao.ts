@@ -11,7 +11,8 @@ import { ISchemeQueryOptions, Scheme } from './scheme'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Token } from './token'
 import { Address, ICommonQueryOptions, IStateful } from './types'
-import { BN, createGraphQlQuery, isAddress } from './utils'
+const BN = require('bn.js')
+import  { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
 export interface IDAOStaticState {

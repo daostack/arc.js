@@ -4,7 +4,7 @@ import { Observable, Observer } from 'rxjs'
 import { IContractInfo } from './arc'
 import { Address, ICommonQueryOptions } from './types'
 const Web3 = require('web3')
-export const BN = require('bn.js')
+const BN = require('bn.js')
 
 export function fromWei(amount: typeof BN): string {
   return Web3.utils.fromWei(amount, 'ether')

@@ -3,7 +3,8 @@ import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { Address, ICommonQueryOptions, IStateful } from './types'
-import { BN } from './utils'
+const BN = require('bn.js')
+import  { } from './utils'
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IRewardStaticState {

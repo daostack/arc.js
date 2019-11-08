@@ -4,7 +4,8 @@ import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAOTOKEN_CONTRACT_VERSION } from './settings'
 import { Address, Hash, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
-import { BN } from './utils'
+const BN = require('bn.js')
+import  { } from './utils'
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface ITokenState {

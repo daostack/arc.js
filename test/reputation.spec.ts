@@ -2,7 +2,7 @@ import { first} from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
-import { BN } from '../src/utils'
+const BN = require('bn.js')
 import { getTestAddresses, newArc, toWei, waitUntilTrue } from './utils'
 
 /**

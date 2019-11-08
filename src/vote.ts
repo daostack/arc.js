@@ -4,7 +4,8 @@ import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { IProposalOutcome } from './proposal'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
-import { BN, createGraphQlQuery, isAddress } from './utils'
+const BN = require('bn.js')
+import  { createGraphQlQuery, isAddress } from './utils'
 
 export interface IVoteStaticState {
   id?: string

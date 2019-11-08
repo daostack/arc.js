@@ -4,7 +4,8 @@ import Arc from '../src/index'
 import { Proposal } from '../src/proposal'
 import { Scheme } from '../src/scheme'
 import { Address } from '../src/types'
-import { BN } from './utils'
+const BN = require('bn.js')
+import  { } from './utils'
 import {
   fromWei,
   getTestAddresses,

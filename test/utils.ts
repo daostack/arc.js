@@ -5,7 +5,7 @@ import Arc from '../src/index'
 import { IProposalCreateOptions, IProposalOutcome, Proposal } from '../src/proposal'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
-import { BN } from '../src/utils'
+const BN = require('bn.js')
 
 const Web3 = require('web3')
 const path =require('path')

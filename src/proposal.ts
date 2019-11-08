@@ -16,7 +16,8 @@ import * as SchemeRegistrar from './schemes/schemeRegistrar'
 import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSION } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
-import { BN, isAddress } from './utils'
+const BN = require('bn.js')
+import  { isAddress } from './utils'
 import { createGraphQlQuery, NULL_ADDRESS, realMathToNumber } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 

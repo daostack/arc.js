@@ -8,7 +8,8 @@ import { IProposalQueryOptions, Proposal } from './proposal'
 import { Reward } from './reward'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions, IStateful } from './types'
-import { BN } from './utils'
+const BN = require('bn.js')
+import  { } from './utils'
 import { concat, createGraphQlQuery, hexStringToUint8Array,
   isAddress
   // stringToUint8Array

@@ -9,7 +9,8 @@ import { IExecutionState,
   IProposalType,
   Proposal } from '../src/proposal'
 import { IContributionReward } from '../src/schemes/contributionReward'
-import { BN } from './utils'
+const BN = require('bn.js')
+import  { } from './utils'
 import { createAProposal,
   fromWei,
   getTestAddresses,

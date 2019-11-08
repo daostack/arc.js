@@ -3,7 +3,8 @@ import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IProposalOutcome, Proposal } from '../src/proposal'
 import { Stake } from '../src/stake'
-import { BN } from './utils'
+const BN = require('bn.js')
+import  { } from './utils'
 import { createAProposal,
   // getTestAddresses,
   getTestDAO,

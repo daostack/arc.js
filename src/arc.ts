@@ -11,7 +11,8 @@ import { ISchemeQueryOptions, Scheme } from './scheme'
 import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
-import { BN } from './utils'
+const BN = require('bn.js')
+import  { } from './utils'
 import { isAddress } from './utils'
 const IPFSClient = require('ipfs-http-client')
 const Web3 = require('web3')
