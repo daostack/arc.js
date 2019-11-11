@@ -46,11 +46,14 @@ export interface ISchemeState extends ISchemeStaticState {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
-  uGenericSchemeParams?: {
-    votingMachine: Address
-    contractToCall: Address
-    voteParams: IGenesisProtocolParams
-  } | null
+  uGenericSchemeParams: IUGenericSchemeParams | null
+  schemeParams: IUGenericSchemeParams
+}
+
+export interface IUGenericSchemeParams {
+  votingMachine: Address
+  contractToCall: Address
+  voteParams: IGenesisProtocolParams
 }
 
 export interface ISchemeQueryOptions extends ICommonQueryOptions {
@@ -343,6 +346,11 @@ export class Scheme implements IStateful<ISchemeState> {
           }
         }
       }
+      const uGenericSchemeParams = item.uGenericSchemeParams && {
+        contractToCall: item.uGenericSchemeParams.contractToCall,
+        voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
+        votingMachine: item.uGenericSchemeParams.votingMachine
+      }
       return {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
@@ -365,16 +373,13 @@ export class Scheme implements IStateful<ISchemeState> {
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
         paramsHash: item.paramsHash,
+        schemeParams: uGenericSchemeParams,
         schemeRegistrarParams: item.schemeRegistrarParams ? {
           voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
           voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
           votingMachine: item.schemeRegistrarParams.votingMachine
         } : null,
-        uGenericSchemeParams: item.uGenericSchemeParams ? {
-          contractToCall: item.uGenericSchemeParams.contractToCall,
-          voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
-          votingMachine: item.uGenericSchemeParams.votingMachine
-        } : null,
+        uGenericSchemeParams,
         version: item.version
       }
     }
