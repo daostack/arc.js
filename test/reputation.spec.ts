@@ -37,7 +37,6 @@ describe('Reputation', () => {
        address: address.toLowerCase()
     }
     expect(state).toMatchObject(expected)
-    export (typeof state.totalSupply).toEqual(BN)
   })
 
   it('throws a reasonable error if the contract does not exist', async () => {
