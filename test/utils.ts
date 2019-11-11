@@ -5,10 +5,10 @@ import Arc from '../src/index'
 import { IProposalCreateOptions, IProposalOutcome, Proposal } from '../src/proposal'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
-import { BN } from '../src/utils'
+import BN = require('bn.js')
 
 const Web3 = require('web3')
-const path =require('path')
+const path = require('path')
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
 export const graphqlHttpMetaProvider: string = 'http://127.0.0.1:8000/subgraphs'
@@ -16,7 +16,7 @@ export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/d
 export const web3Provider: string = 'ws://127.0.0.1:8545'
 export const ipfsProvider: string = '/ip4/127.0.0.1/tcp/5001'
 
-export const LATEST_ARC_VERSION = '0.0.1-rc.31'
+export const LATEST_ARC_VERSION = '0.0.1-rc.32'
 
 export { BN }
 
@@ -36,11 +36,11 @@ const pks = [
   '0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773' // 9
 ]
 
-export function fromWei(amount: typeof BN): string {
+export function fromWei(amount: BN): string {
   return Web3.utils.fromWei(amount, 'ether')
 }
 
-export function toWei(amount: string | number): typeof BN {
+export function toWei(amount: string | number): BN {
   return new BN(Web3.utils.toWei(amount.toString(), 'ether'))
 }
 
@@ -181,7 +181,7 @@ export async function createAProposal(
   return proposal
 }
 
-export async function mintSomeReputation(version:string = LATEST_ARC_VERSION) {
+export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
   const addresses = getTestAddresses(arc, version)
   const token = new Reputation(addresses.test.organs.DemoReputation, arc)

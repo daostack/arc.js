@@ -1,6 +1,6 @@
 {
   "name": "@daostack/client",
-  "version": "0.2.23",
+  "version": "0.2.26",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",
@@ -100,7 +100,7 @@
     "u": "^0.1.0"
   },
   "dependencies": {
-    "@daostack/migration": "0.0.1-rc.31-v0",
+    "@daostack/migration": "0.0.1-rc.32-v0",
     "apollo-cache-inmemory": "^1.6.2",
     "apollo-client": "^2.6.3",
     "apollo-client-ws": "^2.5.0",
@@ -114,7 +114,7 @@
     "js-logger": "^1.6.0",
     "rxjs": "6.4.0",
     "subscriptions-transport-ws": "^0.9.16",
-    "web3": "1.2.1",
+    "web3": "1.2.2",
     "ws": "^6.2.1"
   }
 }
