@@ -2,6 +2,8 @@ import { first } from 'rxjs/operators'
 import { Arc, DAO, Event, IEventState, Proposal } from '../src'
 import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei, waitUntilTrue } from './utils'
 
+jest.setTimeout(20000)
+
 /**
  * Event test
  */

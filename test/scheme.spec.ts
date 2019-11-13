@@ -164,4 +164,11 @@ describe('Scheme', () => {
     const schemeStateFromServer = await scheme.state({ fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     expect(schemeStateFromCache).toEqual(schemeStateFromServer)
   })
+
+  it.only('scheme.isActive works', async () => {
+    const schemes = await firstResult(Scheme.search(arc))
+    const scheme = schemes[0]
+    expect(scheme.isActive()).toEqual(true)
+  })
+
 })
