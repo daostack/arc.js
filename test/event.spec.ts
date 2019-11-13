@@ -67,7 +67,7 @@ describe('Event', () => {
     )
     result = await Event.search(arc, { where: {dao: dao.id}})
         .pipe(first()).toPromise()
-    const allEvents = await Event.search(arc).pipe(first()).toPromise()
+    const allEvents = await Event.search(arc, {first: 1000}).pipe(first()).toPromise()
     expect(allEvents.length).toBeGreaterThan(result.length)
 
   })
