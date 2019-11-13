@@ -197,4 +197,5 @@ describe('Scheme', () => {
     const schemeStateFromServer = await scheme.state({ fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     expect(schemeStateFromCache).toEqual(schemeStateFromServer)
   })
+
 })
