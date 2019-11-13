@@ -351,34 +351,38 @@ export class Scheme implements IStateful<ISchemeState> {
         voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
         votingMachine: item.uGenericSchemeParams.votingMachine
       }
+      const contributionRewardParams = item.contributionRewardParams && {
+        voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
+        votingMachine: item.contributionRewardParams.votingMachine
+      }
+      const schemeRegistrarParams = item.schemeRegistrarParams && {
+        voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
+        voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
+        votingMachine: item.schemeRegistrarParams.votingMachine
+      }
+      const genericSchemeParams = item.genericSchemeParams  && {
+        contractToCall: item.genericSchemeParams.contractToCall,
+        voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
+        votingMachine: item.genericSchemeParams.votingMachine
+      }
+
       return {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
         canRegisterSchemes: item.canRegisterSchemes,
         canUpgradeController: item.canUpgradeController,
-        contributionRewardParams: item.contributionRewardParams ? {
-          voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
-          votingMachine: item.contributionRewardParams.votingMachine
-        } : null,
+        contributionRewardParams,
         dao: item.dao.id,
-        genericSchemeParams: item.genericSchemeParams ? {
-          contractToCall: item.genericSchemeParams.contractToCall,
-          voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
-          votingMachine: item.genericSchemeParams.votingMachine
-        } : null,
+        genericSchemeParams,
         id: item.id,
         name,
         numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
         paramsHash: item.paramsHash,
-        schemeParams: uGenericSchemeParams,
-        schemeRegistrarParams: item.schemeRegistrarParams ? {
-          voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
-          voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
-          votingMachine: item.schemeRegistrarParams.votingMachine
-        } : null,
+        schemeParams: uGenericSchemeParams || contributionRewardParams || schemeRegistrarParams || genericSchemeParams,
+        schemeRegistrarParams,
         uGenericSchemeParams,
         version: item.version
       }

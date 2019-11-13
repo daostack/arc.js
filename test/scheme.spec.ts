@@ -84,7 +84,7 @@ describe('Scheme', () => {
     expect(state).toMatchObject({
       address: testAddresses.base.ContributionReward.toLowerCase(),
       id: scheme.id,
-      name: 'SchemeRegistrar'
+      name: 'ContributionReward'
     })
     expect(state.contributionRewardParams).toEqual(state.schemeParams)
   })
@@ -119,6 +119,22 @@ describe('Scheme', () => {
       name: 'UGenericScheme'
     })
 
+    expect(state.uGenericSchemeParams).toEqual(state.schemeParams)
+  })
+
+  it('Scheme.state() is working for GenericScheme schemes', async () => {
+    const result = await Scheme
+      .search(arc, {where: {name: 'GenericScheme'}})
+      .pipe(first()).toPromise()
+
+    const scheme = result[0]
+    const state = await scheme.state().pipe(first()).toPromise()
+    expect(state).toMatchObject({
+      id: scheme.id,
+      name: 'GenericScheme'
+    })
+
+    // the subgraph is a bit weird here, popoulating uGenericSchemeParams instead of the expected schemeParams
     expect(state.uGenericSchemeParams).toEqual(state.schemeParams)
   })
 
