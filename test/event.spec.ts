@@ -1,6 +1,6 @@
 import { first } from 'rxjs/operators'
 import { Arc, DAO, Event, IEventState, Proposal } from '../src'
-import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei } from './utils'
+import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei, waitUntilTrue } from './utils'
 
 /**
  * Event test
@@ -34,30 +34,42 @@ describe('Event', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: testAddresses.base.ContributionReward
+      scheme: testAddresses.base.ContributionReward,
+      title: 'a-title'
     }).send()
     const proposal = state.result as Proposal
 
     expect(proposal).toBeDefined()
 
     let result: Event[]
-    result = await Event.search(arc)
-        .pipe(first()).toPromise()
-    expect(result.length).toBeGreaterThan(0)
 
-    // search does not care about case in the address
-    result = await Event.search(arc, { where: {dao: dao.id}})
+    await waitUntilTrue(async () => {
+      const events = await Event.search(arc, { where: {proposal: proposal.id}}, {fetchPolicy: 'no-cache'})
         .pipe(first()).toPromise()
-    expect(result.length).toBeGreaterThan(0)
+      return events.length > 0
+    })
+    result = await Event.search(arc, { where: {proposal: proposal.id}})
+        .pipe(first()).toPromise()
+    expect(result.length).toEqual(1)
+    const event = result[0]
+    const eventState = await event.state().pipe(first()).toPromise()
+
+    expect(eventState).toMatchObject({
+      dao: dao.id,
+      data: {title: 'a-title'},
+      id: event.id,
+      proposal: proposal.id,
+      type: 'NewProposal'
+    })
 
     expect(() => Event.search(arc, {where: {dao: ''}})).toThrowError(
       /not a valid address/i
     )
+    result = await Event.search(arc, { where: {dao: dao.id}})
+        .pipe(first()).toPromise()
+    const allEvents = await Event.search(arc).pipe(first()).toPromise()
+    expect(allEvents.length).toBeGreaterThan(result.length)
 
-    // get the event state
-    const event = result[0]
-    const eventState = await event.state().pipe(first()).toPromise()
-    expect(eventState.id).toEqual(event.id)
   })
 
   it('paging and sorting works', async () => {
@@ -78,6 +90,11 @@ describe('Event', () => {
     const event = events[0]
     // staticState should be set on search
     expect(event.staticState).toBeTruthy()
+
+    // for events, the staticState is quel to the event state
+    const state = await event.state().pipe(first()).toPromise()
+    expect(state).toEqual(event.staticState)
+
     const eventFromId = new Event(event.id, arc)
     expect(eventFromId.staticState).not.toBeTruthy()
     await eventFromId.fetchStaticState()

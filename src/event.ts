@@ -10,6 +10,7 @@ export interface IEventStaticState {
   dao: string
   proposal: string
   user: string
+  type: string
   data: {[key: string]: any}
   timestamp: string
 }
@@ -59,14 +60,6 @@ export class Event implements IStateful<IEventState> {
   ): Observable<Event[]> {
     let where = ''
     if (!options.where) { options.where = {}}
-
-    const proposalId = options.where.proposal
-    // if we are searching for stakes on a specific proposal (a common case), we
-    // will structure the query so that stakes are stored in the cache together wit the proposal
-    if (proposalId) {
-      delete options.where.proposal
-    }
-
     for (const key of Object.keys(options.where)) {
       if (options.where[key] === undefined) {
         continue
@@ -87,6 +80,7 @@ export class Event implements IStateful<IEventState> {
       id: item.id,
       proposal: item.proposal && item.proposal.id,
       timestamp: item.timestamp,
+      type: item.type,
       user: item.user
     }, context)
 
@@ -139,6 +133,7 @@ constructor(public idOrOpts: string | IEventStaticState, public context: Arc) {
         id: item.id,
         proposal: item.proposal && item.proposal.id,
         timestamp: item.timestamp,
+        type: item.type,
         user: item.user
       }
       this.setStaticState(staticState)
