@@ -29,15 +29,8 @@ export interface ISchemeState extends ISchemeStaticState {
   canManageGlobalConstraints: boolean
   dao: Address
   paramsHash: string
-  contributionRewardParams?: {
-    votingMachine: Address
-    voteParams: IGenesisProtocolParams
-  } | null
-  genericSchemeParams?: {
-    votingMachine: Address
-    contractToCall: Address
-    voteParams: IGenesisProtocolParams
-  } | null
+  contributionRewardParams?: IContributionRewardParams
+  genericSchemeParams?: IGenericSchemeParams
   schemeRegistrarParams?: {
     votingMachine: Address
     voteRemoveParams: IGenesisProtocolParams
@@ -46,11 +39,22 @@ export interface ISchemeState extends ISchemeStaticState {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
-  uGenericSchemeParams: IUGenericSchemeParams | null
-  schemeParams: IUGenericSchemeParams
+  uGenericSchemeParams?: IGenericSchemeParams
+  schemeParams?: IGenericSchemeParams | IContributionRewardParams | ISchemeRegisterParams
 }
 
-export interface IUGenericSchemeParams {
+export interface IGenericSchemeParams {
+  votingMachine: Address
+  contractToCall: Address
+  voteParams: IGenesisProtocolParams
+}
+
+export interface IContributionRewardParams {
+  votingMachine: Address
+  voteParams: IGenesisProtocolParams
+}
+
+export interface ISchemeRegisterParams {
   votingMachine: Address
   contractToCall: Address
   voteParams: IGenesisProtocolParams
