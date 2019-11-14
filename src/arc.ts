@@ -2,13 +2,16 @@ import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable, Observer, of, Subscription } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { DAO, Event, IDAOQueryOptions, IEventQueryOptions, ISchemeQueryOptions, Scheme, Token } from '.'
+import { DAO, IDAOQueryOptions } from './dao'
 import { GraphNodeObserver, IApolloQueryOptions } from './graphnode'
 export { IApolloQueryOptions } from './graphnode'
+import { Event, IEventQueryOptions } from './event'
 import { Logger } from './logger'
 import { Operation, sendTransaction, web3receipt } from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
+import { ISchemeQueryOptions, Scheme } from './scheme'
 import { ITagQueryOptions, Tag } from './tag'
+import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
 const IPFSClient = require('ipfs-http-client')
@@ -166,13 +169,13 @@ export class Arc extends GraphNodeObserver {
   ): Observable<Proposal[]> {
     return Proposal.search(this, options, apolloQueryOptions)
   }
-
   public events(
     options: IEventQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Event[]> {
     return Event.search(this, options, apolloQueryOptions)
   }
+
   public ethBalance(owner: Address): Observable<BN> {
     if (!this.observedAccounts[owner]) {
       this.observedAccounts[owner] = {
