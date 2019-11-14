@@ -45,15 +45,13 @@ describe('Event', () => {
 
     expect(proposal).toBeDefined()
 
-    let result: Event[]
+    let result: Event[] = []
 
     await waitUntilTrue(async () => {
-      const events = await Event.search(arc, { where: {proposal: proposal.id}}, {fetchPolicy: 'no-cache'})
+      result = await Event.search(arc, { where: {proposal: proposal.id}}, {fetchPolicy: 'no-cache'})
         .pipe(first()).toPromise()
-      return events.length > 0
+      return result.length > 0
     })
-    result = await Event.search(arc, { where: {proposal: proposal.id}})
-        .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
     const event = result[0]
     const eventState = await event.state().pipe(first()).toPromise()
