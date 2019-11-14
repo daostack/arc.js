@@ -165,7 +165,7 @@ export function createGraphQlWhereQuery(where?: {[key: string]: string|string[]|
     let value = where[key]
     if (value === null) {
       result += `${key}: ${value}`
-    } else if (key === 'dao') {
+    } else if (key === 'dao' || key === 'address') {
       isAddress(value as string)
       value = (value as string).toLowerCase()
       result += `${key}: "${value}"\n`
