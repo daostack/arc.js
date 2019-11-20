@@ -280,9 +280,9 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-  public getABI(address: Address, abiName?: string, version?: string) {
-    if (!abiName || !version) {
-      const contractInfo = this.getContractInfo(address)
+  public getABI(address?: Address, abiName?: string, version?: string) {
+    if (address && !abiName || !version) {
+      const contractInfo = this.getContractInfo(address as Address)
       abiName = contractInfo.name
       version = contractInfo.version
       if (abiName === 'GEN') {
@@ -298,8 +298,8 @@ export class Arc extends GraphNodeObserver {
     }
     // //End of workaround
 
-    const abi = require(`@daostack/migration/abis/${version}/${abiName}.json`)
-    return abi
+    const contract = require(`@daostack/migration/contracts/${version}/${abiName}.json`)
+    return contract.abi
   }
 
   /**
