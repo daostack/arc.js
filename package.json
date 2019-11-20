@@ -25,6 +25,7 @@
     "build:docs": "typedoc --out docs --target commonjs --theme markdown --mode file --plugin typedoc-plugin-markdown src",
     "bundle": "rollup -c rollup.config.ts -w",
     "lint": "npm run tslint",
+    "postinstall": "npm run cleanupABIs",
     "prepare": "npm run build",
     "prebuild": "rimraf dist",
     "quality": "npm run test:prod",
