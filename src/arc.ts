@@ -10,6 +10,7 @@ import { Logger } from './logger'
 import { Operation, sendTransaction, web3receipt } from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
 import { ISchemeQueryOptions, Scheme } from './scheme'
+import { ABI_DIR } from './settings'
 import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
@@ -298,8 +299,8 @@ export class Arc extends GraphNodeObserver {
     }
     // //End of workaround
 
-    const contract = require(`@daostack/migration/contracts/${version}/${abiName}.json`)
-    return contract.abi
+    const abi = require(`${ABI_DIR}/${version}/${abiName}.json`)
+    return abi
   }
 
   /**

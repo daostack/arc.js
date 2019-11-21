@@ -25,7 +25,7 @@
     "build:docs": "typedoc --out docs --target commonjs --theme markdown --mode file --plugin typedoc-plugin-markdown src",
     "bundle": "rollup -c rollup.config.ts -w",
     "lint": "npm run tslint",
-    "postinstall": "npm run cleanupABIs",
+    "postinstall": "rimraf abis && node scripts/copyABIsFromMigration.js",
     "prepare": "npm run build",
     "prebuild": "rimraf dist",
     "quality": "npm run test:prod",
@@ -66,6 +66,7 @@
     ]
   },
   "devDependencies": {
+    "@daostack/migration": "0.0.1-rc.33-v1",
     "@types/graphql": "^14.2.2",
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/jest": "^24.0.15",
@@ -100,7 +101,6 @@
     "u": "^0.1.0"
   },
   "dependencies": {
-    "@daostack/migration": "0.0.1-rc.33-v1",
     "apollo-cache-inmemory": "^1.6.2",
     "apollo-client": "^2.6.3",
     "apollo-client-ws": "^2.5.0",
