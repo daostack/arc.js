@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('path')
 
 // the versino of the redeemer contract to use
 export const REDEEMER_CONTRACT_VERSION = '0.0.1-rc.22'
