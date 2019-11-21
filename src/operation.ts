@@ -58,7 +58,7 @@ export type web3receipt = object
  */
 export function sendTransaction<T>(
   transaction: any,
-  mapReceipt: (receipt: web3receipt) => T|Promise<T>,
+  mapReceipt: (receipt: web3receipt) => T | Promise<T>,
   errorHandler: (error: Error) => Promise<Error> | Error = (error) => error,
   context: Arc
 ): Operation<T> {
@@ -72,7 +72,7 @@ export function sendTransaction<T>(
       } catch (err) {
         observer.error(err)
       }
-    }  else {
+    } else {
       tx = transaction
     }
 
@@ -115,23 +115,7 @@ export function sendTransaction<T>(
           transactionHash
         })
       })
-      .once('receipt', async (receipt: any) => {
-        Logger.debug(`transaction mined!`)
-        try {
-          result = await mapReceipt(receipt)
-        } catch (err) {
-          observer.error(err)
-        }
-        observer.next({
-          confirmations: 0,
-          receipt,
-          result,
-          state: ITransactionState.Mined,
-          transactionHash
-        })
-      })
       .on('confirmation', async (confNumber: number, receipt: any) => {
-        // result should have been set by previous call to 'receipt', but better be sure
         if (!result) {
           try {
             result = await mapReceipt(receipt)
@@ -139,6 +123,8 @@ export function sendTransaction<T>(
             observer.error(err)
           }
         }
+        if (confNumber === 0) Logger.debug(`transaction mined!`)
+        console.log(`confNumber: ${confNumber}`)
         observer.next({
           confirmations: confNumber,
           receipt,
@@ -154,13 +140,13 @@ export function sendTransaction<T>(
       .on('error', async (error: Error) => {
         let errToReturn: Error
         try {
-            errToReturn = await errorHandler(error)
-          } catch (err) {
-            errToReturn = err
-          }
+          errToReturn = await errorHandler(error)
+        } catch (err) {
+          errToReturn = err
+        }
         observer.error(errToReturn)
       })
-    }
+  }
   )
   return toIOperationObservable(observable)
 }
