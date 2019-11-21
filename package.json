@@ -8,7 +8,7 @@
   "files": [
     "dist",
     "src",
-    "scripts/copyABIsFromMigration.js"
+    "docker-compose.yml"
   ],
   "author": "Matan Tsuberi <tsuberim@gmail.com>, Jelle Gerbrandy <jelle@daostack.io>",
   "repository": {
@@ -25,8 +25,7 @@
     "build:docs": "typedoc --out docs --target commonjs --theme markdown --mode file --plugin typedoc-plugin-markdown src",
     "bundle": "rollup -c rollup.config.ts -w",
     "lint": "npm run tslint",
-    "postinstall": "rimraf abis && node scripts/copyABIsFromMigration.js",
-    "prepare": "npm run build",
+    "prepare": "rimraf abis && node scripts/copyABIsFromMigration.js && npm run build",
     "prebuild": "rimraf dist",
     "quality": "npm run test:prod",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",

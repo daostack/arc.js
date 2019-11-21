@@ -18,14 +18,16 @@ const getDirectories = source =>
  */
 async function copyABIsFromMigration () {
   log(`copying ABIs from @daostack/migration`)
-  getDirectories('./node_modules/@daostack/migration/contracts/').forEach(arcVersion => {
+  const sourcePath = path.resolve(`${require.resolve('@daostack/migration')}/../contracts`)
+  console.log(sourcePath)
+  getDirectories(sourcePath).forEach(arcVersion => {
     if (!fs.existsSync('./abis/' + arcVersion)) {
         fs.mkdirSync('./abis/' + arcVersion, { recursive: true })
     }
 
-    const files = fs.readdirSync('./node_modules/@daostack/migration/contracts/' + arcVersion)
+    const files = fs.readdirSync(`${sourcePath}/${arcVersion}`)
     files.forEach(file => {
-      const { abi } = JSON.parse(fs.readFileSync(path.join('./node_modules/@daostack/migration/contracts/' + arcVersion, file), 'utf-8'))
+      const { abi } = JSON.parse(fs.readFileSync(`${sourcePath}/${arcVersion}/${file}`), 'utf-8')
       fs.writeFileSync(
         path.join('./abis/' + arcVersion, file),
         JSON.stringify(abi, undefined, 2),
