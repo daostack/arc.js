@@ -2,7 +2,7 @@ import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { DAO } from '../src/dao'
 import Arc from '../src/index'
-import { IProposalCreateOptions, IProposalOutcome, Proposal } from '../src/proposal'
+import { IContractInfo, IProposalCreateOptions, IProposalOutcome, Proposal } from '../src'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
 import BN = require('bn.js')
