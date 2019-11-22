@@ -113,7 +113,7 @@ export function sendTransaction<T>(
      * A consequence of the latter is that when we hit 24 events, there may or may not have been 24 actual minings --
      * we may have incorrectly counted the "receipt" event as a confirmation.
      */
-    let confirmationCount = 0;
+    let confirmationCount = 1
     tx.send(options)
       .once('transactionHash', (hash: string) => {
         Logger.debug('Sending transaction..')
@@ -140,7 +140,7 @@ export function sendTransaction<T>(
           transactionHash
         })
       })
-      .on('confirmation', async (_confNumber: number, receipt: any) => {
+      .on('confirmation', async (confNumber: number, receipt: any) => {
         if (!result) {
           try {
             result = await mapReceipt(receipt)
