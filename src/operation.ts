@@ -106,6 +106,14 @@ export function sendTransaction<T>(
     observer.next({
       state: ITransactionState.Sending
     })
+    /**
+     * Keep our own count here because ganache and infura are not consistent in how they count the
+     * confirmatipn events.  Sometimes a confirmation event can appear before the receipt event.
+     * Infura tends to start the confirmation count at 0, whereas ganache (in the test env) likes to start it at 1.
+     * A consequence of the latter is that when we hit 24 events, there may or may not have been 24 actual minings --
+     * we may have incorrectly counted the "receipt" event as a confirmation.
+     */
+    let confirmationCount = 0;
     tx.send(options)
       .once('transactionHash', (hash: string) => {
         Logger.debug('Sending transaction..')
@@ -115,7 +123,24 @@ export function sendTransaction<T>(
           transactionHash
         })
       })
-      .on('confirmation', async (confNumber: number, receipt: any) => {
+      .once('receipt', async (receipt: any) => {
+        try {
+          result = await mapReceipt(receipt)
+        } catch (err) {
+          observer.error(err)
+        }
+        if (confirmationCount === 0) {
+          Logger.debug(`transaction mined!`)
+        }
+        observer.next({
+          confirmations: confirmationCount++,
+          receipt,
+          result,
+          state: ITransactionState.Mined,
+          transactionHash
+        })
+      })
+      .on('confirmation', async (_confNumber: number, receipt: any) => {
         if (!result) {
           try {
             result = await mapReceipt(receipt)
@@ -123,17 +148,17 @@ export function sendTransaction<T>(
             observer.error(err)
           }
         }
-        if (confNumber === 0) {
+        if (confirmationCount === 0) {
           Logger.debug(`transaction mined!`)
         }
         observer.next({
-          confirmations: confNumber,
+          confirmations: confirmationCount++,
           receipt,
           result,
           state: ITransactionState.Mined,
           transactionHash
         })
-        if (confNumber > 23) {
+        if (confirmationCount > 23) {
           // the web3 observer will confirm up to 24 subscriptions, so we are done here
           observer.complete()
         }
