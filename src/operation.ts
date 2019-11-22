@@ -123,7 +123,9 @@ export function sendTransaction<T>(
             observer.error(err)
           }
         }
-        if (confNumber === 0) Logger.debug(`transaction mined!`)
+        if (confNumber === 0) {
+          Logger.debug(`transaction mined!`)
+        }
         observer.next({
           confirmations: confNumber,
           receipt,
