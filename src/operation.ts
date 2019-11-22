@@ -113,7 +113,7 @@ export function sendTransaction<T>(
      * A consequence of the latter is that when we hit 24 events, there may or may not have been 24 actual minings --
      * we may have incorrectly counted the "receipt" event as a confirmation.
      */
-    let confirmationCount = 1
+    let confirmationCount = 0
     tx.send(options)
       .once('transactionHash', (hash: string) => {
         Logger.debug('Sending transaction..')
