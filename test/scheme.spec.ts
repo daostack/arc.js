@@ -53,7 +53,7 @@ describe('Scheme', () => {
       'ContributionReward',
       'ControllerCreator',
       'SchemeRegistrar',
-      'UGenericScheme',
+      'UGenericScheme'
 
     ].sort())
     result = await Scheme.search(arc, {where: {dao: dao.id, name: 'ContributionReward'}})

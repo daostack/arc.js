@@ -1,5 +1,5 @@
-import { DAO } from '../src//dao'
 import { first } from 'rxjs/operators'
+import { DAO } from '../src//dao'
 import { Arc } from '../src/arc'
 import {
   IProposalStage,
