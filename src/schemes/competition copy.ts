@@ -1,16 +1,27 @@
 import BN = require('bn.js')
-import { first } from 'rxjs/operators'
 import { Arc } from '../arc'
 import { Proposal } from '../proposal'
-import { IContributionRewardExtParams } from '../scheme'
-import { Address } from '../types'
+import { Address, Date } from '../types'
 import { NULL_ADDRESS } from '../utils'
-import { IProposalCreateOptionsContributionRewardExt } from './contributionRewardExt'
+import { IProposalCreateContributionRewardExt, IProposalCreateOptionsContributionRewardExt } from './contributionRewardExt'
 
 export interface ICompetitionProposal {
+  // beneficiary: Address
+  // externalTokenReward: BN
+  // externalToken: Address
+  // ethReward: BN
+  // nativeTokenReward: BN
+  // periods: number
+  // periodLength: number
+  // reputationReward: BN
+  // alreadyRedeemedNativeTokenPeriods: number
+  // alreadyRedeemedReputationPeriods: number
+  // alreadyRedeemedExternalTokenPeriods: number
+  // alreadyRedeemedEthPeriods: number
+  // competition stuff
   endTime: Date
   numberOfWinners: number
-  rewardSplit: number[]
+  rewardSplit: [BN]
   startTime: Date
   votingStartTime: Date
   suggestionsEndTime: Date
@@ -19,18 +30,22 @@ export interface ICompetitionProposal {
   snapshotBlock: number
   // suggestions: [CompetitionSuggestion!] @derivedFrom(field: "proposal")
   // votes: [CompetitionVote!] @derivedFrom(field: "proposal")
-  createdAt: Date,
+  createdAt: Date
 }
 
-export interface IProposalCreateOptionsCompetition extends IProposalCreateOptionsContributionRewardExt {
+export interface IProposalCreateOptionsCompetition  extends IProposalCreateContributionRewardExt {
+  scheme: Address
   beneficiary: Address
-  nativeTokenReward?: BN
-  reputationReward?: BN
-  ethReward?: BN
-  externalTokenReward?: BN
-  externalTokenAddress?: Address
-  proposer: Address,
-  rewardSplit: number[]
+  title: string
+  description: string
+  tags: [string]
+  url: string
+  descriptionHash?: string
+  dao: Address
+  reputationReward: BN
+  nativeTokenReward: BN
+  ethReward: BN
+  externalTokenReward: BN
 }
 
 export interface ICompetitionSuggestion {
@@ -59,49 +74,38 @@ export interface ICompetitionVote {
   reptutation: BN
 }
 
+}
 // export enum IProposalType {
-//   ContributionReward = 'ContributionRewardExt' // propose a contributionReward
+//   ContributionReward = 'ContributionReward' // propose a contributionReward
 // }
 
 /**
- *
+ * Create a transaction to propose a new competition
  * @param options
  * @param context
  */
-export function createProposal(options: any, context: Arc) {
-  // we assume this function is called with the correct scheme options..
+export function createProposal(options: IProposalCreateOptionsContributionRewardExt, context: Arc) {
+  // NB: this is just creating a proposal in ContributionRewardExt with a competition scheme
+  // contract as its destination... Once we implement contributionReardExt as a standalone scheme
+  // we can refactor this
+
+  const contract = context.getContract(options.scheme)
+  // The contract here is `ContributionRewardExt`, but we check for sanity
+  if (contract.name !== 'ContributionRewardExt') {
+    throw Error(`Expected to find a contract "ContributionRewardExt" here, not ${contract.name}`)
+  }
+
+  // the benefiiary must be a Compeition Scheme
+  const beneficiaryContract = context.getContract(options.beneficiary)
+  if (!beneficiaryContract || beneficiaryContract.name !== `Competition`) {
+    throw Error(`Expected to find a Competion contract  the beneficiary of this proposal
+      - found ${options.beneficiary}`)
+  }
 
   return async () => {
-    // first get the scheme info
-    const schemes = await context.schemes({ where: {address: options.scheme}}).pipe(first()).toPromise()
-    const scheme = schemes[0]
-    const schemeState = await scheme.state().pipe(first()).toPromise()
-    if (!schemeState) {
-      throw Error(`No scheme was found at address ${options.scheme}`)
-    }
-    const contract = context
-      .getContract((schemeState.contributionRewardExtParams as IContributionRewardExtParams).rewarder)
-    if (!options.proposer) {
-      options.proposer = NULL_ADDRESS
-    }
     options.descriptionHash = await context.saveIPFSData(options)
-    if (!options.rewardSplit) {
-      throw Error(`Rewardsplit was not given..`)
-    } else {
-      if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
-        throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b) })`)
-      }
-    }
-    // * @param _rewardSplit an array of precentages which specify how to split the rewards
-    // *         between the winning suggestions
-    // * @param _competitionParams competition parameters :
-    // *         _competitionParams[0] - competition startTime
-    // *         _competitionParams[1] - _votingStartTime competition voting start time
-    // *         _competitionParams[2] - _endTime competition end time
-    // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
-    // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
-    const transaction = contract.methods.proposeCompetition(
-
+    const transaction = contract.methods.proposeContributionReward(
+        options.dao,
         options.descriptionHash || '',
         options.reputationReward && options.reputationReward.toString() || 0,
         [
@@ -109,21 +113,29 @@ export function createProposal(options: any, context: Arc) {
           options.ethReward && options.ethReward.toString() || 0,
           options.externalTokenReward && options.externalTokenReward.toString() || 0
         ],
-        options.externalTokenAddress || NULL_ADDRESS,
-        options.rewardSplit,
-        options.competitionParams
+        // options.externalToken || NULL_ADDRESS,
+        options.beneficiary
+        // options.proposer
     )
     return transaction
   }
 }
 
+// @ts-ignore
 export function createTransactionMap(options: any, context: Arc) {
   const eventName = 'NewContributionProposal'
   const map = (receipt: any) => {
     const proposalId = receipt.events[eventName].returnValues._proposalId
-    return new Proposal(proposalId, context)
+    // const votingMachineAddress = receipt.events[eventName].returnValues._intVoteInterface
+    return new Proposal(proposalId,
+      // options.dao as string, options.scheme, votingMachineAddress,
+      context)
   }
   return map
+}
+
+export class CompetitionProposal extends Proposal {
+
 }
 
 export class CompetitionSuggestion {

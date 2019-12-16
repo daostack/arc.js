@@ -14,6 +14,7 @@ import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
 import { Scheme } from './scheme'
 import { ISchemeState } from './scheme'
+import * as  CompetitionProposal from './schemes/competition'
 import * as ContributionReward from './schemes/contributionReward'
 import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
@@ -868,7 +869,7 @@ export interface IProposalQueryOptions extends ICommonQueryOptions {
   }
 }
 
-interface IProposalBaseCreateOptions {
+export interface IProposalBaseCreateOptions {
   dao: Address
   description?: string
   descriptionHash?: string
@@ -876,11 +877,13 @@ interface IProposalBaseCreateOptions {
   tags?: string[]
   scheme: Address
   url?: string
+  proposalType: undefined|'competition' // if the scheme allows for different proposals...
 }
 
 export type IProposalCreateOptions = (
   (IProposalBaseCreateOptions & GenericScheme.IProposalCreateOptionsGS ) |
   (IProposalBaseCreateOptions & SchemeRegistrar.IProposalCreateOptionsSR) |
   (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR) |
-  (IProposalBaseCreateOptions & ContributionRewardExt.IProposalCreateOptionsContributionRewardExt)
+  (IProposalBaseCreateOptions & ContributionRewardExt.IProposalCreateOptionsContributionRewardExt) |
+  (IProposalBaseCreateOptions & CompetitionProposal.IProposalCreateOptionsCompetition)
 )

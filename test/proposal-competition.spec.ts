@@ -4,23 +4,28 @@ import {
   DAO,
   IProposalStage,
   IProposalState,
+  // ISchemeStaticState,
   Proposal
   } from '../src'
-import { newArc, toWei, voteToPassProposal, waitUntilTrue } from './utils'
+import {
+  // createAProposal,
+  // getTestAddresses, ITestAddresses,
+  newArc,
+  toWei, voteToPassProposal, waitUntilTrue } from './utils'
 
 jest.setTimeout(60000)
 
 /**
  * Proposal test
  */
-describe('ContributionReward Ext', () => {
+describe('Proposal', () => {
   let arc: Arc
 
   beforeAll(async () => {
     arc = await newArc()
   })
 
-  it('Create a proposal, accept it, execute it', async () => {
+  it('Create a competition proposal, compete, win the competition..', async () => {
     // we'll get a `ContributionRewardExt` contract
     const ARC_VERSION = '0.0.1-rc.36'
     const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
@@ -39,7 +44,9 @@ describe('ContributionReward Ext', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
+      proposalType: 'competition',
       reputationReward: toWei('10'),
+      rewardSplit: [1, 2, 97],
       scheme: contributionRewardExtState.address,
       value: 0
     }).send()

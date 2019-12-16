@@ -5,6 +5,7 @@ import { Arc, IApolloQueryOptions } from './arc'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { Operation, toIOperationObservable } from './operation'
 import { IProposalCreateOptions, IProposalQueryOptions, Proposal } from './proposal'
+import * as Competition from './schemes/competition'
 import * as ContributionReward from './schemes/contributionReward'
 import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
@@ -31,6 +32,7 @@ export interface ISchemeState extends ISchemeStaticState {
   dao: Address
   paramsHash: string
   contributionRewardParams?: IContributionRewardParams
+  contributionRewardExtParams?: IContributionRewardExtParams
   genericSchemeParams?: IGenericSchemeParams
   schemeRegistrarParams?: {
     votingMachine: Address
@@ -41,7 +43,7 @@ export interface ISchemeState extends ISchemeStaticState {
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
   uGenericSchemeParams?: IGenericSchemeParams
-  schemeParams?: IGenericSchemeParams | IContributionRewardParams | ISchemeRegisterParams
+  schemeParams?: IGenericSchemeParams | IContributionRewardParams | IContributionRewardExtParams | ISchemeRegisterParams
 }
 
 export interface IGenericSchemeParams {
@@ -53,6 +55,11 @@ export interface IGenericSchemeParams {
 export interface IContributionRewardParams {
   votingMachine: Address
   voteParams: IGenesisProtocolParams
+}
+export interface IContributionRewardExtParams {
+  votingMachine: Address
+  voteParams: IGenesisProtocolParams
+  rewarder: Address
 }
 
 export interface ISchemeRegisterParams {
@@ -124,6 +131,25 @@ export class Scheme implements IStateful<ISchemeState> {
           activationTime
           voteOnBehalf
         }
+      }
+      contributionRewardExtParams {
+        votingMachine
+        voteParams {
+          queuedVoteRequiredPercentage
+          queuedVotePeriodLimit
+          boostedVotePeriodLimit
+          preBoostedVotePeriodLimit
+          thresholdConst
+          limitExponentValue
+          quietEndingPeriod
+          proposingRepReward
+          votersReputationLossRatio
+          minimumDaoBounty
+          daoBountyConst
+          activationTime
+          voteOnBehalf
+        }
+        rewarder
       }
       genericSchemeParams {
         votingMachine
@@ -340,6 +366,11 @@ export class Scheme implements IStateful<ISchemeState> {
         voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
         votingMachine: item.contributionRewardParams.votingMachine
       }
+      const contributionRewardExtParams = item.contributionRewardExtParams && {
+        rewarder: item.contributionRewardExtParams.rewarder,
+        voteParams: mapGenesisProtocolParams(item.contributionRewardExtParams.voteParams),
+        votingMachine: item.contributionRewardExtParams.votingMachine
+      }
       const schemeRegistrarParams = item.schemeRegistrarParams && {
         voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
         voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
@@ -351,7 +382,8 @@ export class Scheme implements IStateful<ISchemeState> {
         votingMachine: item.genericSchemeParams.votingMachine
       }
       const schemeParams = (
-        uGenericSchemeParams || contributionRewardParams || schemeRegistrarParams || genericSchemeParams
+        uGenericSchemeParams || contributionRewardParams ||
+        schemeRegistrarParams || genericSchemeParams || contributionRewardExtParams
       )
       return {
         address: item.address,
@@ -359,6 +391,7 @@ export class Scheme implements IStateful<ISchemeState> {
         canManageGlobalConstraints: item.canManageGlobalConstraints,
         canRegisterSchemes: item.canRegisterSchemes,
         canUpgradeController: item.canUpgradeController,
+        contributionRewardExtParams,
         contributionRewardParams,
         dao: item.dao.id,
         genericSchemeParams,
@@ -393,12 +426,21 @@ export class Scheme implements IStateful<ISchemeState> {
 
         switch (state.name) {
           case 'ContributionReward':
-            createTransaction  = ContributionReward.createTransaction(options, this.context)
+            createTransaction  = ContributionReward.createProposal(options, this.context)
             map = ContributionReward.createTransactionMap(options, this.context)
             break
           case 'ContributionRewardExt':
-            createTransaction  = ContributionRewardExt.createProposal(options, this.context)
-            map = ContributionRewardExt.createTransactionMap(options, this.context)
+            // TODO: ContributionRewardExt can also be used to create a Competition proposal
+            // For now, we explicitly pass this in the options, but in reality (once 36-4 is released) we
+            // should be able to sniff this: if the rewarder of the scheme is a Contribution.sol instance....
+            if (options.proposalType === 'competition') {
+              createTransaction = Competition.createProposal(options, this.context)
+              map = Competition.createTransactionMap(options, this.context)
+
+            } else {
+              createTransaction  = ContributionRewardExt.createProposal(options, this.context)
+              map = ContributionRewardExt.createTransactionMap(options, this.context)
+            }
             break
 
           case 'UGenericScheme':
