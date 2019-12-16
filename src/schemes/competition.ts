@@ -5,8 +5,7 @@ import { Address, Date } from '../types'
 import { NULL_ADDRESS } from '../utils'
 import { IProposalCreateOptionsCR} from './contributionReward'
 
-
-export interface CompetitionProposal {
+export interface ICompetitionProposal {
   // beneficiary: Address
   // externalTokenReward: BN
   // externalToken: Address
@@ -20,12 +19,12 @@ export interface CompetitionProposal {
   // alreadyRedeemedExternalTokenPeriods: number
   // alreadyRedeemedEthPeriods: number
   // competition stuff
+  endTime: Date
   numberOfWinners: number
   rewardSplit: [BN]
   startTime: Date
   votingStartTime: Date
   suggestionsEndTime: Date
-  endTime: Date
   numberOfVotesPerVoters: number
   // contributionReward: ControllerScheme!
   snapshotBlock: number
@@ -44,7 +43,6 @@ export interface IProposalCreateOptionsCompetitionProposal {
   periodLength?: number
   periods?: any
 }
-
 
 export interface ICompetitionSuggestion {
   id: string
@@ -92,8 +90,8 @@ interface IProposalCreateOptionsContributionRewardExt extends IProposalCreateOpt
 
 /**
  * Create a transaction to propose a new competition
- * @param options 
- * @param context 
+ * @param options
+ * @param context
  */
 export function createTransaction(options: IProposalCreateOptionsContributionRewardExt, context: Arc) {
   // NB: this is just creating a proposal in ContributionRewardExt with a competition scheme
@@ -109,7 +107,8 @@ export function createTransaction(options: IProposalCreateOptionsContributionRew
   // the benefiiary must be a Compeition Scheme
   const beneficiaryContract = context.getContract(options.beneficiary)
   if (!beneficiaryContract || beneficiaryContract.name !== `Competition`) {
-    throw Error(`Expected to find a Competion contract  the beneficiary of this proposal - found ${options.beneficiary}`)
+    throw Error(`Expected to find a Competion contract  the beneficiary of this proposal
+      - found ${options.beneficiary}`)
   }
 
   return async () => {
@@ -126,8 +125,8 @@ export function createTransaction(options: IProposalCreateOptionsContributionRew
           options.periods || 1
         ],
         options.externalTokenAddress || NULL_ADDRESS,
-        options.beneficiary,
-        options.proposer
+        options.beneficiary
+        // options.proposer
     )
     return transaction
   }
@@ -146,14 +145,13 @@ export function createTransactionMap(options: any, context: Arc) {
   return map
 }
 
-
 export class CompetitionProposal extends Proposal {
 
 }
 
 export class CompetitionSuggestion {
-  id: string
-  staticState?: ICompetitionSuggestion
+  public id: string
+  public staticState?: ICompetitionSuggestion
 
   constructor(idOrOpts: string|ICompetitionSuggestion, public context: Arc) {
     if (typeof idOrOpts === 'string') {
@@ -171,8 +169,8 @@ export class CompetitionSuggestion {
 }
 
 export class CompetitionVote {
-  id: string
-  staticState?: ICompetitionVote
+  public id: string
+  public staticState?: ICompetitionVote
 
   constructor(idOrOpts: string|ICompetitionVote, public context: Arc) {
     if (typeof idOrOpts === 'string') {

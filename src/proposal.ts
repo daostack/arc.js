@@ -2,8 +2,11 @@ import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
 import { concatMap, filter, first } from 'rxjs/operators'
-import { Arc, IApolloQueryOptions } from './arc'
-import { DAO } from './dao'
+import {
+  Arc,
+  DAO
+} from '.'
+import { IApolloQueryOptions } from './arc'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { IObservable } from './graphnode'
 import { Operation, toIOperationObservable } from './operation'
@@ -12,9 +15,9 @@ import { IRewardQueryOptions, Reward } from './reward'
 import { Scheme } from './scheme'
 import { ISchemeState } from './scheme'
 import * as ContributionReward from './schemes/contributionReward'
+import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
-// import * as Competition from './schemes/competition'
 import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSION } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
@@ -415,6 +418,7 @@ export class Proposal implements IStateful<IProposalState> {
     const itemMap = (item: any): IProposalState|null => {
       if (item === null || item === undefined) {
         // no proposal was found - we return null
+        // throw Error(`No proposal with id ${this.id} could be found`)
         return null
       }
 
@@ -877,5 +881,6 @@ interface IProposalBaseCreateOptions {
 export type IProposalCreateOptions = (
   (IProposalBaseCreateOptions & GenericScheme.IProposalCreateOptionsGS ) |
   (IProposalBaseCreateOptions & SchemeRegistrar.IProposalCreateOptionsSR) |
-  (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR)
+  (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR) |
+  (IProposalBaseCreateOptions & ContributionRewardExt.IProposalCreateOptionsContributionRewardExt)
 )

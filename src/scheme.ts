@@ -6,6 +6,7 @@ import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProto
 import { Operation, toIOperationObservable } from './operation'
 import { IProposalCreateOptions, IProposalQueryOptions, Proposal } from './proposal'
 import * as ContributionReward from './schemes/contributionReward'
+import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
 import { ReputationFromTokenScheme } from './schemes/reputationFromToken'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
@@ -395,6 +396,10 @@ export class Scheme implements IStateful<ISchemeState> {
             createTransaction  = ContributionReward.createTransaction(options, this.context)
             map = ContributionReward.createTransactionMap(options, this.context)
             break
+          case 'ContributionRewardExt':
+            createTransaction  = ContributionRewardExt.createProposal(options, this.context)
+            map = ContributionRewardExt.createTransactionMap(options, this.context)
+            break
 
           case 'UGenericScheme':
               createTransaction  = UGenericScheme.createTransaction(options, this.context)
@@ -421,6 +426,7 @@ export class Scheme implements IStateful<ISchemeState> {
 
           default:
             msg = `Unknown proposal scheme: '${state.name}'`
+            msg = `${state.name} ${state.name === 'ContributionRewardExt'}`
             throw Error(msg)
         }
 
