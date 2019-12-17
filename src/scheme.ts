@@ -490,4 +490,74 @@ export class Scheme implements IStateful<ISchemeState> {
       return Proposal.search(this.context, options, apolloQueryOptions)
     }
 
-}
+    /**
+     * Return a list of competitions in this scheme.
+     * @param options
+     * @param apolloQueryOptions
+     */
+    public competitions(
+      options: IProposalQueryOptions = {},
+      apolloQueryOptions: IApolloQueryOptions = {}
+    ): Observable<Proposal[]> {
+      // TODO: This function will error if the current scheme is not a competiion scheme
+      // const staticState = await this.fetchStaticState()
+      // if (staticState.name !== `ContributionRewardExt`) {
+      //   // TODO: we should also check if the calling
+      //   throw Error(`This scheme is not a competition scheme - so no competitions can be found`)
+      // }
+      if (!options.where) { options.where = {}}
+      options.where = { ...options.where, competition_not: null}
+      return Proposal.search(this.context, options, apolloQueryOptions)
+    }
+
+    /**
+     *
+     */
+    public createCompetitionSuggestion(options: {
+      proposalId: string,
+      title: string,
+      description: string,
+      tags: string[],
+      url: string
+    }): Operation<any> {
+      const createTransaction = async () => {
+        const state = await this.state().pipe(first()).toPromise()
+        if (state === null) {
+          throw Error(`No scheme was found with id ${this.id}`)
+        }
+        const rewarder = state.contributionRewardExtParams && state.contributionRewardExtParams.rewarder
+        const contractInfo = this.context.getContractInfo(rewarder as Address)
+        if (contractInfo.name !== 'Competition') {
+          throw Error(`We did not find a Competition contract at the rewarder address ${rewarder}, found ${contractInfo.name} instead`)
+        }
+        const descriptionHash = await this.context.saveIPFSData(options)
+        const contract = this.context.getContract(rewarder as Address)
+        const transaction = contract.methods.suggest(options.proposalId, descriptionHash)
+        return transaction
+      }
+
+      const map = (receipt: any) => {
+        if (Object.keys(receipt.events).length === 0) {
+          // this does not mean that anything failed
+          return receipt
+        } else {
+          return receipt
+        }
+      }
+      const errorHandler = async (err: Error) => {
+        // get the competion on
+        // const proposalDataFromVotingMachine = await votingMachine.methods.proposals(this.id).call()
+
+        // if (proposalDataFromVotingMachine.callbacks === NULL_ADDRESS) {
+        //   const msg = `Error in proposal.execute(): A proposal with id ${this.id} does not exist`
+        //   return Error(msg)
+        // } else if (proposalDataFromVotingMachine.state === '2') {
+        //   const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
+        //   return Error(msg)
+        // }
+        return err
+      }
+      const observable = this.context.sendTransaction(createTransaction, map, errorHandler)
+      return toIOperationObservable(observable)
+    }
+ }

@@ -7,17 +7,15 @@ import { Address } from '../types'
 import { IProposalCreateOptionsContributionRewardExt } from './contributionRewardExt'
 
 export interface ICompetitionProposal {
+  id: string
+  contract: Address
   endTime: Date
   numberOfWinners: number
-  rewardSplit: number[]
   startTime: Date
   votingStartTime: Date
   suggestionsEndTime: Date
-  numberOfVotesPerVoters: number
-  // contributionReward: ControllerScheme!
+  numberOfVotesPerVoter: number
   snapshotBlock: number
-  // suggestions: [CompetitionSuggestion!] @derivedFrom(field: "proposal")
-  // votes: [CompetitionVote!] @derivedFrom(field: "proposal")
   createdAt: Date,
  }
 

@@ -4,7 +4,8 @@ import { from, Observable } from 'rxjs'
 import { concatMap, filter, first } from 'rxjs/operators'
 import {
   Arc,
-  DAO
+  DAO,
+  utils
 } from '.'
 import { IApolloQueryOptions } from './arc'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
@@ -14,7 +15,7 @@ import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
 import { Scheme } from './scheme'
 import { ISchemeState } from './scheme'
-import * as  CompetitionProposal from './schemes/competition'
+import * as  Competition from './schemes/competition'
 import * as ContributionReward from './schemes/contributionReward'
 import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
@@ -73,6 +74,7 @@ export interface IProposalState extends IProposalStaticState {
   accountsWithUnclaimedRewards: Address[],
   boostedAt: Date
   contributionReward: ContributionReward.IContributionReward|null
+  competition: Competition.ICompetitionProposal|null
   // competition: Competition.ICompetitionProposal|null
   confidenceThreshold: number
   closingAt: Date
@@ -119,6 +121,19 @@ export class Proposal implements IStateful<IProposalState> {
       boostedAt
       closingAt
       confidenceThreshold
+      competition {
+        id
+        endTime
+        contract
+        suggestionsEndTime
+        createdAt
+        numberOfVotesPerVoters
+        numberOfWinners
+        snapshotBlock
+        startTime
+        votingStartTime
+
+      }
       contributionReward {
         id
         beneficiary
@@ -424,10 +439,14 @@ export class Proposal implements IStateful<IProposalState> {
       }
 
       let contributionReward: ContributionReward.IContributionReward|null = null
+      let competition: Competition.ICompetitionProposal|null = null
       let type: IProposalType
       let genericScheme: GenericScheme.IGenericScheme|null = null
       let schemeRegistrar: SchemeRegistrar.ISchemeRegistrar|null = null
-      if (item.contributionReward) {
+      if (!!item.competition && !item.contributionReward) {
+        throw Error(`Unexpected proposal state: competition is set, but contributionReward is not`)
+      }
+      if (!!item.contributionReward) {
         type = IProposalType.ContributionReward
         contributionReward = {
           alreadyRedeemedEthPeriods: Number(item.contributionReward.alreadyRedeemedEthPeriods),
@@ -442,6 +461,21 @@ export class Proposal implements IStateful<IProposalState> {
           periodLength: Number(item.contributionReward.periodLength),
           periods: Number(item.contributionReward.periods),
           reputationReward: new BN(item.contributionReward.reputationReward)
+        }
+        if (!!item.competition) {
+          competition = {
+            contract: item.competition.contract,
+            createdAt: utils.secondSinceEpochToDate(item.competition.createdAt),
+            endTime: utils.secondSinceEpochToDate(item.competition.endTime),
+            id: item.competition.id,
+            numberOfVotesPerVoter: Number(item.competition.numberOfVotesPerVoters),
+            numberOfWinners: Number(item.competition.numberOfWinners),
+            snapshotBlock: item.competition.snapshotBlock,
+            startTime: utils.secondSinceEpochToDate(item.competition.startTime),
+            suggestionsEndTime: utils.secondSinceEpochToDate(item.competition.suggestionsEndTime),
+            votingStartTime: utils.secondSinceEpochToDate(item.competition.votingStartTime)
+          }
+
         }
       } else if (item.genericScheme) {
         type = IProposalType.GenericScheme
@@ -540,6 +574,7 @@ export class Proposal implements IStateful<IProposalState> {
         accountsWithUnclaimedRewards: item.accountsWithUnclaimedRewards,
         boostedAt: Number(item.boostedAt),
         closingAt: Number(item.closingAt),
+        competition,
         confidenceThreshold: Number(item.confidenceThreshold),
         contributionReward,
         createdAt: Number(item.createdAt),
@@ -838,6 +873,7 @@ export class Proposal implements IStateful<IProposalState> {
     )
     return toIOperationObservable(observable)
   }
+
 }
 
 enum ProposalQuerySortOptions {
@@ -877,7 +913,8 @@ export interface IProposalBaseCreateOptions {
   tags?: string[]
   scheme: Address
   url?: string
-  proposalType: undefined|'competition' // if the scheme allows for different proposals...
+  // proposalType?: 'competition' // if the scheme allows for different proposals...
+  proposalType?: string
 }
 
 export type IProposalCreateOptions = (
@@ -885,5 +922,5 @@ export type IProposalCreateOptions = (
   (IProposalBaseCreateOptions & SchemeRegistrar.IProposalCreateOptionsSR) |
   (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR) |
   (IProposalBaseCreateOptions & ContributionRewardExt.IProposalCreateOptionsContributionRewardExt) |
-  (IProposalBaseCreateOptions & CompetitionProposal.IProposalCreateOptionsCompetition)
+  (IProposalBaseCreateOptions & Competition.IProposalCreateOptionsCompetition)
 )

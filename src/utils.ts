@@ -162,5 +162,21 @@ export function createGraphQlWhereQuery(where?: {[key: string]: string|string[]|
 }
 
 export function dateToSecondsSinceEpoch(date: Date) {
+  if (!(date instanceof Date)) {
+    throw Error(`Input should be a Date instance, got ${date} instead`)
+  }
+
   return Math.floor(date.getTime() / 1000)
+}
+
+export function secondSinceEpochToDate(seconds: number): Date {
+  try {
+    seconds = Number(seconds)
+  } catch (e) {
+    throw e
+    // throw Error(`argument "seconds" must be a number, got ${seconds} instead`)
+  }
+  const d = new Date()
+  d.setTime(seconds * 1000)
+  return d
 }
