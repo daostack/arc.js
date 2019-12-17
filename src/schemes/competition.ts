@@ -1,10 +1,9 @@
 import BN = require('bn.js')
 import { first } from 'rxjs/operators'
-import { Arc } from '../arc'
+import { Arc, utils } from '..'
 import { Proposal } from '../proposal'
 import { IContributionRewardExtParams } from '../scheme'
 import { Address } from '../types'
-import { NULL_ADDRESS } from '../utils'
 import { IProposalCreateOptionsContributionRewardExt } from './contributionRewardExt'
 
 export interface ICompetitionProposal {
@@ -20,17 +19,22 @@ export interface ICompetitionProposal {
   // suggestions: [CompetitionSuggestion!] @derivedFrom(field: "proposal")
   // votes: [CompetitionVote!] @derivedFrom(field: "proposal")
   createdAt: Date,
-}
+ }
 
 export interface IProposalCreateOptionsCompetition extends IProposalCreateOptionsContributionRewardExt {
   beneficiary: Address
-  nativeTokenReward?: BN
+  endTime: Date,
   reputationReward?: BN
   ethReward?: BN
   externalTokenReward?: BN
   externalTokenAddress?: Address
   proposer: Address,
   rewardSplit: number[]
+  nativeTokenReward?: BN
+  numberOfVotesPerVoter: number
+  startTime: Date,
+  suggestionsEndTime: Date,
+  votingStartTime: Date,
 }
 
 export interface ICompetitionSuggestion {
@@ -82,7 +86,7 @@ export function createProposal(options: any, context: Arc) {
     const contract = context
       .getContract((schemeState.contributionRewardExtParams as IContributionRewardExtParams).rewarder)
     if (!options.proposer) {
-      options.proposer = NULL_ADDRESS
+      options.proposer = utils.NULL_ADDRESS
     }
     options.descriptionHash = await context.saveIPFSData(options)
     if (!options.rewardSplit) {
@@ -100,25 +104,34 @@ export function createProposal(options: any, context: Arc) {
     // *         _competitionParams[2] - _endTime competition end time
     // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
     // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
-    const transaction = contract.methods.proposeCompetition(
+    // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
 
-        options.descriptionHash || '',
-        options.reputationReward && options.reputationReward.toString() || 0,
-        [
-          options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-          options.ethReward && options.ethReward.toString() || 0,
-          options.externalTokenReward && options.externalTokenReward.toString() || 0
-        ],
-        options.externalTokenAddress || NULL_ADDRESS,
-        options.rewardSplit,
-        options.competitionParams
+    const competitionParams = [
+      utils.dateToSecondsSinceEpoch(options.startTime) || 0,
+      utils.dateToSecondsSinceEpoch(options.votingStartTime) || 0,
+      utils.dateToSecondsSinceEpoch(options.endTime) || 0,
+      options.numberOfVotesPerVoter.toString() || 0,
+      utils.dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
+    ]
+
+    const transaction = contract.methods.proposeCompetition(
+      options.descriptionHash || '',
+      options.reputationReward && options.reputationReward.toString() || 0,
+      [
+        options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
+        options.ethReward && options.ethReward.toString() || 0,
+        options.externalTokenReward && options.externalTokenReward.toString() || 0
+      ],
+      options.externalTokenAddress || utils.NULL_ADDRESS,
+      options.rewardSplit,
+      competitionParams
     )
     return transaction
   }
 }
 
 export function createTransactionMap(options: any, context: Arc) {
-  const eventName = 'NewContributionProposal'
+  const eventName = 'NewCompetitionProposal'
   const map = (receipt: any) => {
     const proposalId = receipt.events[eventName].returnValues._proposalId
     return new Proposal(proposalId, context)

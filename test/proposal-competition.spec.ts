@@ -37,18 +37,31 @@ describe('Proposal', () => {
     const contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
     const dao = new DAO(contributionRewardExtState.dao, arc)
 
+    // @ts-ignore
+    function addMinutes(date: Date, m: number) {
+      date.setTime(date.getTime() + (m * 60 * 1000))
+      return date
+    }
+    // TODO: test error handling for all these params
+    // - all args are present
+    // - order of times
     const tx = await dao.createProposal({
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
+      endTime: addMinutes(new Date(), 5),
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
+      numberOfVotesPerVoter: 3,
       proposalType: 'competition',
       reputationReward: toWei('10'),
       rewardSplit: [1, 2, 97],
       scheme: contributionRewardExtState.address,
-      value: 0
+      startTime: new Date(),
+      suggestionsEndTime: addMinutes(new Date(), 1),
+      value: 0,
+      votingStartTime: addMinutes(new Date(), 2)
     }).send()
     const proposal = tx.result
     expect(proposal).toBeInstanceOf(Proposal)

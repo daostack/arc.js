@@ -160,3 +160,7 @@ export function createGraphQlWhereQuery(where?: {[key: string]: string|string[]|
   }
   return result
 }
+
+export function dateToSecondsSinceEpoch(date: Date) {
+  return Math.floor(date.getTime() / 1000)
+}
