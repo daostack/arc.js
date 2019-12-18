@@ -15,7 +15,7 @@ export { ReputationFromTokenScheme } from './schemes/reputationFromToken'
 export { IContributionReward} from './schemes/contributionReward'
 export { Competition, CompetitionSuggestion, CompetitionVote,
     ICompetitionProposal, ICompetitionVote, ICompetitionSuggestion } from './schemes/competition'
-// export  { IContributionRewardExt, IProposalCreateOptionsContributionRewardExt } from './schemes/contributionRewardExt'
+export  { IContributionRewardExt, IProposalCreateOptionsContributionRewardExt } from './schemes/contributionRewardExt'
 export { IGenericScheme } from './schemes/genericScheme'
 export { IUGenericScheme } from './schemes/uGenericScheme'
 export { ISchemeRegistrar } from './schemes/schemeRegistrar'

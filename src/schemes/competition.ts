@@ -143,11 +143,11 @@ export function createProposalErrorHandler(err: Error) {
 
 export function createTransactionMap(options: any, context: Arc) {
   const eventName = 'NewCompetitionProposal'
-  const map = (receipt: any) => {
+  const txMap = (receipt: any) => {
     const proposalId = receipt.events[eventName].returnValues._proposalId
     return new Proposal(proposalId, context)
   }
-  return map
+  return txMap
 }
 
 export class Competition { // extends Proposal {
