@@ -2,6 +2,7 @@ import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
+import { DAO } from './dao'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { Operation, toIOperationObservable } from './operation'
 import { IProposalCreateOptions, IProposalQueryOptions, Proposal } from './proposal'
@@ -535,11 +536,11 @@ export class Scheme implements IStateful<ISchemeState> {
       } else {
         const eventName = 'NewSuggestion'
         const suggestionId = receipt.events[eventName].returnValues._suggestionId
-        const competitionSuggestionId = Competition.CompetitionSuggestion.calculateId({
-          scheme: this.id,
-          suggestionId
-        })
-        return new Competition.CompetitionSuggestion(competitionSuggestionId, this.context)
+        // const competitionSuggestionId = Competition.CompetitionSuggestion.calculateId({
+        //   scheme: this.id,
+        //   suggestionId
+        // })
+        return new Competition.CompetitionSuggestion({scheme: this.id, suggestionId}, this.context)
       }
     }
     const errorHandler = async (err: Error) => {
@@ -548,7 +549,7 @@ export class Scheme implements IStateful<ISchemeState> {
       const contract = await this.competionGetContract()
       const proposal = await contract.methods.proposals(options.proposalId).call()
       if (!proposal) {
-        throw Error(`A proposal with id ${proposal.id} does not exist`)
+        throw Error(`A proposal with id ${options.proposalId} does not exist`)
       }
       return err
     }
@@ -571,7 +572,7 @@ export class Scheme implements IStateful<ISchemeState> {
   }
 
   public competitionVote(options: {
-    suggestionId: string
+    suggestionId: string // this is the suggestion COUNTER
   }): Operation<any> {
     const createTransaction = async () => {
       const contract = await this.competionGetContract()
@@ -586,19 +587,9 @@ export class Scheme implements IStateful<ISchemeState> {
       } else {
         const eventName = 'NewVote'
         // emit NewVote(proposalId, _suggestionId, msg.sender, reputation);
-        console.log(receipt.events.NewVote)
         // const suggestionId = receipt.events[eventName].returnValues._suggestionId
         const voter = receipt.events[eventName].returnValues._voter
         const reputation = receipt.events[eventName].returnValues._reputation
-        // export interface ICompetitionVote {
-        //   id: string
-        //   // proposal: CompetitionProposal!
-        //   // suggestion: CompetitionSuggestion!
-        //   voter: Address
-        //   createdAt: Date
-        //   reputation: BN
-        // }
-
         return new Competition.CompetitionVote({
           reputation,
           voter
@@ -607,11 +598,20 @@ export class Scheme implements IStateful<ISchemeState> {
     }
     const errorHandler = async (err: Error) => {
       const contract = await this.competionGetContract()
-      // see if the proposalId does exist in the contract
-      console.log(options)
-      const proposal = await contract.methods.suggestions(options.suggestionId).call()
-      if (!proposal) {
-        throw Error(`A proposal with id ${proposal.id} does not exist`)
+      // see if the suggestionId does exist in the contract
+      const suggestion = await contract.methods.suggestions(options.suggestionId).call()
+      if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        throw Error(`A suggestion with suggestionId ${options.suggestionId} does not exist`)
+      }
+
+      // check if the sender has reputation in the DAO
+      const state = await this.state().pipe(first()).toPromise()
+      const dao = new DAO(state.dao, this.context)
+      const reputation = await dao.nativeReputation().pipe(first()).toPromise()
+      const sender = await this.context.getAccount().pipe(first()).toPromise()
+      const reputationOfUser = await reputation.reputationOf(sender).pipe(first()).toPromise()
+      if (reputationOfUser.isZero()) {
+        throw Error(`Cannot vote because the user ${sender} does not have any reputation in the DAO at ${dao.id}`)
       }
       return err
     }

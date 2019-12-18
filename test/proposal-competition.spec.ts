@@ -33,19 +33,19 @@ describe('Proposal', () => {
   })
 
   it('CompetitionSuggestion.calculateId works', async () => {
-    function calc(scheme: string, suggestionId: string) {
+    function calc(scheme: string, suggestionId: number) {
       return CompetitionSuggestion.calculateId({scheme, suggestionId})
 
     }
     expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
-                '8'))
+                8))
       .toEqual('0x1c5a3d7aa889aff71dc8f5de18956b7b1e821c823f3f358d9eb74d18f135fa13')
     expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
-                '8'))
+                8))
       .toEqual('0x1c5a3d7aa889aff71dc8f5de18956b7b1e821c823f3f358d9eb74d18f135fa13')
 
     expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
-                '14'))
+                14))
       .toEqual('0x137446f8b5c791e505e6e8228801ed78555a4e35957fd0b026b70fc3f262b629')
   })
 
@@ -75,7 +75,7 @@ describe('Proposal', () => {
     // - order of times
     const now = new Date()
     now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
-    console.log('00000000000000000000000000000000000000000000000000000000000000000000000')
+    console.log('creating a competition proposal')
     const startTime = addSeconds(now, 2)
     const proposalOptions  = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
@@ -93,10 +93,11 @@ describe('Proposal', () => {
       startTime,
       suggestionsEndTime: addSeconds(startTime, 100),
       value: 0,
-      votingStartTime: addSeconds(startTime, 120)
+      votingStartTime: addSeconds(startTime, 0)
     }
 
     const tx = await dao.createProposal(proposalOptions).send()
+    console.log(`Proposal created...`)
     const proposal = tx.result
     expect(proposal).toBeInstanceOf(Proposal)
 
@@ -127,9 +128,11 @@ describe('Proposal', () => {
     })
 
     // accept the proposal by voting for et
+    console.log(`vote to pass the proposal`)
     await voteToPassProposal(proposal)
 
     await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
+    console.log(`The proposal was executed`)
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Executed
     })
@@ -154,15 +157,18 @@ describe('Proposal', () => {
       url: 'https://somewhere.some.place'
     }
     // await timeTravel(110, arc.web3)
+    console.log(`creating a new suggestion`)
     const receipt1 = await scheme.competitionCreateSuggestion(suggestion1Options).send()
+    console.log(`suggestion created..`)
     const suggestion1 = receipt1.result
     expect(suggestion1).toBeDefined()
     expect(suggestion1).toBeInstanceOf(CompetitionSuggestion)
+    expect(suggestion1.id).toBeDefined()
     const suggestion2Options = { ...suggestion1Options, title: 'suggestion nr 2'}
     const receipt2 = await scheme.competitionCreateSuggestion(suggestion2Options).send()
     const suggestion2 = receipt2.result
-    // // we now should find 2 suggestions
 
+    // we now should find 2 suggestions
     let suggestionIds: string[] = []
     competition.suggestions().subscribe((ls) => {suggestionIds = ls.map((x) => x.id)})
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
@@ -170,12 +176,19 @@ describe('Proposal', () => {
     // // and lets vote for the first suggestion
     // TODO: would be nice to be able to vote directly from the suggestion
     // const vote = await suggestion1.vote().send()
-    const voteReceipt = await scheme.competitionVote({ suggestionId: suggestion2.id}).send()
+    console.log(`vote for ${suggestion2.id}`)
+    const voteReceipt = await scheme.competitionVote({ suggestionId: suggestion2.suggestionId}).send()
     const vote = voteReceipt.result
     // // the vote should be counted
     expect(vote).toBeInstanceOf(CompetitionVote)
-    const votes = await suggestion1.votes().pipe(first()).toPromise()
-    expect(votes.length).toEqual(1)
+
+    // TODO: would be nice to do `suggestion1.votes()` here
+    let competitionVotes: CompetitionVote[] = []
+    CompetitionVote.search(arc, {where: { suggestion: suggestion2.id}}).subscribe(
+      (votes) => { competitionVotes = votes}
+    )
+    await waitUntilTrue(() => competitionVotes.length > 0)
+    expect(competitionVotes.length).toEqual(1)
 
   })
 })

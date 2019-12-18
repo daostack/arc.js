@@ -204,7 +204,7 @@ export class CompetitionSuggestion {
     }`
   }
 
-  public static calculateId(opts: { scheme: Address, suggestionId: string}): string {
+  public static calculateId(opts: { scheme: Address, suggestionId: number}): string {
     const seed = concat(
       hexStringToUint8Array(opts.scheme.toLowerCase()),
       hexStringToUint8Array(Number(opts.suggestionId).toString(16))
@@ -219,13 +219,6 @@ export class CompetitionSuggestion {
   ): Observable<CompetitionSuggestion[]> {
     let where = ''
     if (!options.where) { options.where = {}}
-
-    const proposalId = options.where.proposal
-    // if we are searching for stakes on a specific proposal (a common case), we
-    // will structure the query so that stakes are stored in the cache together wit the proposal
-    if (proposalId) {
-      delete options.where.proposal
-    }
 
     for (const key of Object.keys(options.where)) {
       if (options.where[key] === undefined) {
@@ -270,15 +263,24 @@ export class CompetitionSuggestion {
   }
 
   public id: string
+  public suggestionId?: number
   public staticState?: ICompetitionSuggestion
 
-  constructor(idOrOpts: string|ICompetitionSuggestion, public context: Arc) {
-    if (typeof idOrOpts === 'string') {
+  constructor(idOrOpts: string|{ suggestionId: number, scheme: string}|ICompetitionSuggestion, public context: Arc) {
+     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
-      const opts = idOrOpts as ICompetitionSuggestion
-      this.id = opts.id
-      this.setStaticState(opts)
+      if (
+        Object.keys(idOrOpts).includes('scheme') &&
+        Object.keys(idOrOpts).includes('suggestionId')
+        ) {
+        this.id = CompetitionSuggestion.calculateId(idOrOpts as { suggestionId: number, scheme: string})
+        this.suggestionId = idOrOpts.suggestionId
+      } else {
+        const opts = idOrOpts as ICompetitionSuggestion
+        this.id = opts.id
+        this.setStaticState(opts)
+      }
     }
   }
 
@@ -293,8 +295,59 @@ export class CompetitionSuggestion {
   // }
 
 }
+export interface ICompetitionVoteQueryOptions {
+  where?: {
+    suggestion?: string
+  }
+}
 
 export class CompetitionVote {
+
+  public static fragments = {
+    CompetitionVoteFields: gql`fragment CompetitionVoteFields on CompetitionVote {
+      id
+      createdAt
+      reptutation
+      voter
+    }`
+  }
+  public static calculateId(opts: { scheme: Address, suggestionId: number}): string {
+    const seed = concat(
+      hexStringToUint8Array(opts.scheme.toLowerCase()),
+      hexStringToUint8Array(Number(opts.suggestionId).toString(16))
+    )
+    return Web3.utils.keccak256(seed)
+  }
+
+  public static search(
+    context: Arc,
+    options: ICompetitionVoteQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<CompetitionVote[]> {
+    if (!options.where) { options.where = {}}
+
+    const itemMap = (item: any) => new CompetitionVote({
+      createdAt: secondSinceEpochToDate(item.createdAt),
+      id: item.id,
+      reputation: item.reptutation,
+      voter: item.voter
+    }, context)
+
+    const query = gql`query CompetitionSuggestionSearch
+      {
+        competitionVotes ${createGraphQlQuery(options)} {
+          ...CompetitionVoteFields
+        }
+      }
+      ${CompetitionVote.fragments.CompetitionVoteFields}
+      `
+
+    return context.getObservableList(
+      query,
+      itemMap,
+      apolloQueryOptions
+    ) as Observable<CompetitionVote[]>
+  }
   public id?: string
   public staticState?: ICompetitionVote
 
