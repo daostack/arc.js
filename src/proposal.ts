@@ -4,10 +4,10 @@ import { from, Observable } from 'rxjs'
 import { concatMap, filter, first } from 'rxjs/operators'
 import {
   Arc,
-  DAO,
   utils
 } from '.'
 import { IApolloQueryOptions } from './arc'
+import { DAO } from './dao'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { IObservable } from './graphnode'
 import { Operation, toIOperationObservable } from './operation'

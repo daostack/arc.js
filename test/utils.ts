@@ -1,11 +1,12 @@
+import BN = require('bn.js')
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
+import { IContractInfo, IProposalCreateOptions, Proposal } from '../src'
+import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import Arc from '../src/index'
-import { IContractInfo, IProposalCreateOptions, IProposalOutcome, Proposal } from '../src'
+import { IProposalOutcome} from '../src/proposal'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
-import BN = require('bn.js')
 
 const Web3 = require('web3')
 const path = require('path')
