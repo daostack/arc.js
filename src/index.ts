@@ -13,6 +13,9 @@ export { Reward, IRewardState, IRewardStaticState, IRewardQueryOptions } from '.
 export { Scheme, ISchemeState, ISchemeStaticState, ISchemeQueryOptions } from './scheme'
 export { ReputationFromTokenScheme } from './schemes/reputationFromToken'
 export { IContributionReward} from './schemes/contributionReward'
+// export { Competition, CompetitionSuggestion, CompetitionVote,
+//     ICompetitionProposal, ICompetitionVote, ICompetitionSuggestion } from './schemes/competition'
+// export  { IContributionRewardExt, IProposalCreateOptionsContributionRewardExt } from './schemes/contributionRewardExt'
 export { IGenericScheme } from './schemes/genericScheme'
 export { IUGenericScheme } from './schemes/uGenericScheme'
 export { ISchemeRegistrar } from './schemes/schemeRegistrar'
