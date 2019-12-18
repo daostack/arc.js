@@ -57,7 +57,7 @@ describe('Proposal', () => {
     const now = new Date()
     now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
     console.log('00000000000000000000000000000000000000000000000000000000000000000000000')
-    const startTime = addSeconds(now, 1)
+    const startTime = addSeconds(now, 2)
     const proposalOptions  = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,

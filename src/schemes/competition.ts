@@ -1,10 +1,14 @@
 import BN = require('bn.js')
-import { first } from 'rxjs/operators'
-import { Arc, utils } from '..'
-import { Proposal } from '../proposal'
+import gql from 'graphql-tag'
+import { Observable } from 'rxjs'
+import { first, map } from 'rxjs/operators'
+import { Address,
+  Arc
+ } from '..'
+import { IApolloQueryOptions } from '../arc'
+import { IProposalQueryOptions, Proposal } from '../proposal'
 import { IContributionRewardExtParams } from '../scheme'
-import { Address } from '../types'
-import { IProposalCreateOptionsContributionRewardExt } from './contributionRewardExt'
+import { createGraphQlQuery, dateToSecondsSinceEpoch, isAddress, NULL_ADDRESS, secondSinceEpochToDate } from '../utils'
 
 export interface ICompetitionProposal {
   id: string
@@ -19,7 +23,7 @@ export interface ICompetitionProposal {
   createdAt: Date,
  }
 
-export interface IProposalCreateOptionsCompetition extends IProposalCreateOptionsContributionRewardExt {
+export interface IProposalCreateOptionsCompetition  { // extends IProposalCreateOptionsContributionRewardExt {
   beneficiary: Address
   endTime: Date,
   reputationReward?: BN
@@ -38,7 +42,7 @@ export interface IProposalCreateOptionsCompetition extends IProposalCreateOption
 export interface ICompetitionSuggestion {
   id: string
   suggestionId: number
-  // proposal: CompetitionProposal!
+  proposal: string
   descriptionHash: string
   title?: string
   description?: string
@@ -84,7 +88,7 @@ export function createProposal(options: any, context: Arc) {
     const contract = context
       .getContract((schemeState.contributionRewardExtParams as IContributionRewardExtParams).rewarder)
     if (!options.proposer) {
-      options.proposer = utils.NULL_ADDRESS
+      options.proposer = NULL_ADDRESS
     }
     options.descriptionHash = await context.saveIPFSData(options)
     if (!options.rewardSplit) {
@@ -105,11 +109,11 @@ export function createProposal(options: any, context: Arc) {
     // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
 
     const competitionParams = [
-      utils.dateToSecondsSinceEpoch(options.startTime) || 0,
-      utils.dateToSecondsSinceEpoch(options.votingStartTime) || 0,
-      utils.dateToSecondsSinceEpoch(options.endTime) || 0,
+      dateToSecondsSinceEpoch(options.startTime) || 0,
+      dateToSecondsSinceEpoch(options.votingStartTime) || 0,
+      dateToSecondsSinceEpoch(options.endTime) || 0,
       options.numberOfVotesPerVoter.toString() || 0,
-      utils.dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
+      dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
     ]
 
     const transaction = contract.methods.proposeCompetition(
@@ -120,12 +124,16 @@ export function createProposal(options: any, context: Arc) {
         options.ethReward && options.ethReward.toString() || 0,
         options.externalTokenReward && options.externalTokenReward.toString() || 0
       ],
-      options.externalTokenAddress || utils.NULL_ADDRESS,
+      options.externalTokenAddress || NULL_ADDRESS,
       options.rewardSplit,
       competitionParams
     )
     return transaction
   }
+}
+
+export function createProposalErrorHandler(err: Error) {
+  return err
 }
 
 export function createTransactionMap(options: any, context: Arc) {
@@ -137,7 +145,117 @@ export function createTransactionMap(options: any, context: Arc) {
   return map
 }
 
+export class Competition { // extends Proposal {
+  public static search(
+    context: Arc,
+    options: IProposalQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable < Competition[] > {
+    return Proposal.search(context, options, apolloQueryOptions).pipe(
+      map((proposals: Proposal[]) => proposals.map((p: Proposal) => new Competition(p.id, context)))
+    )
+  }
+  public id: string
+  public context: Arc
+  constructor(id: string, context: Arc) {
+    // super(id, context)
+    this.id = id
+    this.context = context
+  }
+
+  public suggestions(
+      options: ICompetitionSuggestionQueryOptions = {},
+      apolloQueryOptions: IApolloQueryOptions = {}
+    ): Observable < CompetitionSuggestion[] > {
+    if (!options.where) { options.where = {}}
+    options.where.proposal = this.id
+    return  CompetitionSuggestion.search(this.context, options, apolloQueryOptions)
+  }
+}
+
+export interface ICompetitionSuggestionQueryOptions {
+  where?: {
+    proposal?: string
+  }
+}
 export class CompetitionSuggestion {
+
+  public static fragments = {
+    CompetitionSuggestionFields: gql`fragment CompetitionSuggestionFields on CompetitionSuggestion {
+      id
+      suggestionId
+      # proposal: CompetitionProposal!
+      descriptionHash
+      title
+      description
+      url
+      # fulltext: [string]
+      suggester
+      # votes: [CompetitionVote!] @derivedFrom(field: "suggestion")
+      totalVotes
+      createdAt
+      redeemedAt
+      rewardPercentage
+    }`
+  }
+
+  public static search(
+    context: Arc,
+    options: ICompetitionSuggestionQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<CompetitionSuggestion[]> {
+    let where = ''
+    if (!options.where) { options.where = {}}
+
+    const proposalId = options.where.proposal
+    // if we are searching for stakes on a specific proposal (a common case), we
+    // will structure the query so that stakes are stored in the cache together wit the proposal
+    if (proposalId) {
+      delete options.where.proposal
+    }
+
+    for (const key of Object.keys(options.where)) {
+      if (options.where[key] === undefined) {
+        continue
+      }
+
+      if (key === 'beneficiary' || key === 'dao') {
+        const option = options.where[key] as string
+        isAddress(option)
+        options.where[key] = option.toLowerCase()
+      }
+
+      where += `${key}: "${options.where[key] as string}"\n`
+    }
+
+    const itemMap = (item: any) => new CompetitionSuggestion({
+      createdAt: secondSinceEpochToDate(item.createdAt),
+      descriptionHash: item.descriptionHash,
+      id: item.id,
+      proposal: item.proposal,
+      redeemedAt: secondSinceEpochToDate(item.redeemedAt),
+      rewardPercentage: Number(item.rewardPercentage),
+      suggester: item.suggester,
+      suggestionId: item.suggestionId,
+      totalVotes: new BN(item.totalVotes)
+    }, context)
+
+    const query = gql`query CompetitionSuggestionSearch
+      {
+        competitionSuggestions ${createGraphQlQuery(options, where)} {
+          ...CompetitionSuggestionFields
+        }
+      }
+      ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
+      `
+
+    return context.getObservableList(
+      query,
+      itemMap,
+      apolloQueryOptions
+    ) as Observable<CompetitionSuggestion[]>
+  }
+
   public id: string
   public staticState?: ICompetitionSuggestion
 
