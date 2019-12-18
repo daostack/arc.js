@@ -1,6 +1,7 @@
 import { first } from 'rxjs/operators'
 import {
   Arc,
+  CompetitionSuggestion,
   DAO,
   IProposalStage,
   IProposalState,
@@ -12,7 +13,8 @@ import {
   // createAProposal,
   // getTestAddresses, ITestAddresses,
   newArc,
-  timeTravel, toWei,
+  // timeTravel,
+  toWei,
   voteToPassProposal,
   waitUntilTrue } from './utils'
 
@@ -59,7 +61,7 @@ describe('Proposal', () => {
     const proposalOptions  = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
-      endTime: addSeconds(startTime, 180),
+      endTime: addSeconds(startTime, 3000),
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
@@ -70,7 +72,7 @@ describe('Proposal', () => {
       rewardSplit: [1, 2, 97],
       scheme: contributionRewardExtState.address,
       startTime,
-      suggestionsEndTime: addSeconds(startTime, 60),
+      suggestionsEndTime: addSeconds(startTime, 100),
       value: 0,
       votingStartTime: addSeconds(startTime, 120)
     }
@@ -78,7 +80,6 @@ describe('Proposal', () => {
     const tx = await dao.createProposal(proposalOptions).send()
     const proposal = tx.result
     expect(proposal).toBeInstanceOf(Proposal)
-    console.log('100000000000000000000000000000000000000000000000000000000000000000000000')
 
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
@@ -117,13 +118,13 @@ describe('Proposal', () => {
     // now we should have a competition object available...
     const scheme = new Scheme(lastState().scheme.id, arc)
     // check sanity for scheme
-    console.log('-----------------------------------------')
     const schemeState = await scheme.state().pipe(first()).toPromise()
     expect(schemeState.address).toEqual(lastState().scheme.address)
 
-    const competitions = await scheme.competitions().pipe(first()).toPromise()
-    expect(competitions.length).toBeGreaterThanOrEqual(1)
-    // const competition = competitions[0]
+    const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
+    expect(competitions.length).toEqual(1)
+    const competition = competitions[0]
+    expect(competition.id).toEqual(proposal.id)
     // lets submit a solution
     const suggestion1Options = {
       description: 'descxription',
@@ -132,14 +133,15 @@ describe('Proposal', () => {
       title: 'title',
       url: 'https://somewhere.some.place'
     }
-    await timeTravel(110, arc.web3)
-    console.log(suggestion1Options)
+    // await timeTravel(110, arc.web3)
     const suggestion1 = await scheme.createCompetitionSuggestion(suggestion1Options).send()
     expect(suggestion1).toBeDefined()
-    // const suggestion2 = await competition.suggest(proposal.id, title, description, tags, url ).send()
+    const suggestion2Options = { ...suggestion1Options, title: 'suggestion nr 2'}
+    const suggestion2 = await scheme.createCompetitionSuggestion(suggestion2Options).send()
     // // we now should find 2 suggestions
 
-    // const suggestions = await competition.suggestions().pipe(first()).toPromise()
+    const suggestions = await competition.suggestions().pipe(first()).toPromise()
+    expect(suggestions.map((x: CompetitionSuggestion) => x.id)).toContain(suggestion2.id)
     // expect(suggestions.length).toEqual(2)
     // // and lets vote for the first suggestion
     // const vote = await suggestion1.vote().send()
