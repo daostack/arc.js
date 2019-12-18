@@ -622,10 +622,14 @@ export class Proposal implements IStateful<IProposalState> {
     return result
   }
 
+  /**
+   * @return the scheme Contract
+   */
   public async scheme() {
     const schemeAddress = (await this.state().pipe(filter((o) => !!o), first()).toPromise()).scheme.address
     return this.context.getContract(schemeAddress)
   }
+
   /**
    * [votingMachine description]
    * @return a web3 Contract instance
