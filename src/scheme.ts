@@ -410,158 +410,212 @@ export class Scheme implements IStateful<ISchemeState> {
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
   }
 
-    /**
-     * create a new proposal in this DAO
-     * TODO: move this to the schemes - we should call proposal.scheme.createProposal
-     * @param  options [description ]
-     * @return a Proposal instance
-     */
-    public createProposal(options: IProposalCreateOptions): Operation<Proposal>  {
-      const observable = Observable.create(async (observer: any) => {
-        let msg: string
-        const context = this.context
-        let createTransaction: () => any = () => null
-        let map: any
-        let errHandler = (err: Error) => err
-        const state = await this.fetchStaticState()
+  /**
+   * create a new proposal in this DAO
+   * TODO: move this to the schemes - we should call proposal.scheme.createProposal
+   * @param  options [description ]
+   * @return a Proposal instance
+   */
+  public createProposal(options: IProposalCreateOptions): Operation<Proposal>  {
+    const observable = Observable.create(async (observer: any) => {
+      let msg: string
+      const context = this.context
+      let createTransaction: () => any = () => null
+      let map: any
+      let errHandler = (err: Error) => err
+      const state = await this.fetchStaticState()
 
-        switch (state.name) {
-          case 'ContributionReward':
-            createTransaction  = ContributionReward.createProposal(options, this.context)
-            map = ContributionReward.createTransactionMap(options, this.context)
-            break
-          case 'ContributionRewardExt':
-            // TODO: ContributionRewardExt can also be used to create a Competition proposal
-            // For now, we explicitly pass this in the options, but in reality (once 36-4 is released) we
-            // should be able to sniff this: if the rewarder of the scheme is a Contribution.sol instance....
-            if (options.proposalType === 'competition') {
-              createTransaction = Competition.createProposal(options, this.context)
-              map = Competition.createTransactionMap(options, this.context),
-              errHandler = Competition.createProposalErrorHandler
-            } else {
-              createTransaction  = ContributionRewardExt.createProposal(options, this.context)
-              map = ContributionRewardExt.createTransactionMap(options, this.context)
-            }
-            break
+      switch (state.name) {
+        case 'ContributionReward':
+          createTransaction  = ContributionReward.createProposal(options, this.context)
+          map = ContributionReward.createTransactionMap(options, this.context)
+          break
+        case 'ContributionRewardExt':
+          // TODO: ContributionRewardExt can also be used to create a Competition proposal
+          // For now, we explicitly pass this in the options, but in reality (once 36-4 is released) we
+          // should be able to sniff this: if the rewarder of the scheme is a Contribution.sol instance....
+          if (options.proposalType === 'competition') {
+            createTransaction = Competition.createProposal(options, this.context)
+            map = Competition.createTransactionMap(options, this.context),
+            errHandler = Competition.createProposalErrorHandler
+          } else {
+            createTransaction  = ContributionRewardExt.createProposal(options, this.context)
+            map = ContributionRewardExt.createTransactionMap(options, this.context)
+          }
+          break
 
-          case 'UGenericScheme':
-              createTransaction  = UGenericScheme.createTransaction(options, this.context)
-              map = UGenericScheme.createTransactionMap(options, this.context)
-              break
-
-          case 'GenericScheme':
-            const versionNumber = Number(state.version.split('rc.')[1])
-            if (versionNumber < 23) {
-              // the pre-24 " GenericScheme" contracts have beeen renamed to UGenericScheme
-              createTransaction  = UGenericScheme.createTransaction(options, this.context)
-              map = UGenericScheme.createTransactionMap(options, this.context)
-              break
-            } else {
-              createTransaction  = GenericScheme.createTransaction(options, this.context)
-              map = GenericScheme.createTransactionMap(options, this.context)
-              break
-            }
-
-          case 'SchemeRegistrar':
-            createTransaction  = SchemeRegistrar.createTransaction(options, this.context)
-            map = SchemeRegistrar.createTransactionMap(options, this.context)
+        case 'UGenericScheme':
+            createTransaction  = UGenericScheme.createTransaction(options, this.context)
+            map = UGenericScheme.createTransactionMap(options, this.context)
             break
 
-          default:
-            msg = `Unknown proposal scheme: '${state.name}'`
-            msg = `${state.name} ${state.name === 'ContributionRewardExt'}`
-            throw Error(msg)
-        }
+        case 'GenericScheme':
+          const versionNumber = Number(state.version.split('rc.')[1])
+          if (versionNumber < 23) {
+            // the pre-24 " GenericScheme" contracts have beeen renamed to UGenericScheme
+            createTransaction  = UGenericScheme.createTransaction(options, this.context)
+            map = UGenericScheme.createTransactionMap(options, this.context)
+            break
+          } else {
+            createTransaction  = GenericScheme.createTransaction(options, this.context)
+            map = GenericScheme.createTransactionMap(options, this.context)
+            break
+          }
 
-        const sendTransactionObservable = context.sendTransaction(createTransaction, map, errHandler)
-        const sub = sendTransactionObservable.subscribe(observer)
+        case 'SchemeRegistrar':
+          createTransaction  = SchemeRegistrar.createTransaction(options, this.context)
+          map = SchemeRegistrar.createTransactionMap(options, this.context)
+          break
 
-        return () => sub.unsubscribe()
-      })
-
-      return toIOperationObservable(observable)
-    }
-
-    public proposals(
-      options: IProposalQueryOptions = {},
-      apolloQueryOptions: IApolloQueryOptions = {}
-    ): Observable<Proposal[]> {
-      if (!options.where) { options.where = {}}
-      options.where.scheme = this.id
-      return Proposal.search(this.context, options, apolloQueryOptions)
-    }
-
-    /**
-     * Return a list of competitions in this scheme.
-     * @param options
-     * @param apolloQueryOptions
-     */
-    public competitions(
-      options: IProposalQueryOptions = {},
-      apolloQueryOptions: IApolloQueryOptions = {}
-    ): Observable<Competition.Competition[]> {
-      // TODO: This function will error if the current scheme is not a competiion scheme
-      // const staticState = await this.fetchStaticState()
-      // if (staticState.name !== `ContributionRewardExt`) {
-      //   // TODO: we should also check if the calling
-      //   throw Error(`This scheme is not a competition scheme - so no competitions can be found`)
-      // }
-      if (!options.where) { options.where = {}}
-      options.where = { ...options.where, competition_not: null}
-      return Competition.Competition.search(this.context, options, apolloQueryOptions)
-    }
-
-    /**
-     *
-     */
-    public createCompetitionSuggestion(options: {
-      proposalId: string,
-      title: string,
-      description: string,
-      tags: string[],
-      url: string
-    }): Operation<any> {
-      const createTransaction = async () => {
-        const state = await this.state().pipe(first()).toPromise()
-        if (state === null) {
-          throw Error(`No scheme was found with id ${this.id}`)
-        }
-        const rewarder = state.contributionRewardExtParams && state.contributionRewardExtParams.rewarder
-        const contractInfo = this.context.getContractInfo(rewarder as Address)
-        if (contractInfo.name !== 'Competition') {
-          throw Error(`We did not find a Competition contract at the rewarder address ${rewarder}, found ${contractInfo.name} instead`)
-        }
-        const descriptionHash = await this.context.saveIPFSData(options)
-        const contract = this.context.getContract(rewarder as Address)
-        const transaction = contract.methods.suggest(options.proposalId, descriptionHash)
-        return transaction
+        default:
+          msg = `Unknown proposal scheme: '${state.name}'`
+          msg = `${state.name} ${state.name === 'ContributionRewardExt'}`
+          throw Error(msg)
       }
 
-      const map = (receipt: any) => {
-        if (Object.keys(receipt.events).length === 0) {
-          // this does not mean that anything failed
-          return receipt
-        } else {
-          return receipt
-        }
-      }
-      const errorHandler = async (err: Error) => {
-        // we got an error
-        console.log(err)
-        console.log(err.message)
-        // see if the proposalId does exist in the contract
-        const state = await this.state().pipe(first()).toPromise()
-        const rewarder = state.contributionRewardExtParams && state.contributionRewardExtParams.rewarder
-        const contract = this.context.getContract(rewarder as Address)
-        const proposal = await contract.methods.proposals(options.proposalId).call()
-        if (!proposal) {
-          throw Error(`A proposal with id ${proposal.id} does not exist`)
-        }
-        console.log(proposal)
-        return err
-      }
-      const observable = this.context.sendTransaction(createTransaction, map, errorHandler)
-      return toIOperationObservable(observable)
+      const sendTransactionObservable = context.sendTransaction(createTransaction, map, errHandler)
+      const sub = sendTransactionObservable.subscribe(observer)
+
+      return () => sub.unsubscribe()
+    })
+
+    return toIOperationObservable(observable)
+  }
+
+  public proposals(
+    options: IProposalQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Proposal[]> {
+    if (!options.where) { options.where = {}}
+    options.where.scheme = this.id
+    return Proposal.search(this.context, options, apolloQueryOptions)
+  }
+
+  /**
+   * Return a list of competitions in this scheme.
+   * @param options
+   * @param apolloQueryOptions
+   */
+  public competitions(
+    options: IProposalQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Competition.Competition[]> {
+    // TODO: This function will error if the current scheme is not a competiion scheme
+    // const staticState = await this.fetchStaticState()
+    // if (staticState.name !== `ContributionRewardExt`) {
+    //   // TODO: we should also check if the calling
+    //   throw Error(`This scheme is not a competition scheme - so no competitions can be found`)
+    // }
+    if (!options.where) { options.where = {}}
+    options.where = { ...options.where, competition_not: null}
+    return Competition.Competition.search(this.context, options, apolloQueryOptions)
+  }
+
+  /**
+   *
+   */
+  public competitionCreateSuggestion(options: {
+    proposalId: string,
+    title: string,
+    description: string,
+    tags: string[],
+    url: string
+  }): Operation<any> {
+    const createTransaction = async () => {
+      const contract = await this.competionGetContract()
+      const descriptionHash = await this.context.saveIPFSData(options)
+      const transaction = contract.methods.suggest(options.proposalId, descriptionHash)
+      return transaction
     }
 
- }
+    const map = (receipt: any) => {
+      if (Object.keys(receipt.events).length === 0) {
+        // this does not mean that anything failed
+        return receipt
+      } else {
+        const eventName = 'NewSuggestion'
+        const suggestionId = receipt.events[eventName].returnValues._suggestionId
+        const competitionSuggestionId = Competition.CompetitionSuggestion.calculateId({
+          scheme: this.id,
+          suggestionId
+        })
+        return new Competition.CompetitionSuggestion(competitionSuggestionId, this.context)
+      }
+    }
+    const errorHandler = async (err: Error) => {
+      // we got an error
+      // see if the proposalId does exist in the contract
+      const contract = await this.competionGetContract()
+      const proposal = await contract.methods.proposals(options.proposalId).call()
+      if (!proposal) {
+        throw Error(`A proposal with id ${proposal.id} does not exist`)
+      }
+      return err
+    }
+    const observable = this.context.sendTransaction(createTransaction, map, errorHandler)
+    return toIOperationObservable(observable)
+  }
+
+  public async competionGetContract() {
+    const state = await this.state().pipe(first()).toPromise()
+    if (state === null) {
+      throw Error(`No scheme was found with id ${this.id}`)
+    }
+    const rewarder = state.contributionRewardExtParams && state.contributionRewardExtParams.rewarder
+    const contractInfo = this.context.getContractInfo(rewarder as Address)
+    if (contractInfo.name !== 'Competition') {
+      throw Error(`We did not find a Competition contract at the rewarder address ${rewarder}, found ${contractInfo.name} instead`)
+    }
+    const contract = this.context.getContract(rewarder as Address)
+    return contract
+  }
+
+  public competitionVote(options: {
+    suggestionId: string
+  }): Operation<any> {
+    const createTransaction = async () => {
+      const contract = await this.competionGetContract()
+      const transaction = contract.methods.vote(options.suggestionId)
+      return transaction
+    }
+
+    const map = (receipt: any) => {
+      if (Object.keys(receipt.events).length === 0) {
+        // this does not mean that anything failed
+        return receipt
+      } else {
+        const eventName = 'NewVote'
+        // emit NewVote(proposalId, _suggestionId, msg.sender, reputation);
+        console.log(receipt.events.NewVote)
+        // const suggestionId = receipt.events[eventName].returnValues._suggestionId
+        const voter = receipt.events[eventName].returnValues._voter
+        const reputation = receipt.events[eventName].returnValues._reputation
+        // export interface ICompetitionVote {
+        //   id: string
+        //   // proposal: CompetitionProposal!
+        //   // suggestion: CompetitionSuggestion!
+        //   voter: Address
+        //   createdAt: Date
+        //   reputation: BN
+        // }
+
+        return new Competition.CompetitionVote({
+          reputation,
+          voter
+        }, this.context)
+      }
+    }
+    const errorHandler = async (err: Error) => {
+      const contract = await this.competionGetContract()
+      // see if the proposalId does exist in the contract
+      console.log(options)
+      const proposal = await contract.methods.suggestions(options.suggestionId).call()
+      if (!proposal) {
+        throw Error(`A proposal with id ${proposal.id} does not exist`)
+      }
+      return err
+    }
+    const observable = this.context.sendTransaction(createTransaction, map, errorHandler)
+    return toIOperationObservable(observable)
+  }
+}

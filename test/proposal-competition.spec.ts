@@ -1,11 +1,13 @@
 import { first } from 'rxjs/operators'
 import {
   Arc,
+  Competition,
   CompetitionSuggestion,
+  CompetitionVote,
   DAO,
+  // ISchemeStaticState,
   IProposalStage,
   IProposalState,
-  // ISchemeStaticState,
   Proposal,
   Scheme
   } from '../src'
@@ -28,6 +30,23 @@ describe('Proposal', () => {
 
   beforeAll(async () => {
     arc = await newArc()
+  })
+
+  it('CompetitionSuggestion.calculateId works', async () => {
+    function calc(scheme: string, suggestionId: string) {
+      return CompetitionSuggestion.calculateId({scheme, suggestionId})
+
+    }
+    expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
+                '8'))
+      .toEqual('0x1c5a3d7aa889aff71dc8f5de18956b7b1e821c823f3f358d9eb74d18f135fa13')
+    expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
+                '8'))
+      .toEqual('0x1c5a3d7aa889aff71dc8f5de18956b7b1e821c823f3f358d9eb74d18f135fa13')
+
+    expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
+                '14'))
+      .toEqual('0x137446f8b5c791e505e6e8228801ed78555a4e35957fd0b026b70fc3f262b629')
   })
 
   it('Create a competition proposal, compete, win the competition..', async () => {
@@ -124,6 +143,7 @@ describe('Proposal', () => {
     const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
     expect(competitions.length).toEqual(1)
     const competition = competitions[0]
+    expect(competition).toBeInstanceOf(Competition)
     expect(competition.id).toEqual(proposal.id)
     // lets submit a solution
     const suggestion1Options = {
@@ -134,20 +154,28 @@ describe('Proposal', () => {
       url: 'https://somewhere.some.place'
     }
     // await timeTravel(110, arc.web3)
-    const suggestion1 = await scheme.createCompetitionSuggestion(suggestion1Options).send()
+    const receipt1 = await scheme.competitionCreateSuggestion(suggestion1Options).send()
+    const suggestion1 = receipt1.result
     expect(suggestion1).toBeDefined()
+    expect(suggestion1).toBeInstanceOf(CompetitionSuggestion)
     const suggestion2Options = { ...suggestion1Options, title: 'suggestion nr 2'}
-    const suggestion2 = await scheme.createCompetitionSuggestion(suggestion2Options).send()
+    const receipt2 = await scheme.competitionCreateSuggestion(suggestion2Options).send()
+    const suggestion2 = receipt2.result
     // // we now should find 2 suggestions
 
-    const suggestions = await competition.suggestions().pipe(first()).toPromise()
-    expect(suggestions.map((x: CompetitionSuggestion) => x.id)).toContain(suggestion2.id)
-    // expect(suggestions.length).toEqual(2)
+    let suggestionIds: string[] = []
+    competition.suggestions().subscribe((ls) => {suggestionIds = ls.map((x) => x.id)})
+    await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
+
     // // and lets vote for the first suggestion
+    // TODO: would be nice to be able to vote directly from the suggestion
     // const vote = await suggestion1.vote().send()
+    const voteReceipt = await scheme.competitionVote({ suggestionId: suggestion2.id}).send()
+    const vote = voteReceipt.result
     // // the vote should be counted
-    // const votes = await suggestion1.votes().pipe(first()).toPromise()
-    // expect(votes.length).toEqual(1)
+    expect(vote).toBeInstanceOf(CompetitionVote)
+    const votes = await suggestion1.votes().pipe(first()).toPromise()
+    expect(votes.length).toEqual(1)
 
   })
 })

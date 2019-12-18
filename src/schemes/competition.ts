@@ -8,7 +8,12 @@ import { Address,
 import { IApolloQueryOptions } from '../arc'
 import { IProposalQueryOptions, Proposal } from '../proposal'
 import { IContributionRewardExtParams } from '../scheme'
-import { createGraphQlQuery, dateToSecondsSinceEpoch, isAddress, NULL_ADDRESS, secondSinceEpochToDate } from '../utils'
+import { concat,
+  createGraphQlQuery, dateToSecondsSinceEpoch, hexStringToUint8Array, isAddress, NULL_ADDRESS,
+  secondSinceEpochToDate
+} from '../utils'
+
+const Web3 = require('web3')
 
 export interface ICompetitionProposal {
   id: string
@@ -57,12 +62,12 @@ export interface ICompetitionSuggestion {
 }
 
 export interface ICompetitionVote {
-  id: string
+  id?: string
   // proposal: CompetitionProposal!
   // suggestion: CompetitionSuggestion!
   voter: Address
-  createdAt: Date
-  reptutation: BN
+  createdAt?: Date
+  reputation: BN
 }
 
 // export enum IProposalType {
@@ -199,6 +204,14 @@ export class CompetitionSuggestion {
     }`
   }
 
+  public static calculateId(opts: { scheme: Address, suggestionId: string}): string {
+    const seed = concat(
+      hexStringToUint8Array(opts.scheme.toLowerCase()),
+      hexStringToUint8Array(Number(opts.suggestionId).toString(16))
+    )
+    return Web3.utils.keccak256(seed)
+  }
+
   public static search(
     context: Arc,
     options: ICompetitionSuggestionQueryOptions = {},
@@ -272,10 +285,17 @@ export class CompetitionSuggestion {
   public setStaticState(opts: ICompetitionSuggestion) {
     this.staticState = opts
   }
+
+  // public vote(options: {
+  //   suggestionId: string
+  // }): Operation<any> {
+  //   return this.scheme().pipe(map((scheme: Scheme) => scheme.competitionVote(suggestionId))
+  // }
+
 }
 
 export class CompetitionVote {
-  public id: string
+  public id?: string
   public staticState?: ICompetitionVote
 
   constructor(idOrOpts: string|ICompetitionVote, public context: Arc) {
@@ -283,7 +303,7 @@ export class CompetitionVote {
       this.id = idOrOpts
     } else {
       const opts = idOrOpts as ICompetitionVote
-      this.id = opts.id
+      // this.id = opts.id
       this.setStaticState(opts)
     }
   }
