@@ -422,6 +422,7 @@ export class Scheme implements IStateful<ISchemeState> {
         const context = this.context
         let createTransaction: () => any = () => null
         let map: any
+        let errHandler = (err: Error) => err
         const state = await this.fetchStaticState()
 
         switch (state.name) {
@@ -435,8 +436,8 @@ export class Scheme implements IStateful<ISchemeState> {
             // should be able to sniff this: if the rewarder of the scheme is a Contribution.sol instance....
             if (options.proposalType === 'competition') {
               createTransaction = Competition.createProposal(options, this.context)
-              map = Competition.createTransactionMap(options, this.context)
-
+              map = Competition.createTransactionMap(options, this.context),
+              errHandler = Competition.createProposalErrorHandler
             } else {
               createTransaction  = ContributionRewardExt.createProposal(options, this.context)
               map = ContributionRewardExt.createTransactionMap(options, this.context)
@@ -472,7 +473,7 @@ export class Scheme implements IStateful<ISchemeState> {
             throw Error(msg)
         }
 
-        const sendTransactionObservable = context.sendTransaction(createTransaction, map)
+        const sendTransactionObservable = context.sendTransaction(createTransaction, map, errHandler)
         const sub = sendTransactionObservable.subscribe(observer)
 
         return () => sub.unsubscribe()
@@ -498,7 +499,7 @@ export class Scheme implements IStateful<ISchemeState> {
     public competitions(
       options: IProposalQueryOptions = {},
       apolloQueryOptions: IApolloQueryOptions = {}
-    ): Observable<Proposal[]> {
+    ): Observable<Competition.Competition[]> {
       // TODO: This function will error if the current scheme is not a competiion scheme
       // const staticState = await this.fetchStaticState()
       // if (staticState.name !== `ContributionRewardExt`) {
@@ -507,7 +508,7 @@ export class Scheme implements IStateful<ISchemeState> {
       // }
       if (!options.where) { options.where = {}}
       options.where = { ...options.where, competition_not: null}
-      return Proposal.search(this.context, options, apolloQueryOptions)
+      return Competition.Competition.search(this.context, options, apolloQueryOptions)
     }
 
     /**
@@ -545,19 +546,22 @@ export class Scheme implements IStateful<ISchemeState> {
         }
       }
       const errorHandler = async (err: Error) => {
-        // get the competion on
-        // const proposalDataFromVotingMachine = await votingMachine.methods.proposals(this.id).call()
-
-        // if (proposalDataFromVotingMachine.callbacks === NULL_ADDRESS) {
-        //   const msg = `Error in proposal.execute(): A proposal with id ${this.id} does not exist`
-        //   return Error(msg)
-        // } else if (proposalDataFromVotingMachine.state === '2') {
-        //   const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
-        //   return Error(msg)
-        // }
+        // we got an error
+        console.log(err)
+        console.log(err.message)
+        // see if the proposalId does exist in the contract
+        const state = await this.state().pipe(first()).toPromise()
+        const rewarder = state.contributionRewardExtParams && state.contributionRewardExtParams.rewarder
+        const contract = this.context.getContract(rewarder as Address)
+        const proposal = await contract.methods.proposals(options.proposalId).call()
+        if (!proposal) {
+          throw Error(`A proposal with id ${proposal.id} does not exist`)
+        }
+        console.log(proposal)
         return err
       }
       const observable = this.context.sendTransaction(createTransaction, map, errorHandler)
       return toIOperationObservable(observable)
     }
+
  }
