@@ -7,15 +7,15 @@ import { DAO } from '../dao'
 import { mapGenesisProtocolParams } from '../genesisProtocol'
 import { IApolloQueryOptions } from '../graphnode'
 import { Operation, toIOperationObservable } from '../operation'
-import { IProposalQueryOptions, Proposal } from '../proposal'
-import { IContributionRewardExtParams } from '../scheme'
+import { IProposalBaseCreateOptions, IProposalQueryOptions, Proposal } from '../proposal'
+// import { IContributionRewardExtParams } from '../scheme'
 import { Address } from '../types'
 import { concat,
   createGraphQlQuery, dateToSecondsSinceEpoch, hexStringToUint8Array, isAddress, NULL_ADDRESS,
   secondSinceEpochToDate
 } from '../utils'
-import { ISchemeState, SchemeBase } from './base'
-import { IProposalCreateOptionsContributionRewardExt} from './contributionRewardExt'
+import {  ISchemeState, SchemeBase } from './base'
+// import { IProposalCreateOptionsContributionRewardExt} from './contributionRewardExt'
 
 const Web3 = require('web3')
 
@@ -32,16 +32,16 @@ export interface ICompetitionProposal {
   createdAt: Date,
  }
 
-export interface IProposalCreateOptionsCompetition  extends IProposalCreateOptionsContributionRewardExt {
+export interface IProposalCreateOptionsCompetition extends IProposalBaseCreateOptions {
   // beneficiary: Address
   endTime: Date,
-  reputationReward?: BN
-  ethReward?: BN
-  externalTokenReward?: BN
-  externalTokenAddress?: Address
-  proposer: Address,
+  reputationReward ?: BN
+  ethReward ?: BN
+  externalTokenReward ?: BN
+  externalTokenAddress ?: Address
+  // proposer: Address,
   rewardSplit: number[]
-  nativeTokenReward?: BN
+  nativeTokenReward ?: BN
   numberOfVotesPerVoter: number
   startTime: Date,
   suggestionsEndTime: Date,
@@ -188,17 +188,18 @@ export class CompetitionScheme extends SchemeBase {
     // we assume this function is called with the correct scheme options..
     return async () => {
       const context = this.context
-      const schemes = await context.schemes({ where: {address: options.scheme}}).pipe(first()).toPromise()
-      const scheme = schemes[0]
-      const schemeState = await scheme.state().pipe(first()).toPromise()
+      const schemeState = await this.state().pipe(first()).toPromise()
       if (!schemeState) {
-          throw Error(`No scheme was found at address ${options.scheme}`)
-        }
-      const contract = context
-          .getContract((schemeState.contributionRewardExtParams as IContributionRewardExtParams).rewarder)
-      if (!options.proposer) {
-          options.proposer = NULL_ADDRESS
-        }
+        throw Error(`No scheme was found with this id: ${this.id}`)
+      }
+      const contract = getCompetitionContract(schemeState, this.context)
+
+      // check sanity -- is the competition contract actually c
+      const contributionRewardExtAddress = await contract.methods.contributionRewardExt().call()
+      if (contributionRewardExtAddress.toLowerCase() !== schemeState.address) {
+        throw Error(`This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${schemeState.address}`)
+      }
+
       options.descriptionHash = await context.saveIPFSData(options)
       if (!options.rewardSplit) {
           throw Error(`Rewardsplit was not given..`)
@@ -247,6 +248,10 @@ export class CompetitionScheme extends SchemeBase {
       return new Proposal(proposalId, this.context)
     }
     return txMap
+  }
+
+  public createProposal(options: IProposalCreateOptionsCompetition): Operation<Proposal>  {
+    return SchemeBase.prototype.createProposal.call(this, options)
   }
 
   public createSuggestion(options: {

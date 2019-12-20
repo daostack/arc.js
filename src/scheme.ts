@@ -117,7 +117,7 @@ export class Scheme extends SchemeBase  {
     context: Arc,
     options: ISchemeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Scheme[]> {
+  ): Observable<Array<Scheme | CompetitionScheme>> {
     let query
     if (apolloQueryOptions.fetchAllData === true) {
       query = gql`query SchemeSearchAllData {

@@ -9,7 +9,7 @@ import { IObservable } from './graphnode'
 import { Operation, toIOperationObservable } from './operation'
 import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
-import { Scheme } from './scheme'
+// import { Scheme } from './scheme'
 import { ISchemeState } from './scheme'
 import * as  Competition from './schemes/competition'
 import * as ContributionReward from './schemes/contributionReward'
@@ -235,41 +235,6 @@ export class Proposal implements IStateful<IProposalState> {
       votingMachine
       winningOutcome
     }`
-  }
-
-  /**
-   * Proposal.create() creates a new proposal
-   * @param  options cf. IProposalCreateOptions
-   * @param  context [description]
-   * @return  an observable that streams the various states
-   */
-  public static create(options: IProposalCreateOptions, context: Arc): Operation<Proposal> {
-
-    if (!options.dao) {
-      throw Error(`Proposal.create(options): options must include an address for "dao"`)
-    }
-    if (!options.scheme) {
-      throw Error(`Proposal.create(options): options must include an address for "scheme"`)
-    }
-
-    const schemesQuery = Scheme.search(
-      context,
-      { where: {
-        address: options.scheme,
-        dao: options.dao
-      }}
-    )
-    const observable = schemesQuery.pipe(
-      first(),
-      concatMap((schemes) => {
-        if (schemes && schemes.length > 0) {
-          return schemes[0].createProposal(options)
-        } else {
-          throw Error(`No scheme with address ${options.scheme} is registered with dao ${options.dao}`)
-        }
-      }
-    ))
-    return toIOperationObservable(observable)
   }
 
   /**
@@ -912,7 +877,7 @@ export interface IProposalBaseCreateOptions {
   descriptionHash?: string
   title?: string
   tags?: string[]
-  scheme: Address
+  scheme?: Address
   url?: string
   // proposalType?: 'competition' // if the scheme allows for different proposals...
   proposalType?: string

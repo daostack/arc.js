@@ -9,6 +9,7 @@ import {
   // ISchemeStaticState,
   IProposalStage,
   IProposalState,
+  ISchemeState,
   Proposal
   // Scheme
   } from '../src'
@@ -29,21 +30,34 @@ jest.setTimeout(60000)
 describe('Proposal', () => {
   let arc: Arc
   let dao: DAO
-  let contributionRewardExt
-  let contributionRewardExtState
+  let contributionRewardExt: CompetitionScheme
+  let contributionRewardExtState: ISchemeState
+
+  function addSeconds(date: Date, seconds: number) {
+    if (!(date instanceof Date)) {
+      throw Error(`Input should be a Date instance, got ${date} instead`)
+    }
+    const result = new Date()
+    result.setTime(date.getTime() + (seconds * 1000))
+    return result
+  }
 
   beforeAll(async () => {
     arc = await newArc()
     // we'll get a `ContributionRewardExt` contract
-    const ARC_VERSION = '0.0.1-rc.36'
-    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
     // find the corresponding scheme object
+    // TODO: next lines will not work because of https://github.com/daostack/migration/issues/254
+    // const ARC_VERSION = '0.0.1-rc.36'
+    // const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
+    // const contributionRewardExtAddres = contributionRewardExtContract.address
+    const contributionRewardExtAddres = '0x68c29524E583380aF7896f7e63463740225Ac026'.toLowerCase()
     const contributionRewardExts = await arc
-      .schemes({where: {address: contributionRewardExtContract.address}}).pipe(first()).toPromise()
+      .schemes({where: {address: contributionRewardExtAddres }}).pipe(first()).toPromise()
 
-    contributionRewardExt = contributionRewardExts[0]
+    contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
     contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
     dao = new DAO(contributionRewardExtState.dao, arc)
+    // console.log((await dao.state().pipe(first()).toPromise()).name)
   })
 
   it('CompetitionSuggestion.calculateId works', async () => {
@@ -64,25 +78,16 @@ describe('Proposal', () => {
   })
 
   it('Create a competition proposal, compete, win the competition..', async () => {
-
-    // @ts-ignore
-    function addSeconds(date: Date, seconds: number) {
-      if (!(date instanceof Date)) {
-        throw Error(`Input should be a Date instance, got ${date} instead`)
-      }
-      const result = new Date()
-      result.setTime(date.getTime() + (seconds * 1000))
-      return result
-    }
+    // const scheme = new CompetitionScheme(contributionRewardExtState.id, arc)
+    expect(contributionRewardExt).toBeInstanceOf(CompetitionScheme)
+    const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
     // TODO: test error handling for all these params
     // - all args are present
     // - order of times
     const now = new Date()
     now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
-    console.log('creating a competition proposal')
     const startTime = addSeconds(now, 2)
     const proposalOptions  = {
-      beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       endTime: addSeconds(startTime, 3000),
       ethReward: toWei('300'),
@@ -93,15 +98,14 @@ describe('Proposal', () => {
       proposalType: 'competition',
       reputationReward: toWei('10'),
       rewardSplit: [1, 2, 97],
-      scheme: contributionRewardExtState.address,
       startTime,
       suggestionsEndTime: addSeconds(startTime, 100),
       value: 0,
       votingStartTime: addSeconds(startTime, 0)
     }
 
-    const tx = await dao.createProposal(proposalOptions).send()
-    console.log(`Proposal created...`)
+    const schemeState = await scheme.state().pipe(first()).toPromise()
+    const tx = await scheme.createProposal(proposalOptions).send()
     const proposal = tx.result
     expect(proposal).toBeInstanceOf(Proposal)
 
@@ -132,18 +136,14 @@ describe('Proposal', () => {
     })
 
     // accept the proposal by voting for et
-    console.log(`vote to pass the proposal`)
     await voteToPassProposal(proposal)
 
     await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
-    console.log(`The proposal was executed`)
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Executed
     })
 
-    const scheme = new CompetitionScheme(lastState().scheme.id, arc)
     // check sanity for scheme
-    const schemeState = await scheme.state().pipe(first()).toPromise()
     expect(schemeState.address).toEqual(lastState().scheme.address)
 
     const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
@@ -161,9 +161,7 @@ describe('Proposal', () => {
       url: 'https://somewhere.some.place'
     }
     // await timeTravel(110, arc.web3)
-    console.log(`creating a new suggestion`)
     const receipt1 = await scheme.createSuggestion(suggestion1Options).send()
-    console.log(`suggestion created..`)
     const suggestion1 = receipt1.result
     expect(suggestion1).toBeDefined()
     expect(suggestion1).toBeInstanceOf(CompetitionSuggestion)
@@ -181,7 +179,6 @@ describe('Proposal', () => {
     // // and lets vote for the first suggestion
     // TODO: would be nice to be able to vote directly from the suggestion
     // const vote = await suggestion1.vote().send()
-    console.log(`vote for ${suggestion2.id}`)
     const voteReceipt = await scheme.vote({ suggestionId: suggestion2.suggestionId}).send()
     const vote = voteReceipt.result
     // // the vote should be counted
@@ -207,5 +204,34 @@ describe('Proposal', () => {
     expect(contributionRewardExts.length).toEqual(1)
     const scheme = contributionRewardExts[0]
     expect(scheme).toBeInstanceOf(CompetitionScheme)
+  })
+
+  it('Can create a propsal using dao.createProposal', async () => {
+    const now = new Date()
+    now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
+    const startTime = addSeconds(now, 2)
+    const proposalOptions  = {
+      beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+      dao: dao.id,
+      endTime: addSeconds(startTime, 3000),
+      ethReward: toWei('300'),
+      externalTokenAddress: undefined,
+      externalTokenReward: toWei('0'),
+      nativeTokenReward: toWei('1'),
+      numberOfVotesPerVoter: 3,
+      proposalType: 'competition',
+      reputationReward: toWei('10'),
+      rewardSplit: [1, 2, 97],
+      scheme: contributionRewardExtState.address,
+      startTime,
+      suggestionsEndTime: addSeconds(startTime, 100),
+      value: 0,
+      votingStartTime: addSeconds(startTime, 0)
+    }
+
+    const tx = await dao.createProposal(proposalOptions).send()
+    const proposal = tx.result
+    expect(proposal).toBeInstanceOf(Proposal)
+
   })
 })
