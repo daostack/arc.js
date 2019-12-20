@@ -2,14 +2,15 @@ import { first } from 'rxjs/operators'
 import {
   Arc,
   Competition,
+  CompetitionScheme,
   CompetitionSuggestion,
   CompetitionVote,
   DAO,
   // ISchemeStaticState,
   IProposalStage,
   IProposalState,
-  Proposal,
-  Scheme
+  Proposal
+  // Scheme
   } from '../src'
 import {
   // createAProposal,
@@ -27,9 +28,22 @@ jest.setTimeout(60000)
  */
 describe('Proposal', () => {
   let arc: Arc
+  let dao: DAO
+  let contributionRewardExt
+  let contributionRewardExtState
 
   beforeAll(async () => {
     arc = await newArc()
+    // we'll get a `ContributionRewardExt` contract
+    const ARC_VERSION = '0.0.1-rc.36'
+    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
+    // find the corresponding scheme object
+    const contributionRewardExts = await arc
+      .schemes({where: {address: contributionRewardExtContract.address}}).pipe(first()).toPromise()
+
+    contributionRewardExt = contributionRewardExts[0]
+    contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
+    dao = new DAO(contributionRewardExtState.dao, arc)
   })
 
   it('CompetitionSuggestion.calculateId works', async () => {
@@ -50,16 +64,6 @@ describe('Proposal', () => {
   })
 
   it('Create a competition proposal, compete, win the competition..', async () => {
-    // we'll get a `ContributionRewardExt` contract
-    const ARC_VERSION = '0.0.1-rc.36'
-    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
-    // find the corresponding scheme object
-    const contributionRewardExts = await arc
-      .schemes({where: {address: contributionRewardExtContract.address}}).pipe(first()).toPromise()
-
-    const contributionRewardExt = contributionRewardExts[0]
-    const contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
-    const dao = new DAO(contributionRewardExtState.dao, arc)
 
     // @ts-ignore
     function addSeconds(date: Date, seconds: number) {
@@ -137,13 +141,13 @@ describe('Proposal', () => {
       stage: IProposalStage.Executed
     })
 
-    // now we should have a competition object available...
-    const scheme = new Scheme(lastState().scheme.id, arc)
+    const scheme = new CompetitionScheme(lastState().scheme.id, arc)
     // check sanity for scheme
     const schemeState = await scheme.state().pipe(first()).toPromise()
     expect(schemeState.address).toEqual(lastState().scheme.address)
 
     const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
+
     expect(competitions.length).toEqual(1)
     const competition = competitions[0]
     expect(competition).toBeInstanceOf(Competition)
@@ -158,26 +162,27 @@ describe('Proposal', () => {
     }
     // await timeTravel(110, arc.web3)
     console.log(`creating a new suggestion`)
-    const receipt1 = await scheme.competitionCreateSuggestion(suggestion1Options).send()
+    const receipt1 = await scheme.createSuggestion(suggestion1Options).send()
     console.log(`suggestion created..`)
     const suggestion1 = receipt1.result
     expect(suggestion1).toBeDefined()
     expect(suggestion1).toBeInstanceOf(CompetitionSuggestion)
     expect(suggestion1.id).toBeDefined()
     const suggestion2Options = { ...suggestion1Options, title: 'suggestion nr 2'}
-    const receipt2 = await scheme.competitionCreateSuggestion(suggestion2Options).send()
+    const receipt2 = await scheme.createSuggestion(suggestion2Options).send()
     const suggestion2 = receipt2.result
 
     // we now should find 2 suggestions
     let suggestionIds: string[] = []
-    competition.suggestions().subscribe((ls) => {suggestionIds = ls.map((x) => x.id)})
+    competition.suggestions()
+      .subscribe((ls: CompetitionSuggestion[]) => {suggestionIds = ls.map((x: CompetitionSuggestion) => x.id)})
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
 
     // // and lets vote for the first suggestion
     // TODO: would be nice to be able to vote directly from the suggestion
     // const vote = await suggestion1.vote().send()
     console.log(`vote for ${suggestion2.id}`)
-    const voteReceipt = await scheme.competitionVote({ suggestionId: suggestion2.suggestionId}).send()
+    const voteReceipt = await scheme.vote({ suggestionId: suggestion2.suggestionId}).send()
     const vote = voteReceipt.result
     // // the vote should be counted
     expect(vote).toBeInstanceOf(CompetitionVote)
@@ -190,5 +195,17 @@ describe('Proposal', () => {
     await waitUntilTrue(() => competitionVotes.length > 0)
     expect(competitionVotes.length).toEqual(1)
 
+  })
+
+  it('CompetionScheme is recognized', async () => {
+    // we'll get a `ContributionRewardExt` contract that has a Compietion contract as a rewarder
+    const ARC_VERSION = '0.0.1-rc.36'
+    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
+    // find the corresponding scheme object
+    const contributionRewardExts = await arc
+      .schemes({where: {address: contributionRewardExtContract.address}}).pipe(first()).toPromise()
+    expect(contributionRewardExts.length).toEqual(1)
+    const scheme = contributionRewardExts[0]
+    expect(scheme).toBeInstanceOf(CompetitionScheme)
   })
 })

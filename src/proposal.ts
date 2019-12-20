@@ -2,11 +2,7 @@ import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
 import { concatMap, filter, first } from 'rxjs/operators'
-import {
-  Arc,
-  utils
-} from '.'
-import { IApolloQueryOptions } from './arc'
+import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { IObservable } from './graphnode'
@@ -24,8 +20,8 @@ import * as SchemeRegistrar from './schemes/schemeRegistrar'
 import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSION } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
-import { isAddress } from './utils'
-import { createGraphQlQuery, NULL_ADDRESS, realMathToNumber } from './utils'
+import { createGraphQlQuery, isAddress, NULL_ADDRESS, realMathToNumber,
+secondSinceEpochToDate } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
 export const IProposalType = {
@@ -466,15 +462,15 @@ export class Proposal implements IStateful<IProposalState> {
         if (!!item.competition) {
           competition = {
             contract: item.competition.contract,
-            createdAt: utils.secondSinceEpochToDate(item.competition.createdAt),
-            endTime: utils.secondSinceEpochToDate(item.competition.endTime),
+            createdAt: secondSinceEpochToDate(item.competition.createdAt),
+            endTime: secondSinceEpochToDate(item.competition.endTime),
             id: item.competition.id,
             numberOfVotesPerVoter: Number(item.competition.numberOfVotesPerVoters),
             numberOfWinners: Number(item.competition.numberOfWinners),
             snapshotBlock: item.competition.snapshotBlock,
-            startTime: utils.secondSinceEpochToDate(item.competition.startTime),
-            suggestionsEndTime: utils.secondSinceEpochToDate(item.competition.suggestionsEndTime),
-            votingStartTime: utils.secondSinceEpochToDate(item.competition.votingStartTime)
+            startTime: secondSinceEpochToDate(item.competition.startTime),
+            suggestionsEndTime: secondSinceEpochToDate(item.competition.suggestionsEndTime),
+            votingStartTime: secondSinceEpochToDate(item.competition.votingStartTime)
           }
 
         }
@@ -926,6 +922,6 @@ export type IProposalCreateOptions = (
   (IProposalBaseCreateOptions & GenericScheme.IProposalCreateOptionsGS ) |
   (IProposalBaseCreateOptions & SchemeRegistrar.IProposalCreateOptionsSR) |
   (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR) |
-  (IProposalBaseCreateOptions & ContributionRewardExt.IProposalCreateOptionsContributionRewardExt) |
-  (IProposalBaseCreateOptions & Competition.IProposalCreateOptionsCompetition)
+  (ContributionRewardExt.IProposalCreateOptionsContributionRewardExt) |
+  (Competition.IProposalCreateOptionsCompetition)
 )

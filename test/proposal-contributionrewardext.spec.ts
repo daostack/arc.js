@@ -20,7 +20,10 @@ describe('ContributionReward Ext', () => {
     arc = await newArc()
   })
 
-  it('Create a proposal, accept it, execute it', async () => {
+  it.skip('Create a proposal, accept it, execute it', async () => {
+    // TODO: we are skipping this test, because we do not ahve at this point a contributionrewardext
+    // contract in our test environment that is not a Competition scheme..
+
     // we'll get a `ContributionRewardExt` contract
     const ARC_VERSION = '0.0.1-rc.36'
     const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)

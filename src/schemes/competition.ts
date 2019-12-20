@@ -2,16 +2,20 @@ import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first, map } from 'rxjs/operators'
-import { Address,
-  Arc
- } from '..'
-import { IApolloQueryOptions } from '../arc'
+import { Arc } from '../arc'
+import { DAO } from '../dao'
+import { mapGenesisProtocolParams } from '../genesisProtocol'
+import { IApolloQueryOptions } from '../graphnode'
+import { Operation, toIOperationObservable } from '../operation'
 import { IProposalQueryOptions, Proposal } from '../proposal'
 import { IContributionRewardExtParams } from '../scheme'
+import { Address } from '../types'
 import { concat,
   createGraphQlQuery, dateToSecondsSinceEpoch, hexStringToUint8Array, isAddress, NULL_ADDRESS,
   secondSinceEpochToDate
 } from '../utils'
+import { ISchemeState, SchemeBase } from './base'
+import { IProposalCreateOptionsContributionRewardExt} from './contributionRewardExt'
 
 const Web3 = require('web3')
 
@@ -28,8 +32,8 @@ export interface ICompetitionProposal {
   createdAt: Date,
  }
 
-export interface IProposalCreateOptionsCompetition  { // extends IProposalCreateOptionsContributionRewardExt {
-  beneficiary: Address
+export interface IProposalCreateOptionsCompetition  extends IProposalCreateOptionsContributionRewardExt {
+  // beneficiary: Address
   endTime: Date,
   reputationReward?: BN
   ethReward?: BN
@@ -74,80 +78,275 @@ export interface ICompetitionVote {
 //   ContributionReward = 'ContributionRewardExt' // propose a contributionReward
 // }
 
-/**
- *
- * @param options
- * @param context
- */
-export function createProposal(options: any, context: Arc) {
-  // we assume this function is called with the correct scheme options..
+export class CompetitionScheme extends SchemeBase {
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ISchemeState> {
+    const query = gql`query SchemeState
+      {
+        controllerScheme (id: "${this.id}") {
+          ...SchemeFields
+        }
+      }
+      ${SchemeBase.fragments.SchemeFields}
+    `
 
-  return async () => {
-    // first get the scheme info
-    const schemes = await context.schemes({ where: {address: options.scheme}}).pipe(first()).toPromise()
-    const scheme = schemes[0]
-    const schemeState = await scheme.state().pipe(first()).toPromise()
-    if (!schemeState) {
-      throw Error(`No scheme was found at address ${options.scheme}`)
-    }
-    const contract = context
-      .getContract((schemeState.contributionRewardExtParams as IContributionRewardExtParams).rewarder)
-    if (!options.proposer) {
-      options.proposer = NULL_ADDRESS
-    }
-    options.descriptionHash = await context.saveIPFSData(options)
-    if (!options.rewardSplit) {
-      throw Error(`Rewardsplit was not given..`)
-    } else {
-      if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
-        throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b) })`)
+    const itemMap = (item: any): ISchemeState|null => {
+      if (!item) {
+        return null
+      }
+
+      let name = item.name
+      if (!name) {
+
+        try {
+          name = this.context.getContractInfo(item.address).name
+        } catch (err) {
+          if (err.message.match(/no contract/ig)) {
+            // continue
+          } else {
+            throw err
+          }
+        }
+      }
+      const uGenericSchemeParams = item.uGenericSchemeParams && {
+        contractToCall: item.uGenericSchemeParams.contractToCall,
+        voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
+        votingMachine: item.uGenericSchemeParams.votingMachine
+      }
+      const contributionRewardParams = item.contributionRewardParams && {
+        voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
+        votingMachine: item.contributionRewardParams.votingMachine
+      }
+      const contributionRewardExtParams = item.contributionRewardExtParams && {
+        rewarder: item.contributionRewardExtParams.rewarder,
+        voteParams: mapGenesisProtocolParams(item.contributionRewardExtParams.voteParams),
+        votingMachine: item.contributionRewardExtParams.votingMachine
+      }
+      const schemeRegistrarParams = item.schemeRegistrarParams && {
+        voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
+        voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
+        votingMachine: item.schemeRegistrarParams.votingMachine
+      }
+      const genericSchemeParams = item.genericSchemeParams  && {
+        contractToCall: item.genericSchemeParams.contractToCall,
+        voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
+        votingMachine: item.genericSchemeParams.votingMachine
+      }
+      const schemeParams = (
+        uGenericSchemeParams || contributionRewardParams ||
+        schemeRegistrarParams || genericSchemeParams || contributionRewardExtParams
+      )
+      return {
+        address: item.address,
+        canDelegateCall: item.canDelegateCall,
+        canManageGlobalConstraints: item.canManageGlobalConstraints,
+        canRegisterSchemes: item.canRegisterSchemes,
+        canUpgradeController: item.canUpgradeController,
+        contributionRewardExtParams,
+        contributionRewardParams,
+        dao: item.dao.id,
+        genericSchemeParams,
+        id: item.id,
+        name,
+        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
+        paramsHash: item.paramsHash,
+        schemeParams,
+        schemeRegistrarParams,
+        uGenericSchemeParams,
+        version: item.version
       }
     }
-    // * @param _rewardSplit an array of precentages which specify how to split the rewards
-    // *         between the winning suggestions
-    // * @param _competitionParams competition parameters :
-    // *         _competitionParams[0] - competition startTime
-    // *         _competitionParams[1] - _votingStartTime competition voting start time
-    // *         _competitionParams[2] - _endTime competition end time
-    // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
-    // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
-    // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
-
-    const competitionParams = [
-      dateToSecondsSinceEpoch(options.startTime) || 0,
-      dateToSecondsSinceEpoch(options.votingStartTime) || 0,
-      dateToSecondsSinceEpoch(options.endTime) || 0,
-      options.numberOfVotesPerVoter.toString() || 0,
-      dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
-    ]
-
-    const transaction = contract.methods.proposeCompetition(
-      options.descriptionHash || '',
-      options.reputationReward && options.reputationReward.toString() || 0,
-      [
-        options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-        options.ethReward && options.ethReward.toString() || 0,
-        options.externalTokenReward && options.externalTokenReward.toString() || 0
-      ],
-      options.externalTokenAddress || NULL_ADDRESS,
-      options.rewardSplit,
-      competitionParams
-    )
-    return transaction
+    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
   }
+  /**
+   * Return a list of competitions in this scheme.
+   * @param options
+   * @param apolloQueryOptions
+   */
+  public competitions(
+    options: IProposalQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Competition[]> {
+    // TODO: This function will error if the current scheme is not a competiion scheme
+    // const staticState = await this.fetchStaticState()
+    // if (staticState.name !== `ContributionRewardExt`) {
+    //   // TODO: we should also check if the calling
+    //   throw Error(`This scheme is not a competition scheme - so no competitions can be found`)
+    // }
+    if (!options.where) { options.where = {}}
+    options.where = { ...options.where, competition_not: null}
+    return Competition.search(this.context, options, apolloQueryOptions)
+  }
+
+  /**
+   *
+   * @param options
+   * @param context
+   */
+  public createProposalTransaction(options: IProposalCreateOptionsCompetition) {
+    // we assume this function is called with the correct scheme options..
+    return async () => {
+      const context = this.context
+      const schemes = await context.schemes({ where: {address: options.scheme}}).pipe(first()).toPromise()
+      const scheme = schemes[0]
+      const schemeState = await scheme.state().pipe(first()).toPromise()
+      if (!schemeState) {
+          throw Error(`No scheme was found at address ${options.scheme}`)
+        }
+      const contract = context
+          .getContract((schemeState.contributionRewardExtParams as IContributionRewardExtParams).rewarder)
+      if (!options.proposer) {
+          options.proposer = NULL_ADDRESS
+        }
+      options.descriptionHash = await context.saveIPFSData(options)
+      if (!options.rewardSplit) {
+          throw Error(`Rewardsplit was not given..`)
+        } else {
+          if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
+            throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b) })`)
+          }
+        }
+        // * @param _rewardSplit an array of precentages which specify how to split the rewards
+        // *         between the winning suggestions
+        // * @param _competitionParams competition parameters :
+        // *         _competitionParams[0] - competition startTime
+        // *         _competitionParams[1] - _votingStartTime competition voting start time
+        // *         _competitionParams[2] - _endTime competition end time
+        // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
+        // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
+        // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
+
+      const competitionParams = [
+          dateToSecondsSinceEpoch(options.startTime) || 0,
+          dateToSecondsSinceEpoch(options.votingStartTime) || 0,
+          dateToSecondsSinceEpoch(options.endTime) || 0,
+          options.numberOfVotesPerVoter.toString() || 0,
+          dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
+        ]
+
+      const transaction = contract.methods.proposeCompetition(
+          options.descriptionHash || '',
+          options.reputationReward && options.reputationReward.toString() || 0,
+          [
+            options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
+            options.ethReward && options.ethReward.toString() || 0,
+            options.externalTokenReward && options.externalTokenReward.toString() || 0
+          ],
+          options.externalTokenAddress || NULL_ADDRESS,
+          options.rewardSplit,
+          competitionParams
+        )
+      return transaction
+    }
+  }
+  public createProposalTransactionMap() {
+    const eventName = 'NewCompetitionProposal'
+    const txMap = (receipt: any) => {
+      const proposalId = receipt.events[eventName].returnValues._proposalId
+      return new Proposal(proposalId, this.context)
+    }
+    return txMap
+  }
+
+  public createSuggestion(options: {
+    proposalId: string,
+    title: string,
+    description: string,
+    tags: string[],
+    url: string
+  }): Operation < any > {
+    const createTransaction = async () => {
+      const schemeState = await this.state().pipe(first()).toPromise()
+      const contract = getCompetitionContract(schemeState, this.context)
+      const descriptionHash = await this.context.saveIPFSData(options)
+      const transaction = contract.methods.suggest(options.proposalId, descriptionHash)
+      return transaction
+    }
+
+    const mapReceipt = (receipt: any) => {
+      if (Object.keys(receipt.events).length === 0) {
+        // this does not mean that anything failed
+        return receipt
+      } else {
+        const eventName = 'NewSuggestion'
+        const suggestionId = receipt.events[eventName].returnValues._suggestionId
+        // const competitionSuggestionId = CompetitionSuggestion.calculateId({
+        //   scheme: this.id,
+        //   suggestionId
+        // })
+        return new CompetitionSuggestion({scheme: this.id, suggestionId}, this.context)
+      }
+    }
+    const errorHandler = async (err: Error) => {
+      // we got an error
+      // see if the proposalId does exist in the contract
+      const schemeState = await this.state().pipe(first()).toPromise()
+      const contract = getCompetitionContract(schemeState, this.context)
+      const proposal = await contract.methods.proposals(options.proposalId).call()
+      if (!proposal) {
+        throw Error(`A proposal with id ${options.proposalId} does not exist`)
+      }
+      return err
+    }
+    const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
+    return toIOperationObservable(observable)
+  }
+
+  public vote(options: {
+    suggestionId: string // this is the suggestion COUNTER
+  }): Operation < any > {
+    const createTransaction = async () => {
+      const schemeState = await this.state().pipe(first()).toPromise()
+      const contract = getCompetitionContract(schemeState, this.context)
+      const transaction = contract.methods.vote(options.suggestionId)
+      return transaction
+    }
+
+    const mapReceipt = (receipt: any) => {
+      if (Object.keys(receipt.events).length === 0) {
+        // this does not mean that anything failed
+        return receipt
+      } else {
+        const eventName = 'NewVote'
+        // emit NewVote(proposalId, _suggestionId, msg.sender, reputation);
+        // const suggestionId = receipt.events[eventName].returnValues._suggestionId
+        const voter = receipt.events[eventName].returnValues._voter
+        const reputation = receipt.events[eventName].returnValues._reputation
+        return new CompetitionVote({
+          reputation,
+          voter
+        }, this.context)
+      }
+    }
+    const errorHandler = async (err: Error) => {
+      const schemeState = await this.state().pipe(first()).toPromise()
+      const contract = getCompetitionContract(schemeState, this.context)
+      // see if the suggestionId does exist in the contract
+      const suggestion = await contract.methods.suggestions(options.suggestionId).call()
+      if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        throw Error(`A suggestion with suggestionId ${options.suggestionId} does not exist`)
+      }
+
+      // check if the sender has reputation in the DAO
+      const state = await this.state().pipe(first()).toPromise()
+      const dao = new DAO(state.dao, this.context)
+      const reputation = await dao.nativeReputation().pipe(first()).toPromise()
+      const sender = await this.context.getAccount().pipe(first()).toPromise()
+      const reputationOfUser = await reputation.reputationOf(sender).pipe(first()).toPromise()
+      if (reputationOfUser.isZero()) {
+        throw Error(`Cannot vote because the user ${sender} does not have any reputation in the DAO at ${dao.id}`)
+      }
+      return err
+    }
+    const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
+    return toIOperationObservable(observable)
+  }
+
 }
 
 export function createProposalErrorHandler(err: Error) {
   return err
-}
-
-export function createTransactionMap(options: any, context: Arc) {
-  const eventName = 'NewCompetitionProposal'
-  const txMap = (receipt: any) => {
-    const proposalId = receipt.events[eventName].returnValues._proposalId
-    return new Proposal(proposalId, context)
-  }
-  return txMap
 }
 
 export class Competition { // extends Proposal {
@@ -155,7 +354,7 @@ export class Competition { // extends Proposal {
     context: Arc,
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable < Competition[] > {
+  ): Observable<Competition[]> {
     return Proposal.search(context, options, apolloQueryOptions).pipe(
       map((proposals: Proposal[]) => proposals.map((p: Proposal) => new Competition(p.id, context)))
     )
@@ -364,4 +563,48 @@ export class CompetitionVote {
   public setStaticState(opts: ICompetitionVote) {
     this.staticState = opts
   }
+}
+
+/**
+ * If this scheme is a ContributionREwardExt scheme and if
+ * its rewarder is Competition contract, return that contract
+ * @param schemeState
+ * @returns A Web3 contract instance
+ */
+export function getCompetitionContract(schemeState: ISchemeState, arc: Arc) {
+  if (schemeState === null) {
+    throw Error(`No scheme was provided`)
+  }
+  const rewarder = schemeState.contributionRewardExtParams && schemeState.contributionRewardExtParams.rewarder
+  if (!rewarder) {
+    throw Error(`This scheme's rewarder is not set, and so no compeittion contract could be found`)
+  }
+
+  if (!isCompetitionScheme(arc, schemeState)) {
+    throw Error(`We did not find a Competition contract at the rewarder address ${rewarder}`)
+  }
+  const contract = arc.getContract(rewarder as Address)
+  return contract
+}
+
+export function isCompetitionScheme(arc: Arc, item: any) {
+  if (item.contributionRewardExtParams) {
+    const contractInfo = arc.getContractInfo(item.contributionRewardExtParams.rewarder)
+    return contractInfo.name === 'Competition'
+  } else {
+    return false
+  }
+}
+
+/**
+ * @returns true if this is a ContributionRewardExt scheme and the rewarder of this scheme is a competition contract
+ */
+export function hasCompetitionContract(schemeState: ISchemeState, arc: Arc) {
+  let contract
+  try {
+    contract = getCompetitionContract(schemeState, arc)
+  } catch (err) {
+    // pass
+  }
+  return !!contract
 }

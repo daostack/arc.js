@@ -1,6 +1,6 @@
 import BN = require('bn.js')
 import { Arc } from '../arc'
-import { Proposal } from '../proposal'
+import { IProposalBaseCreateOptions, Proposal } from '../proposal'
 import { Address } from '../types'
 import { NULL_ADDRESS } from '../utils'
 
@@ -19,7 +19,7 @@ export interface IContributionRewardExt {
   alreadyRedeemedEthPeriods: number
 }
 
-export interface IProposalCreateOptionsContributionRewardExt {
+export interface IProposalCreateOptionsContributionRewardExt extends IProposalBaseCreateOptions {
   beneficiary: Address
   nativeTokenReward?: BN
   reputationReward?: BN
