@@ -8,15 +8,12 @@ import { mapGenesisProtocolParams } from '../genesisProtocol'
 import { IApolloQueryOptions } from '../graphnode'
 import { Operation, toIOperationObservable } from '../operation'
 import { IProposalBaseCreateOptions, IProposalQueryOptions, Proposal } from '../proposal'
-import { Scheme } from '../scheme'
-// import { IContributionRewardExtParams } from '../scheme'
 import { Address } from '../types'
 import { concat,
   createGraphQlQuery, dateToSecondsSinceEpoch, hexStringToUint8Array, NULL_ADDRESS,
   secondSinceEpochToDate
 } from '../utils'
 import {  ISchemeState, SchemeBase } from './base'
-// import { IProposalCreateOptionsContributionRewardExt} from './contributionRewardExt'
 
 const Web3 = require('web3')
 
@@ -338,7 +335,7 @@ export class Competition extends Proposal {
     let schemeState: ISchemeState
     const createTransaction = async () => {
       const proposalState = await this.state().pipe(first()).toPromise()
-      schemeState = await (new Scheme(proposalState.scheme.id, this.context))
+      schemeState = await (new CompetitionScheme(proposalState.scheme.id, this.context))
         .state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
       const descriptionHash = await this.context.saveIPFSData(options)
