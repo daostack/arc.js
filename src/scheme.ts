@@ -302,7 +302,7 @@ export class Scheme extends SchemeBase  {
           // should be able to sniff this: if the rewarder of the scheme is a Contribution.sol instance....
           if (options.proposalType === 'competition') {
             const competitionScheme = new CompetitionScheme(this.id, this.context)
-            return competitionScheme.createProposal(options)
+            return competitionScheme.createProposal(options as Competition.IProposalCreateOptionsCompetition)
             // createTransaction = competitionScheme.createProposal(options, this.context)
             // map = Competition.createTransactionMap(options, this.context),
             // errHandler = Competition.createProposalErrorHandler

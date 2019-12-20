@@ -105,6 +105,8 @@ describe('Proposal', () => {
     }
 
     const schemeState = await scheme.state().pipe(first()).toPromise()
+
+    // CREATE PROPOSAL
     const tx = await scheme.createProposal(proposalOptions).send()
     const proposal = tx.result
     expect(proposal).toBeInstanceOf(Proposal)
@@ -146,13 +148,14 @@ describe('Proposal', () => {
     // check sanity for scheme
     expect(schemeState.address).toEqual(lastState().scheme.address)
 
+    // find the competition
     const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
-
     expect(competitions.length).toEqual(1)
     const competition = competitions[0]
     expect(competition).toBeInstanceOf(Competition)
     expect(competition.id).toEqual(proposal.id)
-    // lets submit a solution
+
+    // lets create some suggestions
     const suggestion1Options = {
       description: 'descxription',
       proposalId: proposal.id,
@@ -160,7 +163,7 @@ describe('Proposal', () => {
       title: 'title',
       url: 'https://somewhere.some.place'
     }
-    // await timeTravel(110, arc.web3)
+
     const receipt1 = await scheme.createSuggestion(suggestion1Options).send()
     const suggestion1 = receipt1.result
     expect(suggestion1).toBeDefined()
