@@ -57,7 +57,6 @@ describe('Proposal', () => {
     contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
     contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
     dao = new DAO(contributionRewardExtState.dao, arc)
-    // console.log((await dao.state().pipe(first()).toPromise()).name)
   })
 
   it('CompetitionSuggestion.calculateId works', async () => {
@@ -75,6 +74,7 @@ describe('Proposal', () => {
     expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
                 14))
       .toEqual('0x137446f8b5c791e505e6e8228801ed78555a4e35957fd0b026b70fc3f262b629')
+
   })
 
   it('Create a competition proposal, compete, win the competition..', async () => {
@@ -164,19 +164,22 @@ describe('Proposal', () => {
       url: 'https://somewhere.some.place'
     }
 
-    const receipt1 = await scheme.createSuggestion(suggestion1Options).send()
+    const receipt1 = await competition.createSuggestion(suggestion1Options).send()
     const suggestion1 = receipt1.result
     expect(suggestion1).toBeDefined()
     expect(suggestion1).toBeInstanceOf(CompetitionSuggestion)
     expect(suggestion1.id).toBeDefined()
     const suggestion2Options = { ...suggestion1Options, title: 'suggestion nr 2'}
-    const receipt2 = await scheme.createSuggestion(suggestion2Options).send()
+    const receipt2 = await competition.createSuggestion(suggestion2Options).send()
     const suggestion2 = receipt2.result
 
     // we now should find 2 suggestions
     let suggestionIds: string[] = []
     competition.suggestions()
-      .subscribe((ls: CompetitionSuggestion[]) => {suggestionIds = ls.map((x: CompetitionSuggestion) => x.id)})
+      .subscribe((ls: CompetitionSuggestion[]) => {
+        suggestionIds = ls.map((x: CompetitionSuggestion) => x.id)
+      })
+
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
 
     // // and lets vote for the first suggestion
