@@ -148,6 +148,9 @@ describe('Proposal', () => {
     // check sanity for scheme
     expect(schemeState.address).toEqual(lastState().scheme.address)
 
+    // redeem the proposal
+    await proposal.claimRewards().send()
+
     // find the competition
     const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
     expect(competitions.length).toEqual(1)

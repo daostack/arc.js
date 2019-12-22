@@ -791,13 +791,23 @@ export class Proposal implements IStateful<IProposalState> {
           // we use a dummy contributionreward, as a workaround for https://github.com/daostack/arc/issues/655
           schemeAddress = this.context.getContractInfoByName('ContributionReward', LATEST_ARC_VERSION).address
         }
-        const transaction = this.redeemerContract().methods.redeem(
-          schemeAddress, // contributionreward address
-          state.votingMachine, // genesisProtocol address
-          this.id,
-          state.dao.id,
-          beneficiary
-        )
+        let transaction
+        if (state.scheme.name === 'ContributionRewardExt') {
+          transaction = this.redeemerContract().methods.redeemFromCRExt(
+            schemeAddress, // contributionreward address
+            state.votingMachine, // genesisProtocol address
+            this.id,
+            beneficiary
+          )
+        } else {
+          transaction = this.redeemerContract().methods.redeem(
+            schemeAddress, // contributionreward address
+            state.votingMachine, // genesisProtocol address
+            this.id,
+            state.dao.id,
+            beneficiary
+          )
+        }
         return this.context.sendTransaction(transaction, () => true)
       })
     )
