@@ -506,7 +506,7 @@ export class CompetitionVote {
     CompetitionVoteFields: gql`fragment CompetitionVoteFields on CompetitionVote {
       id
       createdAt
-      reptutation
+      reputation
       voter
     }`
   }
@@ -528,7 +528,7 @@ export class CompetitionVote {
     const itemMap = (item: any) => new CompetitionVote({
       createdAt: secondSinceEpochToDate(item.createdAt),
       id: item.id,
-      reputation: item.reptutation,
+      reputation: item.reputation,
       voter: item.voter
     }, context)
 
