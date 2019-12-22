@@ -308,7 +308,7 @@ export function createProposalErrorHandler(err: Error) {
   return err
 }
 
-export class Competition extends Proposal {
+export class Competition { // extends Proposal {
   public static search(
     context: Arc,
     options: IProposalQueryOptions = {},
@@ -321,7 +321,7 @@ export class Competition extends Proposal {
   public id: string
   public context: Arc
   constructor(id: string, context: Arc) {
-    super(id, context)
+    // super(id, context)
     this.id = id
     this.context = context
   }
@@ -334,7 +334,7 @@ export class Competition extends Proposal {
   }): Operation<any> {
     let schemeState: ISchemeState
     const createTransaction = async () => {
-      const proposalState = await this.state().pipe(first()).toPromise()
+      const proposalState = await (new Proposal(this.id, this.context)).state().pipe(first()).toPromise()
       schemeState = await (new CompetitionScheme(proposalState.scheme.id, this.context))
         .state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
