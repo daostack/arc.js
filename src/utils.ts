@@ -180,3 +180,8 @@ export function secondSinceEpochToDate(seconds: number): Date {
   d.setTime(seconds * 1000)
   return d
 }
+
+export async function getBlockTime(web3: any) {
+  const block = await web3.eth.getBlock('latest')
+  return block.timestamp
+}

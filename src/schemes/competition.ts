@@ -10,7 +10,8 @@ import { Operation, toIOperationObservable } from '../operation'
 import { IProposalBaseCreateOptions, IProposalQueryOptions, Proposal } from '../proposal'
 import { Address, ICommonQueryOptions } from '../types'
 import { concat,
-  createGraphQlQuery, dateToSecondsSinceEpoch, hexStringToUint8Array,
+  createGraphQlQuery, dateToSecondsSinceEpoch, getBlockTime,
+  hexStringToUint8Array,
   NULL_ADDRESS,
   secondSinceEpochToDate
 } from '../utils'
@@ -250,6 +251,15 @@ export class CompetitionScheme extends SchemeBase {
     return txMap
   }
 
+  public createProposalErrorHandler(options: any): (err: Error) => Error|Promise<Error> {
+    // const msg = `Error creating proposal with options ${options}`
+    return async (err) => {
+      // const tx = await this.createProposalTransaction(options)
+      // @ts-ignore
+      return err
+    }
+  }
+
   public createProposal(options: IProposalCreateOptionsCompetition): Operation<Proposal>  {
     return SchemeBase.prototype.createProposal.call(this, options)
   }
@@ -307,6 +317,9 @@ export class CompetitionScheme extends SchemeBase {
     suggestionId: number, // this is the suggestion COUNTER
     beneficiary: Address
   }): Operation<boolean> {
+    if (!options.beneficiary) {
+      options.beneficiary = NULL_ADDRESS
+    }
     const createTransaction = async () => {
       const schemeState = await this.state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
@@ -333,6 +346,14 @@ export class CompetitionScheme extends SchemeBase {
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
         throw Error(`A suggestion with suggestionId ${options.suggestionId} does not exist`)
       }
+      const proposal = await contract.methods.proposals(suggestion.proposalId).call()
+      const proposalEndTime = proposal.endTime
+      const currentTime = await getBlockTime(this.context.web3)
+      // const latestBlock = await this.context.web3.eth.getBlock('latest')
+      const msg = `Redeem failed because the proposals endTime ${proposalEndTime} is later then current block time ${currentTime}`
+      if (proposalEndTime > currentTime) {
+        throw Error(msg)
+      }
       return err
     }
     const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
@@ -341,9 +362,9 @@ export class CompetitionScheme extends SchemeBase {
 
 }
 
-export function createProposalErrorHandler(err: Error) {
-  return err
-}
+// export function createProposalErrorHandler(err: Error) {
+//   return err
+// }
 
 export class Competition { // extends Proposal {
   public static search(
@@ -424,7 +445,7 @@ export class Competition { // extends Proposal {
     )
     return toIOperationObservable(observable)
   }
-  public redeemSuggestion(suggestionId: number, beneficiary: Address): Operation<boolean> {
+  public redeemSuggestion(suggestionId: number, beneficiary: Address = NULL_ADDRESS): Operation<boolean> {
     const proposal = new Proposal(this.id, this.context)
     const observable = proposal.state().pipe(
       first(),

@@ -27,14 +27,10 @@ describe('Utils', () => {
   it('timeTravel works', async () => {
     const arc = await newArc()
     const web3 = arc.web3
-    async function getBlockTime() {
-      const block = await web3.eth.getBlock('latest')
-      return block.timestamp
-    }
-    const blockTimeBefore  = await getBlockTime()
-    const timeDelta = 900000
+    const blockTimeBefore  = await getBlockTime(web3)
+    const timeDelta = 1000
     await timeTravel(timeDelta, web3)
-    const blockTimeAfter  = await getBlockTime()
+    const blockTimeAfter  = await getBlockTime(web3)
     // we expect the block times not to be perfectly alinged, but nearly so
     expect(Math.round((blockTimeAfter - blockTimeBefore) / 100)).toEqual(Math.round(timeDelta / 100))
   })

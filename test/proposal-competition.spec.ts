@@ -6,24 +6,22 @@ import {
   CompetitionSuggestion,
   CompetitionVote,
   DAO,
-  // ISchemeStaticState,
   IProposalStage,
   IProposalState,
   ISchemeState,
   Proposal
-  // Scheme
   } from '../src'
+// import { getBlockTime} from '../src/utils'
 import {
-  // createAProposal,
-  // getTestAddresses, ITestAddresses,
-  newArc,
+  advanceTimeAndBlock,
   // timeTravel,
+  newArc,
   revertToSnapShot,
   takeSnapshot,
-  timeTravel,
   toWei,
   voteToPassProposal,
-  waitUntilTrue} from './utils'
+  waitUntilTrue
+ } from './utils'
 
 jest.setTimeout(60000)
 
@@ -47,7 +45,8 @@ describe('Proposal', () => {
   }
 
   beforeEach(async () => {
-    snapshotId = await takeSnapshot()
+    // @ts-ignore
+    snapshotId = (await takeSnapshot()).result
   })
 
   beforeAll(async () => {
@@ -97,11 +96,12 @@ describe('Proposal', () => {
     // - all args are present
     // - order of times
     const now = new Date()
+    // now.setTime((await getBlockTime(arc.web3)) * 1000)
     now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
     const startTime = addSeconds(now, 2)
     const proposalOptions  = {
       dao: dao.id,
-      endTime: addSeconds(startTime, 3000),
+      endTime: addSeconds(startTime, 200),
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
@@ -246,7 +246,8 @@ describe('Proposal', () => {
     await expect(suggestion1.redeem().send()).rejects.toThrow(
       /redeem failed because the proposals endtime/i
     )
-    await timeTravel(10000000, arc.web3)
+    await advanceTimeAndBlock(2000)
+    console.log(`after time travel....`)
     await suggestion1.redeem().send()
   })
 
@@ -265,6 +266,8 @@ describe('Proposal', () => {
   it('Can create a propsal using dao.createProposal', async () => {
     const now = new Date()
     now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
+    // console.log((await getBlockTime(arc.web3)) * 1000)
+    // console.log(Math.floor((new Date()).getTime() / 1000) * 1000)
     const startTime = addSeconds(now, 2)
     const proposalOptions  = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',

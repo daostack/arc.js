@@ -232,29 +232,31 @@ export async function voteToPassProposal(proposal: Proposal) {
   return
 }
 
-export async function timeTravel(seconds: number, web3: any) {
-  const jsonrpc = '2.0'
-  // web3 = new Web3('http://localhost:8545')
-  // web3.providers.HttpProvider.prototype.sendAsync = web3.providers.HttpProvider.prototype.send
-  return new Promise((resolve, reject) => {
-    web3.currentProvider.send({
-      id: new Date().getTime(),
-      jsonrpc,
-      method: 'evm_increaseTime',
-      params: [seconds]
-    }, (err1: Error) => {
-      if (err1) { return reject(err1) }
+// export async function timeTravel(seconds: number, web3: any) {
+//   const jsonrpc = '2.0'
+//   // web3 = new Web3('http://localhost:8545')
+//   // web3.providers.HttpProvider.prototype.sendAsync = web3.providers.HttpProvider.prototype.send
+//   return new Promise((resolve, reject) => {
+//     web3.currentProvider.send({
+//       id: new Date().getTime(),
+//       jsonrpc,
+//       method: 'evm_increaseTime',
+//       // method: 'evm_mine',
+//       params: [seconds]
+//     }, (err1: Error) => {
+//       if (err1) { return reject(err1) }
+//       // resolve(res)
 
-      web3.currentProvider.send({
-        id: new Date().getTime(),
-        jsonrpc,
-        method: 'evm_mine'
-      }, (err2: Error, res: any) => {
-        return err2 ? reject(err2) : resolve(res)
-      })
-    })
-  })
-}
+//       web3.currentProvider.send({
+//         id: new Date().getTime(),
+//         jsonrpc,
+//         method: 'evm_mine'
+//       }, (err2: Error, res: any) => {
+//         return err2 ? reject(err2) : resolve(res)
+//       })
+//     })
+//   })
+// }
 
 const web3 = new Web3('http://127.0.0.1:8545')
 

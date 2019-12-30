@@ -293,7 +293,7 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
 
     return (receipt) => receipt.result
   }
-  public createProposalErrorHandler(): (err: Error) => Error|Promise<Error> {
+  public createProposalErrorHandler(options?: any): (err: Error) => Error|Promise<Error> {
     return (err) => err
   }
 
@@ -304,7 +304,7 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
 
       const createTransaction  = this.createProposalTransaction(options)
       const map = this.createProposalTransactionMap()
-      const errHandler = this.createProposalErrorHandler()
+      const errHandler = this.createProposalErrorHandler(options)
       const sendTransactionObservable = context.sendTransaction(createTransaction, map, errHandler)
       const sub = sendTransactionObservable.subscribe(observer)
 
@@ -314,7 +314,7 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
     return toIOperationObservable(observable)
   }
 
-  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<ISchemeState>
+  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable < ISchemeState >
 
   public x() {
 
@@ -467,7 +467,7 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Proposal[]> {
+  ): Observable < Proposal[] > {
     if (!options.where) { options.where = {}}
     options.where.scheme = this.id
     return Proposal.search(this.context, options, apolloQueryOptions)
