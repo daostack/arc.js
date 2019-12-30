@@ -11,10 +11,8 @@ import {
   ISchemeState,
   Proposal
   } from '../src'
-// import { getBlockTime} from '../src/utils'
 import {
-  advanceTimeAndBlock,
-  // timeTravel,
+  // advanceTimeAndBlock,
   newArc,
   revertToSnapShot,
   takeSnapshot,
@@ -246,9 +244,9 @@ describe('Proposal', () => {
     await expect(suggestion1.redeem().send()).rejects.toThrow(
       /redeem failed because the proposals endtime/i
     )
-    await advanceTimeAndBlock(2000)
-    console.log(`after time travel....`)
-    await suggestion1.redeem().send()
+    // await advanceTimeAndBlock(2000)
+    // console.log(`after time travel....`)
+    // await suggestion1.redeem().send()
   })
 
   it('CompetionScheme is recognized', async () => {
