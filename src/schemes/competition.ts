@@ -10,7 +10,8 @@ import { Operation, toIOperationObservable } from '../operation'
 import { IProposalBaseCreateOptions, IProposalQueryOptions, Proposal } from '../proposal'
 import { Address, ICommonQueryOptions } from '../types'
 import { concat,
-  createGraphQlQuery, dateToSecondsSinceEpoch, hexStringToUint8Array, NULL_ADDRESS,
+  createGraphQlQuery, dateToSecondsSinceEpoch, hexStringToUint8Array,
+  NULL_ADDRESS,
   secondSinceEpochToDate
 } from '../utils'
 import {  ISchemeState, SchemeBase } from './base'
@@ -253,7 +254,7 @@ export class CompetitionScheme extends SchemeBase {
     return SchemeBase.prototype.createProposal.call(this, options)
   }
 
- public vote(options: {
+ public voteSuggestion(options: {
     suggestionId: number // this is the suggestion COUNTER
   }): Operation<CompetitionVote> {
     const createTransaction = async () => {
@@ -302,6 +303,41 @@ export class CompetitionScheme extends SchemeBase {
     const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
     return toIOperationObservable(observable)
   }
+ public redeemSuggestion(options: {
+    suggestionId: number, // this is the suggestion COUNTER
+    beneficiary: Address
+  }): Operation<boolean> {
+    const createTransaction = async () => {
+      const schemeState = await this.state().pipe(first()).toPromise()
+      const contract = getCompetitionContract(schemeState, this.context)
+      const transaction = contract.methods.redeem(options.suggestionId, options.beneficiary)
+      return transaction
+    }
+
+    const mapReceipt = (receipt: any) => {
+      if (Object.keys(receipt.events).length === 0) {
+        return receipt
+      } else {
+        // const eventName = 'Redeem'
+        // const proposalId = receipt.events[eventName].returnValues._proposalId
+        // const suggestionId = receipt.events[eventName].returnValues._suggestionId
+        // const rewardPercentage = receipt.events[eventName].returnValues._rewardPercentage
+        return true
+      }
+    }
+    const errorHandler = async (err: Error) => {
+      const schemeState = await this.state().pipe(first()).toPromise()
+      const contract = getCompetitionContract(schemeState, this.context)
+      // see if the suggestionId does exist in the contract
+      const suggestion = await contract.methods.suggestions(options.suggestionId).call()
+      if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        throw Error(`A suggestion with suggestionId ${options.suggestionId} does not exist`)
+      }
+      return err
+    }
+    const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
+    return toIOperationObservable(observable)
+  }
 
 }
 
@@ -309,7 +345,7 @@ export function createProposalErrorHandler(err: Error) {
   return err
 }
 
-export class Competition extends Proposal {
+export class Competition { // extends Proposal {
   public static search(
     context: Arc,
     options: IProposalQueryOptions = {},
@@ -324,7 +360,7 @@ export class Competition extends Proposal {
   public context: Arc
 
   constructor(id: string, context: Arc) {
-    super(id, context)
+    // super(id, context)
     this.id = id
     this.context = context
   }
@@ -377,12 +413,24 @@ export class Competition extends Proposal {
     return toIOperationObservable(observable)
   }
 
-  public voteForSuggestion(suggestionId: number): Operation<CompetitionVote> {
-    const observable = this.state().pipe(
+  public voteSuggestion(suggestionId: number): Operation<CompetitionVote> {
+    const proposal = new Proposal(this.id, this.context)
+    const observable = proposal.state().pipe(
       first(),
       concatMap((competitionState) => {
         const scheme = new CompetitionScheme(competitionState.scheme, this.context)
-        return scheme.vote({suggestionId})
+        return scheme.voteSuggestion({suggestionId})
+      })
+    )
+    return toIOperationObservable(observable)
+  }
+  public redeemSuggestion(suggestionId: number, beneficiary: Address): Operation<boolean> {
+    const proposal = new Proposal(this.id, this.context)
+    const observable = proposal.state().pipe(
+      first(),
+      concatMap((competitionState) => {
+        const scheme = new CompetitionScheme(competitionState.scheme, this.context)
+        return scheme.redeemSuggestion({suggestionId, beneficiary})
       })
     )
     return toIOperationObservable(observable)
@@ -436,6 +484,7 @@ export class CompetitionSuggestion {
     )
     return Web3.utils.keccak256(seed)
   }
+
   public static search(
     context: Arc,
     options: ICompetitionSuggestionQueryOptions = {},
@@ -539,7 +588,7 @@ export class CompetitionSuggestion {
       first(),
       concatMap((suggestionState) => {
         const competition = new Competition(suggestionState.proposal, this.context)
-        return competition.voteForSuggestion(suggestionState.suggestionId)
+        return competition.voteSuggestion(suggestionState.suggestionId)
       })
     )
     return toIOperationObservable(observable)
@@ -552,6 +601,17 @@ export class CompetitionSuggestion {
     if (!options.where) { options.where = {}}
     options.where = { ...options.where, suggestion: this.id}
     return CompetitionVote.search(this.context, options, apolloQueryOptions)
+  }
+
+  public redeem(beneficiary: Address = NULL_ADDRESS): Operation<boolean> {
+     const observable = this.state().pipe(
+      first(),
+      concatMap((suggestionState) => {
+        const competition = new Competition(suggestionState.proposal, this.context)
+        return competition.redeemSuggestion(suggestionState.suggestionId, beneficiary)
+      })
+    )
+     return toIOperationObservable(observable)
   }
 }
 export interface ICompetitionVoteQueryOptions {

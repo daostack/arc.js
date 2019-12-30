@@ -209,13 +209,12 @@ describe('Proposal', () => {
       .toEqual(1)
 
     // // and lets vote for the first suggestion
-    const voteReceipt = await scheme.vote({ suggestionId: suggestion2.suggestionId}).send()
+    const voteReceipt = await scheme.voteSuggestion({ suggestionId: suggestion2.suggestionId}).send()
     const vote = voteReceipt.result
     // // the vote should be counted
     expect(vote).toBeInstanceOf(CompetitionVote)
 
     // we can also vote from the suggestion itself
-    console.log(`voting for suggestoin with it ${suggestion1.id}`)
     const vote1receipt = await suggestion1.vote().send()
     const vote1 = vote1receipt.result
     expect(vote1).toBeInstanceOf(CompetitionVote)

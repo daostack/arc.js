@@ -9,19 +9,17 @@ import { IObservable } from './graphnode'
 import { Operation, toIOperationObservable } from './operation'
 import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
-// import { Scheme } from './scheme'
 import { ISchemeState } from './scheme'
-import * as  Competition from './schemes/competition'
+import { ICompetitionProposal, IProposalCreateOptionsCompetition } from './schemes/competition'
 import * as ContributionReward from './schemes/contributionReward'
 import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
-// import * as Competition from './schemes/competition'
 import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSION } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress, NULL_ADDRESS, realMathToNumber,
-secondSinceEpochToDate } from './utils'
+  secondSinceEpochToDate } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
 export const IProposalType = {
@@ -71,7 +69,7 @@ export interface IProposalState extends IProposalStaticState {
   accountsWithUnclaimedRewards: Address[],
   boostedAt: Date
   contributionReward: ContributionReward.IContributionReward|null
-  competition: Competition.ICompetitionProposal|null
+  competition: ICompetitionProposal|null
   confidenceThreshold: number
   closingAt: Date
   createdAt: Date
@@ -401,7 +399,7 @@ export class Proposal implements IStateful<IProposalState> {
       }
 
       let contributionReward: ContributionReward.IContributionReward|null = null
-      let competition: Competition.ICompetitionProposal|null = null
+      let competition: ICompetitionProposal|null = null
       let type: IProposalType
       let genericScheme: GenericScheme.IGenericScheme|null = null
       let schemeRegistrar: SchemeRegistrar.ISchemeRegistrar|null = null
@@ -899,5 +897,5 @@ export type IProposalCreateOptions = (
   (IProposalBaseCreateOptions & SchemeRegistrar.IProposalCreateOptionsSR) |
   (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR) |
   (ContributionRewardExt.IProposalCreateOptionsContributionRewardExt) |
-  (Competition.IProposalCreateOptionsCompetition)
+  (IProposalCreateOptionsCompetition)
 )
