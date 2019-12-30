@@ -162,8 +162,8 @@ describe('Proposal', () => {
     // lets create some suggestions
     const suggestion1Options = {
       description: 'descxription',
-      proposalId: proposal.id,
-      tags: ['tag1', 'tag2'],
+      proposal: proposal.id,
+      // tags: ['tag1', 'tag2'],
       title: 'title',
       url: 'https://somewhere.some.place'
     }
@@ -188,8 +188,8 @@ describe('Proposal', () => {
 
     const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
     expect(suggestion1State).toMatchObject({
-      id: suggestion1.id,
-      proposal: competition.id
+      ...suggestion1Options,
+      id: suggestion1.id
     })
 
     // // and lets vote for the first suggestion

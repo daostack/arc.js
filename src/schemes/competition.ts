@@ -332,7 +332,7 @@ export class Competition extends Proposal {
   public createSuggestion(options: {
     title: string,
     description: string,
-    tags: string[],
+    // tags: string[],
     url: string
   }): Operation<any> {
     let schemeState: ISchemeState
@@ -472,6 +472,7 @@ export class CompetitionSuggestion {
     }
     return {
       createdAt: secondSinceEpochToDate(item.createdAt),
+      description: item.description,
       descriptionHash: item.descriptionHash,
       id: item.id,
       proposal: item.proposal.id,
@@ -479,7 +480,9 @@ export class CompetitionSuggestion {
       rewardPercentage: Number(item.rewardPercentage),
       suggester: item.suggester,
       suggestionId: item.suggestionId,
-      totalVotes: new BN(item.totalVotes)
+      title: item.title,
+      totalVotes: new BN(item.totalVotes),
+      url: item.url
     }
 
   }
