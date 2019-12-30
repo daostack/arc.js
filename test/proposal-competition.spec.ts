@@ -18,6 +18,8 @@ import {
   // getTestAddresses, ITestAddresses,
   newArc,
   // timeTravel,
+  revertToSnapShot,
+  takeSnapshot,
   timeTravel,
   toWei,
   voteToPassProposal,
@@ -33,6 +35,7 @@ describe('Proposal', () => {
   let dao: DAO
   let contributionRewardExt: CompetitionScheme
   let contributionRewardExtState: ISchemeState
+  let snapshotId: any
 
   function addSeconds(date: Date, seconds: number) {
     if (!(date instanceof Date)) {
@@ -42,6 +45,10 @@ describe('Proposal', () => {
     result.setTime(date.getTime() + (seconds * 1000))
     return result
   }
+
+  beforeEach(async () => {
+    snapshotId = await takeSnapshot()
+  })
 
   beforeAll(async () => {
     arc = await newArc()
@@ -58,6 +65,10 @@ describe('Proposal', () => {
     contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
     contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
     dao = new DAO(contributionRewardExtState.dao, arc)
+  })
+
+  afterEach(async () => {
+    await revertToSnapShot(snapshotId)
   })
 
   it('CompetitionSuggestion.calculateId works', async () => {

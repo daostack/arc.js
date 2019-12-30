@@ -256,6 +256,70 @@ export async function timeTravel(seconds: number, web3: any) {
   })
 }
 
+const web3 = new Web3('http://127.0.0.1:8545')
+
+export const advanceTime = (time: number) => {
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.send({
+      jsonrpc: '2.0',
+      method: 'evm_increaseTime',
+      params: [time],
+      id: new Date().getTime()
+    }, (err: Error, result: any) => {
+      if (err) { return reject(err) }
+      return resolve(result)
+    })
+  })
+}
+
+export const advanceBlock = () => {
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.send({
+      jsonrpc: '2.0',
+      method: 'evm_mine',
+      id: new Date().getTime()
+    }, (err: Error, result: any) => {
+      if (err) { return reject(err) }
+      const newBlockHash = web3.eth.getBlock('latest').hash
+
+      return resolve(newBlockHash)
+    })
+  })
+}
+
+export const takeSnapshot = () => {
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.send({
+      jsonrpc: '2.0',
+      method: 'evm_snapshot',
+      id: new Date().getTime()
+    }, (err: Error, snapshotId: string) => {
+      if (err) { return reject(err) }
+      return resolve(snapshotId)
+    })
+  })
+}
+
+export const revertToSnapShot = (id: string) => {
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.send({
+      id: new Date().getTime(),
+      jsonrpc: '2.0',
+      method: 'evm_revert',
+      params: [id]
+    }, (err: Error, result: any) => {
+      if (err) { return reject(err) }
+      return resolve(result)
+    })
+  })
+}
+
+export const advanceTimeAndBlock = async (time: number) => {
+  await advanceTime(time)
+  await advanceBlock()
+  return Promise.resolve(web3.eth.getBlock('latest'))
+}
+
 export async function firstResult(observable: Observable<any>) {
   return observable.pipe(first()).toPromise()
 }
