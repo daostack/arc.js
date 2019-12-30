@@ -514,7 +514,7 @@ export class CompetitionSuggestion {
   }
 
   public async fetchStaticState(): Promise<ICompetitionSuggestion> {
-    return this.state().pipe(first()).toPromise()
+    return this.state({ fetchPolicy: 'cache-first'}).pipe(first()).toPromise()
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionSuggestion> {

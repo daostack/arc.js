@@ -192,6 +192,8 @@ describe('Proposal', () => {
       id: suggestion1.id
     })
 
+    expect(suggestion1State).toEqual(await suggestion1.fetchStaticState())
+
     // // and lets vote for the first suggestion
     const voteReceipt = await scheme.vote({ suggestionId: suggestion2.suggestionId}).send()
     const vote = voteReceipt.result
