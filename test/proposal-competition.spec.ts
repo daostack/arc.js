@@ -18,9 +18,10 @@ import {
   // getTestAddresses, ITestAddresses,
   newArc,
   // timeTravel,
+  timeTravel,
   toWei,
   voteToPassProposal,
-  waitUntilTrue } from './utils'
+  waitUntilTrue} from './utils'
 
 jest.setTimeout(60000)
 
@@ -230,7 +231,12 @@ describe('Proposal', () => {
     const votesFromSuggestion: CompetitionVote[] = await suggestion2.votes().pipe(first()).toPromise()
     expect(votesFromSuggestion.map((r) => r.id)).toEqual(competitionVotes.map((r) => r.id))
 
-    // we should now
+    // if we claim our reward now, it should fail because the competion has not ended yet
+    await expect(suggestion1.redeem().send()).rejects.toThrow(
+      /redeem failed because the proposals endtime/i
+    )
+    await timeTravel(10000000, arc.web3)
+    await suggestion1.redeem().send()
   })
 
   it('CompetionScheme is recognized', async () => {
