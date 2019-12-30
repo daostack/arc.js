@@ -391,7 +391,7 @@ export class Competition extends Proposal {
   public suggestions(
       options: ICompetitionSuggestionQueryOptions = {},
       apolloQueryOptions: IApolloQueryOptions = {}
-    ): Observable < CompetitionSuggestion[] > {
+    ): Observable<CompetitionSuggestion[]> {
     if (!options.where) { options.where = {}}
     options.where.proposal = this.id
     return  CompetitionSuggestion.search(this.context, options, apolloQueryOptions)
@@ -400,7 +400,10 @@ export class Competition extends Proposal {
 
 export interface ICompetitionSuggestionQueryOptions extends ICommonQueryOptions {
   where?: {
-    proposal?: string
+    id?: string, // id of the competition
+    proposal?: string, // id of the proposal
+    suggestionId?: string // the "suggestionId" is a counter that is unique to the scheme
+      // - and is not to be confused with suggestion.id
   }
 }
 export class CompetitionSuggestion {

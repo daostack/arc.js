@@ -194,6 +194,20 @@ describe('Proposal', () => {
 
     expect(suggestion1State).toEqual(await suggestion1.fetchStaticState())
 
+    // filter suggestions by id, suggestionId, and proposal.id works
+    expect(
+      (await competition.suggestions({where: { proposal: competition.id}}).pipe(first()).toPromise()).length)
+      .toEqual(2)
+
+    expect(
+      (await competition.suggestions({where: { id: suggestion2.id}}).pipe(first()).toPromise()).length)
+      .toEqual(1)
+
+    expect(
+      (await competition.suggestions({where: { suggestionId: suggestion1State.suggestionId}})
+        .pipe(first()).toPromise()).length)
+      .toEqual(1)
+
     // // and lets vote for the first suggestion
     const voteReceipt = await scheme.vote({ suggestionId: suggestion2.suggestionId}).send()
     const vote = voteReceipt.result
