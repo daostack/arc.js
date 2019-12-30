@@ -513,6 +513,10 @@ export class CompetitionSuggestion {
     this.staticState = opts
   }
 
+  public async fetchStaticState(): Promise<ICompetitionSuggestion> {
+    return this.state().pipe(first()).toPromise()
+  }
+
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionSuggestion> {
     const query = gql`query SchemeState
       {
