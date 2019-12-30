@@ -14,8 +14,8 @@ import {
 import {
   // advanceTimeAndBlock,
   newArc,
-  revertToSnapShot,
-  takeSnapshot,
+  // revertToSnapShot,
+  // takeSnapshot,
   toWei,
   voteToPassProposal,
   waitUntilTrue
@@ -31,7 +31,7 @@ describe('Proposal', () => {
   let dao: DAO
   let contributionRewardExt: CompetitionScheme
   let contributionRewardExtState: ISchemeState
-  let snapshotId: any
+  // let snapshotId: any
 
   function addSeconds(date: Date, seconds: number) {
     if (!(date instanceof Date)) {
@@ -44,7 +44,7 @@ describe('Proposal', () => {
 
   beforeEach(async () => {
     // @ts-ignore
-    snapshotId = (await takeSnapshot()).result
+    // snapshotId = (await takeSnapshot()).result
   })
 
   beforeAll(async () => {
@@ -65,7 +65,7 @@ describe('Proposal', () => {
   })
 
   afterEach(async () => {
-    await revertToSnapShot(snapshotId)
+    // await revertToSnapShot(snapshotId)
   })
 
   it('CompetitionSuggestion.calculateId works', async () => {
