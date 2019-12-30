@@ -131,6 +131,7 @@ describe('Proposal', () => {
       endTime: proposalOptions.endTime,
       numberOfVotesPerVoter: proposalOptions.numberOfVotesPerVoter,
       numberOfWinners: 3,
+      rewardSplit: [1, 2, 97],
       snapshotBlock: null,
       startTime: proposalOptions.startTime,
       suggestionsEndTime: proposalOptions.suggestionsEndTime,
@@ -185,15 +186,24 @@ describe('Proposal', () => {
 
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
 
+    const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
+    expect(suggestion1State).toMatchObject({
+      id: suggestion1.id,
+      proposal: competition.id
+    })
+
     // // and lets vote for the first suggestion
-    // TODO: would be nice to be able to vote directly from the suggestion
-    // const vote = await suggestion1.vote().send()
     const voteReceipt = await scheme.vote({ suggestionId: suggestion2.suggestionId}).send()
     const vote = voteReceipt.result
     // // the vote should be counted
     expect(vote).toBeInstanceOf(CompetitionVote)
 
-    // TODO: would be nice to do `suggestion1.votes()` here
+    // we can also vote from the suggestion itself
+    console.log(`voting for suggestoin with it ${suggestion1.id}`)
+    const vote1receipt = await suggestion1.vote().send()
+    const vote1 = vote1receipt.result
+    expect(vote1).toBeInstanceOf(CompetitionVote)
+
     let competitionVotes: CompetitionVote[] = []
     CompetitionVote.search(arc, {where: { suggestion: suggestion2.id}}).subscribe(
       (votes) => { competitionVotes = votes}
@@ -204,6 +214,8 @@ describe('Proposal', () => {
     // we can also find the votes on the suggestion
     const votesFromSuggestion: CompetitionVote[] = await suggestion2.votes().pipe(first()).toPromise()
     expect(votesFromSuggestion.map((r) => r.id)).toEqual(competitionVotes.map((r) => r.id))
+
+    // we should now
   })
 
   it('CompetionScheme is recognized', async () => {

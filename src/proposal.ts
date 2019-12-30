@@ -72,7 +72,6 @@ export interface IProposalState extends IProposalStaticState {
   boostedAt: Date
   contributionReward: ContributionReward.IContributionReward|null
   competition: Competition.ICompetitionProposal|null
-  // competition: Competition.ICompetitionProposal|null
   confidenceThreshold: number
   closingAt: Date
   createdAt: Date
@@ -126,6 +125,7 @@ export class Proposal implements IStateful<IProposalState> {
         createdAt
         numberOfVotesPerVoters
         numberOfWinners
+        rewardSplit
         snapshotBlock
         startTime
         votingStartTime
@@ -432,6 +432,7 @@ export class Proposal implements IStateful<IProposalState> {
             id: item.competition.id,
             numberOfVotesPerVoter: Number(item.competition.numberOfVotesPerVoters),
             numberOfWinners: Number(item.competition.numberOfWinners),
+            rewardSplit: item.competition.rewardSplit.map((perc: string) => Number(perc)),
             snapshotBlock: item.competition.snapshotBlock,
             startTime: secondSinceEpochToDate(item.competition.startTime),
             suggestionsEndTime: secondSinceEpochToDate(item.competition.suggestionsEndTime),

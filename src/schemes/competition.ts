@@ -1,7 +1,7 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first, map } from 'rxjs/operators'
+import { concatMap, first, map } from 'rxjs/operators'
 import { Arc } from '../arc'
 import { DAO } from '../dao'
 import { mapGenesisProtocolParams } from '../genesisProtocol'
@@ -22,6 +22,7 @@ export interface ICompetitionProposal {
   contract: Address
   endTime: Date
   numberOfWinners: number
+  rewardSplit: number[]
   startTime: Date
   votingStartTime: Date
   suggestionsEndTime: Date
@@ -253,8 +254,8 @@ export class CompetitionScheme extends SchemeBase {
   }
 
  public vote(options: {
-    suggestionId: string // this is the suggestion COUNTER
-  }): Operation < any > {
+    suggestionId: number // this is the suggestion COUNTER
+  }): Operation<CompetitionVote> {
     const createTransaction = async () => {
       const schemeState = await this.state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
@@ -308,7 +309,7 @@ export function createProposalErrorHandler(err: Error) {
   return err
 }
 
-export class Competition { // extends Proposal {
+export class Competition extends Proposal {
   public static search(
     context: Arc,
     options: IProposalQueryOptions = {},
@@ -318,10 +319,12 @@ export class Competition { // extends Proposal {
       map((proposals: Proposal[]) => proposals.map((p: Proposal) => new Competition(p.id, context)))
     )
   }
+
   public id: string
   public context: Arc
+
   constructor(id: string, context: Arc) {
-    // super(id, context)
+    super(id, context)
     this.id = id
     this.context = context
   }
@@ -374,6 +377,17 @@ export class Competition { // extends Proposal {
     return toIOperationObservable(observable)
   }
 
+  public voteForSuggestion(suggestionId: number): Operation<CompetitionVote> {
+    const observable = this.state().pipe(
+      first(),
+      concatMap((competitionState) => {
+        const scheme = new CompetitionScheme(competitionState.scheme, this.context)
+        return scheme.vote({suggestionId})
+      })
+    )
+    return toIOperationObservable(observable)
+  }
+
   public suggestions(
       options: ICompetitionSuggestionQueryOptions = {},
       apolloQueryOptions: IApolloQueryOptions = {}
@@ -395,7 +409,9 @@ export class CompetitionSuggestion {
     CompetitionSuggestionFields: gql`fragment CompetitionSuggestionFields on CompetitionSuggestion {
       id
       suggestionId
-      # proposal: CompetitionProposal!
+      proposal {
+        id
+      }
       descriptionHash
       title
       description
@@ -417,7 +433,6 @@ export class CompetitionSuggestion {
     )
     return Web3.utils.keccak256(seed)
   }
-
   public static search(
     context: Arc,
     options: ICompetitionSuggestionQueryOptions = {},
@@ -433,17 +448,7 @@ export class CompetitionSuggestion {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    const itemMap = (item: any) => new CompetitionSuggestion({
-      createdAt: secondSinceEpochToDate(item.createdAt),
-      descriptionHash: item.descriptionHash,
-      id: item.id,
-      proposal: item.proposal,
-      redeemedAt: secondSinceEpochToDate(item.redeemedAt),
-      rewardPercentage: Number(item.rewardPercentage),
-      suggester: item.suggester,
-      suggestionId: item.suggestionId,
-      totalVotes: new BN(item.totalVotes)
-    }, context)
+    const itemMap = (item: any) => this.mapItemToObject(item, context)
 
     const query = gql`query CompetitionSuggestionSearch
       {
@@ -459,6 +464,24 @@ export class CompetitionSuggestion {
       itemMap,
       apolloQueryOptions
     ) as Observable<CompetitionSuggestion[]>
+  }
+
+  private static mapItemToObject(item: any, context: Arc): ICompetitionSuggestion|null {
+    if (item === null) {
+      return null
+    }
+    return {
+      createdAt: secondSinceEpochToDate(item.createdAt),
+      descriptionHash: item.descriptionHash,
+      id: item.id,
+      proposal: item.proposal.id,
+      redeemedAt: secondSinceEpochToDate(item.redeemedAt),
+      rewardPercentage: Number(item.rewardPercentage),
+      suggester: item.suggester,
+      suggestionId: item.suggestionId,
+      totalVotes: new BN(item.totalVotes)
+    }
+
   }
 
   public id: string
@@ -487,11 +510,30 @@ export class CompetitionSuggestion {
     this.staticState = opts
   }
 
-  // public vote(options: {
-  //   suggestionId: string
-  // }): Operation<any> {
-  //   return this.scheme().pipe(map((scheme: Scheme) => scheme.competitionVote(suggestionId))
-  // }
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionSuggestion> {
+    const query = gql`query SchemeState
+      {
+        competitionSuggestion (id: "${this.id}") {
+          ...CompetitionSuggestionFields
+        }
+      }
+      ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
+    `
+
+    const itemMap = (item: any) => CompetitionSuggestion.mapItemToObject(item, this.context)
+    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+  }
+
+  public vote(): Operation<CompetitionVote> {
+    const observable = this.state().pipe(
+      first(),
+      concatMap((suggestionState) => {
+        const competition = new Competition(suggestionState.proposal, this.context)
+        return competition.voteForSuggestion(suggestionState.suggestionId)
+      })
+    )
+    return toIOperationObservable(observable)
+  }
 
   public votes(
     options: ICompetitionVoteQueryOptions = {},
