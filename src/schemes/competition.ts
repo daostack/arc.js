@@ -8,7 +8,7 @@ import { mapGenesisProtocolParams } from '../genesisProtocol'
 import { IApolloQueryOptions } from '../graphnode'
 import { Operation, toIOperationObservable } from '../operation'
 import { IProposalBaseCreateOptions, IProposalQueryOptions, Proposal } from '../proposal'
-import { Address } from '../types'
+import { Address, ICommonQueryOptions } from '../types'
 import { concat,
   createGraphQlQuery, dateToSecondsSinceEpoch, hexStringToUint8Array, NULL_ADDRESS,
   secondSinceEpochToDate
@@ -384,7 +384,7 @@ export class Competition { // extends Proposal {
   }
 }
 
-export interface ICompetitionSuggestionQueryOptions {
+export interface ICompetitionSuggestionQueryOptions extends ICommonQueryOptions {
   where?: {
     proposal?: string
   }
@@ -493,10 +493,21 @@ export class CompetitionSuggestion {
   //   return this.scheme().pipe(map((scheme: Scheme) => scheme.competitionVote(suggestionId))
   // }
 
+  public votes(
+    options: ICompetitionVoteQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<CompetitionVote[]> {
+    if (!options.where) { options.where = {}}
+    options.where = { ...options.where, suggestion: this.id}
+    return CompetitionVote.search(this.context, options, apolloQueryOptions)
+  }
 }
 export interface ICompetitionVoteQueryOptions {
   where?: {
     suggestion?: string
+    voter?: Address
+    competition?: string
+    competition_not?: string|null
   }
 }
 

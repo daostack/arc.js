@@ -201,6 +201,9 @@ describe('Proposal', () => {
     await waitUntilTrue(() => competitionVotes.length > 0)
     expect(competitionVotes.length).toEqual(1)
 
+    // we can also find the votes on the suggestion
+    const votesFromSuggestion: CompetitionVote[] = await suggestion2.votes().pipe(first()).toPromise()
+    expect(votesFromSuggestion.map((r) => r.id)).toEqual(competitionVotes.map((r) => r.id))
   })
 
   it('CompetionScheme is recognized', async () => {
