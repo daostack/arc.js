@@ -1,6 +1,8 @@
+import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IProposalOutcome, IProposalStage, IProposalState, Proposal } from '../src/proposal'
+
 import BN = require('bn.js')
 import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION, newArc,
   toWei, voteToPassProposal, waitUntilTrue } from './utils'
@@ -136,16 +138,25 @@ describe('Claim rewards', () => {
   })
 
   it('works with non-CR proposal', async () => {
+
+    const version = '0.0.1-rc.32'
+    testAddresses = getTestAddresses(arc)
+    // dao = await getTestDAO()
+    const ugenericSchemes = await arc.schemes({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
+    const ugenericScheme = ugenericSchemes[0]
+    const ugenericSchemeState = await ugenericScheme.state().pipe(first()).toPromise()
+    dao  = new DAO(ugenericSchemeState.dao, arc)
+
     const beneficiary = arc.web3.eth.defaultAccount
     const stakeAmount = new BN(123456789)
     await arc.GENToken().transfer(dao.id, stakeAmount).send()
-    const actionMockABI = require(`@daostack/migration/abis/${LATEST_ARC_VERSION}/ActionMock.json`)
+    const actionMockABI = arc.getABI(undefined, 'ActionMock', LATEST_ARC_VERSION)
     const actionMock = new arc.web3.eth.Contract(actionMockABI, testAddresses.test.ActionMock)
     const callData = await actionMock.methods.test2(dao.id).encodeABI()
 
     const proposal = await createAProposal(dao, {
       callData,
-      scheme: testAddresses.base.UGenericScheme,
+      scheme: ugenericSchemeState.address,
       schemeToRegister: actionMock.options.address,
       value: 0
     })

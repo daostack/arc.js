@@ -2,7 +2,7 @@ import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { DAO } from '../src/dao'
 import Arc from '../src/index'
-import { IProposalCreateOptions, IProposalOutcome, Proposal } from '../src/proposal'
+import { IContractInfo, IProposalCreateOptions, IProposalOutcome, Proposal } from '../src'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
 import BN = require('bn.js')
@@ -64,7 +64,7 @@ export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION)
   const migration = require(migrationFile).private
   let UGenericScheme: string = ''
   try {
-    UGenericScheme = arc.getContractInfoByName('UGenericScheme', version).address
+    UGenericScheme = arc.getContractInfoByName('GenericScheme', version).address
   } catch (err) {
     if (err.message.match(/no contract/i)) {
       // pass
@@ -258,4 +258,21 @@ export async function timeTravel(seconds: number, web3: any) {
 
 export async function firstResult(observable: Observable<any>) {
   return observable.pipe(first()).toPromise()
+}
+
+export function getContractAddressesFromMigration(environment: 'private'|'rinkeby'|'mainnet'): IContractInfo[] {
+  const migration = require('@daostack/migration/migration.json')[environment]
+  const contracts: IContractInfo[] = []
+  for (const version of Object.keys( migration.base)) {
+    for (const name of Object.keys(migration.base[version])) {
+      contracts.push({
+        address: migration.base[version][name].toLowerCase(),
+        id: migration.base[version][name],
+        name,
+        version
+      })
+    }
+
+  }
+  return contracts
 }

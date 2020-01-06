@@ -1,7 +1,6 @@
 import { Observable as ZenObservable } from 'apollo-link'
 import * as WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
-import { IContractInfo } from './arc'
 import { Address, ICommonQueryOptions } from './types'
 const Web3 = require('web3')
 import BN = require('bn.js')
@@ -97,23 +96,6 @@ export function realMathToNumber(t: BN): number {
 
 export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-export function getContractAddressesFromMigration(environment: 'private'|'rinkeby'|'mainnet'): IContractInfo[] {
-  const migration = require('@daostack/migration/migration.json')[environment]
-  const contracts: IContractInfo[] = []
-  for (const version of Object.keys( migration.base)) {
-    for (const name of Object.keys(migration.base[version])) {
-      contracts.push({
-        address: migration.base[version][name].toLowerCase(),
-        id: migration.base[version][name],
-        name,
-        version
-      })
-    }
-
-  }
-  return contracts
-}
-
 /**
  * creates a string to be plugsging into a graphql query
  * @example
@@ -128,9 +110,7 @@ export function createGraphQlQuery(options: ICommonQueryOptions, where: string =
   let queryString = ``
 
   if (!where) {
-    for (const key of Object.keys(options.where)) {
-      where += `${key}: "${options.where[key]}"\n`
-    }
+    where = createGraphQlWhereQuery(options.where)
   }
   if (where) {
     queryString += `where: {
@@ -154,4 +134,29 @@ export function createGraphQlQuery(options: ICommonQueryOptions, where: string =
   } else {
     return ''
   }
+}
+
+export function createGraphQlWhereQuery(where?: {[key: string]: string|string[]|null}) {
+  let result = ''
+  if (!where) { where = {}}
+  for (const key of Object.keys(where)) {
+    if (where[key] === undefined) {
+      continue
+    }
+
+    let value = where[key]
+    if (value === null) {
+      result += `${key}: ${value}`
+    } else if (key === 'dao' || key === 'address') {
+      isAddress(value as string)
+      value = (value as string).toLowerCase()
+      result += `${key}: "${value}"\n`
+    } else if (key.endsWith('_in') || key.endsWith('_not_in')) {
+      value = JSON.stringify(value)
+      result += `${key}: ${value}\n`
+    } else {
+      result += `${key}: "${value}"\n`
+    }
+  }
+  return result
 }

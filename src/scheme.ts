@@ -11,7 +11,7 @@ import { ReputationFromTokenScheme } from './schemes/reputationFromToken'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
 import * as UGenericScheme from './schemes/uGenericScheme'
 import { Address, ICommonQueryOptions, IStateful } from './types'
-import { createGraphQlQuery, isAddress } from './utils'
+import { createGraphQlQuery } from './utils'
 
 export interface ISchemeStaticState {
   id: string
@@ -29,15 +29,8 @@ export interface ISchemeState extends ISchemeStaticState {
   canManageGlobalConstraints: boolean
   dao: Address
   paramsHash: string
-  contributionRewardParams?: {
-    votingMachine: Address
-    voteParams: IGenesisProtocolParams
-  } | null
-  genericSchemeParams?: {
-    votingMachine: Address
-    contractToCall: Address
-    voteParams: IGenesisProtocolParams
-  } | null
+  contributionRewardParams?: IContributionRewardParams
+  genericSchemeParams?: IGenericSchemeParams
   schemeRegistrarParams?: {
     votingMachine: Address
     voteRemoveParams: IGenesisProtocolParams
@@ -46,11 +39,25 @@ export interface ISchemeState extends ISchemeStaticState {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
-  uGenericSchemeParams?: {
-    votingMachine: Address
-    contractToCall: Address
-    voteParams: IGenesisProtocolParams
-  } | null
+  uGenericSchemeParams?: IGenericSchemeParams
+  schemeParams?: IGenericSchemeParams | IContributionRewardParams | ISchemeRegisterParams
+}
+
+export interface IGenericSchemeParams {
+  votingMachine: Address
+  contractToCall: Address
+  voteParams: IGenesisProtocolParams
+}
+
+export interface IContributionRewardParams {
+  votingMachine: Address
+  voteParams: IGenesisProtocolParams
+}
+
+export interface ISchemeRegisterParams {
+  votingMachine: Address
+  contractToCall: Address
+  voteParams: IGenesisProtocolParams
 }
 
 export interface ISchemeQueryOptions extends ICommonQueryOptions {
@@ -205,30 +212,10 @@ export class Scheme implements IStateful<ISchemeState> {
     options: ISchemeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Scheme[]> {
-    let where = ''
-    if (!options.where) { options.where = {}}
-    for (const key of Object.keys(options.where)) {
-      if (options.where[key] === undefined) {
-        continue
-      }
-
-      if (key === 'address' || key === 'dao') {
-        const option = options.where[key] as string
-        isAddress(option)
-        options.where[key] = `"${option.toLowerCase()}"`
-      } else if (key.endsWith('_in') || key.endsWith('_not_in')) {
-        const option = options.where[key] as string[]
-        options.where[key] = JSON.stringify(option)
-      } else {
-        const option = options.where[key] as string
-        options.where[key] = `"${option}"`
-      }
-      where += `${key}: ${options.where[key] as string}\n`
-    }
     let query
     if (apolloQueryOptions.fetchAllData === true) {
       query = gql`query SchemeSearchAllData {
-        controllerSchemes ${createGraphQlQuery(options, where)}
+        controllerSchemes ${createGraphQlQuery(options)}
         {
           ...SchemeFields
         }
@@ -236,7 +223,7 @@ export class Scheme implements IStateful<ISchemeState> {
       ${Scheme.fragments.SchemeFields}`
     } else {
       query = gql`query SchemeSearch {
-        controllerSchemes ${createGraphQlQuery(options, where)}
+        controllerSchemes ${createGraphQlQuery(options)}
         {
             id
             address
@@ -343,38 +330,46 @@ export class Scheme implements IStateful<ISchemeState> {
           }
         }
       }
+      const uGenericSchemeParams = item.uGenericSchemeParams && {
+        contractToCall: item.uGenericSchemeParams.contractToCall,
+        voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
+        votingMachine: item.uGenericSchemeParams.votingMachine
+      }
+      const contributionRewardParams = item.contributionRewardParams && {
+        voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
+        votingMachine: item.contributionRewardParams.votingMachine
+      }
+      const schemeRegistrarParams = item.schemeRegistrarParams && {
+        voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
+        voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
+        votingMachine: item.schemeRegistrarParams.votingMachine
+      }
+      const genericSchemeParams = item.genericSchemeParams  && {
+        contractToCall: item.genericSchemeParams.contractToCall,
+        voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
+        votingMachine: item.genericSchemeParams.votingMachine
+      }
+      const schemeParams = (
+        uGenericSchemeParams || contributionRewardParams || schemeRegistrarParams || genericSchemeParams
+      )
       return {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
         canRegisterSchemes: item.canRegisterSchemes,
         canUpgradeController: item.canUpgradeController,
-        contributionRewardParams: item.contributionRewardParams ? {
-          voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
-          votingMachine: item.contributionRewardParams.votingMachine
-        } : null,
+        contributionRewardParams,
         dao: item.dao.id,
-        genericSchemeParams: item.genericSchemeParams ? {
-          contractToCall: item.genericSchemeParams.contractToCall,
-          voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
-          votingMachine: item.genericSchemeParams.votingMachine
-        } : null,
+        genericSchemeParams,
         id: item.id,
         name,
         numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
         paramsHash: item.paramsHash,
-        schemeRegistrarParams: item.schemeRegistrarParams ? {
-          voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
-          voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
-          votingMachine: item.schemeRegistrarParams.votingMachine
-        } : null,
-        uGenericSchemeParams: item.uGenericSchemeParams ? {
-          contractToCall: item.uGenericSchemeParams.contractToCall,
-          voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
-          votingMachine: item.uGenericSchemeParams.votingMachine
-        } : null,
+        schemeParams,
+        schemeRegistrarParams,
+        uGenericSchemeParams,
         version: item.version
       }
     }
@@ -387,7 +382,7 @@ export class Scheme implements IStateful<ISchemeState> {
      * @param  options [description ]
      * @return a Proposal instance
      */
-    public createProposal(options: IProposalCreateOptions): Operation < Proposal >  {
+    public createProposal(options: IProposalCreateOptions): Operation<Proposal>  {
       const observable = Observable.create(async (observer: any) => {
         let msg: string
         const context = this.context

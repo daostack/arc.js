@@ -50,9 +50,10 @@ describe('Scheme', () => {
       schemeStates.push(state)
     }))
     expect((schemeStates.map((r) => r.name)).sort()).toEqual([
-      'UGenericScheme',
       'ContributionReward',
-      'SchemeRegistrar'
+      'SchemeRegistrar',
+      'UGenericScheme'
+
     ].sort())
     result = await Scheme.search(arc, {where: {dao: dao.id, name: 'ContributionReward'}})
         .pipe(first()).toPromise()
@@ -71,7 +72,23 @@ describe('Scheme', () => {
     result = await Scheme.search(arc, {where: {dao: dao.id, name_not_in: ['UGenericScheme']}})
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(1)
+  })
+
+  it('Scheme.state() is working for ContributionReward schemes', async () => {
+    const dao = await getTestDAO()
+    const result = await Scheme
+      .search(arc, {where: {dao: dao.id, name: 'ContributionReward'}})
+      .pipe(first()).toPromise()
+
+    const scheme = result[0]
+    const state = await scheme.state().pipe(first()).toPromise()
+    expect(state).toMatchObject({
+      address: testAddresses.base.ContributionReward.toLowerCase(),
+      id: scheme.id,
+      name: 'ContributionReward'
     })
+    expect(state.contributionRewardParams).toEqual(state.schemeParams)
+  })
 
   it('Scheme.state() is working for SchemeRegistrar schemes', async () => {
     const dao = await getTestDAO()
@@ -86,23 +103,37 @@ describe('Scheme', () => {
       id: scheme.id,
       name: 'SchemeRegistrar'
     })
-
+    expect(state.schemeRegistrarParams).toEqual(state.schemeParams)
   })
 
   it('Scheme.state() is working for UGenericScheme schemes', async () => {
-    const dao = await getTestDAO()
     const result = await Scheme
-      .search(arc, {where: {dao: dao.id, name: 'UGenericScheme'}})
+      .search(arc, {where: {name: 'UGenericScheme'}})
+      .pipe(first()).toPromise()
+    const scheme = result[0]
+    const state = await scheme.state().pipe(first()).toPromise()
+    expect(state).toMatchObject({
+      id: scheme.id,
+      name: 'UGenericScheme'
+    })
+
+    expect(state.uGenericSchemeParams).toEqual(state.schemeParams)
+  })
+
+  it('Scheme.state() is working for GenericScheme schemes', async () => {
+    const result = await Scheme
+      .search(arc, {where: {name: 'GenericScheme'}})
       .pipe(first()).toPromise()
 
     const scheme = result[0]
     const state = await scheme.state().pipe(first()).toPromise()
     expect(state).toMatchObject({
-      address: testAddresses.base.UGenericScheme.toLowerCase(),
       id: scheme.id,
-      name: 'UGenericScheme'
+      name: 'GenericScheme'
     })
 
+    // the subgraph is a bit weird here, popoulating uGenericSchemeParams instead of the expected schemeParams
+    expect(state.genericSchemeParams).toEqual(state.schemeParams)
   })
 
   it('state() should be equal to proposal.state().scheme', async () => {
@@ -164,4 +195,5 @@ describe('Scheme', () => {
     const schemeStateFromServer = await scheme.state({ fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     expect(schemeStateFromCache).toEqual(schemeStateFromServer)
   })
+
 })
