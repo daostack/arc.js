@@ -12,8 +12,9 @@ import {
   ISchemeState,
   Proposal
   } from '../src'
+import { getBlockTime } from '../src/utils'
 import {
-  // advanceTimeAndBlock,
+  advanceTimeAndBlock,
   newArc,
   // revertToSnapShot,
   // takeSnapshot,
@@ -89,10 +90,8 @@ describe('Competition Proposal', () => {
     // TODO: test error handling for all these params
     // - all args are present
     // - order of times
-    const now = new Date()
-    // now.setTime((await getBlockTime(arc.web3)) * 1000)
-    now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
-    const startTime = addSeconds(now, 20)
+    const now = await getBlockTime(arc.web3)
+    const startTime = addSeconds(now, 2)
     const proposalOptions  = {
       dao: dao.id,
       endTime: addSeconds(startTime, 2000),
@@ -135,9 +134,14 @@ describe('Competition Proposal', () => {
     // TODO: test error handling for all these params
     // - all args are present
     // - order of times
-    const now = new Date()
-    // now.setTime((await getBlockTime(arc.web3)) * 1000)
-    now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
+    // const now = new Date()
+    // async function getBlockTimeStamp(web3: any) {
+    //   const block = await web3.eth.getBlock('latest')
+    //   return block.timestamp * 1000
+    // }
+
+    // now.setTime(await getBlockTimeStamp(arc.web3))
+    const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 2)
     const proposalOptions  = {
       dao: dao.id,
@@ -291,9 +295,10 @@ describe('Competition Proposal', () => {
     await expect(suggestion1.redeem().send()).rejects.toThrow(
       /redeem failed because the proposals endtime/i
     )
-    // await advanceTimeAndBlock(2000)
+    return
+    await advanceTimeAndBlock(2000)
     // console.log(`after time travel....`)
-    // await suggestion1.redeem().send()
+    await suggestion1.redeem().send()
   })
 
   it('CompetionScheme is recognized', async () => {
@@ -309,10 +314,7 @@ describe('Competition Proposal', () => {
   })
 
   it('Can create a propsal using dao.createProposal', async () => {
-    const now = new Date()
-    now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
-    // console.log((await getBlockTime(arc.web3)) * 1000)
-    // console.log(Math.floor((new Date()).getTime() / 1000) * 1000)
+    const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 2)
     const proposalOptions  = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',

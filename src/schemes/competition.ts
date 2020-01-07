@@ -263,7 +263,6 @@ export class CompetitionScheme extends SchemeBase {
           return err
         }
       }
-      console.log(options)
       console.log(await getBlockTime(this.context.web3))
       const msg = `Error creating proposal with options ${options}: ${err.message}`
       return Error(msg)

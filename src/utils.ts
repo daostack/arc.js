@@ -183,5 +183,12 @@ export function secondSinceEpochToDate(seconds: number): Date {
 
 export async function getBlockTime(web3: any) {
   const block = await web3.eth.getBlock('latest')
-  return new Date(block.timestamp * 1000)
+  const blockTime = new Date(block.timestamp * 1000)
+  const now = new Date()
+  now.setMilliseconds(0)
+  if (now < blockTime) {
+    return blockTime
+  } else {
+    return now
+  }
 }
