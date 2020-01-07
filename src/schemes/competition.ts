@@ -62,7 +62,7 @@ export interface ICompetitionSuggestion {
   // votes: [CompetitionVote!] @derivedFrom(field: "suggestion")
   totalVotes: BN
   createdAt: Date
-  redeemedAt: Date
+  redeemedAt: Date|null
   rewardPercentage: number
 }
 
@@ -355,14 +355,21 @@ export class CompetitionScheme extends SchemeBase {
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
         throw Error(`A suggestion with suggestionId ${options.suggestionId} does not exist`)
       }
-      const proposal = await contract.methods.proposals(suggestion.proposalId).call()
-      const proposalEndTime = new Date(proposal.endTime * 1000)
-      const currentTime = await getBlockTime(this.context.web3)
-      // const latestBlock = await this.context.web3.eth.getBlock('latest')
-      const msg = `Redeem failed because the proposals endTime ${proposalEndTime} is later then current block time ${currentTime}`
-      if (proposalEndTime > currentTime) {
-        throw Error(msg)
+      const tx = await createTransaction()
+      try {
+        // call the transaction to get the solidity-defined errors
+        await tx.call()
+      } catch (err) {
+        throw err
       }
+      // const proposal = await contract.methods.proposals(suggestion.proposalId).call()
+      // const proposalEndTime = new Date(proposal.endTime * 1000)
+      // const currentTime = await getBlockTime(this.context.web3)
+      // const msg = `Redeem failed because the proposals endTime ${proposalEndTime}
+      //   is later then current block time ${currentTime}`
+      // if (proposalEndTime > currentTime) {
+      //   throw Error(msg)
+      // }
       return err
     }
     const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
@@ -552,13 +559,18 @@ export class CompetitionSuggestion {
     if (item === null) {
       return null
     }
+
+    let redeemedAt = null
+    if (item.redeemedAt !== null) {
+      redeemedAt = secondSinceEpochToDate(item.redeemedAt)
+    }
     return {
       createdAt: secondSinceEpochToDate(item.createdAt),
       description: item.description,
       descriptionHash: item.descriptionHash,
       id: item.id,
       proposal: item.proposal.id,
-      redeemedAt: secondSinceEpochToDate(item.redeemedAt),
+      redeemedAt,
       rewardPercentage: Number(item.rewardPercentage),
       suggester: item.suggester,
       suggestionId: item.suggestionId,

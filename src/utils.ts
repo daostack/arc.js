@@ -181,6 +181,13 @@ export function secondSinceEpochToDate(seconds: number): Date {
   return d
 }
 
+/**
+ * get the latest block time, or the current time, whichver is later
+ *
+ * @export
+ * @param {*} web3
+ * @returns
+ */
 export async function getBlockTime(web3: any) {
   const block = await web3.eth.getBlock('latest')
   const blockTime = new Date(block.timestamp * 1000)

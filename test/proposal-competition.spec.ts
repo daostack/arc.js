@@ -1,3 +1,4 @@
+import BN = require('bn.js')
 import { first } from 'rxjs/operators'
 import {
   Arc,
@@ -131,28 +132,34 @@ describe('Competition Proposal', () => {
     // const scheme = new CompetitionScheme(contributionRewardExtState.id, arc)
     expect(contributionRewardExt).toBeInstanceOf(CompetitionScheme)
     const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
+
+    const ethReward =  new BN(1000)
+    // make sure that the DAO has enough Ether to pay forthe reward
+    await arc.web3.eth.sendTransaction({
+      gas: 4000000,
+      gasPrice: 100000000000,
+      to: dao.id,
+      value: ethReward
+    })
+    const reputationReward = new BN(10101010)
+    const externalTokenReward = new BN(0)
+    const nativeTokenReward = new BN(0)
+
     // TODO: test error handling for all these params
     // - all args are present
     // - order of times
-    // const now = new Date()
-    // async function getBlockTimeStamp(web3: any) {
-    //   const block = await web3.eth.getBlock('latest')
-    //   return block.timestamp * 1000
-    // }
-
-    // now.setTime(await getBlockTimeStamp(arc.web3))
     const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 2)
     const proposalOptions  = {
       dao: dao.id,
       endTime: addSeconds(startTime, 200),
-      ethReward: toWei('300'),
+      ethReward,
       externalTokenAddress: undefined,
-      externalTokenReward: toWei('0'),
-      nativeTokenReward: toWei('1'),
+      externalTokenReward,
+      nativeTokenReward,
       numberOfVotesPerVoter: 3,
       proposalType: 'competition',
-      reputationReward: toWei('10'),
+      reputationReward,
       rewardSplit: [1, 2, 97],
       startTime,
       suggestionsEndTime: addSeconds(startTime, 100),
@@ -179,9 +186,9 @@ describe('Competition Proposal', () => {
     })
     expect(lastState().contributionReward).toMatchObject({
       alreadyRedeemedEthPeriods: 0,
-      ethReward: toWei('300'),
-      nativeTokenReward: toWei('1'),
-      reputationReward: toWei('10')
+      ethReward,
+      nativeTokenReward,
+      reputationReward
     })
     expect(lastState().competition).toMatchObject({
       endTime: proposalOptions.endTime,
@@ -250,7 +257,12 @@ describe('Competition Proposal', () => {
     const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
     expect(suggestion1State).toMatchObject({
       ...suggestion1Options,
-      id: suggestion1.id
+      id: suggestion1.id,
+      redeemedAt: null,
+      rewardPercentage: 0,
+      suggester: arc.web3.eth.defaultAccount.toLowerCase(),
+      title: 'title',
+      totalVotes: new BN(0)
     })
 
     expect(suggestion1State).toEqual(await suggestion1.fetchStaticState())
@@ -293,11 +305,14 @@ describe('Competition Proposal', () => {
 
     // if we claim our reward now, it should fail because the competion has not ended yet
     await expect(suggestion1.redeem().send()).rejects.toThrow(
-      /redeem failed because the proposals endtime/i
+      /competition is still on/i
     )
-    return
     await advanceTimeAndBlock(2000)
-    // console.log(`after time travel....`)
+
+    // get the current balance before redeeming the suggestion
+    const account = arc.web3.eth.defaultAccount
+    const balanceBefore = new BN(await arc.web3.eth.getBalance(account))
+    console.log(balanceBefore)
     await suggestion1.redeem().send()
   })
 
