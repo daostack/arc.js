@@ -273,13 +273,16 @@ export class Scheme implements IStateful<ISchemeState> {
 
   public setStaticState(opts: ISchemeStaticState) {
     this.staticState = opts
+    if (this.staticState.name ===  'ReputationFromToken') {
+      this.ReputationFromToken = new ReputationFromTokenScheme(this)
+    }
   }
 
   /**
    * fetch the static state from the subgraph
    * @return the statatic state
    */
-  public async fetchStaticState(): Promise < ISchemeStaticState > {
+  public async fetchStaticState(): Promise<ISchemeStaticState> {
     if (!!this.staticState) {
       return this.staticState
     } else {
@@ -287,7 +290,7 @@ export class Scheme implements IStateful<ISchemeState> {
       if (state === null) {
         throw Error(`No scheme with id ${this.id} was found in the subgraph`)
       }
-      this.staticState = {
+      const opts = {
         address: state.address,
         dao: state.dao,
         id: this.id,
@@ -295,9 +298,7 @@ export class Scheme implements IStateful<ISchemeState> {
         paramsHash: state.paramsHash,
         version: state.version
       }
-      if (this.staticState.name ===  'ReputationFromToken') {
-        this.ReputationFromToken = new ReputationFromTokenScheme(this)
-      }
+      this.setStaticState(opts)
       return state
     }
   }

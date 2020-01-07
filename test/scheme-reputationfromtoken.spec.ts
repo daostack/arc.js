@@ -1,5 +1,5 @@
-import { Scheme } from '../src/scheme'
-import { getTestDAO, newArc } from './utils'
+import { first } from 'rxjs/operators'
+import { newArc } from './utils'
 
 jest.setTimeout(60000)
 /**
@@ -7,24 +7,17 @@ jest.setTimeout(60000)
  */
 describe('Scheme', () => {
 
-  it.skip('Test the whole flow', async () => {
+  it('Test the whole flow', async () => {
     const arc = await newArc()
-    const dao = await getTestDAO()
-
-    const scheme = new Scheme({
-        address: '0x1224',
-        dao: dao.id,
-        id: '0.x123455',
-        name: 'ReputationFromToken',
-        paramsHash: '0x124',
-        version: '0.0.1-rc.24'
-    }, arc)
-
+    const schemeContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.32')
+    const schemes = await arc.schemes({ where: {address: schemeContractInfo.address}})
+      .pipe(first()).toPromise()
+    const scheme = schemes[0]
     expect(scheme.ReputationFromToken).not.toBeFalsy()
     if (scheme.ReputationFromToken) {
       const amount = await scheme.ReputationFromToken.redemptionAmount(arc.web3.eth.defaultAccount)
       expect(amount).toEqual(0)
-      await scheme.ReputationFromToken.redeem(arc.web3.eth.defaultAccount)
+      // await scheme.ReputationFromToken.redeem(arc.web3.eth.defaultAccount)
     }
   })
 
