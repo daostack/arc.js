@@ -15,9 +15,9 @@ describe('Scheme', () => {
     const scheme = schemes[0]
     expect(scheme.ReputationFromToken).not.toBeFalsy()
     if (scheme.ReputationFromToken) {
-      const amount = await scheme.ReputationFromToken.redemptionAmount(arc.web3.eth.defaultAccount)
-      expect(amount).toEqual(0)
-      // await scheme.ReputationFromToken.redeem(arc.web3.eth.defaultAccount)
+      // const amount = await scheme.ReputationFromToken.redemptionAmount(arc.web3.eth.defaultAccount)
+      // expect(amount).toEqual(0)
+      await scheme.ReputationFromToken.redeem(arc.web3.eth.defaultAccount)
     }
   })
 
