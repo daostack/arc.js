@@ -9,7 +9,7 @@ import { IObservable } from './graphnode'
 import { Operation, toIOperationObservable } from './operation'
 import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
-import { ISchemeState } from './scheme'
+import { ISchemeState, Scheme } from './scheme'
 import { ICompetitionProposal, IProposalCreateOptionsCompetition } from './schemes/competition'
 import * as ContributionReward from './schemes/contributionReward'
 import * as ContributionRewardExt from './schemes/contributionRewardExt'
@@ -183,19 +183,7 @@ export class Proposal implements IStateful<IProposalState> {
         id
       }
       scheme {
-        id
-        paramsHash
-        name
-        address
-        canDelegateCall
-        canManageGlobalConstraints
-        canRegisterSchemes
-        canUpgradeController
-        name
-        numberOfQueuedProposals
-        numberOfPreBoostedProposals
-        numberOfBoostedProposals
-        version
+        ...SchemeFields
       }
       gpQueue {
         id
@@ -303,6 +291,7 @@ export class Proposal implements IStateful<IProposalState> {
           }
         }
         ${Proposal.fragments.ProposalFields}
+        ${Scheme.fragments.SchemeFields}
       `
       return context.getObservableList(
         query,
@@ -389,6 +378,8 @@ export class Proposal implements IStateful<IProposalState> {
         }
       }
       ${Proposal.fragments.ProposalFields}
+      ${Scheme.fragments.SchemeFields}
+
     `
 
     const itemMap = (item: any): IProposalState|null => {
@@ -504,28 +495,13 @@ export class Proposal implements IStateful<IProposalState> {
           .sub(stakesAgainst)
       }
       const scheme = item.scheme
-      const schemeName = scheme.name || this.context.getContractInfo(scheme.address).name
       const gpQueue = item.gpQueue
 
-      const schemeState: ISchemeState = {
-        address: scheme.address,
-        canDelegateCall: scheme.canDelegateCall,
-        canManageGlobalConstraints: scheme.canManageGlobalConstraints,
-        canRegisterSchemes: scheme.canRegisterSchemes,
-        canUpgradeController: scheme.canUpgradeController,
-        dao: item.dao.id,
-        id: scheme.id,
-        name: schemeName,
-        numberOfBoostedProposals: Number(scheme.numberOfBoostedProposals),
-        numberOfPreBoostedProposals: Number(scheme.numberOfPreBoostedProposals),
-        numberOfQueuedProposals: Number(scheme.numberOfQueuedProposals),
-        paramsHash: scheme.paramsHash,
-        version: scheme.version
-      }
+      const schemeState = Scheme.itemMap(scheme, this.context) as ISchemeState
       const queueState: IQueueState = {
         dao: item.dao.id,
         id: gpQueue.id,
-        name: schemeName,
+        name: schemeState.name,
         scheme: schemeState,
         threshold,
         votingMachine: gpQueue.votingMachine

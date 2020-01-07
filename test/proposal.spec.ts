@@ -176,7 +176,7 @@ describe('Proposal', () => {
     expect(proposalState).toEqual(null)
   })
 
-  it.only('Check queued proposal state is correct', async () => {
+  it('Check queued proposal state is correct', async () => {
 
     const proposal = preBoostedProposal
     const pState = await proposal.state().pipe(first()).toPromise()
@@ -233,7 +233,8 @@ describe('Proposal', () => {
         dao: dao.id,
         name: 'ContributionReward'
     })
-
+    expect(pState.scheme.contributionRewardParams).toBeTruthy()
+    expect(pState.scheme.contributionRewardExtParams).toBeFalsy()
     expect(pState.queue.threshold).toBeGreaterThan(0)
     // check if the upstakeNeededToPreBoost value is correct
     //  (S+/S-) > AlphaConstant^NumberOfBoostedProposal.

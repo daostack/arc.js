@@ -176,6 +176,84 @@ export class Scheme extends SchemeBase  {
     ) as Observable<Scheme[]>
   }
 
+  /**
+   * map an apollo query result to ISchemeState
+   *
+   * @static
+   * @param {*} item
+   * @param {Arc} arc
+   * @returns {(ISchemeState|null)}
+   * @memberof Scheme
+   */
+  public static itemMap(item: any, arc: Arc): ISchemeState|null {
+    if (!item) {
+      return null
+    }
+
+    let name = item.name
+    if (!name) {
+
+      try {
+        name = arc.getContractInfo(item.address).name
+      } catch (err) {
+        if (err.message.match(/no contract/ig)) {
+          // continue
+        } else {
+          throw err
+        }
+      }
+    }
+    const uGenericSchemeParams = item.uGenericSchemeParams && {
+      contractToCall: item.uGenericSchemeParams.contractToCall,
+      voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
+      votingMachine: item.uGenericSchemeParams.votingMachine
+    }
+    const contributionRewardParams = item.contributionRewardParams && {
+      voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
+      votingMachine: item.contributionRewardParams.votingMachine
+    }
+    const contributionRewardExtParams = item.contributionRewardExtParams && {
+      rewarder: item.contributionRewardExtParams.rewarder,
+      voteParams: mapGenesisProtocolParams(item.contributionRewardExtParams.voteParams),
+      votingMachine: item.contributionRewardExtParams.votingMachine
+    }
+    const schemeRegistrarParams = item.schemeRegistrarParams && {
+      voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
+      voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
+      votingMachine: item.schemeRegistrarParams.votingMachine
+    }
+    const genericSchemeParams = item.genericSchemeParams  && {
+      contractToCall: item.genericSchemeParams.contractToCall,
+      voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
+      votingMachine: item.genericSchemeParams.votingMachine
+    }
+    const schemeParams = (
+      uGenericSchemeParams || contributionRewardParams ||
+      schemeRegistrarParams || genericSchemeParams || contributionRewardExtParams
+    )
+    return {
+      address: item.address,
+      canDelegateCall: item.canDelegateCall,
+      canManageGlobalConstraints: item.canManageGlobalConstraints,
+      canRegisterSchemes: item.canRegisterSchemes,
+      canUpgradeController: item.canUpgradeController,
+      contributionRewardExtParams,
+      contributionRewardParams,
+      dao: item.dao.id,
+      genericSchemeParams,
+      id: item.id,
+      name,
+      numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+      numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+      numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
+      paramsHash: item.paramsHash,
+      schemeParams,
+      schemeRegistrarParams,
+      uGenericSchemeParams,
+      version: item.version
+    }
+  }
+
   public id: Address
   public staticState: ISchemeStaticState | null = null
   public ReputationFromToken: ReputationFromTokenScheme | null = null
@@ -205,75 +283,7 @@ export class Scheme extends SchemeBase  {
       }
       ${SchemeBase.fragments.SchemeFields}
     `
-
-    const itemMap = (item: any): ISchemeState|null => {
-      if (!item) {
-        return null
-      }
-
-      let name = item.name
-      if (!name) {
-
-        try {
-          name = this.context.getContractInfo(item.address).name
-        } catch (err) {
-          if (err.message.match(/no contract/ig)) {
-            // continue
-          } else {
-            throw err
-          }
-        }
-      }
-      const uGenericSchemeParams = item.uGenericSchemeParams && {
-        contractToCall: item.uGenericSchemeParams.contractToCall,
-        voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
-        votingMachine: item.uGenericSchemeParams.votingMachine
-      }
-      const contributionRewardParams = item.contributionRewardParams && {
-        voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
-        votingMachine: item.contributionRewardParams.votingMachine
-      }
-      const contributionRewardExtParams = item.contributionRewardExtParams && {
-        rewarder: item.contributionRewardExtParams.rewarder,
-        voteParams: mapGenesisProtocolParams(item.contributionRewardExtParams.voteParams),
-        votingMachine: item.contributionRewardExtParams.votingMachine
-      }
-      const schemeRegistrarParams = item.schemeRegistrarParams && {
-        voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
-        voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
-        votingMachine: item.schemeRegistrarParams.votingMachine
-      }
-      const genericSchemeParams = item.genericSchemeParams  && {
-        contractToCall: item.genericSchemeParams.contractToCall,
-        voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
-        votingMachine: item.genericSchemeParams.votingMachine
-      }
-      const schemeParams = (
-        uGenericSchemeParams || contributionRewardParams ||
-        schemeRegistrarParams || genericSchemeParams || contributionRewardExtParams
-      )
-      return {
-        address: item.address,
-        canDelegateCall: item.canDelegateCall,
-        canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterSchemes: item.canRegisterSchemes,
-        canUpgradeController: item.canUpgradeController,
-        contributionRewardExtParams,
-        contributionRewardParams,
-        dao: item.dao.id,
-        genericSchemeParams,
-        id: item.id,
-        name,
-        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
-        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
-        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        paramsHash: item.paramsHash,
-        schemeParams,
-        schemeRegistrarParams,
-        uGenericSchemeParams,
-        version: item.version
-      }
-    }
+    const itemMap = (item: any) => Scheme.itemMap(item, this.context)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
   }
 
