@@ -252,13 +252,21 @@ export class CompetitionScheme extends SchemeBase {
   }
 
   public createProposalErrorHandler(options: any): (err: Error) => Error|Promise<Error> {
-    const msg = `Error creating proposal with options ${options}`
     return async (err) => {
       const tx = await this.createProposalTransaction(options)()
-      const result = await tx.call()
-      console.log(result)
-      return Error(msg + result)
-      return err
+      try {
+        await tx.call()
+      } catch (err) {
+        if (err.message.match(/startTime should be greater than proposing time/ig)) {
+          return Error(`${err.message} - startTime is ${options.startTime}, current block time is ${await getBlockTime(this.context.web3)}`)
+        } else {
+          return err
+        }
+      }
+      console.log(options)
+      console.log(await getBlockTime(this.context.web3))
+      const msg = `Error creating proposal with options ${options}: ${err.message}`
+      return Error(msg)
     }
   }
 
@@ -349,7 +357,7 @@ export class CompetitionScheme extends SchemeBase {
         throw Error(`A suggestion with suggestionId ${options.suggestionId} does not exist`)
       }
       const proposal = await contract.methods.proposals(suggestion.proposalId).call()
-      const proposalEndTime = proposal.endTime
+      const proposalEndTime = new Date(proposal.endTime * 1000)
       const currentTime = await getBlockTime(this.context.web3)
       // const latestBlock = await this.context.web3.eth.getBlock('latest')
       const msg = `Redeem failed because the proposals endTime ${proposalEndTime} is later then current block time ${currentTime}`
