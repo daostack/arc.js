@@ -155,7 +155,6 @@ describe('Proposal', () => {
     expect(shouldBeJustThisExecutedProposal.map((p: Proposal) => p.id)).toEqual([proposal.id])
   })
 
-  // skipping this test, bc we chaned the implementation and it is unclear why this feature (?) was needed
   it('state should be available before the data is indexed', async () => {
     const options   = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
@@ -177,7 +176,7 @@ describe('Proposal', () => {
     expect(proposalState).toEqual(null)
   })
 
-  it('Check queued proposal state is correct', async () => {
+  it.only('Check queued proposal state is correct', async () => {
 
     const proposal = preBoostedProposal
     const pState = await proposal.state().pipe(first()).toPromise()
@@ -226,6 +225,13 @@ describe('Proposal', () => {
         beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
         periodLength: 0,
         periods: 1
+    })
+    expect(pState.scheme).toMatchObject({
+        canDelegateCall: false,
+        canManageGlobalConstraints: false,
+        canRegisterSchemes: false,
+        dao: dao.id,
+        name: 'ContributionReward'
     })
 
     expect(pState.queue.threshold).toBeGreaterThan(0)

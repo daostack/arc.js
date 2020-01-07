@@ -6,6 +6,7 @@ import {
   CompetitionSuggestion,
   CompetitionVote,
   DAO,
+  ICompetitionProposal,
   IProposalStage,
   IProposalState,
   ISchemeState,
@@ -23,10 +24,7 @@ import {
 
 jest.setTimeout(60000)
 
-/**
- * Proposal test
- */
-describe('Proposal', () => {
+describe('Competition Proposal', () => {
   let arc: Arc
   let dao: DAO
   let contributionRewardExt: CompetitionScheme
@@ -84,6 +82,50 @@ describe('Proposal', () => {
                 14))
       .toEqual('0x137446f8b5c791e505e6e8228801ed78555a4e35957fd0b026b70fc3f262b629')
 
+  })
+
+  it('create a competition proposal with starttime set to null', async () => {
+    const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
+    // TODO: test error handling for all these params
+    // - all args are present
+    // - order of times
+    const now = new Date()
+    // now.setTime((await getBlockTime(arc.web3)) * 1000)
+    now.setTime(Math.floor((new Date()).getTime() / 1000) * 1000)
+    const startTime = addSeconds(now, 20)
+    const proposalOptions  = {
+      dao: dao.id,
+      endTime: addSeconds(startTime, 2000),
+      ethReward: toWei('300'),
+      externalTokenAddress: undefined,
+      externalTokenReward: toWei('0'),
+      nativeTokenReward: toWei('1'),
+      numberOfVotesPerVoter: 3,
+      proposalType: 'competition',
+      reputationReward: toWei('10'),
+      rewardSplit: [1, 2, 97],
+      startTime: null,
+      suggestionsEndTime: addSeconds(startTime, 1000),
+      value: 0,
+      votingStartTime: addSeconds(startTime, 200)
+    }
+
+    // CREATE PROPOSAL
+    const tx = await scheme.createProposal(proposalOptions).send()
+    const proposal = tx.result
+    expect(proposal).toBeInstanceOf(Proposal)
+
+    const states: IProposalState[] = []
+    const lastState = (): IProposalState => states[states.length - 1]
+    proposal.state().subscribe((pState: IProposalState) => {
+      states.push(pState)
+    })
+    await waitUntilTrue(() => !!lastState())
+
+    expect(lastState()).toMatchObject({
+      stage: IProposalStage.Queued
+    })
+    expect((lastState().competition as ICompetitionProposal).startTime).toBeDefined()
   })
 
   it('Create a competition proposal, compete, win the competition..', async () => {
@@ -146,6 +188,11 @@ describe('Proposal', () => {
       startTime: proposalOptions.startTime,
       suggestionsEndTime: proposalOptions.suggestionsEndTime,
       votingStartTime: proposalOptions.votingStartTime
+    })
+    expect(lastState().scheme).toMatchObject({
+      // TODO: this should be 'Competition'
+      name: 'ContributionRewardExt'
+      // name: 'Competition'
     })
 
     // accept the proposal by voting for et

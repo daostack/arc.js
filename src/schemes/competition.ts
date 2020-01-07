@@ -44,7 +44,7 @@ export interface IProposalCreateOptionsCompetition extends IProposalBaseCreateOp
   rewardSplit: number[]
   nativeTokenReward ?: BN
   numberOfVotesPerVoter: number
-  startTime: Date,
+  startTime: Date|null,
   suggestionsEndTime: Date,
   votingStartTime: Date,
 }
@@ -220,7 +220,7 @@ export class CompetitionScheme extends SchemeBase {
         // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
 
       const competitionParams = [
-          dateToSecondsSinceEpoch(options.startTime) || 0,
+          options.startTime && dateToSecondsSinceEpoch(options.startTime) || '0',
           dateToSecondsSinceEpoch(options.votingStartTime) || 0,
           dateToSecondsSinceEpoch(options.endTime) || 0,
           options.numberOfVotesPerVoter.toString() || 0,
@@ -252,10 +252,12 @@ export class CompetitionScheme extends SchemeBase {
   }
 
   public createProposalErrorHandler(options: any): (err: Error) => Error|Promise<Error> {
-    // const msg = `Error creating proposal with options ${options}`
+    const msg = `Error creating proposal with options ${options}`
     return async (err) => {
-      // const tx = await this.createProposalTransaction(options)
-      // @ts-ignore
+      const tx = await this.createProposalTransaction(options)()
+      const result = await tx.call()
+      console.log(result)
+      return Error(msg + result)
       return err
     }
   }
