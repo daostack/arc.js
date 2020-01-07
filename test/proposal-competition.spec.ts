@@ -236,7 +236,12 @@ describe('Competition Proposal', () => {
       url: 'https://somewhere.some.place'
     }
 
+    const address0 = arc.web3.eth.accounts.wallet[0].address.toLowerCase()
+    const address1 = arc.web3.eth.accounts.wallet[1].address.toLowerCase()
+    // submit a suggestion by address1
+    arc.setAccount(address1)
     const receipt1 = await competition.createSuggestion(suggestion1Options).send()
+    arc.setAccount(address0)
     const suggestion1 = receipt1.result
     expect(suggestion1).toBeDefined()
     expect(suggestion1).toBeInstanceOf(CompetitionSuggestion)
@@ -260,7 +265,7 @@ describe('Competition Proposal', () => {
       id: suggestion1.id,
       redeemedAt: null,
       rewardPercentage: 0,
-      suggester: arc.web3.eth.defaultAccount.toLowerCase(),
+      suggester: address1,
       title: 'title',
       totalVotes: new BN(0)
     })
@@ -309,11 +314,16 @@ describe('Competition Proposal', () => {
     )
     await advanceTimeAndBlock(2000)
 
-    // get the current balance before redeeming the suggestion
-    const account = arc.web3.eth.defaultAccount
-    const balanceBefore = new BN(await arc.web3.eth.getBalance(account))
-    console.log(balanceBefore)
+    // get the current balance of addres1 (who submitted suggestion1) before redeeming the suggestion
+    const balanceBefore = new BN(await arc.web3.eth.getBalance(address1))
     await suggestion1.redeem().send()
+    const balanceAfter = new BN(await arc.web3.eth.getBalance(address1))
+    const balanceDelta = balanceAfter.sub(balanceBefore)
+    expect(balanceDelta.toString()).not.toEqual('0')
+    // TODO: write some tests for winners and their balances
+    // console.log(balanceDelta.toString())
+    // console.log(ethReward.toString())
+    // expect(balanceDelta).toEqual(ethReward.muln(97).divn(100))
   })
 
   it('CompetionScheme is recognized', async () => {
@@ -342,7 +352,7 @@ describe('Competition Proposal', () => {
       numberOfVotesPerVoter: 3,
       proposalType: 'competition',
       reputationReward: toWei('10'),
-      rewardSplit: [1, 2, 97],
+      rewardSplit: [10, 10, 80],
       scheme: contributionRewardExtState.address,
       startTime,
       suggestionsEndTime: addSeconds(startTime, 100),
