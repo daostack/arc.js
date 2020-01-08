@@ -6,6 +6,10 @@
 
 * **IProposalBaseCreateOptions**
 
+  ↳ [IProposalCreateOptionsCompetition](iproposalcreateoptionscompetition.md)
+
+  ↳ [IProposalCreateOptionsContributionRewardExt](iproposalcreateoptionscontributionrewardext.md)
+
 ## Index
 
 ### Properties
@@ -13,7 +17,9 @@
 * [dao](iproposalbasecreateoptions.md#dao)
 * [description](iproposalbasecreateoptions.md#optional-description)
 * [descriptionHash](iproposalbasecreateoptions.md#optional-descriptionhash)
-* [scheme](iproposalbasecreateoptions.md#scheme)
+* [proposalType](iproposalbasecreateoptions.md#optional-proposaltype)
+* [scheme](iproposalbasecreateoptions.md#optional-scheme)
+* [tags](iproposalbasecreateoptions.md#optional-tags)
 * [title](iproposalbasecreateoptions.md#optional-title)
 * [url](iproposalbasecreateoptions.md#optional-url)
 
@@ -23,7 +29,7 @@
 
 • **dao**: *[Address](../globals.md#address)*
 
-*Defined in [proposal.ts:840](https://github.com/daostack/client/blob/0eadcce/src/proposal.ts#L840)*
+*Defined in [proposal.ts:860](https://github.com/daostack/client/blob/7361fcc/src/proposal.ts#L860)*
 
 ___
 
@@ -31,7 +37,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [proposal.ts:841](https://github.com/daostack/client/blob/0eadcce/src/proposal.ts#L841)*
+*Defined in [proposal.ts:861](https://github.com/daostack/client/blob/7361fcc/src/proposal.ts#L861)*
 
 ___
 
@@ -39,15 +45,31 @@ ___
 
 • **descriptionHash**? : *undefined | string*
 
-*Defined in [proposal.ts:842](https://github.com/daostack/client/blob/0eadcce/src/proposal.ts#L842)*
+*Defined in [proposal.ts:862](https://github.com/daostack/client/blob/7361fcc/src/proposal.ts#L862)*
 
 ___
 
-###  scheme
+### `Optional` proposalType
 
-• **scheme**: *[Address](../globals.md#address)*
+• **proposalType**? : *undefined | string*
 
-*Defined in [proposal.ts:844](https://github.com/daostack/client/blob/0eadcce/src/proposal.ts#L844)*
+*Defined in [proposal.ts:868](https://github.com/daostack/client/blob/7361fcc/src/proposal.ts#L868)*
+
+___
+
+### `Optional` scheme
+
+• **scheme**? : *[Address](../globals.md#address)*
+
+*Defined in [proposal.ts:865](https://github.com/daostack/client/blob/7361fcc/src/proposal.ts#L865)*
+
+___
+
+### `Optional` tags
+
+• **tags**? : *string[]*
+
+*Defined in [proposal.ts:864](https://github.com/daostack/client/blob/7361fcc/src/proposal.ts#L864)*
 
 ___
 
@@ -55,7 +77,7 @@ ___
 
 • **title**? : *undefined | string*
 
-*Defined in [proposal.ts:843](https://github.com/daostack/client/blob/0eadcce/src/proposal.ts#L843)*
+*Defined in [proposal.ts:863](https://github.com/daostack/client/blob/7361fcc/src/proposal.ts#L863)*
 
 ___
 
@@ -63,4 +85,4 @@ ___
 
 • **url**? : *undefined | string*
 
-*Defined in [proposal.ts:845](https://github.com/daostack/client/blob/0eadcce/src/proposal.ts#L845)*
+*Defined in [proposal.ts:866](https://github.com/daostack/client/blob/7361fcc/src/proposal.ts#L866)*
