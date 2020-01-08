@@ -40,7 +40,7 @@ export class ReputationFromTokenScheme {
           )
         } else {
           if (!agreementHash) {
-            throw Error(`For ReputationForToken contract versions > rc.32, an "agreementHash" argument must be provided`)
+            throw Error(`For ReputationForToken version > rc.32, an "agreementHash" argument must be provided`)
           }
           transaction = contract.methods.redeem(
             beneficiary,
