@@ -60,6 +60,7 @@ export interface ICompetitionSuggestion {
   // fulltext: [string]
   suggester: Address
   // votes: [CompetitionVote!] @derivedFrom(field: "suggestion")
+  tags: string[]
   totalVotes: BN
   createdAt: Date
   redeemedAt: Date|null
