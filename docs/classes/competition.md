@@ -31,7 +31,7 @@
 
 \+ **new Competition**(`id`: string, `context`: [Arc](arc.md)): *[Competition](competition.md)*
 
-*Defined in [schemes/competition.ts:381](https://github.com/daostack/client/blob/aa9723f/src/schemes/competition.ts#L381)*
+*Defined in [schemes/competition.ts:401](https://github.com/daostack/client/blob/84a7af3/src/schemes/competition.ts#L401)*
 
 **Parameters:**
 
@@ -48,7 +48,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [schemes/competition.ts:381](https://github.com/daostack/client/blob/aa9723f/src/schemes/competition.ts#L381)*
+*Defined in [schemes/competition.ts:401](https://github.com/daostack/client/blob/84a7af3/src/schemes/competition.ts#L401)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [schemes/competition.ts:380](https://github.com/daostack/client/blob/aa9723f/src/schemes/competition.ts#L380)*
+*Defined in [schemes/competition.ts:400](https://github.com/daostack/client/blob/84a7af3/src/schemes/competition.ts#L400)*
 
 ## Methods
 
@@ -64,7 +64,7 @@ ___
 
 ▸ **createSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹any›*
 
-*Defined in [schemes/competition.ts:389](https://github.com/daostack/client/blob/aa9723f/src/schemes/competition.ts#L389)*
+*Defined in [schemes/competition.ts:409](https://github.com/daostack/client/blob/84a7af3/src/schemes/competition.ts#L409)*
 
 **Parameters:**
 
@@ -84,7 +84,7 @@ ___
 
 ▸ **redeemSuggestion**(`suggestionId`: number, `beneficiary`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [schemes/competition.ts:448](https://github.com/daostack/client/blob/aa9723f/src/schemes/competition.ts#L448)*
+*Defined in [schemes/competition.ts:468](https://github.com/daostack/client/blob/84a7af3/src/schemes/competition.ts#L468)*
 
 **Parameters:**
 
@@ -101,7 +101,7 @@ ___
 
 ▸ **suggestions**(`options`: [ICompetitionSuggestionQueryOptions](../interfaces/icompetitionsuggestionqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[CompetitionSuggestion](competitionsuggestion.md)[]›*
 
-*Defined in [schemes/competition.ts:460](https://github.com/daostack/client/blob/aa9723f/src/schemes/competition.ts#L460)*
+*Defined in [schemes/competition.ts:480](https://github.com/daostack/client/blob/84a7af3/src/schemes/competition.ts#L480)*
 
 **Parameters:**
 
@@ -118,7 +118,7 @@ ___
 
 ▸ **voteSuggestion**(`suggestionId`: number): *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-*Defined in [schemes/competition.ts:437](https://github.com/daostack/client/blob/aa9723f/src/schemes/competition.ts#L437)*
+*Defined in [schemes/competition.ts:457](https://github.com/daostack/client/blob/84a7af3/src/schemes/competition.ts#L457)*
 
 **Parameters:**
 
@@ -134,7 +134,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Competition](competition.md)[]›*
 
-*Defined in [schemes/competition.ts:370](https://github.com/daostack/client/blob/aa9723f/src/schemes/competition.ts#L370)*
+*Defined in [schemes/competition.ts:390](https://github.com/daostack/client/blob/84a7af3/src/schemes/competition.ts#L390)*
 
 **Parameters:**
 
