@@ -411,8 +411,7 @@ describe('Competition Proposal', () => {
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion3.id) > -1)
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion4.id) > -1)
 
-    // const schemeState = await scheme.state().pipe(first()).toPromise()
-    // const competitionContract = getCompetitionContract(schemeState, arc)
+    return competition
   }
   it(`No votes is no winners`, async () => {
     // before any votes are cast, all suggesitons are winnners
@@ -423,8 +422,8 @@ describe('Competition Proposal', () => {
     await advanceTimeAndBlock(2000)
     expect(suggestion1.redeem().send()).rejects.toThrow('not in winners list')
   })
-  it('position is calculated correctly', async () => {
-    await createCompetition()
+  it.only('position is calculated correctly', async () => {
+    const competition = await createCompetition()
     await suggestion1.vote().send()
     expect(await suggestion1.getPosition()).toEqual(0)
     expect(await suggestion4.getPosition()).toEqual(1)
@@ -458,6 +457,14 @@ describe('Competition Proposal', () => {
     expect(await suggestion2.isWinner()).toEqual(true)
     expect(await suggestion3.isWinner()).toEqual(false)
     expect(await suggestion4.isWinner()).toEqual(false)
+
+    // TODO: wait for https://github.com/daostack/subgraph/issues/438 and test isWinner here
+    const winningSuggestions = await competition.suggestions({orderBy: 'totalVotes', orderDirection: 'desc', first: 2})
+      .pipe(first()).toPromise()
+    console.log(winningSuggestions)
+    expect(winningSuggestions.map((s) => s.id)).toContain(suggestion1.id)
+    expect(winningSuggestions.map((s) => s.id)).toContain(suggestion2.id)
+    expect(winningSuggestions.map((s) => s.id)).not.toContain(suggestion3.id)
   })
 
   it('position is calculated correctly', async () => {
