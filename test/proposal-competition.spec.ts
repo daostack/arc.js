@@ -8,6 +8,7 @@ import {
   CompetitionVote,
   DAO,
   ICompetitionProposal,
+  ICompetitionSuggestion,
   IProposalStage,
   IProposalState,
   ISchemeState,
@@ -268,7 +269,7 @@ describe('Competition Proposal', () => {
       id: suggestion1.id,
       redeemedAt: null,
       rewardPercentage: 0,
-      suggester: address1,
+      suggester: address0,
       tags: ['tag1', 'tag2'],
       title: 'title',
       totalVotes: new BN(0)
@@ -417,16 +418,28 @@ describe('Competition Proposal', () => {
   })
 
   it('position is calculated correctly and redemptions work', async () => {
+    let voteIsIndexed: boolean
     await createCompetition()
-    const vote = await suggestion1.vote().send()
-    // wait until vote is indexed
-    await waitUntilTrue(async () => (await CompetitionVote
-      .search(arc, {where: {id: vote.id}}).pipe(first()).toPromise()) !== [])
-    console.log(suggestion1.id)
-    console.log(vote.id)
+
+    // vote and wait until it is indexed
+    await suggestion1.vote().send()
+    voteIsIndexed = false
+    suggestion1.state().subscribe((s: ICompetitionSuggestion) => {
+      voteIsIndexed = (s.positionInWinnerList !== null)
+    })
+    await waitUntilTrue(() => voteIsIndexed)
+
     expect(await suggestion1.getPosition()).toEqual(0)
     expect(await suggestion4.getPosition()).toEqual(null)
+
+    // vote and wait until it is indexed
+    voteIsIndexed = false
     await suggestion2.vote().send()
+    suggestion2.state().subscribe((s: ICompetitionSuggestion) => {
+      voteIsIndexed = (s.positionInWinnerList !== null)
+    })
+    await waitUntilTrue(() => voteIsIndexed)
+
     expect(await suggestion1.getPosition()).toEqual(0)
     expect(await suggestion2.getPosition()).toEqual(0)
     expect(await suggestion3.getPosition()).toEqual(null)
@@ -463,15 +476,22 @@ describe('Competition Proposal', () => {
   })
 
   it('position is calculated correctly (2)', async () => {
-    const competition = await createCompetition()
-    console.log(competition.id)
+    await createCompetition()
     await suggestion1.vote().send()
-    await suggestion2.vote().send()
     arc.setAccount(address0)
     await suggestion3.vote().send()
     arc.setAccount(address1)
     await suggestion3.vote().send()
     arc.setAccount(address0)
+    await suggestion2.vote().send()
+
+     // wait until last vote is indexed
+    let voteIsIndexed = false
+    suggestion2.state().subscribe((s: ICompetitionSuggestion) => {
+      voteIsIndexed = (s.positionInWinnerList !== null)
+    })
+    await waitUntilTrue(() => voteIsIndexed)
+
     expect(await suggestion1.getPosition()).toEqual(1)
     expect(await suggestion2.getPosition()).toEqual(1)
     expect(await suggestion3.getPosition()).toEqual(0)

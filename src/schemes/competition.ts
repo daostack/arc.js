@@ -674,26 +674,13 @@ export class CompetitionSuggestion {
   }
 
   public async getPosition() {
-    const suggestionState = await this.state({ fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
+    const suggestionState = await this.state().pipe(first()).toPromise()
     return suggestionState.positionInWinnerList
-    // const proposal = new Proposal(suggestionState.proposal, this.context)
-    // const proposalState = await proposal.state().pipe(first()).toPromise()
-    // const scheme = new CompetitionScheme(proposalState.scheme.id, this.context)
-    // const competitionContract = await scheme.getCompetitionContract()
-    // const transaction = competitionContract.methods.getOrderedIndexOfSuggestion(suggestionState.suggestionId)
-    // const result = await transaction.call()
-    // const index = Number(result)
-    // return index
   }
+
   public async isWinner() {
     const position = await this.getPosition()
     return position !== null
-    // const suggestionState = await this.state().pipe(first()).toPromise()
-    // const proposal = await new Proposal(suggestionState.proposal, this.context)
-    // const proposalState = await proposal.state().pipe(first()).toPromise()
-    // const competitionState = proposalState.competition as ICompetitionProposal
-    // const numberOfWinners = competitionState.numberOfWinners
-    // return position < numberOfWinners
   }
 
   public redeem(beneficiary: Address = NULL_ADDRESS): Operation<boolean> {
