@@ -476,7 +476,7 @@ describe('Competition Proposal', () => {
   })
 
   it('position is calculated correctly (2)', async () => {
-    await createCompetition()
+    const competition = await createCompetition()
     await suggestion1.vote().send()
     arc.setAccount(address0)
     await suggestion3.vote().send()
@@ -518,6 +518,13 @@ describe('Competition Proposal', () => {
     expect(await suggestion2.isWinner()).toEqual(true)
     expect(await suggestion3.isWinner()).toEqual(true)
     expect(await suggestion4.isWinner()).toEqual(false)
+
+    // if we get the list of winners, it should contain exactly these 3 suggestions
+    const winnerList = await competition.suggestions({where: {positionInWinnerList_not: null}})
+      .pipe(first()).toPromise()
+    expect(winnerList.map((s: CompetitionSuggestion) => s.id)).toEqual(
+      [suggestion1.id, suggestion2.id, suggestion3.id]
+    )
 
   })
 

@@ -507,6 +507,8 @@ export interface ICompetitionSuggestionQueryOptions extends ICommonQueryOptions 
     proposal?: string, // id of the proposal
     suggestionId?: string // the "suggestionId" is a counter that is unique to the scheme
       // - and is not to be confused with suggestion.id
+    positionInWinnerList?: number|null
+    positionInWinnerList_not?: number|null
   }
 }
 export class CompetitionSuggestion {
