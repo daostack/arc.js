@@ -448,7 +448,6 @@ describe('Competition Proposal', () => {
     balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
     balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual('5000000000')
-    console.log(balanceDelta.toString())
 
     expect(await suggestion1.isWinner()).toEqual(true)
     expect(await suggestion2.isWinner()).toEqual(true)
