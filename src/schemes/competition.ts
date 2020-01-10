@@ -60,6 +60,7 @@ export interface ICompetitionSuggestion {
   // fulltext: [string]
   suggester: Address
   // votes: [CompetitionVote!] @derivedFrom(field: "suggestion")
+  tags: string[]
   totalVotes: BN
   createdAt: Date
   redeemedAt: Date|null
@@ -409,7 +410,7 @@ export class Competition { // extends Proposal {
   public createSuggestion(options: {
     title: string,
     description: string,
-    // tags: string[],
+    tags: string[],
     url: string
   }): Operation<any> {
     let schemeState: ISchemeState
@@ -508,6 +509,7 @@ export class CompetitionSuggestion {
       title
       description
       url
+      tags
       # fulltext: [string]
       suggester
       # votes: [CompetitionVote!] @derivedFrom(field: "suggestion")
