@@ -10,7 +10,7 @@
     "src",
     "scripts/copyABIsFromMigration.js"
   ],
-  "author": "Matan Tsuberi <tsuberim@gmail.com>, Jelle Gerbrandy <jelle@daostack.io>",
+  "author": "DAOstack <info@daostack.io>",
   "repository": {
     "type": "git",
     "url": "https://github.com/daostack/client"

@@ -320,16 +320,12 @@ describe('Competition Proposal', () => {
     )
     await advanceTimeAndBlock(2000)
 
-    // get the current balance of addres1 (who submitted suggestion1) before redeeming the suggestion
+    // get the current balance of addres1 (who we will send the rewards to)
     const balanceBefore = new BN(await arc.web3.eth.getBalance(address1))
     await suggestion1.redeem().send()
     const balanceAfter = new BN(await arc.web3.eth.getBalance(address1))
     const balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).not.toEqual(new BN(0))
-    // TODO: write some tests for winners and their balances
-    // console.log(balanceDelta.toString())
-    // console.log(ethReward.toString())
-    // expect(balanceDelta).toEqual(ethReward.muln(97).divn(100))
   })
 
   async function createCompetition() {
@@ -483,15 +479,11 @@ describe('Competition Proposal', () => {
     let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
     let balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual((new BN(8000000000)).toString())
-    console.log(balanceDelta.toString())
 
     balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
     await suggestion1.redeem(beneficiary).send()
     balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
     balanceDelta = balanceAfter.sub(balanceBefore)
-    // this fails, but should not!
-    // expect(balanceDelta.toString()).not.toEqual('0')
-    console.log(balanceDelta.toString())
 
     expect(suggestion4.redeem(beneficiary).send()).rejects.toThrow('not in winners list')
 
