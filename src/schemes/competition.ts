@@ -674,11 +674,13 @@ export class CompetitionSuggestion {
   }
 
   public async getPosition() {
+    console.warn(`This method is deprecated - please use the positionInWinnerList from the proposal state`)
     const suggestionState = await this.state().pipe(first()).toPromise()
     return suggestionState.positionInWinnerList
   }
 
   public async isWinner() {
+    console.warn(`This method is deprecated - please use the positionInWinnerList !== from the proposal state`)
     const position = await this.getPosition()
     return position !== null
   }
