@@ -712,8 +712,8 @@ export interface ICompetitionVoteQueryOptions {
     id?: string
     suggestion?: string
     voter?: Address
-    competition?: string
-    competition_not?: string|null
+    proposal?: string
+    proposal_not?: string|null
   }
 }
 
@@ -725,6 +725,8 @@ export class CompetitionVote {
       createdAt
       reputation
       voter
+      proposal { id }
+      suggestion { id }
     }`
   }
 

@@ -416,11 +416,7 @@ describe('Competition Proposal', () => {
     expect(suggestion1.redeem().send()).rejects.toThrow('not in winners list')
   })
 
-<<<<<<< Updated upstream
   it('position is calculated correctly and redemptions work', async () => {
-=======
-  it.only('position is calculated correctly', async () => {
->>>>>>> Stashed changes
     await createCompetition()
     const vote = await suggestion1.vote().send()
     // wait until vote is indexed
