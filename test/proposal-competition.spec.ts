@@ -522,8 +522,8 @@ describe('Competition Proposal', () => {
     // if we get the list of winners, it should contain exactly these 3 suggestions
     const winnerList = await competition.suggestions({where: {positionInWinnerList_not: null}})
       .pipe(first()).toPromise()
-    expect(winnerList.map((s: CompetitionSuggestion) => s.id)).toEqual(
-      [suggestion1.id, suggestion2.id, suggestion3.id]
+    expect(winnerList.map((s: CompetitionSuggestion) => s.id).sort()).toEqual(
+      [suggestion1.id, suggestion2.id, suggestion3.id].sort()
     )
 
   })

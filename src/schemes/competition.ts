@@ -551,21 +551,12 @@ export class CompetitionSuggestion {
     options: ICompetitionSuggestionQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionSuggestion[]> {
-    let where = ''
-    if (!options.where) { options.where = {}}
-
-    for (const key of Object.keys(options.where)) {
-      if (options.where[key] === undefined) {
-        continue
-      }
-      where += `${key}: "${options.where[key] as string}"\n`
-    }
 
     const itemMap = (item: any) => this.mapItemToObject(item, context)
 
     const query = gql`query CompetitionSuggestionSearch
       {
-        competitionSuggestions ${createGraphQlQuery(options, where)} {
+        competitionSuggestions ${createGraphQlQuery(options)} {
           ...CompetitionSuggestionFields
         }
       }
