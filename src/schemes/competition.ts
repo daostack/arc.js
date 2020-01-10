@@ -689,7 +689,7 @@ export class CompetitionSuggestion {
      return toIOperationObservable(observable)
   }
 }
-export interface ICompetitionVoteQueryOptions {
+export interface ICompetitionVoteQueryOptions extends ICommonQueryOptions {
   where?: {
     id?: string
     suggestion?: string
