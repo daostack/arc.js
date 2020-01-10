@@ -419,8 +419,8 @@ export class Competition { // extends Proposal {
   public createSuggestion(options: {
     title: string,
     description: string,
-    tags: string[],
-    url: string
+    tags?: string[],
+    url?: string
   }): Operation<any> {
     let schemeState: ISchemeState
     const createTransaction = async () => {
@@ -518,7 +518,9 @@ export class CompetitionSuggestion {
       title
       description
       url
-      tags
+      tags {
+        id
+      }
       # fulltext: [string]
       suggester
       # votes: [CompetitionVote!] @derivedFrom(field: "suggestion")
@@ -589,6 +591,7 @@ export class CompetitionSuggestion {
       rewardPercentage: Number(item.rewardPercentage),
       suggester: item.suggester,
       suggestionId: item.suggestionId,
+      tags: item.tags.map((tag: any) => tag.id),
       title: item.title,
       totalVotes: new BN(item.totalVotes),
       url: item.url

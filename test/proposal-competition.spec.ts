@@ -239,7 +239,7 @@ describe('Competition Proposal', () => {
     const suggestion1Options = {
       description: 'descxription',
       proposal: proposal.id,
-      // tags: ['tag1', 'tag2'],
+      tags: ['tag1', 'tag2'],
       title: 'title',
       url: 'https://somewhere.some.place'
     }
@@ -272,6 +272,7 @@ describe('Competition Proposal', () => {
       redeemedAt: null,
       rewardPercentage: 0,
       suggester: address1,
+      tags: ['tag1', 'tag2'],
       title: 'title',
       totalVotes: new BN(0)
     })
