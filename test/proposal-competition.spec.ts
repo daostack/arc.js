@@ -409,23 +409,32 @@ describe('Competition Proposal', () => {
   it(`No votes is no winners`, async () => {
     // before any votes are cast, all suggesitons are winnners
     await createCompetition()
-    expect(await suggestion1.getPosition()).toEqual(0)
-    expect(await suggestion4.getPosition()).toEqual(0)
+    expect(await suggestion1.getPosition()).toEqual(null)
+    expect(await suggestion4.getPosition()).toEqual(null)
     // let's try to redeem
     await advanceTimeAndBlock(2000)
     expect(suggestion1.redeem().send()).rejects.toThrow('not in winners list')
   })
 
+<<<<<<< Updated upstream
   it('position is calculated correctly and redemptions work', async () => {
+=======
+  it.only('position is calculated correctly', async () => {
+>>>>>>> Stashed changes
     await createCompetition()
-    await suggestion1.vote().send()
+    const vote = await suggestion1.vote().send()
+    // wait until vote is indexed
+    await waitUntilTrue(async () => (await CompetitionVote
+      .search(arc, {where: {id: vote.id}}).pipe(first()).toPromise()) !== [])
+    console.log(suggestion1.id)
+    console.log(vote.id)
     expect(await suggestion1.getPosition()).toEqual(0)
-    expect(await suggestion4.getPosition()).toEqual(1)
+    expect(await suggestion4.getPosition()).toEqual(null)
     await suggestion2.vote().send()
     expect(await suggestion1.getPosition()).toEqual(0)
     expect(await suggestion2.getPosition()).toEqual(0)
-    expect(await suggestion3.getPosition()).toEqual(2)
-    expect(await suggestion4.getPosition()).toEqual(2)
+    expect(await suggestion3.getPosition()).toEqual(null)
+    expect(await suggestion4.getPosition()).toEqual(null)
 
     await advanceTimeAndBlock(2000)
 
@@ -457,8 +466,9 @@ describe('Competition Proposal', () => {
     expect(await suggestion4.isWinner()).toEqual(false)
   })
 
-  it('position is calculated correctly', async () => {
-    await createCompetition()
+  it('position is calculated correctly (2)', async () => {
+    const competition = await createCompetition()
+    console.log(competition.id)
     await suggestion1.vote().send()
     await suggestion2.vote().send()
     arc.setAccount(address0)
@@ -469,7 +479,7 @@ describe('Competition Proposal', () => {
     expect(await suggestion1.getPosition()).toEqual(1)
     expect(await suggestion2.getPosition()).toEqual(1)
     expect(await suggestion3.getPosition()).toEqual(0)
-    expect(await suggestion4.getPosition()).toEqual(2)
+    expect(await suggestion4.getPosition()).toEqual(null)
 
     await advanceTimeAndBlock(2000)
 

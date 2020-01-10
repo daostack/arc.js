@@ -65,6 +65,7 @@ export interface ICompetitionSuggestion {
   createdAt: Date
   redeemedAt: Date|null
   rewardPercentage: number
+  positionInWinnerList: number|null // 0 is the first, null means it is not winning
 }
 
 export interface ICompetitionVote {
@@ -75,10 +76,6 @@ export interface ICompetitionVote {
   createdAt?: Date
   reputation: BN
 }
-
-// export enum IProposalType {
-//   ContributionReward = 'ContributionRewardExt' // propose a contributionReward
-// }
 
 export class CompetitionScheme extends SchemeBase {
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ISchemeState> {
@@ -535,6 +532,7 @@ export class CompetitionSuggestion {
       createdAt
       redeemedAt
       rewardPercentage
+      positionInWinnerList
     }`
   }
 
@@ -588,11 +586,16 @@ export class CompetitionSuggestion {
     if (item.redeemedAt !== null) {
       redeemedAt = secondSinceEpochToDate(item.redeemedAt)
     }
+    let positionInWinnerList  = null
+    if (item.positionInWinnerList !== null) {
+      positionInWinnerList = Number(item.positionInWinnerList)
+    }
     return {
       createdAt: secondSinceEpochToDate(item.createdAt),
       description: item.description,
       descriptionHash: item.descriptionHash,
       id: item.id,
+      positionInWinnerList,
       proposal: item.proposal.id,
       redeemedAt,
       rewardPercentage: Number(item.rewardPercentage),
@@ -671,24 +674,26 @@ export class CompetitionSuggestion {
   }
 
   public async getPosition() {
-    const suggestionState = await this.state().pipe(first()).toPromise()
-    const proposal = new Proposal(suggestionState.proposal, this.context)
-    const proposalState = await proposal.state().pipe(first()).toPromise()
-    const scheme = new CompetitionScheme(proposalState.scheme.id, this.context)
-    const competitionContract = await scheme.getCompetitionContract()
-    const transaction = competitionContract.methods.getOrderedIndexOfSuggestion(suggestionState.suggestionId)
-    const result = await transaction.call()
-    const index = Number(result)
-    return index
+    const suggestionState = await this.state({ fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
+    return suggestionState.positionInWinnerList
+    // const proposal = new Proposal(suggestionState.proposal, this.context)
+    // const proposalState = await proposal.state().pipe(first()).toPromise()
+    // const scheme = new CompetitionScheme(proposalState.scheme.id, this.context)
+    // const competitionContract = await scheme.getCompetitionContract()
+    // const transaction = competitionContract.methods.getOrderedIndexOfSuggestion(suggestionState.suggestionId)
+    // const result = await transaction.call()
+    // const index = Number(result)
+    // return index
   }
   public async isWinner() {
     const position = await this.getPosition()
-    const suggestionState = await this.state().pipe(first()).toPromise()
-    const proposal = await new Proposal(suggestionState.proposal, this.context)
-    const proposalState = await proposal.state().pipe(first()).toPromise()
-    const competitionState = proposalState.competition as ICompetitionProposal
-    const numberOfWinners = competitionState.numberOfWinners
-    return position < numberOfWinners
+    return position !== null
+    // const suggestionState = await this.state().pipe(first()).toPromise()
+    // const proposal = await new Proposal(suggestionState.proposal, this.context)
+    // const proposalState = await proposal.state().pipe(first()).toPromise()
+    // const competitionState = proposalState.competition as ICompetitionProposal
+    // const numberOfWinners = competitionState.numberOfWinners
+    // return position < numberOfWinners
   }
 
   public redeem(beneficiary: Address = NULL_ADDRESS): Operation<boolean> {
@@ -704,6 +709,7 @@ export class CompetitionSuggestion {
 }
 export interface ICompetitionVoteQueryOptions {
   where?: {
+    id?: string
     suggestion?: string
     voter?: Address
     competition?: string
@@ -720,13 +726,6 @@ export class CompetitionVote {
       reputation
       voter
     }`
-  }
-  public static calculateId(opts: { scheme: Address, suggestionId: number}): string {
-    const seed = concat(
-      hexStringToUint8Array(opts.scheme.toLowerCase()),
-      hexStringToUint8Array(Number(opts.suggestionId).toString(16))
-    )
-    return Web3.utils.keccak256(seed)
   }
 
   public static search(
