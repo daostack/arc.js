@@ -279,6 +279,15 @@ export class CompetitionScheme extends SchemeBase {
     return contract
   }
 
+  /**
+   * Vote for the suggestion that is, in the current scheme, identified by  suggestionId
+   *
+   * @param {{
+   *     suggestionId: number // this is the suggestion COUNTER
+   *   }} options
+   * @returns {Operation<CompetitionVote>}
+   * @memberof CompetitionScheme
+   */
   public voteSuggestion(options: {
     suggestionId: number // this is the suggestion COUNTER
   }): Operation<CompetitionVote> {
