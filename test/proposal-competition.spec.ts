@@ -528,7 +528,7 @@ describe('Competition Proposal', () => {
 
   })
 
-  it.only('winner is identified correctly also if there are less actual than possible winners', async () => {
+  it('winner is identified correctly also if there are less actual than possible winners', async () => {
     await createCompetition({ rewardSplit: [40, 40, 20]})
     await suggestion1.vote().send()
      // wait until the vote is indexed
