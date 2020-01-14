@@ -325,7 +325,7 @@ describe('Competition Proposal', () => {
     expect(balanceDelta.toString()).not.toEqual('0')
   })
 
-  async function createCompetition() {
+  async function createCompetition(options: { rewardSplit?: number[]}  = {}) {
     const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
     const ethReward =  new BN(10000000000)
     // make sure that the DAO has enough Ether to pay forthe reward
@@ -340,7 +340,7 @@ describe('Competition Proposal', () => {
     const nativeTokenReward = new BN(0)
     const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 2)
-    const rewardSplit = [80, 20]
+    const rewardSplit = options.rewardSplit || [80, 20]
     const proposalOptions  = {
       dao: dao.id,
       endTime: addSeconds(startTime, 200),
@@ -494,6 +494,27 @@ describe('Competition Proposal', () => {
     expect(await suggestion2.isWinner()).toEqual(true)
     expect(await suggestion3.isWinner()).toEqual(true)
     expect(await suggestion4.isWinner()).toEqual(false)
+
+  })
+
+  it.only('winner is identified correctly also if there are less actual than possible winners', async () => {
+    await createCompetition({ rewardSplit: [40, 40, 20]})
+    await suggestion1.vote().send()
+     // wait until the vote is indexed
+    let voteIsIndexed = false
+    suggestion1.state().subscribe((s: ICompetitionSuggestion) => {
+      voteIsIndexed = (s.positionInWinnerList !== null)
+    })
+    await waitUntilTrue(() => voteIsIndexed)
+
+    const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
+    expect(suggestion1State.positionInWinnerList).toEqual(0)
+    const suggestion2State = await suggestion2.state().pipe(first()).toPromise()
+    expect(suggestion2State.positionInWinnerList).toEqual(null)
+    const suggestion3State = await suggestion3.state().pipe(first()).toPromise()
+    expect(suggestion3State.positionInWinnerList).toEqual(null)
+    const suggestion4State = await suggestion4.state().pipe(first()).toPromise()
+    expect(suggestion4State.positionInWinnerList).toEqual(null)
 
   })
 
