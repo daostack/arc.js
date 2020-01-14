@@ -540,12 +540,19 @@ describe('Competition Proposal', () => {
 
     const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
     expect(suggestion1State.positionInWinnerList).toEqual(0)
+    expect(suggestion1State.totalVotes).not.toEqual(new BN(0))
+
     const suggestion2State = await suggestion2.state().pipe(first()).toPromise()
     expect(suggestion2State.positionInWinnerList).toEqual(null)
+    expect(suggestion2State.totalVotes).toEqual(new BN(0))
+
     const suggestion3State = await suggestion3.state().pipe(first()).toPromise()
     expect(suggestion3State.positionInWinnerList).toEqual(null)
+    expect(suggestion3State.totalVotes).toEqual(new BN(0))
+
     const suggestion4State = await suggestion4.state().pipe(first()).toPromise()
     expect(suggestion4State.positionInWinnerList).toEqual(null)
+    expect(suggestion4State.totalVotes).toEqual(new BN(0))
 
   })
 
