@@ -66,6 +66,7 @@ export interface ICompetitionSuggestion {
   redeemedAt: Date|null
   rewardPercentage: number
   positionInWinnerList: number|null // 0 is the first, null means it is not winning
+  isWinner: boolean
 }
 
 export interface ICompetitionVote {
@@ -588,6 +589,7 @@ export class CompetitionSuggestion {
       description: item.description,
       descriptionHash: item.descriptionHash,
       id: item.id,
+      isWinner: positionInWinnerList !== null,
       positionInWinnerList,
       proposal: item.proposal.id,
       redeemedAt,
@@ -674,8 +676,8 @@ export class CompetitionSuggestion {
 
   public async isWinner() {
     console.warn(`This method is deprecated - please use the positionInWinnerList !== from the proposal state`)
-    const position = await this.getPosition()
-    return position !== null
+    const suggestionState = await this.state().pipe(first()).toPromise()
+    return suggestionState.isWinner
   }
 
   public redeem(beneficiary: Address = NULL_ADDRESS): Operation<boolean> {

@@ -492,10 +492,14 @@ describe('Competition Proposal', () => {
     })
     await waitUntilTrue(() => voteIsIndexed)
 
-    expect(await suggestion1.getPosition()).toEqual(1)
-    expect(await suggestion2.getPosition()).toEqual(1)
-    expect(await suggestion3.getPosition()).toEqual(0)
-    expect(await suggestion4.getPosition()).toEqual(null)
+    async function getPosition(suggestion) {
+      const state = await suggestion.state().pipe(first()).toPromise()
+      return state.positionInWinnerList
+    }
+    expect(await getPosition(suggestion1)).toEqual(1)
+    expect(await getPosition(suggestion2)).toEqual(1)
+    expect(await getPosition(suggestion3)).toEqual(0)
+    expect(await getPosition(suggestion4)).toEqual(null)
 
     await advanceTimeAndBlock(2000)
 
@@ -514,10 +518,15 @@ describe('Competition Proposal', () => {
 
     expect(suggestion4.redeem(beneficiary).send()).rejects.toThrow('not in winners list')
 
-    expect(await suggestion1.isWinner()).toEqual(true)
-    expect(await suggestion2.isWinner()).toEqual(true)
-    expect(await suggestion3.isWinner()).toEqual(true)
-    expect(await suggestion4.isWinner()).toEqual(false)
+    async function isWinner(suggestion) {
+      const state = await suggestion.state().pipe(first()).toPromise()
+      return state.isWinner
+    }
+
+    expect(await isWinner(suggestion1)).toEqual(true)
+    expect(await isWinner(suggestion2)).toEqual(true)
+    expect(await isWinner(suggestion3)).toEqual(true)
+    expect(await isWinner(suggestion4)).toEqual(false)
 
     // if we get the list of winners, it should contain exactly these 3 suggestions
     const winnerList = await competition.suggestions({where: {positionInWinnerList_not: null}})
@@ -541,6 +550,7 @@ describe('Competition Proposal', () => {
     const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
     expect(suggestion1State.positionInWinnerList).toEqual(0)
     expect(suggestion1State.totalVotes).not.toEqual(new BN(0))
+    expect(suggestion1State.isWinner).toEqual(true)
 
     const suggestion2State = await suggestion2.state().pipe(first()).toPromise()
     expect(suggestion2State.positionInWinnerList).toEqual(null)
@@ -549,6 +559,7 @@ describe('Competition Proposal', () => {
     const suggestion3State = await suggestion3.state().pipe(first()).toPromise()
     expect(suggestion3State.positionInWinnerList).toEqual(null)
     expect(suggestion3State.totalVotes).toEqual(new BN(0))
+    expect(suggestion3State.isWinner).toEqual(false)
 
     const suggestion4State = await suggestion4.state().pipe(first()).toPromise()
     expect(suggestion4State.positionInWinnerList).toEqual(null)
