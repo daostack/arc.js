@@ -571,7 +571,7 @@ export class CompetitionSuggestion {
     ) as Observable<CompetitionSuggestion[]>
   }
 
-  private static mapItemToObject(item: any, context: Arc): ICompetitionSuggestion|null {
+  private static mapItemToObject(item: any, context: Arc): CompetitionSuggestion|null {
     if (item === null) {
       return null
     }
@@ -584,7 +584,7 @@ export class CompetitionSuggestion {
     if (item.positionInWinnerList !== null) {
       positionInWinnerList = Number(item.positionInWinnerList)
     }
-    return {
+    return new CompetitionSuggestion({
       createdAt: secondSinceEpochToDate(item.createdAt),
       description: item.description,
       descriptionHash: item.descriptionHash,
@@ -600,7 +600,7 @@ export class CompetitionSuggestion {
       title: item.title,
       totalVotes: new BN(item.totalVotes),
       url: item.url
-    }
+    }, context)
 
   }
 
