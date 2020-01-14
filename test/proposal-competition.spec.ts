@@ -492,7 +492,7 @@ describe('Competition Proposal', () => {
     })
     await waitUntilTrue(() => voteIsIndexed)
 
-    async function getPosition(suggestion) {
+    async function getPosition(suggestion: CompetitionSuggestion) {
       const state = await suggestion.state().pipe(first()).toPromise()
       return state.positionInWinnerList
     }
@@ -518,7 +518,7 @@ describe('Competition Proposal', () => {
 
     expect(suggestion4.redeem(beneficiary).send()).rejects.toThrow('not in winners list')
 
-    async function isWinner(suggestion) {
+    async function isWinner(suggestion: CompetitionSuggestion) {
       const state = await suggestion.state().pipe(first()).toPromise()
       return state.isWinner
     }
