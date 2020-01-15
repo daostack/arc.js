@@ -420,8 +420,8 @@ describe('Competition Proposal', () => {
   it(`No votes is no winners`, async () => {
     // before any votes are cast, all suggesitons are winnners
     await createCompetition()
-    expect(await suggestion1.getPosition()).toEqual(null)
-    expect(await suggestion4.getPosition()).toEqual(null)
+    expect(await getPosition(suggestion1)).toEqual(null)
+    expect(await getPosition(suggestion4)).toEqual(null)
     // let's try to redeem
     await advanceTimeAndBlock(2000)
     expect(suggestion1.redeem().send()).rejects.toThrow('not in winners list')
@@ -439,8 +439,8 @@ describe('Competition Proposal', () => {
     })
     await waitUntilTrue(() => voteIsIndexed)
 
-    expect(await suggestion1.getPosition()).toEqual(0)
-    expect(await suggestion4.getPosition()).toEqual(null)
+    expect(await getPosition(suggestion1)).toEqual(0)
+    expect(await getPosition(suggestion4)).toEqual(null)
 
     // vote and wait until it is indexed
     voteIsIndexed = false
@@ -450,10 +450,10 @@ describe('Competition Proposal', () => {
     })
     await waitUntilTrue(() => voteIsIndexed)
 
-    expect(await suggestion1.getPosition()).toEqual(0)
-    expect(await suggestion2.getPosition()).toEqual(0)
-    expect(await suggestion3.getPosition()).toEqual(null)
-    expect(await suggestion4.getPosition()).toEqual(null)
+    expect(await getPosition(suggestion1)).toEqual(0)
+    expect(await getPosition(suggestion2)).toEqual(0)
+    expect(await getPosition(suggestion3)).toEqual(null)
+    expect(await getPosition(suggestion4)).toEqual(null)
 
     await advanceTimeAndBlock(2000)
 
@@ -479,10 +479,10 @@ describe('Competition Proposal', () => {
     balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual('5000000000')
 
-    expect(await suggestion1.isWinner()).toEqual(true)
-    expect(await suggestion2.isWinner()).toEqual(true)
-    expect(await suggestion3.isWinner()).toEqual(false)
-    expect(await suggestion4.isWinner()).toEqual(false)
+    expect(await isWinner(suggestion1)).toEqual(true)
+    expect(await isWinner(suggestion2)).toEqual(true)
+    expect(await isWinner(suggestion3)).toEqual(false)
+    expect(await isWinner(suggestion4)).toEqual(false)
   })
 
   it('position is calculated correctly (2)', async () => {
