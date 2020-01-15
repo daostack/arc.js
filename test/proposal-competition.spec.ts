@@ -7,8 +7,8 @@ import {
   CompetitionSuggestion,
   CompetitionVote,
   DAO,
-  ICompetitionProposal,
-  ICompetitionSuggestion,
+  ICompetitionProposalState,
+  ICompetitionSuggestionState,
   IProposalStage,
   IProposalState,
   ISchemeState,
@@ -144,7 +144,7 @@ describe('Competition Proposal', () => {
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Queued
     })
-    expect((lastState().competition as ICompetitionProposal).startTime).toBeDefined()
+    expect((lastState().competition as ICompetitionProposalState).startTime).toBeDefined()
   })
 
   it('Create a competition proposal, compete, win the competition..', async () => {
@@ -434,7 +434,7 @@ describe('Competition Proposal', () => {
     // vote and wait until it is indexed
     await suggestion1.vote().send()
     voteIsIndexed = false
-    suggestion1.state().subscribe((s: ICompetitionSuggestion) => {
+    suggestion1.state().subscribe((s: ICompetitionSuggestionState) => {
       voteIsIndexed = (s.positionInWinnerList !== null)
     })
     await waitUntilTrue(() => voteIsIndexed)
@@ -445,7 +445,7 @@ describe('Competition Proposal', () => {
     // vote and wait until it is indexed
     voteIsIndexed = false
     await suggestion2.vote().send()
-    suggestion2.state().subscribe((s: ICompetitionSuggestion) => {
+    suggestion2.state().subscribe((s: ICompetitionSuggestionState) => {
       voteIsIndexed = (s.positionInWinnerList !== null)
     })
     await waitUntilTrue(() => voteIsIndexed)
@@ -497,7 +497,7 @@ describe('Competition Proposal', () => {
 
      // wait until last vote is indexed
     let voteIsIndexed = false
-    suggestion2.state().subscribe((s: ICompetitionSuggestion) => {
+    suggestion2.state().subscribe((s: ICompetitionSuggestionState) => {
       voteIsIndexed = (s.positionInWinnerList !== null)
     })
     await waitUntilTrue(() => voteIsIndexed)
@@ -543,7 +543,7 @@ describe('Competition Proposal', () => {
     await suggestion1.vote().send()
      // wait until the vote is indexed
     let voteIsIndexed = false
-    suggestion1.state().subscribe((s: ICompetitionSuggestion) => {
+    suggestion1.state().subscribe((s: ICompetitionSuggestionState) => {
       voteIsIndexed = (s.positionInWinnerList !== null)
     })
     await waitUntilTrue(() => voteIsIndexed)
