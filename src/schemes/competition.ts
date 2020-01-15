@@ -553,7 +553,9 @@ export class CompetitionSuggestion {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionSuggestion[]> {
 
-    const itemMap = (item: any) => this.mapItemToObject(item, context)
+    const itemMap = (item: any) => {
+      return new CompetitionSuggestion(this.mapItemToObject(item, context) as ICompetitionSuggestion, context)
+    }
 
     const query = gql`query CompetitionSuggestionSearch
       {
@@ -571,7 +573,7 @@ export class CompetitionSuggestion {
     ) as Observable<CompetitionSuggestion[]>
   }
 
-  private static mapItemToObject(item: any, context: Arc): CompetitionSuggestion|null {
+  private static mapItemToObject(item: any, context: Arc): ICompetitionSuggestion|null {
     if (item === null) {
       return null
     }
@@ -584,7 +586,7 @@ export class CompetitionSuggestion {
     if (item.positionInWinnerList !== null) {
       positionInWinnerList = Number(item.positionInWinnerList)
     }
-    return new CompetitionSuggestion({
+    return  {
       createdAt: secondSinceEpochToDate(item.createdAt),
       description: item.description,
       descriptionHash: item.descriptionHash,
@@ -600,7 +602,7 @@ export class CompetitionSuggestion {
       title: item.title,
       totalVotes: new BN(item.totalVotes),
       url: item.url
-    }, context)
+    }
 
   }
 

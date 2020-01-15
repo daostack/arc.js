@@ -49,6 +49,16 @@ describe('Competition Proposal', () => {
     return result
   }
 
+  async function getPosition(suggestion: CompetitionSuggestion) {
+    const state = await suggestion.state().pipe(first()).toPromise()
+    return state.positionInWinnerList
+  }
+
+  async function isWinner(suggestion: CompetitionSuggestion) {
+    const state = await suggestion.state().pipe(first()).toPromise()
+    return state.isWinner
+  }
+
   beforeEach(async () => {
     // @ts-ignore
     // snapshotId = (await takeSnapshot()).result
@@ -492,10 +502,6 @@ describe('Competition Proposal', () => {
     })
     await waitUntilTrue(() => voteIsIndexed)
 
-    async function getPosition(suggestion: CompetitionSuggestion) {
-      const state = await suggestion.state().pipe(first()).toPromise()
-      return state.positionInWinnerList
-    }
     expect(await getPosition(suggestion1)).toEqual(1)
     expect(await getPosition(suggestion2)).toEqual(1)
     expect(await getPosition(suggestion3)).toEqual(0)
@@ -517,11 +523,6 @@ describe('Competition Proposal', () => {
     balanceDelta = balanceAfter.sub(balanceBefore)
 
     expect(suggestion4.redeem(beneficiary).send()).rejects.toThrow('not in winners list')
-
-    async function isWinner(suggestion: CompetitionSuggestion) {
-      const state = await suggestion.state().pipe(first()).toPromise()
-      return state.isWinner
-    }
 
     expect(await isWinner(suggestion1)).toEqual(true)
     expect(await isWinner(suggestion2)).toEqual(true)
