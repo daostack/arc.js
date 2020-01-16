@@ -641,9 +641,9 @@ export class Proposal implements IStateful<IProposalState> {
               const msg = `Error in vote(): proposal ${proposal.id} already executed`
               return Error(msg)
             }
+            // call the method, so we collect any errors from the EVM
+            await voteMethod.call()
           }
-          // call the method, so we collect any errors from the EVM
-          await voteMethod.call()
           // if everything seems fine, just return the oroginal error
           return error
         }
@@ -823,6 +823,7 @@ export class Proposal implements IStateful<IProposalState> {
             const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
             return Error(msg)
           }
+          await transaction.call()
           return err
         }
         return this.context.sendTransaction(transaction, map, errorHandler)
