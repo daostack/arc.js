@@ -57,11 +57,19 @@ export type web3receipt = object
  * @return An observable with ITransactionUpdate instnces
  */
 export function sendTransaction<T>(
+  context: Arc,
   transaction: any,
   mapReceipt: (receipt: web3receipt) => T | Promise<T>,
-  errorHandler: (error: Error) => Promise<Error> | Error = (error) => error,
-  context: Arc
+  errorHandler?: (error: Error) => Promise<Error> | Error
 ): Operation<T> {
+
+  if (errorHandler === null) {
+    errorHandler = async (err: Error) => {
+      await transaction.call()
+      return err
+    }
+  }
+
   const observable = Observable.create(async (observer: Observer<ITransactionUpdate<T>>) => {
     let transactionHash: string
     let result: any
@@ -84,7 +92,7 @@ export function sendTransaction<T>(
     } catch (error) {
       let errToReturn: Error
       try {
-        errToReturn = await errorHandler(error)
+        errToReturn = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
       } catch (err) {
         errToReturn = err
       }
@@ -166,7 +174,7 @@ export function sendTransaction<T>(
       .on('error', async (error: Error) => {
         let errToReturn: Error
         try {
-          errToReturn = await errorHandler(error)
+          errToReturn = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
         } catch (err) {
           errToReturn = err
         }
