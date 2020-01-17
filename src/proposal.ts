@@ -682,7 +682,6 @@ export class Proposal implements IStateful<IProposalState> {
               // for some reason, a transaction was mined but no error was raised before
               throw new Error(`Error staking: no "Stake" event was found - ${Object.keys(receipt.events)}`)
             }
-
             return new Stake({
               amount: event.returnValues._reputation, // amount
               // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
@@ -694,14 +693,13 @@ export class Proposal implements IStateful<IProposalState> {
         }
 
         const errorHandler =  async (error: Error) => {
+          const proposal = this
+          const proposalState = await (await this.votingMachine()).methods.proposals(proposal.id).call()
           if (error.message.match(/revert/)) {
-            const proposal = this
             const stakingToken = this.stakingToken()
-            const prop = await (await this.votingMachine()).methods.proposals(proposal.id).call()
-            if (prop.proposer === NULL_ADDRESS ) {
+            if (proposalState.proposer === NULL_ADDRESS ) {
               return new Error(`Unknown proposal with id ${proposal.id}`)
             }
-
             // staker has sufficient balance
             const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
             const balance = new BN(await stakingToken.contract().methods.balanceOf(defaultAccount).call())
@@ -723,7 +721,13 @@ export class Proposal implements IStateful<IProposalState> {
             // call the stake function and bubble up any solidity errors
             await stakeMethod.call()
           }
+          if (!!error.message.match(/event was found/)) {
+            if (proposalState.state === IProposalStage.Boosted) {
+              return new Error(`Staking failed because the proposal is boosted`)
+            }
+          }
           // if we have found no known error, we return the original error
+
           return error
         }
 

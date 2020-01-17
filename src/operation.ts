@@ -90,13 +90,12 @@ export function sendTransaction<T>(
     try {
       gasEstimate = await tx.estimateGas({ from })
     } catch (error) {
-      let errToReturn: Error
       try {
-        errToReturn = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
+        error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
       } catch (err) {
-        errToReturn = err
+        error = err
       }
-      observer.error(errToReturn)
+      observer.error(error)
       return
     }
     let gas: number
@@ -134,8 +133,13 @@ export function sendTransaction<T>(
       .once('receipt', async (receipt: any) => {
         try {
           result = await mapReceipt(receipt)
-        } catch (err) {
-          observer.error(err)
+        } catch (error) {
+          try {
+            error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
+          } catch (err) {
+            error = err
+          }
+          observer.error(error)
         }
         if (confirmationCount === 0) {
           Logger.debug(`transaction mined!`)
@@ -152,8 +156,13 @@ export function sendTransaction<T>(
         if (!result) {
           try {
             result = await mapReceipt(receipt)
-          } catch (err) {
-            observer.error(err)
+          } catch (error) {
+            try {
+              error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
+            } catch (err) {
+              error = err
+            }
+            observer.error(error)
           }
         }
         if (confirmationCount === 0) {
@@ -172,13 +181,12 @@ export function sendTransaction<T>(
         }
       })
       .on('error', async (error: Error) => {
-        let errToReturn: Error
         try {
-          errToReturn = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
+          error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
         } catch (err) {
-          errToReturn = err
+          error = err
         }
-        observer.error(errToReturn)
+        observer.error(error)
       })
   }
   )
