@@ -69,7 +69,7 @@ export function sendTransaction<T>(
   errorHandler?: (error: Error) => Promise<Error> | Error
 ): Operation<T> {
 
-  if (errorHandler === null) {
+  if (!errorHandler) {
     errorHandler = async (err: Error) => {
       await transaction.call()
       return err

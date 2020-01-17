@@ -714,7 +714,7 @@ export class Proposal implements IStateful<IProposalState> {
           if (allowance.lt(amountBN)) {
             return new Error(
               `Staker has insufficient allowance to stake ${amount.toString()}
-                (allowance is ${allowance.toString()})`
+                (allowance for ${votingMachine.options.address} is ${allowance.toString()})`
             )
           }
 
