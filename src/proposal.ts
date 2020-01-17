@@ -630,20 +630,18 @@ export class Proposal implements IStateful<IProposalState> {
         )
 
        const errorHandler = async (error: Error) => {
-          if (error.message.match(/revert/)) {
-            const proposal = this
-            const proposalDataFromVotingMachine = await votingMachine.methods.proposals(proposal.id).call()
-            if (proposalDataFromVotingMachine.proposer === NULL_ADDRESS ) {
-              return Error(`Error in vote(): unknown proposal with id ${proposal.id}`)
-            }
-
-            if (proposalDataFromVotingMachine.state === '2') {
-              const msg = `Error in vote(): proposal ${proposal.id} already executed`
-              return Error(msg)
-            }
-            // call the method, so we collect any errors from the EVM
-            await voteMethod.call()
+          const proposal = this
+          const proposalDataFromVotingMachine = await votingMachine.methods.proposals(proposal.id).call()
+          if (proposalDataFromVotingMachine.proposer === NULL_ADDRESS ) {
+            return Error(`Error in vote(): unknown proposal with id ${proposal.id}`)
           }
+
+          if (proposalDataFromVotingMachine.state === '2') {
+            const msg = `Error in vote(): proposal ${proposal.id} already executed`
+            return Error(msg)
+          }
+          // call the method, so we collect any errors from the EVM
+          await voteMethod.call()
           // if everything seems fine, just return the oroginal error
           return error
         }
@@ -695,32 +693,33 @@ export class Proposal implements IStateful<IProposalState> {
         const errorHandler =  async (error: Error) => {
           const proposal = this
           const proposalState = await (await this.votingMachine()).methods.proposals(proposal.id).call()
-          if (error.message.match(/revert/)) {
-            const stakingToken = this.stakingToken()
-            if (proposalState.proposer === NULL_ADDRESS ) {
-              return new Error(`Unknown proposal with id ${proposal.id}`)
-            }
-            // staker has sufficient balance
-            const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
-            const balance = new BN(await stakingToken.contract().methods.balanceOf(defaultAccount).call())
-            const amountBN = new BN(amount)
-            if (balance.lt(amountBN)) {
-              const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}
-                (balance is ${balance.toString()})`
-              return new Error(msg)
-            }
-
-            // staker has approved the token spend
-            const allowance = new BN(await stakingToken.contract().methods.allowance(
-              defaultAccount, votingMachine.options.address
-            ).call())
-            if (allowance.lt(amountBN)) {
-              return new Error(`Staker has insufficient allowance to stake ${amount.toString()}
-                (allowance is ${allowance.toString()})`)
-            }
-            // call the stake function and bubble up any solidity errors
-            await stakeMethod.call()
+          const stakingToken = this.stakingToken()
+          if (proposalState.proposer === NULL_ADDRESS ) {
+            return new Error(`Unknown proposal with id ${proposal.id}`)
           }
+          // staker has sufficient balance
+          const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
+          const balance = new BN(await stakingToken.contract().methods.balanceOf(defaultAccount).call())
+          const amountBN = new BN(amount)
+          if (balance.lt(amountBN)) {
+            const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}
+              (balance is ${balance.toString()})`
+            return new Error(msg)
+          }
+
+          // staker has approved the token spend
+          const allowance = new BN(await stakingToken.contract().methods.allowance(
+            defaultAccount, votingMachine.options.address
+          ).call())
+          if (allowance.lt(amountBN)) {
+            return new Error(
+              `Staker has insufficient allowance to stake ${amount.toString()}
+                (allowance is ${allowance.toString()})`
+            )
+          }
+
+          // call the stake function and bubble up any solidity errors
+          await stakeMethod.call()
           if (!!error.message.match(/event was found/)) {
             if (proposalState.state === IProposalStage.Boosted) {
               return new Error(`Staking failed because the proposal is boosted`)
