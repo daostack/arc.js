@@ -492,10 +492,10 @@ describe('Competition Proposal', () => {
     await suggestion1.redeem(beneficiary).send()
     let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
     let balanceDelta = balanceAfter.sub(balanceBefore)
-    expect(balanceDelta.toString()).toEqual('5000000000')
+    expect(balanceDelta.toString()).toEqual('150')
     const crExtBalanceAfter = await arc.web3.eth.getBalance(crextContractAddress)
     const crExtBalanceDelta = new BN(crExtBalanceBefore).sub(new BN(crExtBalanceAfter))
-    expect(crExtBalanceDelta.toString()).toEqual('5000000000')
+    expect(crExtBalanceDelta.toString()).toEqual('150')
 
     // the reward _is_ redeemed
     await expect(suggestion1.redeem(beneficiary).send()).rejects.toThrow('suggestion was already redeemed')
@@ -504,7 +504,7 @@ describe('Competition Proposal', () => {
     await suggestion2.redeem(beneficiary).send()
     balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
     balanceDelta = balanceAfter.sub(balanceBefore)
-    expect(balanceDelta.toString()).toEqual('5000000000')
+    expect(balanceDelta.toString()).toEqual('150')
 
     expect(await isWinner(suggestion1)).toEqual(true)
     expect(await isWinner(suggestion2)).toEqual(true)
@@ -542,7 +542,7 @@ describe('Competition Proposal', () => {
     await suggestion3.redeem(beneficiary).send()
     let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
     let balanceDelta = balanceAfter.sub(balanceBefore)
-    expect(balanceDelta.toString()).toEqual((new BN(8000000000)).toString())
+    expect(balanceDelta.toString()).toEqual((new BN(240)).toString())
 
     balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
     await suggestion1.redeem(beneficiary).send()
