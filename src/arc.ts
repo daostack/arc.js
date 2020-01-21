@@ -413,9 +413,10 @@ export class Arc extends GraphNodeObserver {
   public sendTransaction<T>(
     transaction: any,
     mapToObject: (receipt: web3receipt) => T,
-    errorHandler: (error: Error) => Promise<Error> | Error = (error) => error
+    errorHandler?: (error: Error) => Promise<Error> | Error
   ): Operation<T> {
-    return sendTransaction(transaction, mapToObject, errorHandler, this)
+
+    return sendTransaction(this, transaction, mapToObject, errorHandler)
   }
 
   /**
@@ -423,7 +424,7 @@ export class Arc extends GraphNodeObserver {
    * @param  options an Object to save. This object must have title, url and desction defined
    * @return  a Promise that resolves in the IPFS Hash where the file is saved
    */
-  public async saveIPFSData(options: { title: string, url: string, description: string, tags: string[]}):
+  public async saveIPFSData(options: { title?: string, url?: string, description?: string, tags?: string[]}):
     Promise<string> {
     let ipfsDataToSave: object = {}
     if (options.title || options.url || options.description || options.tags !== undefined) {
