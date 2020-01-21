@@ -9,16 +9,17 @@ import { IObservable } from './graphnode'
 import { Operation, toIOperationObservable } from './operation'
 import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
-import { Scheme } from './scheme'
-import { ISchemeState } from './scheme'
+import { ISchemeState, Scheme } from './scheme'
+import { ICompetitionProposalState, IProposalCreateOptionsCompetition } from './schemes/competition'
 import * as ContributionReward from './schemes/contributionReward'
+import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
 import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSION } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
-import { isAddress } from './utils'
-import { createGraphQlQuery, NULL_ADDRESS, realMathToNumber } from './utils'
+import { createGraphQlQuery, isAddress, NULL_ADDRESS, realMathToNumber,
+  secondSinceEpochToDate } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
 export const IProposalType = {
@@ -68,6 +69,7 @@ export interface IProposalState extends IProposalStaticState {
   accountsWithUnclaimedRewards: Address[],
   boostedAt: Date
   contributionReward: ContributionReward.IContributionReward|null
+  competition: ICompetitionProposalState|null
   confidenceThreshold: number
   closingAt: Date
   createdAt: Date
@@ -113,6 +115,20 @@ export class Proposal implements IStateful<IProposalState> {
       boostedAt
       closingAt
       confidenceThreshold
+      competition {
+        id
+        endTime
+        contract
+        suggestionsEndTime
+        createdAt
+        numberOfVotesPerVoters
+        numberOfWinners
+        rewardSplit
+        snapshotBlock
+        startTime
+        votingStartTime
+
+      }
       contributionReward {
         id
         beneficiary
@@ -150,6 +166,7 @@ export class Proposal implements IStateful<IProposalState> {
         returnValue
       }
       genesisProtocolParams {
+        id
         activationTime
         boostedVotePeriodLimit
         daoBountyConst
@@ -167,19 +184,7 @@ export class Proposal implements IStateful<IProposalState> {
         id
       }
       scheme {
-        id
-        paramsHash
-        name
-        address
-        canDelegateCall
-        canManageGlobalConstraints
-        canRegisterSchemes
-        canUpgradeController
-        name
-        numberOfQueuedProposals
-        numberOfPreBoostedProposals
-        numberOfBoostedProposals
-        version
+        ...SchemeFields
       }
       gpQueue {
         id
@@ -217,41 +222,6 @@ export class Proposal implements IStateful<IProposalState> {
       votingMachine
       winningOutcome
     }`
-  }
-
-  /**
-   * Proposal.create() creates a new proposal
-   * @param  options cf. IProposalCreateOptions
-   * @param  context [description]
-   * @return  an observable that streams the various states
-   */
-  public static create(options: IProposalCreateOptions, context: Arc): Operation<Proposal> {
-
-    if (!options.dao) {
-      throw Error(`Proposal.create(options): options must include an address for "dao"`)
-    }
-    if (!options.scheme) {
-      throw Error(`Proposal.create(options): options must include an address for "scheme"`)
-    }
-
-    const schemesQuery = Scheme.search(
-      context,
-      { where: {
-        address: options.scheme,
-        dao: options.dao
-      }}
-    )
-    const observable = schemesQuery.pipe(
-      first(),
-      concatMap((schemes) => {
-        if (schemes && schemes.length > 0) {
-          return schemes[0].createProposal(options)
-        } else {
-          throw Error(`No scheme with address ${options.scheme} is registered with dao ${options.dao}`)
-        }
-      }
-    ))
-    return toIOperationObservable(observable)
   }
 
   /**
@@ -322,6 +292,7 @@ export class Proposal implements IStateful<IProposalState> {
           }
         }
         ${Proposal.fragments.ProposalFields}
+        ${Scheme.fragments.SchemeFields}
       `
       return context.getObservableList(
         query,
@@ -408,19 +379,26 @@ export class Proposal implements IStateful<IProposalState> {
         }
       }
       ${Proposal.fragments.ProposalFields}
+      ${Scheme.fragments.SchemeFields}
+
     `
 
     const itemMap = (item: any): IProposalState|null => {
       if (item === null || item === undefined) {
         // no proposal was found - we return null
+        // throw Error(`No proposal with id ${this.id} could be found`)
         return null
       }
 
       let contributionReward: ContributionReward.IContributionReward|null = null
+      let competition: ICompetitionProposalState|null = null
       let type: IProposalType
       let genericScheme: GenericScheme.IGenericScheme|null = null
       let schemeRegistrar: SchemeRegistrar.ISchemeRegistrar|null = null
-      if (item.contributionReward) {
+      if (!!item.competition && !item.contributionReward) {
+        throw Error(`Unexpected proposal state: competition is set, but contributionReward is not`)
+      }
+      if (!!item.contributionReward) {
         type = IProposalType.ContributionReward
         contributionReward = {
           alreadyRedeemedEthPeriods: Number(item.contributionReward.alreadyRedeemedEthPeriods),
@@ -435,6 +413,22 @@ export class Proposal implements IStateful<IProposalState> {
           periodLength: Number(item.contributionReward.periodLength),
           periods: Number(item.contributionReward.periods),
           reputationReward: new BN(item.contributionReward.reputationReward)
+        }
+        if (!!item.competition) {
+          competition = {
+            contract: item.competition.contract,
+            createdAt: secondSinceEpochToDate(item.competition.createdAt),
+            endTime: secondSinceEpochToDate(item.competition.endTime),
+            id: item.competition.id,
+            numberOfVotesPerVoter: Number(item.competition.numberOfVotesPerVoters),
+            numberOfWinners: Number(item.competition.numberOfWinners),
+            rewardSplit: item.competition.rewardSplit.map((perc: string) => Number(perc)),
+            snapshotBlock: item.competition.snapshotBlock,
+            startTime: secondSinceEpochToDate(item.competition.startTime),
+            suggestionsEndTime: secondSinceEpochToDate(item.competition.suggestionsEndTime),
+            votingStartTime: secondSinceEpochToDate(item.competition.votingStartTime)
+          }
+
         }
       } else if (item.genericScheme) {
         type = IProposalType.GenericScheme
@@ -502,28 +496,13 @@ export class Proposal implements IStateful<IProposalState> {
           .sub(stakesAgainst)
       }
       const scheme = item.scheme
-      const schemeName = scheme.name || this.context.getContractInfo(scheme.address).name
       const gpQueue = item.gpQueue
 
-      const schemeState: ISchemeState = {
-        address: scheme.address,
-        canDelegateCall: scheme.canDelegateCall,
-        canManageGlobalConstraints: scheme.canManageGlobalConstraints,
-        canRegisterSchemes: scheme.canRegisterSchemes,
-        canUpgradeController: scheme.canUpgradeController,
-        dao: item.dao.id,
-        id: scheme.id,
-        name: schemeName,
-        numberOfBoostedProposals: Number(scheme.numberOfBoostedProposals),
-        numberOfPreBoostedProposals: Number(scheme.numberOfPreBoostedProposals),
-        numberOfQueuedProposals: Number(scheme.numberOfQueuedProposals),
-        paramsHash: scheme.paramsHash,
-        version: scheme.version
-      }
+      const schemeState = Scheme.itemMap(scheme, this.context) as ISchemeState
       const queueState: IQueueState = {
         dao: item.dao.id,
         id: gpQueue.id,
-        name: schemeName,
+        name: schemeState.name,
         scheme: schemeState,
         threshold,
         votingMachine: gpQueue.votingMachine
@@ -533,6 +512,7 @@ export class Proposal implements IStateful<IProposalState> {
         accountsWithUnclaimedRewards: item.accountsWithUnclaimedRewards,
         boostedAt: Number(item.boostedAt),
         closingAt: Number(item.closingAt),
+        competition,
         confidenceThreshold: Number(item.confidenceThreshold),
         contributionReward,
         createdAt: Number(item.createdAt),
@@ -579,10 +559,14 @@ export class Proposal implements IStateful<IProposalState> {
     return result
   }
 
+  /**
+   * @return the scheme Contract
+   */
   public async scheme() {
     const schemeAddress = (await this.state().pipe(filter((o) => !!o), first()).toPromise()).scheme.address
     return this.context.getContract(schemeAddress)
   }
+
   /**
    * [votingMachine description]
    * @return a web3 Contract instance
@@ -638,31 +622,31 @@ export class Proposal implements IStateful<IProposalState> {
 
     const observable = from(this.votingMachine()).pipe(
       concatMap((votingMachine) => {
-        const errorHandler = async (error: Error) => {
-          if (error.message.match(/revert/)) {
-            const proposal = this
-            const proposalDataFromVotingMachine = await votingMachine.methods.proposals(proposal.id).call()
-            if (proposalDataFromVotingMachine.proposer === NULL_ADDRESS ) {
-              return Error(`Error in vote(): unknown proposal with id ${proposal.id}`)
-            }
-
-            if (proposalDataFromVotingMachine.state === '2') {
-              const msg = `Error in vote(): proposal ${proposal.id} already executed`
-              return Error(msg)
-            }
-          }
-          // if we have found no known error, we return the original error
-          return error
-        }
-
-        const voteMethod = votingMachine.methods.vote(
+       const voteMethod = votingMachine.methods.vote(
           this.id,  // proposalId
           outcome, // a value between 0 to and the proposal number of choices.
           amount.toString(), // amount of reputation to vote with . if _amount == 0 it will use all voter reputation.
           NULL_ADDRESS
         )
 
-        return this.context.sendTransaction(voteMethod, mapReceipt, errorHandler)
+       const errorHandler = async (error: Error) => {
+          const proposal = this
+          const proposalDataFromVotingMachine = await votingMachine.methods.proposals(proposal.id).call()
+          if (proposalDataFromVotingMachine.proposer === NULL_ADDRESS ) {
+            return Error(`Error in vote(): unknown proposal with id ${proposal.id}`)
+          }
+
+          if (proposalDataFromVotingMachine.state === '2') {
+            const msg = `Error in vote(): proposal ${proposal.id} already executed`
+            return Error(msg)
+          }
+          // call the method, so we collect any errors from the EVM
+          await voteMethod.call()
+          // if everything seems fine, just return the oroginal error
+          return error
+        }
+
+       return this.context.sendTransaction(voteMethod, mapReceipt, errorHandler)
       })
     )
 
@@ -682,62 +666,70 @@ export class Proposal implements IStateful<IProposalState> {
   /**
    * Stake on this proposal
    * @param  outcome the outcome that is staked on, of type IProposalOutcome
-   * @param  amount  the amount, in GEn, to stake
+   * @param  amount  the amount, in GEN, to stake
    * @return  An observable that can be sent, or subscribed to
    */
-  public stake(outcome: IProposalOutcome, amount: BN ): Operation<Stake> {
-    const map = (receipt: any) => { // map extracts Stake instance from receipt
-        const event = receipt.events.Stake
-        if (!event) {
-          // for some reason, a transaction was mined but no error was raised before
-          throw new Error(`Error staking: no "Stake" event was found - ${Object.keys(receipt.events)}`)
-        }
-
-        return new Stake({
-          amount: event.returnValues._reputation, // amount
-          // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
-          createdAt: undefined,
-          outcome,
-          proposal: this.id, // proposalID
-          staker: event.returnValues._staker
-        }, this.context)
-    }
-
-    const errorHandler =  async (error: Error) => {
-      if (error.message.match(/revert/)) {
-        const proposal = this
-        const stakingToken = this.stakingToken()
-        const prop = await (await this.votingMachine()).methods.proposals(proposal.id).call()
-        if (prop.proposer === NULL_ADDRESS ) {
-          return new Error(`Unknown proposal with id ${proposal.id}`)
-        }
-
-        // staker has sufficient balance
-        const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
-        const balance = new BN(await stakingToken.contract().methods.balanceOf(defaultAccount).call())
-        const amountBN = new BN(amount)
-        if (balance.lt(amountBN)) {
-          const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}
-            (balance is ${balance.toString()})`
-          return new Error(msg)
-        }
-
-        // staker has approved the token spend
-        const votingMachine = await this.votingMachine()
-        const allowance = new BN(await stakingToken.contract().methods.allowance(
-          defaultAccount, votingMachine.options.address
-        ).call())
-        if (allowance.lt(amountBN)) {
-          return new Error(`Staker has insufficient allowance to stake ${amount.toString()}
-            (allowance is ${allowance.toString()})`)
-        }
-      }
-      // if we have found no known error, we return the original error
-      return error
-    }
-
+  public stake(outcome: IProposalOutcome, amount: BN): Operation<Stake> {
     const observable = from(this.votingMachine()).pipe(
       concatMap((votingMachine) => {
+
+        const map = (receipt: any) => { // map extracts Stake instance from receipt
+
+            const event = receipt.events.Stake
+            if (!event) {
+              // for some reason, a transaction was mined but no error was raised before
+              throw new Error(`Error staking: no "Stake" event was found - ${Object.keys(receipt.events)}`)
+            }
+            return new Stake({
+              amount: event.returnValues._reputation, // amount
+              // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
+              createdAt: undefined,
+              outcome,
+              proposal: this.id, // proposalID
+              staker: event.returnValues._staker
+            }, this.context)
+        }
+
+        const errorHandler =  async (error: Error) => {
+          const proposal = this
+          const proposalState = await (await this.votingMachine()).methods.proposals(proposal.id).call()
+          const stakingToken = this.stakingToken()
+          if (proposalState.proposer === NULL_ADDRESS ) {
+            return new Error(`Unknown proposal with id ${proposal.id}`)
+          }
+          // staker has sufficient balance
+          const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
+          const balance = new BN(await stakingToken.contract().methods.balanceOf(defaultAccount).call())
+          const amountBN = new BN(amount)
+          if (balance.lt(amountBN)) {
+            const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}
+              (balance is ${balance.toString()})`
+            return new Error(msg)
+          }
+
+          // staker has approved the token spend
+          const allowance = new BN(await stakingToken.contract().methods.allowance(
+            defaultAccount, votingMachine.options.address
+          ).call())
+          if (allowance.lt(amountBN)) {
+            return new Error(
+              `Staker has insufficient allowance to stake ${amount.toString()}
+                (allowance for ${votingMachine.options.address} is ${allowance.toString()})`
+            )
+          }
+
+          // call the stake function and bubble up any solidity errors
+          await stakeMethod.call()
+          if (!!error.message.match(/event was found/)) {
+            if (proposalState.state === IProposalStage.Boosted) {
+              return new Error(`Staking failed because the proposal is boosted`)
+            }
+          }
+          // if we have found no known error, we return the original error
+
+          return error
+        }
+
         const stakeMethod = votingMachine.methods.stake(
           this.id,  // proposalId
           outcome, // a value between 0 to and the proposal number of choices.
@@ -768,7 +760,7 @@ export class Proposal implements IStateful<IProposalState> {
    *    if undefined will only redeem the ContributionReward rewards
    * @return  an Operation
    */
-  public claimRewards(beneficiary ?: Address): Operation<boolean> {
+  public claimRewards(beneficiary?: Address): Operation<boolean> {
 
     if (!beneficiary) {
       beneficiary = NULL_ADDRESS
@@ -783,13 +775,23 @@ export class Proposal implements IStateful<IProposalState> {
           // we use a dummy contributionreward, as a workaround for https://github.com/daostack/arc/issues/655
           schemeAddress = this.context.getContractInfoByName('ContributionReward', LATEST_ARC_VERSION).address
         }
-        const transaction = this.redeemerContract().methods.redeem(
-          schemeAddress, // contributionreward address
-          state.votingMachine, // genesisProtocol address
-          this.id,
-          state.dao.id,
-          beneficiary
-        )
+        let transaction
+        if (state.scheme.name === 'ContributionRewardExt') {
+          transaction = this.redeemerContract().methods.redeemFromCRExt(
+            schemeAddress, // contributionreward address
+            state.votingMachine, // genesisProtocol address
+            this.id,
+            beneficiary
+          )
+        } else {
+          transaction = this.redeemerContract().methods.redeem(
+            schemeAddress, // contributionreward address
+            state.votingMachine, // genesisProtocol address
+            this.id,
+            state.dao.id,
+            beneficiary
+          )
+        }
         return this.context.sendTransaction(transaction, () => true)
       })
     )
@@ -824,6 +826,7 @@ export class Proposal implements IStateful<IProposalState> {
             const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
             return Error(msg)
           }
+          await transaction.call()
           return err
         }
         return this.context.sendTransaction(transaction, map, errorHandler)
@@ -831,6 +834,7 @@ export class Proposal implements IStateful<IProposalState> {
     )
     return toIOperationObservable(observable)
   }
+
 }
 
 enum ProposalQuerySortOptions {
@@ -862,18 +866,22 @@ export interface IProposalQueryOptions extends ICommonQueryOptions {
   }
 }
 
-interface IProposalBaseCreateOptions {
+export interface IProposalBaseCreateOptions {
   dao: Address
   description?: string
   descriptionHash?: string
   title?: string
   tags?: string[]
-  scheme: Address
+  scheme?: Address
   url?: string
+  // proposalType?: 'competition' // if the scheme allows for different proposals...
+  proposalType?: string
 }
 
 export type IProposalCreateOptions = (
   (IProposalBaseCreateOptions & GenericScheme.IProposalCreateOptionsGS ) |
   (IProposalBaseCreateOptions & SchemeRegistrar.IProposalCreateOptionsSR) |
-  (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR)
+  (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR) |
+  (ContributionRewardExt.IProposalCreateOptionsContributionRewardExt) |
+  (IProposalCreateOptionsCompetition)
 )
