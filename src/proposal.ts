@@ -609,8 +609,15 @@ export class Proposal implements IStateful<IProposalState> {
    */
   public redeemerContract() {
     for (const version of REDEEMER_CONTRACT_VERSIONS) {
-      const contractInfo = this.context.getContractInfoByName('Redeemer', version)
-      return this.context.getContract(contractInfo.address)
+      try {
+        const contractInfo = this.context.getContractInfoByName('Redeemer', version)
+        return this.context.getContract(contractInfo.address)
+      } catch (err) {
+        if (!err.message.match(/no contract/i)) {
+          // if the contract cannot be found, try the next one
+          throw err
+        }
+      }
     }
     throw Error(`No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`)
   }
