@@ -15,7 +15,7 @@ import * as ContributionReward from './schemes/contributionReward'
 import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
-import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSION } from './settings'
+import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSIONS } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress, NULL_ADDRESS, realMathToNumber,
@@ -608,8 +608,11 @@ export class Proposal implements IStateful<IProposalState> {
    * @return a web3 Contract instance
    */
   public redeemerContract() {
-    const contractInfo = this.context.getContractInfoByName('Redeemer', REDEEMER_CONTRACT_VERSION)
-    return this.context.getContract(contractInfo.address)
+    for (const version of REDEEMER_CONTRACT_VERSIONS) {
+      const contractInfo = this.context.getContractInfoByName('Redeemer', version)
+      return this.context.getContract(contractInfo.address)
+    }
+    throw Error(`No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`)
   }
 
   public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {

@@ -1,5 +1,8 @@
 // the version of the redeemer contract to use
-export const REDEEMER_CONTRACT_VERSION = '0.0.1-rc.35'
+export const REDEEMER_CONTRACT_VERSIONS = [
+    '0.0.1-rc.37',
+    '0.0.1-rc.36'
+]
 // the versino of the Reputation contract instances
 export const REPUTATION_CONTRACT_VERSION = '0.0.1-rc.19'
 export const DAOTOKEN_CONTRACT_VERSION = '0.0.1-rc.19'
