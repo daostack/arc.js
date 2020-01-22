@@ -15,7 +15,7 @@ import * as ContributionReward from './schemes/contributionReward'
 import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
-import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSIONS } from './settings'
+import { CONTRIBUTION_REWARD_DUMMY_VERSION, REDEEMER_CONTRACT_VERSIONS } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress, NULL_ADDRESS, realMathToNumber,
@@ -806,8 +806,11 @@ export class Proposal implements IStateful<IProposalState> {
         if (state.contributionReward) {
           schemeAddress = state.scheme.address
         } else {
-          // we use a dummy contributionreward, as a workaround for https://github.com/daostack/arc/issues/655
-          schemeAddress = this.context.getContractInfoByName('ContributionReward', LATEST_ARC_VERSION).address
+          // if this is not a contributionreard scheme, we can use any scheme address as
+          // a dummy placeholder, and the redeem function will still work
+          schemeAddress = this.context.getContractInfoByName(
+            'ContributionReward', CONTRIBUTION_REWARD_DUMMY_VERSION).address
+
         }
         let transaction
         if (state.scheme.name === 'ContributionRewardExt') {
