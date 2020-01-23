@@ -299,15 +299,11 @@ export class Arc extends GraphNodeObserver {
     }
     // //End of workaround
 
-    function importAbi(abiPath: string) {
-      let abi = require(`${abiPath}`)
-      if (abi.rootVersion) {
-        abi = require(`${ABI_DIR}/../${abi.rootVersion}/${abiName}`)
-      }
-      return abi
+    let artefact = require(`${ABI_DIR}/${version}/${abiName}.json`)
+    if (artefact.rootVersion) {
+      artefact = require(`${ABI_DIR}/${artefact.rootVersion}/${abiName}.json`)
     }
-    const contractJSON = importAbi(`${ABI_DIR}/${version}/${abiName}.json`)
-    return contractJSON.abi
+    return artefact.abi
   }
 
   /**
