@@ -26,10 +26,15 @@ async function copyABIsFromMigration () {
 
     const files = fs.readdirSync(`${sourcePath}/${arcVersion}`)
     files.forEach(file => {
-      const json = JSON.parse(fs.readFileSync(`${sourcePath}/${arcVersion}/${file}`), 'utf-8')
+      const artefact = JSON.parse(fs.readFileSync(`${sourcePath}/${arcVersion}/${file}`), 'utf-8')
+      const smallerArtefact = {
+        constractName: artefact.contractName,
+        abi: artefact.abi,
+        rootVersion: artefact.rootVersion
+      }
       fs.writeFileSync(
         path.join(destDir, arcVersion, file),
-        JSON.stringify(json, undefined, 2),
+        JSON.stringify(smallerArtefact, undefined, 2),
         'utf-8'
       )
     })
