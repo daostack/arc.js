@@ -436,7 +436,7 @@ export class Competition { // extends Proposal {
     description: string,
     tags?: string[],
     url?: string,
-    beneficiary?: Address, // omit to use msg.sender
+    beneficiary?: Address // omit to use msg.sender
   }): Operation<any> {
     let schemeState: ISchemeState
     const createTransaction = async () => {
