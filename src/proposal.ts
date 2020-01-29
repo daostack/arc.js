@@ -15,7 +15,7 @@ import * as ContributionReward from './schemes/contributionReward'
 import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
-import { LATEST_ARC_VERSION, REDEEMER_CONTRACT_VERSION } from './settings'
+import { CONTRIBUTION_REWARD_DUMMY_VERSION, REDEEMER_CONTRACT_VERSIONS } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress, NULL_ADDRESS, realMathToNumber,
@@ -133,13 +133,16 @@ export class Proposal implements IStateful<IProposalState> {
         id
         beneficiary
         ethReward
+        ethRewardLeft
         externalToken
         externalTokenReward
-        externalToken
+        externalTokenRewardLeft
         nativeTokenReward
+        nativeTokenRewardLeft
         periods
         periodLength
         reputationReward
+        reputationChangeLeft
         alreadyRedeemedReputationPeriods
         alreadyRedeemedExternalTokenPeriods
         alreadyRedeemedNativeTokenPeriods
@@ -399,6 +402,27 @@ export class Proposal implements IStateful<IProposalState> {
         throw Error(`Unexpected proposal state: competition is set, but contributionReward is not`)
       }
       if (!!item.contributionReward) {
+        const ethRewardLeft = (
+          item.contributionReward.ethRewardLeft !== null &&
+            new BN(item.contributionReward.ethRewardLeft) ||
+            null
+        )
+        const externalTokenRewardLeft = (
+          item.contributionReward.externalTokenRewardLeft !== null &&
+            new BN(item.contributionReward.externalTokenRewardLeft) ||
+            null
+        )
+        const nativeTokenRewardLeft = (
+          item.contributionReward.nativeTokenRewardLeft !== null &&
+            new BN(item.contributionReward.nativeTokenRewardLeft) ||
+            null
+        )
+        const reputationChangeLeft = (
+          item.contributionReward.reputationChangeLeft !== null &&
+            new BN(item.contributionReward.reputationChangeLeft) ||
+            null
+        )
+
         type = IProposalType.ContributionReward
         contributionReward = {
           alreadyRedeemedEthPeriods: Number(item.contributionReward.alreadyRedeemedEthPeriods),
@@ -407,11 +431,15 @@ export class Proposal implements IStateful<IProposalState> {
           alreadyRedeemedReputationPeriods: Number(item.contributionReward.alreadyRedeemedReputationPeriods),
           beneficiary: item.contributionReward.beneficiary,
           ethReward: new BN(item.contributionReward.ethReward),
+          ethRewardLeft,
           externalToken: item.contributionReward.externalToken,
           externalTokenReward: new BN(item.contributionReward.externalTokenReward),
+          externalTokenRewardLeft,
           nativeTokenReward: new BN(item.contributionReward.nativeTokenReward),
+          nativeTokenRewardLeft,
           periodLength: Number(item.contributionReward.periodLength),
           periods: Number(item.contributionReward.periods),
+          reputationChangeLeft,
           reputationReward: new BN(item.contributionReward.reputationReward)
         }
         if (!!item.competition) {
@@ -580,8 +608,18 @@ export class Proposal implements IStateful<IProposalState> {
    * @return a web3 Contract instance
    */
   public redeemerContract() {
-    const contractInfo = this.context.getContractInfoByName('Redeemer', REDEEMER_CONTRACT_VERSION)
-    return this.context.getContract(contractInfo.address)
+    for (const version of REDEEMER_CONTRACT_VERSIONS) {
+      try {
+        const contractInfo = this.context.getContractInfoByName('Redeemer', version)
+        return this.context.getContract(contractInfo.address)
+      } catch (err) {
+        if (!err.message.match(/no contract/i)) {
+          // if the contract cannot be found, try the next one
+          throw err
+        }
+      }
+    }
+    throw Error(`No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`)
   }
 
   public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {
@@ -768,8 +806,11 @@ export class Proposal implements IStateful<IProposalState> {
         if (state.contributionReward) {
           schemeAddress = state.scheme.address
         } else {
-          // we use a dummy contributionreward, as a workaround for https://github.com/daostack/arc/issues/655
-          schemeAddress = this.context.getContractInfoByName('ContributionReward', LATEST_ARC_VERSION).address
+          // if this is not a contributionreard scheme, we can use any scheme address as
+          // a dummy placeholder, and the redeem function will still work
+          schemeAddress = this.context.getContractInfoByName(
+            'ContributionReward', CONTRIBUTION_REWARD_DUMMY_VERSION).address
+
         }
         let transaction
         if (state.scheme.name === 'ContributionRewardExt') {

@@ -1,6 +1,6 @@
 {
   "name": "@daostack/client",
-  "version": "0.2.47",
+  "version": "0.2.53",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",
@@ -25,7 +25,8 @@
     "build:docs": "typedoc --out docs --target commonjs --theme markdown --mode file --plugin typedoc-plugin-markdown src",
     "bundle": "rollup -c rollup.config.ts -w",
     "lint": "npm run tslint",
-    "prepare": "rimraf src/abis && node scripts/copyABIsFromMigration.js && npm run build",
+    "prepublish": "npm run copy-abis && npm run build",
+    "copy-abis": "node scripts/copyABIsFromMigration.js",
     "prebuild": "rimraf dist",
     "quality": "npm run test:prod",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
@@ -65,7 +66,7 @@
     ]
   },
   "devDependencies": {
-    "@daostack/migration": "0.0.1-rc.37-v1",
+    "@daostack/migration": "0.0.1-rc.39-v2",
     "@types/graphql": "^14.2.2",
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/jest": "^24.0.15",
@@ -86,6 +87,7 @@
     "replace-in-file": "^3.4.4",
     "rimraf": "^2.6.2",
     "rollup": "^0.68.0",
+    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",
@@ -97,7 +99,7 @@
     "tslint-config-standard": "^8.0.1",
     "typedoc": "^0.15.0",
     "typedoc-plugin-markdown": "^2.2.4",
-    "typescript": "^3.5.3",
+    "typescript": "^3.7.5",
     "u": "^0.1.0"
   },
   "dependencies": {
@@ -106,13 +108,13 @@
     "apollo-client-ws": "^2.5.0",
     "apollo-link-http": "^1.5.15",
     "apollo-link-ws": "^1.0.18",
+    "form-data": "^3.0.0",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
-    "ipfs-http-client": "^29.1.1",
     "isomorphic-fetch": "^2.2.1",
     "isomorphic-ws": "^4.0.1",
     "js-logger": "^1.6.0",
-    "rxjs": "6.4.0",
+    "rxjs": "^6.5.4",
     "subscriptions-transport-ws": "^0.9.16",
     "web3": "1.2.4",
     "ws": "^6.2.1"

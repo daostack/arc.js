@@ -7,15 +7,16 @@ import { DAO } from '../dao'
 import { mapGenesisProtocolParams } from '../genesisProtocol'
 import { IApolloQueryOptions } from '../graphnode'
 import { Operation, toIOperationObservable } from '../operation'
-import { IProposalBaseCreateOptions, IProposalQueryOptions, Proposal } from '../proposal'
-import { Address, ICommonQueryOptions } from '../types'
+import { IProposalBaseCreateOptions, IProposalQueryOptions, IProposalState, Proposal } from '../proposal'
+import { Address, ICommonQueryOptions, IStateful } from '../types'
 import { concat,
   createGraphQlQuery, dateToSecondsSinceEpoch, getBlockTime,
   hexStringToUint8Array,
   NULL_ADDRESS,
   secondSinceEpochToDate
 } from '../utils'
-import {  ISchemeState, SchemeBase } from './base'
+import { IVoteQueryOptions } from '../vote'
+import { ISchemeState, SchemeBase } from './base'
 
 const Web3 = require('web3')
 
@@ -30,23 +31,24 @@ export interface ICompetitionProposalState {
   suggestionsEndTime: Date
   numberOfVotesPerVoter: number
   snapshotBlock: number
-  createdAt: Date,
- }
+  createdAt: Date
+}
 
 export interface IProposalCreateOptionsCompetition extends IProposalBaseCreateOptions {
   // beneficiary: Address
   endTime: Date,
-  reputationReward ?: BN
-  ethReward ?: BN
-  externalTokenReward ?: BN
-  externalTokenAddress ?: Address
+  reputationReward?: BN
+  ethReward?: BN
+  externalTokenReward?: BN
+  externalTokenAddress?: Address
   // proposer: Address,
   rewardSplit: number[]
-  nativeTokenReward ?: BN
+  nativeTokenReward?: BN
   numberOfVotesPerVoter: number
-  startTime: Date|null,
-  suggestionsEndTime: Date,
-  votingStartTime: Date,
+  proposerIsAdmin?: boolean, // true if new suggestions are limited to the proposer
+  startTime: Date | null
+  suggestionsEndTime: Date
+  votingStartTime: Date
 }
 
 export interface ICompetitionSuggestionState {
@@ -59,20 +61,21 @@ export interface ICompetitionSuggestionState {
   url?: string
   // fulltext: [string]
   suggester: Address
+  beneficiary: Address
   // votes: [CompetitionVote!] @derivedFrom(field: "suggestion")
   tags: string[]
   totalVotes: BN
   createdAt: Date
-  redeemedAt: Date|null
+  redeemedAt: Date | null
   rewardPercentage: number
-  positionInWinnerList: number|null // 0 is the first, null means it is not winning
+  positionInWinnerList: number | null // 0 is the first, null means it is not winning
   isWinner: boolean
 }
 
 export interface ICompetitionVoteState {
   id?: string
-  // proposal: CompetitionProposal!
-  // suggestion: CompetitionSuggestion!
+  proposal: string
+  suggestion: string
   voter: Address
   createdAt?: Date
   reputation: BN
@@ -89,7 +92,7 @@ export class CompetitionScheme extends SchemeBase {
       ${SchemeBase.fragments.SchemeFields}
     `
 
-    const itemMap = (item: any): ISchemeState|null => {
+    const itemMap = (item: any): ISchemeState | null => {
       if (!item) {
         return null
       }
@@ -126,7 +129,7 @@ export class CompetitionScheme extends SchemeBase {
         voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
         votingMachine: item.schemeRegistrarParams.votingMachine
       }
-      const genericSchemeParams = item.genericSchemeParams  && {
+      const genericSchemeParams = item.genericSchemeParams && {
         contractToCall: item.genericSchemeParams.contractToCall,
         voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
         votingMachine: item.genericSchemeParams.votingMachine
@@ -157,7 +160,7 @@ export class CompetitionScheme extends SchemeBase {
         version: item.version
       }
     }
-    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
   }
   /**
    * Return a list of competitions in this scheme.
@@ -174,8 +177,8 @@ export class CompetitionScheme extends SchemeBase {
     //   // TODO: we should also check if the calling
     //   throw Error(`This scheme is not a competition scheme - so no competitions can be found`)
     // }
-    if (!options.where) { options.where = {}}
-    options.where = { ...options.where, competition_not: null}
+    if (!options.where) { options.where = {} }
+    options.where = { ...options.where, competition_not: null }
     return Competition.search(this.context, options, apolloQueryOptions)
   }
 
@@ -202,42 +205,44 @@ export class CompetitionScheme extends SchemeBase {
 
       options.descriptionHash = await context.saveIPFSData(options)
       if (!options.rewardSplit) {
-          throw Error(`Rewardsplit was not given..`)
-        } else {
-          if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
-            throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b) })`)
-          }
+        throw Error(`Rewardsplit was not given..`)
+      } else {
+        if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
+          throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b)})`)
         }
-        // * @param _rewardSplit an array of precentages which specify how to split the rewards
-        // *         between the winning suggestions
-        // * @param _competitionParams competition parameters :
-        // *         _competitionParams[0] - competition startTime
-        // *         _competitionParams[1] - _votingStartTime competition voting start time
-        // *         _competitionParams[2] - _endTime competition end time
-        // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
-        // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
-        // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
+      }
+      // * @param _rewardSplit an array of precentages which specify how to split the rewards
+      // *         between the winning suggestions
+      // * @param _competitionParams competition parameters :
+      // *         _competitionParams[0] - competition startTime
+      // *         _competitionParams[1] - _votingStartTime competition voting start time
+      // *         _competitionParams[2] - _endTime competition end time
+      // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
+      // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
+      // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
 
       const competitionParams = [
-          options.startTime && dateToSecondsSinceEpoch(options.startTime) || '0',
-          dateToSecondsSinceEpoch(options.votingStartTime) || 0,
-          dateToSecondsSinceEpoch(options.endTime) || 0,
-          options.numberOfVotesPerVoter.toString() || 0,
-          dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
-        ]
+        options.startTime && dateToSecondsSinceEpoch(options.startTime) || '0',
+        dateToSecondsSinceEpoch(options.votingStartTime) || 0,
+        dateToSecondsSinceEpoch(options.endTime) || 0,
+        options.numberOfVotesPerVoter.toString() || 0,
+        dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
+      ]
+      const proposerIsAdmin = false
 
       const transaction = contract.methods.proposeCompetition(
-          options.descriptionHash || '',
-          options.reputationReward && options.reputationReward.toString() || 0,
-          [
-            options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-            options.ethReward && options.ethReward.toString() || 0,
-            options.externalTokenReward && options.externalTokenReward.toString() || 0
-          ],
-          options.externalTokenAddress || NULL_ADDRESS,
-          options.rewardSplit,
-          competitionParams
-        )
+        options.descriptionHash || '',
+        options.reputationReward && options.reputationReward.toString() || 0,
+        [
+          options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
+          options.ethReward && options.ethReward.toString() || 0,
+          options.externalTokenReward && options.externalTokenReward.toString() || 0
+        ],
+        options.externalTokenAddress || NULL_ADDRESS,
+        options.rewardSplit,
+        competitionParams,
+        proposerIsAdmin
+      )
       return transaction
     }
   }
@@ -250,7 +255,7 @@ export class CompetitionScheme extends SchemeBase {
     return txMap
   }
 
-  public createProposalErrorHandler(options: any): (err: Error) => Error|Promise<Error> {
+  public createProposalErrorHandler(options: any): (err: Error) => Error | Promise<Error> {
     return async (err) => {
       const tx = await this.createProposalTransaction(options)()
       try {
@@ -262,7 +267,7 @@ export class CompetitionScheme extends SchemeBase {
           return err
         }
       }
-      const msg = `Error creating proposal with options ${options}: ${err.message}`
+      const msg = `Error creating proposal: ${err.message}`
       return Error(msg)
     }
   }
@@ -274,7 +279,7 @@ export class CompetitionScheme extends SchemeBase {
    * @returns {Operation<Proposal>}
    * @memberof CompetitionScheme
    */
-  public createProposal(options: IProposalCreateOptionsCompetition): Operation<Proposal>  {
+  public createProposal(options: IProposalCreateOptionsCompetition): Operation<Proposal> {
     return SchemeBase.prototype.createProposal.call(this, options)
   }
 
@@ -309,11 +314,18 @@ export class CompetitionScheme extends SchemeBase {
       } else {
         const eventName = 'NewVote'
         // emit NewVote(proposalId, _suggestionId, msg.sender, reputation);
-        // const suggestionId = receipt.events[eventName].returnValues._suggestionId
+        const suggestionId = receipt.events[eventName].returnValues._suggestionId
         const voter = receipt.events[eventName].returnValues._voter
         const reputation = receipt.events[eventName].returnValues._reputation
+        const proposal = receipt.events[eventName].returnValues._proposalId
+        const suggestion = CompetitionSuggestion.calculateId({
+          scheme: this.id,
+          suggestionId
+        })
         return new CompetitionVote({
+          proposal,
           reputation,
+          suggestion,
           voter
         }, this.context)
       }
@@ -344,17 +356,14 @@ export class CompetitionScheme extends SchemeBase {
     const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
     return toIOperationObservable(observable)
   }
- public redeemSuggestion(options: {
-    suggestionId: number, // this is the suggestion COUNTER
-    beneficiary: Address
+
+  public redeemSuggestion(options: {
+    suggestionId: number // this is the suggestion COUNTER
   }): Operation<boolean> {
-    if (!options.beneficiary) {
-      options.beneficiary = NULL_ADDRESS
-    }
     const createTransaction = async () => {
       const schemeState = await this.state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
-      const transaction = contract.methods.redeem(options.suggestionId, options.beneficiary)
+      const transaction = contract.methods.redeem(options.suggestionId)
       return transaction
     }
 
@@ -427,17 +436,22 @@ export class Competition { // extends Proposal {
   public createSuggestion(options: {
     title: string,
     description: string,
+    beneficiary?: Address,
     tags?: string[],
     url?: string
+
   }): Operation<any> {
     let schemeState: ISchemeState
     const createTransaction = async () => {
       const proposalState = await (new Proposal(this.id, this.context)).state().pipe(first()).toPromise()
+      if (!options.beneficiary) {
+        options.beneficiary = await this.context.getAccount().pipe(first()).toPromise()
+      }
       schemeState = await (new CompetitionScheme(proposalState.scheme.id, this.context))
         .state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
       const descriptionHash = await this.context.saveIPFSData(options)
-      const transaction = contract.methods.suggest(this.id, descriptionHash)
+      const transaction = contract.methods.suggest(this.id, descriptionHash, options.beneficiary)
       return transaction
     }
 
@@ -452,7 +466,7 @@ export class Competition { // extends Proposal {
         //   scheme: this.id,
         //   suggestionId
         // })
-        return new CompetitionSuggestion({scheme: (schemeState as ISchemeState).id, suggestionId}, this.context)
+        return new CompetitionSuggestion({ scheme: (schemeState as ISchemeState).id, suggestionId }, this.context)
       }
     }
     const errorHandler = async (err: Error) => {
@@ -460,7 +474,7 @@ export class Competition { // extends Proposal {
       // see if the proposalId does exist in the contract
       // const proposalState = await this.state().pipe(first()).toPromise()
       // const schemeState = await (new Scheme(proposalState.scheme.address, this.context))
-        // .state().pipe(first()).toPromise()
+      // .state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
       const proposal = await contract.methods.proposals(this.id).call()
       if (!proposal) {
@@ -478,46 +492,55 @@ export class Competition { // extends Proposal {
     const proposal = new Proposal(this.id, this.context)
     const observable = proposal.state().pipe(
       first(),
-      concatMap((competitionState) => {
+      concatMap((competitionState: IProposalState) => {
         const scheme = new CompetitionScheme(competitionState.scheme, this.context)
-        return scheme.voteSuggestion({suggestionId})
+        return scheme.voteSuggestion({ suggestionId })
       })
     )
     return toIOperationObservable(observable)
   }
-  public redeemSuggestion(suggestionId: number, beneficiary: Address = NULL_ADDRESS): Operation<boolean> {
+  public redeemSuggestion(suggestionId: number): Operation<boolean> {
     const proposal = new Proposal(this.id, this.context)
     const observable = proposal.state().pipe(
       first(),
-      concatMap((competitionState) => {
+      concatMap((competitionState: IProposalState) => {
         const scheme = new CompetitionScheme(competitionState.scheme, this.context)
-        return scheme.redeemSuggestion({suggestionId, beneficiary})
+        return scheme.redeemSuggestion({ suggestionId })
       })
     )
     return toIOperationObservable(observable)
   }
 
   public suggestions(
-      options: ICompetitionSuggestionQueryOptions = {},
-      apolloQueryOptions: IApolloQueryOptions = {}
-    ): Observable<CompetitionSuggestion[]> {
-    if (!options.where) { options.where = {}}
+    options: ICompetitionSuggestionQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<CompetitionSuggestion[]> {
+    if (!options.where) { options.where = {} }
     options.where.proposal = this.id
-    return  CompetitionSuggestion.search(this.context, options, apolloQueryOptions)
+    return CompetitionSuggestion.search(this.context, options, apolloQueryOptions)
   }
+  public votes(
+    options: IVoteQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<CompetitionVote[]> {
+    if (!options.where) { options.where = {} }
+    options.where.proposal = this.id
+    return CompetitionVote.search(this.context, options, apolloQueryOptions)
+  }
+
 }
 
 export interface ICompetitionSuggestionQueryOptions extends ICommonQueryOptions {
   where?: {
     id?: string, // id of the competition
     proposal?: string, // id of the proposal
-    suggestionId?: string // the "suggestionId" is a counter that is unique to the scheme
-      // - and is not to be confused with suggestion.id
-    positionInWinnerList?: number|null
-    positionInWinnerList_not?: number|null
+    suggestionId?: number // the "suggestionId" is a counter that is unique to the scheme
+    // - and is not to be confused with suggestion.id
+    positionInWinnerList?: number | null
+    positionInWinnerList_not?: number | null
   }
 }
-export class CompetitionSuggestion {
+export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionState> {
 
   public static fragments = {
     CompetitionSuggestionFields: gql`fragment CompetitionSuggestionFields on CompetitionSuggestion {
@@ -544,7 +567,7 @@ export class CompetitionSuggestion {
     }`
   }
 
-  public static calculateId(opts: { scheme: Address, suggestionId: number}): string {
+  public static calculateId(opts: { scheme: Address, suggestionId: number }): string {
     const seed = concat(
       hexStringToUint8Array(opts.scheme.toLowerCase()),
       hexStringToUint8Array(Number(opts.suggestionId).toString(16))
@@ -578,7 +601,7 @@ export class CompetitionSuggestion {
     ) as Observable<CompetitionSuggestion[]>
   }
 
-  private static mapItemToObject(item: any, context: Arc): ICompetitionSuggestionState|null {
+  private static mapItemToObject(item: any, context: Arc): ICompetitionSuggestionState | null {
     if (item === null) {
       return null
     }
@@ -587,11 +610,12 @@ export class CompetitionSuggestion {
     if (item.redeemedAt !== null) {
       redeemedAt = secondSinceEpochToDate(item.redeemedAt)
     }
-    let positionInWinnerList  = null
+    let positionInWinnerList = null
     if (item.positionInWinnerList !== null) {
       positionInWinnerList = Number(item.positionInWinnerList)
     }
     return  {
+      beneficiary: item.beneficiary,
       createdAt: secondSinceEpochToDate(item.createdAt),
       description: item.description,
       descriptionHash: item.descriptionHash,
@@ -616,17 +640,17 @@ export class CompetitionSuggestion {
   public staticState?: ICompetitionSuggestionState
 
   constructor(
-    idOrOpts: string|{ suggestionId: number, scheme: string}|ICompetitionSuggestionState,
+    idOrOpts: string | { suggestionId: number, scheme: string } | ICompetitionSuggestionState,
     public context: Arc
   ) {
-     if (typeof idOrOpts === 'string') {
+    if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
       if (
         Object.keys(idOrOpts).includes('scheme') &&
         Object.keys(idOrOpts).includes('suggestionId')
-        ) {
-        this.id = CompetitionSuggestion.calculateId(idOrOpts as { suggestionId: number, scheme: string})
+      ) {
+        this.id = CompetitionSuggestion.calculateId(idOrOpts as { suggestionId: number, scheme: string })
         this.suggestionId = idOrOpts.suggestionId
       } else {
         const opts = idOrOpts as ICompetitionSuggestionState
@@ -641,7 +665,7 @@ export class CompetitionSuggestion {
   }
 
   public async fetchStaticState(): Promise<ICompetitionSuggestionState> {
-    return this.state({ fetchPolicy: 'cache-first'}).pipe(first()).toPromise()
+    return this.state({ fetchPolicy: 'cache-first' }).pipe(first()).toPromise()
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionSuggestionState> {
@@ -655,13 +679,13 @@ export class CompetitionSuggestion {
     `
 
     const itemMap = (item: any) => CompetitionSuggestion.mapItemToObject(item, this.context)
-    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
   public vote(): Operation<CompetitionVote> {
     const observable = this.state().pipe(
       first(),
-      concatMap((suggestionState) => {
+      concatMap((suggestionState: ICompetitionSuggestionState) => {
         const competition = new Competition(suggestionState.proposal, this.context)
         return competition.voteSuggestion(suggestionState.suggestionId)
       })
@@ -673,8 +697,8 @@ export class CompetitionSuggestion {
     options: ICompetitionVoteQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionVote[]> {
-    if (!options.where) { options.where = {}}
-    options.where = { ...options.where, suggestion: this.id}
+    if (!options.where) { options.where = {} }
+    options.where = { ...options.where, suggestion: this.id }
     return CompetitionVote.search(this.context, options, apolloQueryOptions)
   }
 
@@ -690,12 +714,12 @@ export class CompetitionSuggestion {
     return suggestionState.isWinner
   }
 
-  public redeem(beneficiary: Address = NULL_ADDRESS): Operation<boolean> {
+  public redeem(): Operation<boolean> {
      const observable = this.state().pipe(
       first(),
-      concatMap((suggestionState) => {
+      concatMap((suggestionState: ICompetitionSuggestionState) => {
         const competition = new Competition(suggestionState.proposal, this.context)
-        return competition.redeemSuggestion(suggestionState.suggestionId, beneficiary)
+        return competition.redeemSuggestion(suggestionState.suggestionId)
       })
     )
      return toIOperationObservable(observable)
@@ -707,11 +731,11 @@ export interface ICompetitionVoteQueryOptions extends ICommonQueryOptions {
     suggestion?: string
     voter?: Address
     proposal?: string
-    proposal_not?: string|null
+    proposal_not?: string | null
   }
 }
 
-export class CompetitionVote {
+export class CompetitionVote implements IStateful<ICompetitionVoteState> {
 
   public static fragments = {
     CompetitionVoteFields: gql`fragment CompetitionVoteFields on CompetitionVote {
@@ -729,16 +753,9 @@ export class CompetitionVote {
     options: ICompetitionVoteQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionVote[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) { options.where = {} }
 
-    const itemMap = (item: any) => new CompetitionVote({
-      createdAt: secondSinceEpochToDate(item.createdAt),
-      id: item.id,
-      reputation: item.reputation,
-      voter: item.voter
-    }, context)
-
-    const query = gql`query CompetitionSuggestionSearch
+    const query = gql`query CompetitionVoteSearch
       {
         competitionVotes ${createGraphQlQuery(options)} {
           ...CompetitionVoteFields
@@ -747,16 +764,31 @@ export class CompetitionVote {
       ${CompetitionVote.fragments.CompetitionVoteFields}
       `
 
+    const itemMap = (item: any) => {
+      return new CompetitionVote(CompetitionVote.itemMap(item), context)
+    }
     return context.getObservableList(
       query,
       itemMap,
       apolloQueryOptions
     ) as Observable<CompetitionVote[]>
   }
+  public static itemMap(item: any) {
+
+    return {
+      createdAt: secondSinceEpochToDate(item.createdAt),
+      id: item.id,
+      proposal: item.proposal.id,
+      reputation: item.reputation,
+      suggestion: item.suggestion.id,
+      voter: item.voter
+    }
+  }
+
   public id?: string
   public staticState?: ICompetitionVoteState
 
-  constructor(idOrOpts: string|ICompetitionVoteState, public context: Arc) {
+  constructor(idOrOpts: string | ICompetitionVoteState, public context: Arc) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
@@ -767,8 +799,21 @@ export class CompetitionVote {
   }
 
   public setStaticState(opts: ICompetitionVoteState) {
+    this.id = opts.id
     this.staticState = opts
   }
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionVoteState> {
+    const query = gql`query CompetitionVoteById
+      {
+        competitionVote (id: "${this.id}") {
+          ...CompetitionVoteFields
+        }
+      }
+      ${CompetitionVote.fragments.CompetitionVoteFields}
+      `
+    return this.context.getObservableObject(query, CompetitionVote.itemMap, apolloQueryOptions)
+  }
+
 }
 
 /**
@@ -796,6 +841,10 @@ export function getCompetitionContract(schemeState: ISchemeState, arc: Arc) {
 export function isCompetitionScheme(arc: Arc, item: any) {
   if (item.contributionRewardExtParams) {
     const contractInfo = arc.getContractInfo(item.contributionRewardExtParams.rewarder)
+    const versionNumber = Number(contractInfo.version.split('rc.')[1])
+    if (versionNumber < 39) {
+      throw Error(`Competition contracts of version < 0.0.1-rc.39 are not supported`)
+    }
     return contractInfo.name === 'Competition'
   } else {
     return false
