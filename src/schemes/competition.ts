@@ -735,7 +735,7 @@ export interface ICompetitionVoteQueryOptions extends ICommonQueryOptions {
   }
 }
 
-export class CompetitionVote {
+export class CompetitionVote implements IStateful<ICompetitionVoteState> {
 
   public static fragments = {
     CompetitionVoteFields: gql`fragment CompetitionVoteFields on CompetitionVote {
