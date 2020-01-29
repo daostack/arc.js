@@ -1,6 +1,6 @@
 {
   "name": "@daostack/client",
-  "version": "0.2.52",
+  "version": "0.2.53-competitions.1",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",
@@ -86,6 +86,7 @@
     "replace-in-file": "^3.4.4",
     "rimraf": "^2.6.2",
     "rollup": "^0.68.0",
+    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",

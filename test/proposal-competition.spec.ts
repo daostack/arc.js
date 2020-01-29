@@ -13,7 +13,7 @@ import {
   IProposalState,
   ISchemeState,
   Proposal
-  } from '../src'
+} from '../src'
 import { getBlockTime } from '../src/utils'
 import {
   advanceTimeAndBlock,
@@ -23,7 +23,7 @@ import {
   toWei,
   voteToPassProposal,
   waitUntilTrue
- } from './utils'
+} from './utils'
 
 jest.setTimeout(10000)
 
@@ -77,7 +77,7 @@ describe('Competition Proposal', () => {
     const contributionRewardExtAddres = contributionRewardExtContract.address
     // const contributionRewardExtAddres = '0x68c29524E583380aF7896f7e63463740225Ac026'.toLowerCase()
     const contributionRewardExts = await arc
-      .schemes({where: {address: contributionRewardExtAddres }}).pipe(first()).toPromise()
+      .schemes({ where: { address: contributionRewardExtAddres } }).pipe(first()).toPromise()
 
     contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
 
@@ -171,30 +171,25 @@ describe('Competition Proposal', () => {
 
   it('CompetitionSuggestion.calculateId works', async () => {
     function calc(scheme: string, suggestionId: number) {
-      return CompetitionSuggestion.calculateId({scheme, suggestionId})
+      return CompetitionSuggestion.calculateId({ scheme, suggestionId })
 
     }
-    expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
-                8))
+    expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622', 8))
       .toEqual('0x1c5a3d7aa889aff71dc8f5de18956b7b1e821c823f3f358d9eb74d18f135fa13')
-    expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
-                8))
+    expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622', 8))
       .toEqual('0x1c5a3d7aa889aff71dc8f5de18956b7b1e821c823f3f358d9eb74d18f135fa13')
-
-    expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622',
-                14))
+    expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622', 14))
       .toEqual('0x137446f8b5c791e505e6e8228801ed78555a4e35957fd0b026b70fc3f262b629')
-
   })
 
   it('create a competition proposal with starttime set to null', async () => {
-    const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
+    const scheme = new CompetitionScheme(contributionRewardExt.id, arc)
     // TODO: test error handling for all these params
     // - all args are present
     // - order of times
     const now = await getBlockTime(arc.web3)
-    const startTime = addSeconds(now, 2)
-    const proposalOptions  = {
+    const startTime = addSeconds(now, 3)
+    const proposalOptions = {
       dao: dao.id,
       endTime: addSeconds(startTime, 2000),
       ethReward,
@@ -232,7 +227,7 @@ describe('Competition Proposal', () => {
   it('Create a competition proposal, compete, win the competition..', async () => {
     // const scheme = new CompetitionScheme(contributionRewardExtState.id, arc)
     expect(contributionRewardExt).toBeInstanceOf(CompetitionScheme)
-    const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
+    const scheme = new CompetitionScheme(contributionRewardExt.id, arc)
 
     // make sure that the DAO has enough Ether to pay forthe reward
     await arc.web3.eth.sendTransaction({
@@ -248,8 +243,8 @@ describe('Competition Proposal', () => {
     // - all args are present
     // - order of times
     const now = await getBlockTime(arc.web3)
-    const startTime = addSeconds(now, 2)
-    const proposalOptions  = {
+    const startTime = addSeconds(now, 3)
+    const proposalOptions = {
       dao: dao.id,
       endTime: addSeconds(startTime, 200),
       ethReward,
@@ -319,7 +314,7 @@ describe('Competition Proposal', () => {
     await proposal.claimRewards().send()
 
     // find the competition
-    const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
+    const competitions = await scheme.competitions({ where: { id: proposal.id } }).pipe(first()).toPromise()
     expect(competitions.length).toEqual(1)
     const competition = competitions[0]
     expect(competition).toBeInstanceOf(Competition)
@@ -340,7 +335,7 @@ describe('Competition Proposal', () => {
     expect(suggestion1).toBeDefined()
     expect(suggestion1).toBeInstanceOf(CompetitionSuggestion)
     expect(suggestion1.id).toBeDefined()
-    const suggestion2Options = { ...suggestion1Options, title: 'suggestion nr 2'}
+    const suggestion2Options = { ...suggestion1Options, title: 'suggestion nr 2' }
     const receipt2 = await competition.createSuggestion(suggestion2Options).send()
     suggestion2 = receipt2.result
 
@@ -370,20 +365,20 @@ describe('Competition Proposal', () => {
 
     // filter suggestions by id, suggestionId, and proposal.id works
     expect(
-      (await competition.suggestions({where: { proposal: competition.id}}).pipe(first()).toPromise()).length)
+      (await competition.suggestions({ where: { proposal: competition.id } }).pipe(first()).toPromise()).length)
       .toEqual(2)
 
     expect(
-      (await competition.suggestions({where: { id: suggestion2.id}}).pipe(first()).toPromise()).length)
+      (await competition.suggestions({ where: { id: suggestion2.id } }).pipe(first()).toPromise()).length)
       .toEqual(1)
 
     expect(
-      (await competition.suggestions({where: { suggestionId: suggestion1State.suggestionId}})
+      (await competition.suggestions({ where: { suggestionId: suggestion1State.suggestionId } })
         .pipe(first()).toPromise()).length)
       .toEqual(1)
 
     // // and lets vote for the first suggestion
-    const voteReceipt = await scheme.voteSuggestion({ suggestionId: suggestion2.suggestionId}).send()
+    const voteReceipt = await scheme.voteSuggestion({ suggestionId: suggestion2.suggestionId }).send()
     const vote = voteReceipt.result
     // // the vote should be counted
     expect(vote).toBeInstanceOf(CompetitionVote)
@@ -397,8 +392,8 @@ describe('Competition Proposal', () => {
     expect(suggestion1.vote().send()).rejects.toThrow('already voted on this suggestion')
 
     let competitionVotes: CompetitionVote[] = []
-    CompetitionVote.search(arc, {where: { suggestion: suggestion2.id}}).subscribe(
-      (votes) => { competitionVotes = votes}
+    CompetitionVote.search(arc, { where: { suggestion: suggestion2.id } }).subscribe(
+      (votes) => { competitionVotes = votes }
     )
     await waitUntilTrue(() => competitionVotes.length > 0)
     expect(competitionVotes.length).toEqual(1)
@@ -551,7 +546,7 @@ describe('Competition Proposal', () => {
     arc.setAccount(address0)
     await suggestion2.vote().send()
 
-     // wait until last vote is indexed
+    // wait until last vote is indexed
     let voteIsIndexed = false
     suggestion2.state().subscribe((s: ICompetitionSuggestionState) => {
       voteIsIndexed = (s.positionInWinnerList !== null)
@@ -586,7 +581,7 @@ describe('Competition Proposal', () => {
     expect(await isWinner(suggestion4)).toEqual(false)
 
     // if we get the list of winners, it should contain exactly these 3 suggestions
-    const winnerList = await competition.suggestions({where: {positionInWinnerList_not: null}})
+    const winnerList = await competition.suggestions({ where: { positionInWinnerList_not: null } })
       .pipe(first()).toPromise()
     expect(winnerList.map((s: CompetitionSuggestion) => s.id).sort()).toEqual(
       [suggestion1.id, suggestion2.id, suggestion3.id].sort()
@@ -595,9 +590,9 @@ describe('Competition Proposal', () => {
   })
 
   it('winner is identified correctly also if there are less actual than possible winners', async () => {
-    await createCompetition({ rewardSplit: [40, 40, 20]})
+    await createCompetition({ rewardSplit: [40, 40, 20] })
     await suggestion1.vote().send()
-     // wait until the vote is indexed
+    // wait until the vote is indexed
     let voteIsIndexed = false
     suggestion1.state().subscribe((s: ICompetitionSuggestionState) => {
       voteIsIndexed = (s.positionInWinnerList !== null)
@@ -627,10 +622,10 @@ describe('Competition Proposal', () => {
   it('CompetionScheme is recognized', async () => {
     // we'll get a `ContributionRewardExt` contract that has a Compietion contract as a rewarder
     const ARC_VERSION = '0.0.1-rc.39'
-    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
+    const contributionRewardExtContract = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
     // find the corresponding scheme object
     const contributionRewardExts = await arc
-      .schemes({where: {address: contributionRewardExtContract.address}}).pipe(first()).toPromise()
+      .schemes({ where: { address: contributionRewardExtContract.address } }).pipe(first()).toPromise()
     expect(contributionRewardExts.length).toEqual(1)
     const scheme = contributionRewardExts[0]
     expect(scheme).toBeInstanceOf(CompetitionScheme)
@@ -638,9 +633,8 @@ describe('Competition Proposal', () => {
 
   it('Can create a propsal using dao.createProposal', async () => {
     const now = await getBlockTime(arc.web3)
-    const startTime = addSeconds(now, 2)
-    const proposalOptions  = {
-      beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+    const startTime = addSeconds(now, 3)
+    const proposalOptions = {
       dao: dao.id,
       endTime: addSeconds(startTime, 3000),
       ethReward,
