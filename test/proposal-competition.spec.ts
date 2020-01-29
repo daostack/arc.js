@@ -25,7 +25,7 @@ import {
   waitUntilTrue
  } from './utils'
 
-jest.setTimeout(60000)
+jest.setTimeout(10000)
 
 describe('Competition Proposal', () => {
   let arc: Arc
@@ -72,14 +72,15 @@ describe('Competition Proposal', () => {
     // we'll get a `ContributionRewardExt` contract
     // find the corresponding scheme object
     // TODO: next lines will not work because of https://github.com/daostack/migration/issues/254
-    // const ARC_VERSION = '0.0.1-rc.36'
-    // const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
-    // const contributionRewardExtAddres = contributionRewardExtContract.address
-    const contributionRewardExtAddres = '0x68c29524E583380aF7896f7e63463740225Ac026'.toLowerCase()
+    const ARC_VERSION = '0.0.1-rc.39'
+    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
+    const contributionRewardExtAddres = contributionRewardExtContract.address
+    // const contributionRewardExtAddres = '0x68c29524E583380aF7896f7e63463740225Ac026'.toLowerCase()
     const contributionRewardExts = await arc
       .schemes({where: {address: contributionRewardExtAddres }}).pipe(first()).toPromise()
 
     contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
+
     contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
     dao = new DAO(contributionRewardExtState.dao, arc)
     address0 = arc.web3.eth.accounts.wallet[0].address.toLowerCase()
@@ -89,6 +90,84 @@ describe('Competition Proposal', () => {
   afterEach(async () => {
     // await revertToSnapShot(snapshotId)
   })
+  async function createCompetition(options: { rewardSplit?: number[]}  = {}) {
+    const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
+    // make sure that the DAO has enough Ether to pay forthe reward
+    await arc.web3.eth.sendTransaction({
+      gas: 4000000,
+      gasPrice: 100000000000,
+      to: dao.id,
+      value: ethReward
+    })
+    const externalTokenReward = new BN(0)
+    const nativeTokenReward = new BN(0)
+    const now = await getBlockTime(arc.web3)
+    const startTime = addSeconds(now, 2)
+    const rewardSplit = options.rewardSplit || [80, 20]
+    const proposalOptions  = {
+      dao: dao.id,
+      endTime: addSeconds(startTime, 200),
+      ethReward,
+      externalTokenAddress: undefined,
+      externalTokenReward,
+      nativeTokenReward,
+      numberOfVotesPerVoter: 3,
+      proposalType: 'competition',
+      reputationReward,
+      rewardSplit,
+      startTime,
+      suggestionsEndTime: addSeconds(startTime, 100),
+      value: 0,
+      votingStartTime: addSeconds(startTime, 0)
+    }
+
+    // CREATE PROPOSAL
+    const tx = await scheme.createProposal(proposalOptions).send()
+    const proposal = tx.result
+
+    // accept the proposal by voting for et
+    await voteToPassProposal(proposal)
+    await proposal.claimRewards().send()
+
+    // find the competition
+    const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
+    const competition = competitions[0]
+
+    // lets create some suggestions
+    const suggestion1Options = {
+      beneficiary: address1,
+      description: 'descxription',
+      proposal: proposal.id,
+      // tags: ['tag1', 'tag2'],
+      title: 'title',
+      url: 'https://somewhere.some.place'
+    }
+    const suggestion2Options = { ...suggestion1Options, beneficiary: address1, title: 'suggestion nr 2'}
+    const suggestion3Options = { ...suggestion1Options, beneficiary: address1, title: 'suggestion nr 3'}
+    const suggestion4Options = { ...suggestion1Options, beneficiary: address0, title: 'suggestion nr 4'}
+
+    const receipt1 = await competition.createSuggestion(suggestion1Options).send()
+    suggestion1 = receipt1.result
+    const receipt2 = await competition.createSuggestion(suggestion2Options).send()
+    suggestion2 = receipt2.result
+    const receipt3 = await competition.createSuggestion(suggestion3Options).send()
+    suggestion3 = receipt3.result
+    const receipt4 = await competition.createSuggestion(suggestion4Options).send()
+    suggestion4 = receipt4.result
+    // wait until suggestions are properly indexed
+    let suggestionIds: string[] = []
+    competition.suggestions()
+      .subscribe((ls: CompetitionSuggestion[]) => {
+        suggestionIds = ls.map((x: CompetitionSuggestion) => x.id)
+      }
+    )
+
+    await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
+    await waitUntilTrue(() => suggestionIds.indexOf(suggestion3.id) > -1)
+    await waitUntilTrue(() => suggestionIds.indexOf(suggestion4.id) > -1)
+
+    return competition
+  }
 
   it('CompetitionSuggestion.calculateId works', async () => {
     function calc(scheme: string, suggestionId: number) {
@@ -134,12 +213,12 @@ describe('Competition Proposal', () => {
 
     // CREATE PROPOSAL
     const tx = await scheme.createProposal(proposalOptions).send()
-    const proposal = tx.result
-    expect(proposal).toBeInstanceOf(Proposal)
+    const proposal1 = tx.result
+    expect(proposal1).toBeInstanceOf(Proposal)
 
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
-    proposal.state().subscribe((pState: IProposalState) => {
+    proposal1.state().subscribe((pState: IProposalState) => {
       states.push(pState)
     })
     await waitUntilTrue(() => !!lastState())
@@ -248,6 +327,7 @@ describe('Competition Proposal', () => {
 
     // lets create some suggestions
     const suggestion1Options = {
+      beneficiary: address1,
       description: 'descxription',
       proposal: proposal.id,
       tags: ['tag1', 'tag2'],
@@ -276,10 +356,11 @@ describe('Competition Proposal', () => {
     const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
     expect(suggestion1State).toMatchObject({
       ...suggestion1Options,
+      beneficiary: undefined, // should be address1 after https://github.com/daostack/subgraph/issues/459 is resolved
       id: suggestion1.id,
       redeemedAt: null,
       rewardPercentage: 0,
-      suggester: address0,
+      suggester: address1, // should be address0 after https://github.com/daostack/subgraph/issues/459 is resolved
       tags: ['tag1', 'tag2'],
       title: 'title',
       totalVotes: new BN(0)
@@ -334,89 +415,11 @@ describe('Competition Proposal', () => {
 
     // get the current balance of addres1 (who we will send the rewards to)
     const balanceBefore = new BN(await arc.web3.eth.getBalance(address1))
-    await suggestion1.redeem(address1).send()
+    await suggestion1.redeem().send()
     const balanceAfter = new BN(await arc.web3.eth.getBalance(address1))
     const balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).not.toEqual('0')
   })
-
-  async function createCompetition(options: { rewardSplit?: number[]}  = {}) {
-    const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
-    // make sure that the DAO has enough Ether to pay forthe reward
-    await arc.web3.eth.sendTransaction({
-      gas: 4000000,
-      gasPrice: 100000000000,
-      to: dao.id,
-      value: ethReward
-    })
-    const externalTokenReward = new BN(0)
-    const nativeTokenReward = new BN(0)
-    const now = await getBlockTime(arc.web3)
-    const startTime = addSeconds(now, 2)
-    const rewardSplit = options.rewardSplit || [80, 20]
-    const proposalOptions  = {
-      dao: dao.id,
-      endTime: addSeconds(startTime, 200),
-      ethReward,
-      externalTokenAddress: undefined,
-      externalTokenReward,
-      nativeTokenReward,
-      numberOfVotesPerVoter: 3,
-      proposalType: 'competition',
-      reputationReward,
-      rewardSplit,
-      startTime,
-      suggestionsEndTime: addSeconds(startTime, 100),
-      value: 0,
-      votingStartTime: addSeconds(startTime, 0)
-    }
-
-    // CREATE PROPOSAL
-    const tx = await scheme.createProposal(proposalOptions).send()
-    const proposal = tx.result
-
-    // accept the proposal by voting for et
-    await voteToPassProposal(proposal)
-    await proposal.claimRewards().send()
-
-    // find the competition
-    const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
-    const competition = competitions[0]
-
-    // lets create some suggestions
-    const suggestion1Options = {
-      description: 'descxription',
-      proposal: proposal.id,
-      // tags: ['tag1', 'tag2'],
-      title: 'title',
-      url: 'https://somewhere.some.place'
-    }
-    const suggestion2Options = { ...suggestion1Options, title: 'suggestion nr 2'}
-    const suggestion3Options = { ...suggestion1Options, title: 'suggestion nr 3'}
-    const suggestion4Options = { ...suggestion1Options, title: 'suggestion nr 4'}
-
-    const receipt1 = await competition.createSuggestion(suggestion1Options).send()
-    suggestion1 = receipt1.result
-    const receipt2 = await competition.createSuggestion(suggestion2Options).send()
-    suggestion2 = receipt2.result
-    const receipt3 = await competition.createSuggestion(suggestion3Options).send()
-    suggestion3 = receipt3.result
-    const receipt4 = await competition.createSuggestion(suggestion4Options).send()
-    suggestion4 = receipt4.result
-    // wait until suggestions are properly indexed
-    let suggestionIds: string[] = []
-    competition.suggestions()
-      .subscribe((ls: CompetitionSuggestion[]) => {
-        suggestionIds = ls.map((x: CompetitionSuggestion) => x.id)
-      }
-    )
-
-    await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
-    await waitUntilTrue(() => suggestionIds.indexOf(suggestion3.id) > -1)
-    await waitUntilTrue(() => suggestionIds.indexOf(suggestion4.id) > -1)
-
-    return competition
-  }
 
   it(`Rewards left are updated correctdly`, async () => {
     // before any votes are cast, all suggesitons are winnners
@@ -512,10 +515,10 @@ describe('Competition Proposal', () => {
 
     const crextContractAddress = contributionRewardExtState.address
     const crExtBalanceBefore = await arc.web3.eth.getBalance(crextContractAddress)
-    const beneficiary = '0xd97BacCC5001efE003d4D8a110261AdF96166F35'.toLowerCase()
+    const beneficiary = address1
 
     let balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
-    await suggestion1.redeem(beneficiary).send()
+    await suggestion1.redeem().send()
     let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
     let balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual('150')
@@ -524,7 +527,7 @@ describe('Competition Proposal', () => {
     expect(crExtBalanceDelta.toString()).toEqual('150')
 
     // the reward _is_ redeemed
-    await expect(suggestion1.redeem(beneficiary).send()).rejects.toThrow('suggestion was already redeemed')
+    await expect(suggestion1.redeem().send()).rejects.toThrow('suggestion was already redeemed')
 
     balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
     await suggestion2.redeem(beneficiary).send()
@@ -562,7 +565,7 @@ describe('Competition Proposal', () => {
 
     await advanceTimeAndBlock(2000)
 
-    const beneficiary = '0xd97BacCC5001efE003d4D8a110261AdF96166F35'.toLowerCase()
+    const beneficiary = address1
 
     let balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
     await suggestion3.redeem(beneficiary).send()
@@ -571,11 +574,11 @@ describe('Competition Proposal', () => {
     expect(balanceDelta.toString()).toEqual((new BN(240)).toString())
 
     balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
-    await suggestion1.redeem(beneficiary).send()
+    await suggestion1.redeem().send()
     balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
     balanceDelta = balanceAfter.sub(balanceBefore)
 
-    expect(suggestion4.redeem(beneficiary).send()).rejects.toThrow('not in winners list')
+    expect(suggestion4.redeem().send()).rejects.toThrow('not in winners list')
 
     expect(await isWinner(suggestion1)).toEqual(true)
     expect(await isWinner(suggestion2)).toEqual(true)
@@ -623,7 +626,7 @@ describe('Competition Proposal', () => {
 
   it('CompetionScheme is recognized', async () => {
     // we'll get a `ContributionRewardExt` contract that has a Compietion contract as a rewarder
-    const ARC_VERSION = '0.0.1-rc.36'
+    const ARC_VERSION = '0.0.1-rc.39'
     const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
     // find the corresponding scheme object
     const contributionRewardExts = await arc
@@ -658,6 +661,37 @@ describe('Competition Proposal', () => {
     const tx = await dao.createProposal(proposalOptions).send()
     proposal = tx.result
     expect(proposal).toBeInstanceOf(Proposal)
+
+  })
+
+  // TODO: this test is skipped while waiting for https://github.com/daostack/subgraph/issues/459
+  it.skip(`Beneficiary is recognized and different from suggestion`, async () => {
+    // lets create some suggestions
+    const competition =  await createCompetition()
+    const suggestionOptions = {
+      beneficiary: address1,
+      description: 'descxription',
+      proposal: competition.id,
+      tags: ['tag1', 'tag2'],
+      title: 'title',
+      url: 'https://somewhere.some.place'
+    }
+
+    const receipt1 = await competition.createSuggestion(suggestionOptions).send()
+    const suggestion = receipt1.result
+    // wait until suggestion is indexed
+
+    let suggestionState: ICompetitionSuggestionState|null = null
+    suggestion.state().subscribe((s: ICompetitionSuggestionState) => suggestionState = s)
+    await waitUntilTrue(() => !!suggestionState)
+    expect(suggestionState).toMatchObject({
+      ...suggestionOptions,
+      id: suggestion.id,
+      redeemedAt: null,
+      rewardPercentage: 0,
+      suggester: address0,
+      totalVotes: new BN(0)
+    })
 
   })
 })

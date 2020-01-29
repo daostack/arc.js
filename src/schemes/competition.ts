@@ -8,7 +8,7 @@ import { mapGenesisProtocolParams } from '../genesisProtocol'
 import { IApolloQueryOptions } from '../graphnode'
 import { Operation, toIOperationObservable } from '../operation'
 import { IProposalBaseCreateOptions, IProposalQueryOptions, IProposalState, Proposal } from '../proposal'
-import { Address, ICommonQueryOptions } from '../types'
+import { Address, ICommonQueryOptions, IStateful } from '../types'
 import { concat,
   createGraphQlQuery, dateToSecondsSinceEpoch, getBlockTime,
   hexStringToUint8Array,
@@ -60,6 +60,7 @@ export interface ICompetitionSuggestionState {
   url?: string
   // fulltext: [string]
   suggester: Address
+  beneficiary: Address
   // votes: [CompetitionVote!] @derivedFrom(field: "suggestion")
   tags: string[]
   totalVotes: BN
@@ -226,6 +227,7 @@ export class CompetitionScheme extends SchemeBase {
           options.numberOfVotesPerVoter.toString() || 0,
           dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
         ]
+      const proposerIsAdmin = false
 
       const transaction = contract.methods.proposeCompetition(
           options.descriptionHash || '',
@@ -237,7 +239,8 @@ export class CompetitionScheme extends SchemeBase {
           ],
           options.externalTokenAddress || NULL_ADDRESS,
           options.rewardSplit,
-          competitionParams
+          competitionParams,
+          proposerIsAdmin
         )
       return transaction
     }
@@ -353,16 +356,12 @@ export class CompetitionScheme extends SchemeBase {
     return toIOperationObservable(observable)
   }
  public redeemSuggestion(options: {
-    suggestionId: number, // this is the suggestion COUNTER
-    beneficiary: Address
+    suggestionId: number // this is the suggestion COUNTER
   }): Operation<boolean> {
-    if (!options.beneficiary) {
-      options.beneficiary = NULL_ADDRESS
-    }
     const createTransaction = async () => {
       const schemeState = await this.state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
-      const transaction = contract.methods.redeem(options.suggestionId, options.beneficiary)
+      const transaction = contract.methods.redeem(options.suggestionId)
       return transaction
     }
 
@@ -435,17 +434,22 @@ export class Competition { // extends Proposal {
   public createSuggestion(options: {
     title: string,
     description: string,
+    beneficiary?: Address,
     tags?: string[],
     url?: string
+
   }): Operation<any> {
     let schemeState: ISchemeState
     const createTransaction = async () => {
       const proposalState = await (new Proposal(this.id, this.context)).state().pipe(first()).toPromise()
+      if (!options.beneficiary) {
+        options.beneficiary = await this.context.getAccount().pipe(first()).toPromise()
+      }
       schemeState = await (new CompetitionScheme(proposalState.scheme.id, this.context))
         .state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
       const descriptionHash = await this.context.saveIPFSData(options)
-      const transaction = contract.methods.suggest(this.id, descriptionHash)
+      const transaction = contract.methods.suggest(this.id, descriptionHash, options.beneficiary)
       return transaction
     }
 
@@ -493,13 +497,13 @@ export class Competition { // extends Proposal {
     )
     return toIOperationObservable(observable)
   }
-  public redeemSuggestion(suggestionId: number, beneficiary: Address = NULL_ADDRESS): Operation<boolean> {
+  public redeemSuggestion(suggestionId: number): Operation<boolean> {
     const proposal = new Proposal(this.id, this.context)
     const observable = proposal.state().pipe(
       first(),
       concatMap((competitionState: IProposalState) => {
         const scheme = new CompetitionScheme(competitionState.scheme, this.context)
-        return scheme.redeemSuggestion({suggestionId, beneficiary})
+        return scheme.redeemSuggestion({suggestionId})
       })
     )
     return toIOperationObservable(observable)
@@ -534,7 +538,7 @@ export interface ICompetitionSuggestionQueryOptions extends ICommonQueryOptions 
     positionInWinnerList_not?: number|null
   }
 }
-export class CompetitionSuggestion {
+export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionState> {
 
   public static fragments = {
     CompetitionSuggestionFields: gql`fragment CompetitionSuggestionFields on CompetitionSuggestion {
@@ -609,6 +613,7 @@ export class CompetitionSuggestion {
       positionInWinnerList = Number(item.positionInWinnerList)
     }
     return  {
+      beneficiary: item.beneficiary,
       createdAt: secondSinceEpochToDate(item.createdAt),
       description: item.description,
       descriptionHash: item.descriptionHash,
@@ -707,12 +712,12 @@ export class CompetitionSuggestion {
     return suggestionState.isWinner
   }
 
-  public redeem(beneficiary: Address = NULL_ADDRESS): Operation<boolean> {
+  public redeem(): Operation<boolean> {
      const observable = this.state().pipe(
       first(),
       concatMap((suggestionState: ICompetitionSuggestionState) => {
         const competition = new Competition(suggestionState.proposal, this.context)
-        return competition.redeemSuggestion(suggestionState.suggestionId, beneficiary)
+        return competition.redeemSuggestion(suggestionState.suggestionId)
       })
     )
      return toIOperationObservable(observable)
@@ -834,6 +839,10 @@ export function getCompetitionContract(schemeState: ISchemeState, arc: Arc) {
 export function isCompetitionScheme(arc: Arc, item: any) {
   if (item.contributionRewardExtParams) {
     const contractInfo = arc.getContractInfo(item.contributionRewardExtParams.rewarder)
+    const versionNumber = Number(contractInfo.version.split('rc.')[1])
+    if (versionNumber < 39) {
+      throw Error(`Competition contracts of version < 0.0.1-rc.39 are not supported`)
+    }
     return contractInfo.name === 'Competition'
   } else {
     return false
