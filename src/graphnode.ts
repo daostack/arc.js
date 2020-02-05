@@ -27,7 +27,7 @@ export interface IObservable<T> extends Observable<T> {
 export function createApolloClient(options: {
   graphqlHttpProvider: string,
   graphqlWsProvider: string,
-  graphqlPrefetchHook?: (query: any) => any, // a callback function that will be called for each query sent to the link
+  prefetchHook?: (query: any) => any, // a callback function that will be called for each query sent to the link
   errHandler?: (event: any) => any,
   retryLink?: any // apollo retry link instance
 }) {
@@ -48,8 +48,8 @@ export function createApolloClient(options: {
   const wsOrHttpLink = split(
     // split based on operation type
     ({ query }) => {
-      if (options.graphqlPrefetchHook) {
-        options.graphqlPrefetchHook(query)
+      if (options.prefetchHook) {
+        options.prefetchHook(query)
       }
       const definition = getMainDefinition(query)
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
@@ -149,16 +149,20 @@ export class GraphNodeObserver {
     graphqlHttpProvider?: string
     graphqlWsProvider?: string
     graphqlSubscribeToQueries?: boolean
+    prefetchHook?: any
+    errHandler?: any
+    retryLink?: any
   }) {
     this.graphqlSubscribeToQueries = (
       options.graphqlSubscribeToQueries === undefined || options.graphqlSubscribeToQueries
     )
     if (options.graphqlHttpProvider && options.graphqlWsProvider) {
-      this.graphqlHttpProvider = options.graphqlHttpProvider
-      this.graphqlWsProvider = options.graphqlWsProvider
+      this.graphqlHttpProvider = options.graphqlHttpProvider as string
+      this.graphqlWsProvider = options.graphqlWsProvider as string
       this.apolloClient = createApolloClient({
-        graphqlHttpProvider: this.graphqlHttpProvider,
-        graphqlWsProvider: this.graphqlWsProvider
+        ...options,
+        graphqlHttpProvider: this.graphqlHttpProvider as string,
+        graphqlWsProvider: this.graphqlWsProvider as string
       })
     }
   }
