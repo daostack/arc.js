@@ -786,7 +786,7 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
       return new CompetitionVote(CompetitionVote.itemMap(item), context)
     }
     let query
-    if (options.where.suggestion) {
+    if (options.where.suggestion && !options.where.id) {
       query = gql`query CompetitionVoteSearchBySuggestion
         {
           competitionSuggestion (id: "${options.where.suggestion}") {
