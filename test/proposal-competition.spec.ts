@@ -709,6 +709,7 @@ describe('Competition Proposal', () => {
       proposals (where: { id: "${competition.id}"}) {
         ...ProposalFields
         competition {
+          id
           suggestions { ...CompetitionSuggestionFields }
         }
       }
