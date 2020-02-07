@@ -73,8 +73,7 @@ describe('Competition Proposal', () => {
     arc = await newArc()
     // we'll get a `ContributionRewardExt` contract
     // find the corresponding scheme object
-    // TODO: next lines will not work because of https://github.com/daostack/migration/issues/254
-    const ARC_VERSION = '0.0.1-rc.39'
+    const ARC_VERSION = '0.0.1-rc.40'
     const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
     const contributionRewardExtAddres = contributionRewardExtContract.address
     // const contributionRewardExtAddres = '0x68c29524E583380aF7896f7e63463740225Ac026'.toLowerCase()
