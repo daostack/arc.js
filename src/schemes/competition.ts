@@ -466,20 +466,16 @@ export class Competition { // extends Proposal {
         return new CompetitionSuggestion({ scheme: (schemeState as ISchemeState).id, suggestionId }, this.context)
       }
     }
-    const errorHandler = async (err: Error, transaction: any, options?: any) => {
+    const errorHandler = async (err: Error, transaction: any, opts?: any) => {
       // we got an error
       const contract = getCompetitionContract(schemeState, this.context)
-      const proposal = await contract.methods.proposals(this.id).call(options)
+      const proposal = await contract.methods.proposals(this.id).call(opts)
       if (!proposal) {
         throw Error(`A proposal with id ${this.id} does not exist`)
       }
       const tx = await createTransaction()
-      try {
-        await tx.call(options)
-      } catch (error) {
-        throw error
-      }
-      return err
+      await tx.call(opts)
+      throw err
     }
     const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
     return toIOperationObservable(observable)
