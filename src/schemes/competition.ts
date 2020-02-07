@@ -462,10 +462,6 @@ export class Competition { // extends Proposal {
       } else {
         const eventName = 'NewSuggestion'
         const suggestionId = receipt.events[eventName].returnValues._suggestionId
-        // const competitionSuggestionId = CompetitionSuggestion.calculateId({
-        //   scheme: this.id,
-        //   suggestionId
-        // })
         return new CompetitionSuggestion({ scheme: (schemeState as ISchemeState).id, suggestionId }, this.context)
       }
     }
@@ -589,7 +585,7 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
     }
 
     // if we are looing for the suggestions of a particular proposal, we prime the cache..
-    if (options.where && options.where.proposal) { // } && !options.where.id) {
+    if (options.where && options.where.proposal && !options.where.id) {
       query = gql`query CompetitionSuggestionSearchByProposal
         {
           competitionProposal (id: "${options.where.proposal}") {

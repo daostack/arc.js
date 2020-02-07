@@ -55,7 +55,7 @@ describe('Competition Proposal', () => {
   }
 
   async function getPosition(suggestion: CompetitionSuggestion) {
-    const state = await suggestion.state().pipe(first()).toPromise()
+    const state = await suggestion.state({ fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     return state.positionInWinnerList
   }
 
@@ -555,8 +555,10 @@ describe('Competition Proposal', () => {
     })
     await waitUntilTrue(() => voteIsIndexed)
 
-    expect(await getPosition(suggestion1)).toEqual(1)
+    await waitUntilTrue(() => voteIsIndexed)
+
     expect(await getPosition(suggestion2)).toEqual(1)
+    expect(await getPosition(suggestion1)).toEqual(1)
     expect(await getPosition(suggestion3)).toEqual(0)
     expect(await getPosition(suggestion4)).toEqual(null)
 
