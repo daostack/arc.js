@@ -90,7 +90,10 @@ describe('Competition Proposal', () => {
   afterEach(async () => {
     // await revertToSnapShot(snapshotId)
   })
-  async function createCompetition(options: { rewardSplit?: number[]}  = {}) {
+  async function createCompetition(options: {
+      rewardSplit?: number[],
+      proposerIsAdmin?: boolean
+    }  = {}) {
     const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
     // make sure that the DAO has enough Ether to pay forthe reward
     await arc.web3.eth.sendTransaction({
@@ -113,6 +116,7 @@ describe('Competition Proposal', () => {
       nativeTokenReward,
       numberOfVotesPerVoter: 3,
       proposalType: 'competition',
+      proposerIsAdmin: options.proposerIsAdmin,
       reputationReward,
       rewardSplit,
       startTime,
@@ -685,6 +689,21 @@ describe('Competition Proposal', () => {
       suggester: address0,
       totalVotes: new BN(0)
     })
+  })
 
+  it(`proposerIsAdmin behaves as expected`, async () => {
+    const competition =  await createCompetition({proposerIsAdmin: true})
+    // accounts other than proposer cannot suggest
+
+    arc.setAccount(address1)
+    const suggestionOptions = {
+      beneficiary: address1,
+      description: 'descxription',
+      title: 'title',
+      url: 'https://somewhere.some.place'
+    }
+
+    await expect(competition.createSuggestion(suggestionOptions).send()).rejects.toThrow(/only admin/)
+    arc.setAccount(address0)
   })
 })

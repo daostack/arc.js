@@ -228,7 +228,7 @@ export class CompetitionScheme extends SchemeBase {
         options.numberOfVotesPerVoter.toString() || 0,
         dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
       ]
-      const proposerIsAdmin = false
+      const proposerIsAdmin = !!options.proposerIsAdmin
 
       const transaction = contract.methods.proposeCompetition(
         options.descriptionHash || '',
@@ -257,6 +257,7 @@ export class CompetitionScheme extends SchemeBase {
 
   public createProposalErrorHandler(options: any): (err: Error) => Error | Promise<Error> {
     return async (err) => {
+      console.log(`hanlding errrrrr`)
       const tx = await this.createProposalTransaction(options)()
       try {
         await tx.call()
@@ -462,26 +463,22 @@ export class Competition { // extends Proposal {
       } else {
         const eventName = 'NewSuggestion'
         const suggestionId = receipt.events[eventName].returnValues._suggestionId
-        // const competitionSuggestionId = CompetitionSuggestion.calculateId({
-        //   scheme: this.id,
-        //   suggestionId
-        // })
         return new CompetitionSuggestion({ scheme: (schemeState as ISchemeState).id, suggestionId }, this.context)
       }
     }
-    const errorHandler = async (err: Error) => {
+    const errorHandler = async (err: Error, transaction: any, options?: any) => {
       // we got an error
-      // see if the proposalId does exist in the contract
-      // const proposalState = await this.state().pipe(first()).toPromise()
-      // const schemeState = await (new Scheme(proposalState.scheme.address, this.context))
-      // .state().pipe(first()).toPromise()
       const contract = getCompetitionContract(schemeState, this.context)
-      const proposal = await contract.methods.proposals(this.id).call()
+      const proposal = await contract.methods.proposals(this.id).call(options)
       if (!proposal) {
         throw Error(`A proposal with id ${this.id} does not exist`)
       }
       const tx = await createTransaction()
-      await tx.call()
+      try {
+        await tx.call(options)
+      } catch (error) {
+        throw error
+      }
       return err
     }
     const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
