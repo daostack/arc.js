@@ -101,13 +101,12 @@ describe('apolloClient caching checks', () => {
       ${Stake.fragments.StakeFields}
       ${Scheme.fragments.SchemeFields}
     `
-    let subscribed = false
-    const results: any[] = []
-    arc.getObservable(query, { subscribe: true, fetchPolicy: 'no-cache'}).subscribe((x: any) => {
-      subscribed = true
-      results.push(x)
-    })
-    await waitUntilTrue(() => subscribed)
+    // let subscribed = false
+    // arc.getObservable(query, { subscribe: true, fetchPolicy: 'no-cache'}).subscribe((x: any) => {
+    //   subscribed = true
+    // })
+    // await waitUntilTrue(() => subscribed)
+    await arc.sendQuery(query)
 
     const proposalVotes = await proposal.votes({ where: { voter: voterAddress}}, { fetchPolicy: 'cache-only'})
       .pipe(first()).toPromise()

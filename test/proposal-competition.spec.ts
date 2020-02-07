@@ -739,8 +739,8 @@ describe('Competition Proposal', () => {
     `
 
     await arc.sendQuery(query)
-    // now see if we can get our informatino directly from the cache
 
+    // now see if we can get our informatino directly from the cache
     const cachedSugestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
       .pipe(first()).toPromise()
     expect(cachedSugestions.map((v: CompetitionSuggestion) => v.id))
