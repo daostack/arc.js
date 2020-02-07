@@ -60,7 +60,7 @@ describe('Competition Proposal', () => {
   }
 
   async function isWinner(suggestion: CompetitionSuggestion) {
-    const state = await suggestion.state().pipe(first()).toPromise()
+    const state = await suggestion.state({fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     return state.isWinner
   }
 
