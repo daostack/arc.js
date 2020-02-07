@@ -589,7 +589,7 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
     }
 
     // if we are looing for the suggestions of a particular proposal, we prime the cache..
-    if (options.where && options.where.proposal && !options.where.id) {
+    if (options.where && options.where.proposal) { // } && !options.where.id) {
       query = gql`query CompetitionSuggestionSearchByProposal
         {
           competitionProposal (id: "${options.where.proposal}") {
@@ -858,7 +858,7 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionVoteState> {
     const query = gql`query CompetitionVoteById
       {
-        competitionVote (id: '${this.id}') {
+        competitionVote (id: "${this.id}") {
           ...CompetitionVoteFields
         }
       }
