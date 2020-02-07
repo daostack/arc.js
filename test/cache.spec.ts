@@ -4,7 +4,7 @@ import { first } from 'rxjs/operators'
 import { Member, Proposal, Scheme, Stake } from '../src'
 import { createApolloClient } from '../src/graphnode'
 import { Vote } from '../src/vote'
-import { graphqlHttpProvider, graphqlWsProvider, newArc, waitUntilTrue } from './utils'
+import { graphqlHttpProvider, graphqlWsProvider, newArc } from './utils'
 
 jest.setTimeout(20000)
 /**
