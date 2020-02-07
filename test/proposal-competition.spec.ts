@@ -719,14 +719,7 @@ describe('Competition Proposal', () => {
     ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
     `
 
-    let subscribed = false
-    const results: any[] = []
-    arc.getObservable(query, { subscribe: true, fetchPolicy: 'no-cache'}).subscribe((x: any) => {
-      subscribed = true
-      results.push(x)
-    })
-    await waitUntilTrue(() => subscribed)
-
+    await arc.sendQuery(query)
     // now see if we can get our informatino directly from the cache
 
     const cachedSugestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
@@ -760,6 +753,7 @@ describe('Competition Proposal', () => {
     const query = gql`query
       {
         competitionSuggestion (id: "${suggestion1.id}") {
+          id
           votes {
             ...CompetitionVoteFields
           }

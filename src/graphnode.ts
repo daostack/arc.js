@@ -98,9 +98,9 @@ export function createApolloClient(options: {
   const cache = new InMemoryCache({
     cacheRedirects: {
       Query: {
-        competition: (_, args, { getCacheKey }) => {
-          return getCacheKey({ __typename: 'CompetitionProposal', id: args.id })
-        },
+        // competition: (_, args, { getCacheKey }) => {
+        //   return getCacheKey({ __typename: 'CompetitionProposal', id: args.id })
+        // },
         competitionProposal: (_, args, { getCacheKey }) => {
           return getCacheKey({ __typename: 'CompetitionProposal', id: args.id })
         },
