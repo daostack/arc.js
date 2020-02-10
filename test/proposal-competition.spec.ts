@@ -711,7 +711,44 @@ describe('Competition Proposal', () => {
   })
 
   // TODO!! unskip this test. It passes locally but fails often (but not always) on travis :-(
-  it.skip('pre-fetching competition.suggestions works', async () => {
+  it('pre-fetching competition.suggestions works', async () => {
+    // find a proposal in a scheme that has > 1 votes
+    const competition =  await createCompetition()
+      // check if the competition has indeed some suggestions
+
+    const suggestions = await competition.suggestions().pipe(first()).toPromise()
+    expect(suggestions.length).toBeGreaterThan(0)
+
+      // now we have our objects, reset the cache
+    await (arc.apolloClient as any).cache.reset()
+    expect((arc.apolloClient as any).cache.data.data).toEqual({})
+
+      // // construct our superquery that will fill the cache
+    const query = gql`query {
+        proposals (where: { id: "${competition.id}"}) {
+          ...ProposalFields
+          competition {
+            id
+            suggestions { ...CompetitionSuggestionFields }
+          }
+        }
+      }
+      ${Proposal.fragments.ProposalFields}
+      ${Scheme.fragments.SchemeFields}
+      ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
+      `
+
+    await arc.sendQuery(query)
+
+      // now see if we can get our informatino directly from the cache
+    const cachedSugestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
+        .pipe(first()).toPromise()
+    expect(cachedSugestions.map((v: CompetitionSuggestion) => v.id))
+        .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
+
+  })
+
+  it('pre-fetching competition.suggestions works also without resetting the cache', async () => {
     // find a proposal in a scheme that has > 1 votes
     const competition =  await createCompetition()
     // check if the competition has indeed some suggestions
@@ -719,32 +756,28 @@ describe('Competition Proposal', () => {
     const suggestions = await competition.suggestions().pipe(first()).toPromise()
     expect(suggestions.length).toBeGreaterThan(0)
 
-    // now we have our objects, reset the cache
-    await (arc.apolloClient as any).cache.reset()
-    expect((arc.apolloClient as any).cache.data.data).toEqual({})
-
-    // // construct our superquery that will fill the cache
+    // construct our superquery that will fill the cache
     const query = gql`query {
-      proposals (where: { id: "${competition.id}"}) {
-        competition {
-          id
-          suggestions { ...CompetitionSuggestionFields }
+        proposals (where: { id: "${competition.id}"}) {
+          ...ProposalFields
+          competition {
+            id
+            suggestions { ...CompetitionSuggestionFields }
+          }
         }
-        ...ProposalFields
       }
-    }
-    ${Proposal.fragments.ProposalFields}
-    ${Scheme.fragments.SchemeFields}
-    ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
-    `
+      ${Proposal.fragments.ProposalFields}
+      ${Scheme.fragments.SchemeFields}
+      ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
+      `
 
     await arc.sendQuery(query)
 
-    // now see if we can get our informatino directly from the cache
+      // now see if we can get our informatino directly from the cache
     const cachedSugestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
-      .pipe(first()).toPromise()
+        .pipe(first()).toPromise()
     expect(cachedSugestions.map((v: CompetitionSuggestion) => v.id))
-      .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
+        .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
 
   })
 
