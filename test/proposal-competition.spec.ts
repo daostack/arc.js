@@ -710,11 +710,10 @@ describe('Competition Proposal', () => {
     arc.setAccount(address0)
   })
 
-  // TODO!! unskip this test. It passes locally but fails often (but not always) on travis :-(
   it('pre-fetching competition.suggestions works', async () => {
     // find a proposal in a scheme that has > 1 votes
     const competition =  await createCompetition()
-      // check if the competition has indeed some suggestions
+    // check if the competition has indeed some suggestions
 
     const suggestions = await competition.suggestions().pipe(first()).toPromise()
     expect(suggestions.length).toBeGreaterThan(0)
@@ -727,9 +726,12 @@ describe('Competition Proposal', () => {
     const query = gql`query {
         proposals (where: { id: "${competition.id}"}) {
           ...ProposalFields
+          id
           competition {
             id
-            suggestions { ...CompetitionSuggestionFields }
+            suggestions {
+              ...CompetitionSuggestionFields
+              }
           }
         }
       }
@@ -741,10 +743,14 @@ describe('Competition Proposal', () => {
     await arc.sendQuery(query)
 
       // now see if we can get our informatino directly from the cache
-    const cachedSugestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
+    const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
         .pipe(first()).toPromise()
-    expect(cachedSugestions.map((v: CompetitionSuggestion) => v.id))
+    expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))
         .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
+
+    const cachedSuggestionState = await cachedSuggestions[0]
+      .state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+    expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
 
   })
 
@@ -756,13 +762,19 @@ describe('Competition Proposal', () => {
     const suggestions = await competition.suggestions().pipe(first()).toPromise()
     expect(suggestions.length).toBeGreaterThan(0)
 
+    // add some exiting data to the cache to seeif we can mess things up
+    await  arc.proposal(competition.id).state().pipe(first()).toPromise()
+
     // construct our superquery that will fill the cache
     const query = gql`query {
         proposals (where: { id: "${competition.id}"}) {
+          # id
           ...ProposalFields
           competition {
             id
-            suggestions { ...CompetitionSuggestionFields }
+            suggestions {
+              ...CompetitionSuggestionFields
+              }
           }
         }
       }
@@ -774,10 +786,14 @@ describe('Competition Proposal', () => {
     await arc.sendQuery(query)
 
       // now see if we can get our informatino directly from the cache
-    const cachedSugestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
+    const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
         .pipe(first()).toPromise()
-    expect(cachedSugestions.map((v: CompetitionSuggestion) => v.id))
+    expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))
         .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
+
+    const cachedSuggestionState = await cachedSuggestions[0]
+      .state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+    expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
 
   })
 
@@ -817,19 +833,15 @@ describe('Competition Proposal', () => {
       ${CompetitionVote.fragments.CompetitionVoteFields}
     `
 
-    let subscribed = false
-    const results: any[] = []
-    arc.getObservable(query, { subscribe: true, fetchPolicy: 'no-cache'}).subscribe((x: any) => {
-      subscribed = true
-      results.push(x)
-    })
-    await waitUntilTrue(() => subscribed)
+    await arc.sendQuery(query)
 
-    // now see if we can get our information directly from the cache
     const cachedVotes = await suggestion1.votes({}, { fetchPolicy: 'cache-only'})
       .pipe(first()).toPromise()
     expect(cachedVotes.map((v: CompetitionVote) => v.id))
       .toEqual(votes.map((v: CompetitionVote) => v.id))
 
+    const cachedVoteState = await cachedVotes[0].state({ fetchPolicy: 'cache-only'})
+      .pipe(first()).toPromise()
+    expect(cachedVoteState.id).toEqual(cachedVotes[0].id)
   })
 })
