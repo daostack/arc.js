@@ -786,6 +786,7 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
       query = gql`query CompetitionVoteSearchBySuggestion
         {
           competitionSuggestion (id: "${options.where.suggestion}") {
+            id
             votes ${createGraphQlQuery({ where: { ...options.where, suggestion: undefined}})} {
               ...CompetitionVoteFields
             }
