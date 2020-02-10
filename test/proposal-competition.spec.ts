@@ -804,7 +804,7 @@ describe('Competition Proposal', () => {
     // // construct our superquery that will fill the cache
     const query = gql`query
       {
-        competitionSuggestion(id: '${suggestion1.id}') {
+        competitionSuggestion(id: "${suggestion1.id}") {
           id
           votes {
             ...CompetitionVoteFields
