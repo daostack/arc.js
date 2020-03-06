@@ -524,7 +524,7 @@ export class Proposal implements IStateful<IProposalState> {
        *
        * The equation is derived from: threshold = (stakesFor + upstakeNeededToPreBoost) / stakesAgainst
        *
-       * >=  0 : any up-staked number of tokens greater than this will qualify to move the proposal
+       * >=  0 : any number of up-staking tokens greater than this will qualify to move the proposal
        *        to the preboost queue
        * <  0 : the proposal ought already to be pre-boosted
        */
@@ -543,7 +543,7 @@ export class Proposal implements IStateful<IProposalState> {
        *
        * The equation is derived from: threshold = stakesFor / (stakesAgainst + downStakeNeededToQueue)
        *
-       * >  0 : any down-staked number of tokens greater-than-or-equal to this will qualify to move the proposal
+       * >  0 : any number of down-staking tokens greater-than-or-equal to this will qualify to move the proposal
        *        to the Queued queue
        * <= 0 : the proposal ought to alredy be in the Queued queue
        */
