@@ -545,7 +545,7 @@ export class Proposal implements IStateful<IProposalState> {
        *
        * >  0 : any number of down-staking tokens greater-than-or-equal to this will qualify to move the proposal
        *        to the Queued queue
-       * <= 0 : the proposal ought to alredy be in the Queued queue
+       * <= 0 : the proposal ought to already be in the Queued queue
        */
       let downStakeNeededToQueue: BN = new BN(0)
       if (stage === IProposalStage.PreBoosted) {
