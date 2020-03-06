@@ -542,7 +542,8 @@ export class Proposal implements IStateful<IProposalState> {
        *
        * The equation is derived from: threshold = stakesFor / (stakesAgainst + downStakeNeededToQueue)
        *
-       * >  0 : any down-staked number of tokens equal to this will qualify to move the proposal to the Queued queue
+       * >  0 : any down-staked number of tokens greater-than-or-equal to this will qualify to move the proposal
+       *        to the Queued queue
        * <= 0 : the proposal ought already to be in the Queued queue
        */
       let downStakeNeededToQueue: BN = new BN(0)
