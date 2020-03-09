@@ -524,9 +524,11 @@ export class Proposal implements IStateful<IProposalState> {
        *
        * The equation is derived from: threshold = (stakesFor + upstakeNeededToPreBoost) / stakesAgainst
        *
-       * >=  0 : any number of up-staking tokens greater than this will qualify to move the proposal
+       * Where `upstakeNeededToPreBoost` is:
+       *
+       * >= 0 : then any number of up-staking tokens greater than it will qualify to move the proposal
        *        to the preboost queue
-       * <  0 : the proposal ought already to be pre-boosted
+       * <  0 : then the proposal ought already to be pre-boosted
        */
       let upstakeNeededToPreBoost: BN = new BN(0)
       if (stage === IProposalStage.Queued) {
@@ -543,9 +545,11 @@ export class Proposal implements IStateful<IProposalState> {
        *
        * The equation is derived from: threshold = stakesFor / (stakesAgainst + downStakeNeededToQueue)
        *
-       * >  0 : any number of down-staking tokens greater-than-or-equal to this will qualify to move the proposal
+       * When `downStakeNeededToQueue` is:
+       *
+       * >  0 : then any number of down-staking tokens greater-than-or-equal to it will qualify to move the proposal
        *        to the Queued queue
-       * <= 0 : the proposal ought to already be in the Queued queue
+       * <= 0 : then the proposal ought to already be in the Queued queue
        */
       let downStakeNeededToQueue: BN = new BN(0)
       if (stage === IProposalStage.PreBoosted) {
