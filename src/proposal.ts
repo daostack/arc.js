@@ -526,8 +526,8 @@ export class Proposal implements IStateful<IProposalState> {
        *
        * Where `upstakeNeededToPreBoost` is:
        *
-       * >= 0 : then any number of up-staking tokens greater than it will qualify to move the proposal
-       *        to the preboost queue
+       * >= 0 : then any number of up-staking tokens greater than upstakeNeededToPreBoost will qualify
+       *        to move the proposal to the preboost queue
        * <  0 : then the proposal ought already to be pre-boosted
        */
       let upstakeNeededToPreBoost: BN = new BN(0)
@@ -547,8 +547,8 @@ export class Proposal implements IStateful<IProposalState> {
        *
        * When `downStakeNeededToQueue` is:
        *
-       * >  0 : then any number of down-staking tokens greater-than-or-equal to it will qualify to move the proposal
-       *        to the Queued queue
+       * >  0 : then any number of down-staking tokens greater-than-or-equal to downStakeNeededToQueue will qualify
+       *        to move the proposal to the Queued queue
        * <= 0 : then the proposal ought to already be in the Queued queue
        */
       let downStakeNeededToQueue: BN = new BN(0)
