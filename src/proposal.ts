@@ -207,7 +207,6 @@ export class Proposal implements IStateful<IProposalState> {
       schemeRegistrar {
         id
         schemeToRegister
-        schemeToRegisterParamsHash
         schemeToRegisterPermission
         schemeToRemove
         decision
@@ -497,7 +496,6 @@ export class Proposal implements IStateful<IProposalState> {
           schemeRegistered: item.schemeRegistrar.schemeRegistered,
           schemeRemoved: item.schemeRegistrar.schemeRemoved,
           schemeToRegister: item.schemeRegistrar.schemeToRegister,
-          schemeToRegisterParamsHash: item.schemeRegistrar.schemeToRegisterParamsHash,
           schemeToRegisterPermission: item.schemeRegistrar.schemeToRegisterPermission,
           schemeToRemove: item.schemeRegistrar.schemeToRemove
         }

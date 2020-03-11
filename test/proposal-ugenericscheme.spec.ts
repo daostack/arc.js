@@ -30,14 +30,14 @@ describe('Proposal', () => {
     })).rejects.toThrow(/missing argument "callData"/i)
   })
 
+  // TODO-J: Changed UGenericScheme to GenericScheme here, test
   it('proposal flow works for rc.32', async () => {
     const version = '0.0.1-rc.32'
     testAddresses = getTestAddresses(arc)
-    // dao = await getTestDAO()
-    const ugenericSchemes = await arc.schemes({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
-    const ugenericScheme = ugenericSchemes[0]
-    const ugenericSchemeState = await ugenericScheme.state().pipe(first()).toPromise()
-    dao  = new DAO(ugenericSchemeState.dao, arc)
+    const genericSchemes = await arc.schemes({where: {name: "GenericScheme", version}}).pipe(first()).toPromise()
+    const genericScheme = genericSchemes[0]
+    const genericSchemeState = await genericScheme.state().pipe(first()).toPromise()
+    dao  = new DAO(genericSchemeState.dao, arc)
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
 
@@ -47,8 +47,7 @@ describe('Proposal', () => {
 
     const proposal = await createAProposal(dao, {
       callData,
-      // scheme: testAddresses.base.UGenericScheme,
-      scheme: ugenericSchemeState.address,
+      scheme: genericSchemeState.address,
       schemeToRegister: actionMock.options.address,
       value: 0
     })

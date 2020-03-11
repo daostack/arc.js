@@ -115,11 +115,6 @@ export class CompetitionScheme extends SchemeBase {
           }
         }
       }
-      const uGenericSchemeParams = item.uGenericSchemeParams && {
-        contractToCall: item.uGenericSchemeParams.contractToCall,
-        voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
-        votingMachine: item.uGenericSchemeParams.votingMachine
-      }
       const contributionRewardParams = item.contributionRewardParams && {
         voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
         votingMachine: item.contributionRewardParams.votingMachine
@@ -140,8 +135,8 @@ export class CompetitionScheme extends SchemeBase {
         votingMachine: item.genericSchemeParams.votingMachine
       }
       const schemeParams = (
-        uGenericSchemeParams || contributionRewardParams ||
-        schemeRegistrarParams || genericSchemeParams || contributionRewardExtParams
+        contributionRewardParams || schemeRegistrarParams ||
+        genericSchemeParams || contributionRewardExtParams
       )
       return {
         address: item.address,
@@ -158,10 +153,8 @@ export class CompetitionScheme extends SchemeBase {
         numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        paramsHash: item.paramsHash,
         schemeParams,
         schemeRegistrarParams,
-        uGenericSchemeParams,
         version: item.version
       }
     }

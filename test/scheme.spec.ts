@@ -27,6 +27,7 @@ describe('Scheme', () => {
     expect(scheme).toBeInstanceOf(Scheme)
   })
 
+  // TODO-J: Changed UGenericScheme to GenericScheme here, test
   it('Schemes are searchable', async () => {
     const dao = await getTestDAO()
     let result: Scheme[]
@@ -41,7 +42,6 @@ describe('Scheme', () => {
     expect(staticState.address).toBeTruthy()
     expect(staticState.id).toBeTruthy()
     expect(staticState.dao).toBeTruthy()
-    expect(staticState.paramsHash).toBeTruthy()
 
     const schemeStates: ISchemeState[] = []
 
@@ -52,24 +52,23 @@ describe('Scheme', () => {
     expect((schemeStates.map((r) => r.name)).sort()).toEqual([
       'ContributionReward',
       'SchemeRegistrar',
-      'UGenericScheme'
-
+      'GenericScheme'
     ].sort())
     result = await Scheme.search(arc, {where: {dao: dao.id, name: 'ContributionReward'}})
         .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
 
-    result = await Scheme.search(arc, {where: {dao: dao.id, name: 'UGenericScheme'}})
+    result = await Scheme.search(arc, {where: {dao: dao.id, name: 'GenericScheme'}})
         .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
 
     result = await Scheme.search(arc, {where: {dao: dao.id, name: 'SchemeRegistrar'}})
         .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
-    result = await Scheme.search(arc, {where: {dao: dao.id, name_in: ['SchemeRegistrar', 'UGenericScheme']}})
+    result = await Scheme.search(arc, {where: {dao: dao.id, name_in: ['SchemeRegistrar', 'GenericScheme']}})
         .pipe(first()).toPromise()
     expect(result.length).toEqual(2)
-    result = await Scheme.search(arc, {where: {dao: dao.id, name_not_in: ['UGenericScheme']}})
+    result = await Scheme.search(arc, {where: {dao: dao.id, name_not_in: ['GenericScheme']}})
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(1)
   })
@@ -104,20 +103,6 @@ describe('Scheme', () => {
       name: 'SchemeRegistrar'
     })
     expect(state.schemeRegistrarParams).toEqual(state.schemeParams)
-  })
-
-  it('Scheme.state() is working for UGenericScheme schemes', async () => {
-    const result = await Scheme
-      .search(arc, {where: {name: 'UGenericScheme'}})
-      .pipe(first()).toPromise()
-    const scheme = result[0]
-    const state = await scheme.state().pipe(first()).toPromise()
-    expect(state).toMatchObject({
-      id: scheme.id,
-      name: 'UGenericScheme'
-    })
-
-    expect(state.uGenericSchemeParams).toEqual(state.schemeParams)
   })
 
   it('Scheme.state() is working for GenericScheme schemes', async () => {

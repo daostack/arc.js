@@ -13,9 +13,6 @@ import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
 import { ReputationFromTokenScheme } from './schemes/reputationFromToken'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
-import * as UGenericScheme from './schemes/uGenericScheme'
-// import { DAO } from './dao'
-// import { IStateful } from './types'
 import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery } from './utils'
 
@@ -24,7 +21,6 @@ export interface ISchemeStaticState {
   address: Address
   dao: Address
   name: string
-  paramsHash: string
   version: string
 }
 
@@ -34,7 +30,6 @@ export interface ISchemeState extends ISchemeStaticState {
   canUpgradeController: boolean
   canManageGlobalConstraints: boolean
   dao: Address
-  paramsHash: string
   contributionRewardParams?: IContributionRewardParams
   contributionRewardExtParams?: IContributionRewardExtParams
   genericSchemeParams?: IGenericSchemeParams
@@ -46,7 +41,6 @@ export interface ISchemeState extends ISchemeStaticState {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
-  uGenericSchemeParams?: IGenericSchemeParams
   schemeParams?: IGenericSchemeParams | IContributionRewardParams | IContributionRewardExtParams | ISchemeRegisterParams
 }
 
@@ -82,7 +76,6 @@ export interface ISchemeQueryOptions extends ICommonQueryOptions {
     dao?: Address
     id?: string
     name?: string
-    paramsHash?: string
     [key: string]: any
   }
 }
@@ -97,7 +90,6 @@ export interface ISchemeQueryOptions extends ICommonQueryOptions {
     dao?: Address
     id?: string
     name?: string
-    paramsHash?: string
     [key: string]: any
   }
 }
@@ -135,7 +127,6 @@ export class Scheme extends SchemeBase  {
             address
             name
             dao { id }
-            paramsHash
             version
             contributionRewardExtParams {
               id
@@ -153,7 +144,6 @@ export class Scheme extends SchemeBase  {
           dao: item.dao.id,
           id: item.id,
           name: item.name,
-          paramsHash: item.paramsHash,
           version: item.version
         }, context)
       } else {
@@ -162,7 +152,6 @@ export class Scheme extends SchemeBase  {
           dao: item.dao.id,
           id: item.id,
           name: item.name,
-          paramsHash: item.paramsHash,
           version: item.version
         }, context)
         return scheme
@@ -203,11 +192,6 @@ export class Scheme extends SchemeBase  {
         }
       }
     }
-    const uGenericSchemeParams = item.uGenericSchemeParams && {
-      contractToCall: item.uGenericSchemeParams.contractToCall,
-      voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
-      votingMachine: item.uGenericSchemeParams.votingMachine
-    }
     const contributionRewardParams = item.contributionRewardParams && {
       voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
       votingMachine: item.contributionRewardParams.votingMachine
@@ -228,8 +212,8 @@ export class Scheme extends SchemeBase  {
       votingMachine: item.genericSchemeParams.votingMachine
     }
     const schemeParams = (
-      uGenericSchemeParams || contributionRewardParams ||
-      schemeRegistrarParams || genericSchemeParams || contributionRewardExtParams
+      contributionRewardParams || schemeRegistrarParams ||
+      genericSchemeParams || contributionRewardExtParams
     )
     return {
       address: item.address,
@@ -246,10 +230,8 @@ export class Scheme extends SchemeBase  {
       numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
       numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
       numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-      paramsHash: item.paramsHash,
       schemeParams,
       schemeRegistrarParams,
-      uGenericSchemeParams,
       version: item.version
     }
   }
@@ -294,7 +276,6 @@ export class Scheme extends SchemeBase  {
         dao: state.dao,
         id: this.id,
         name: state.name,
-        paramsHash: state.paramsHash,
         version: state.version
       }
       this.setStaticState(opts)
@@ -349,23 +330,9 @@ export class Scheme extends SchemeBase  {
           }
           break
 
-        case 'UGenericScheme':
-            createTransaction  = UGenericScheme.createTransaction(options, this.context)
-            map = UGenericScheme.createTransactionMap(options, this.context)
-            break
-
         case 'GenericScheme':
-          const versionNumber = Number(state.version.split('rc.')[1])
-          if (versionNumber < 23) {
-            // the pre-24 " GenericScheme" contracts have beeen renamed to UGenericScheme
-            createTransaction  = UGenericScheme.createTransaction(options, this.context)
-            map = UGenericScheme.createTransactionMap(options, this.context)
-            break
-          } else {
-            createTransaction  = GenericScheme.createTransaction(options, this.context)
-            map = GenericScheme.createTransactionMap(options, this.context)
-            break
-          }
+          createTransaction  = GenericScheme.createTransaction(options, this.context)
+          map = GenericScheme.createTransactionMap(options, this.context)
 
         case 'SchemeRegistrar':
           createTransaction  = SchemeRegistrar.createTransaction(options, this.context)

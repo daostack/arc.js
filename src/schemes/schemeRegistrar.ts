@@ -5,7 +5,6 @@ import { Address } from '../types'
 export interface ISchemeRegistrar {
   id: string
   schemeToRegister: Address
-  schemeToRegisterParamsHash: string
   schemeToRegisterPermission: string
   schemeToRemove: string
   decision: number

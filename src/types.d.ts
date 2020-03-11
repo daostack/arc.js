@@ -940,7 +940,6 @@ export type ControllerAddGlobalConstraint = {
   txHash: Scalars['Bytes'],
   controller: Scalars['Bytes'],
   globalConstraint: Scalars['Bytes'],
-  paramsHash: Scalars['Bytes'],
   type: Scalars['String'],
 };
 
@@ -971,12 +970,6 @@ export type ControllerAddGlobalConstraint_Filter = {
   globalConstraint_not_in?: Maybe<Array<Scalars['Bytes']>>,
   globalConstraint_contains?: Maybe<Scalars['Bytes']>,
   globalConstraint_not_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash?: Maybe<Scalars['Bytes']>,
-  paramsHash_not?: Maybe<Scalars['Bytes']>,
-  paramsHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash_not_contains?: Maybe<Scalars['Bytes']>,
   type?: Maybe<Scalars['String']>,
   type_not?: Maybe<Scalars['String']>,
   type_gt?: Maybe<Scalars['String']>,
@@ -998,7 +991,6 @@ export enum ControllerAddGlobalConstraint_OrderBy {
   TxHash = 'txHash',
   Controller = 'controller',
   GlobalConstraint = 'globalConstraint',
-  ParamsHash = 'paramsHash',
   Type = 'type'
 }
 
@@ -1006,7 +998,6 @@ export type ControllerGlobalConstraint = {
    __typename?: 'ControllerGlobalConstraint',
   id: Scalars['ID'],
   address: Scalars['Bytes'],
-  paramsHash: Scalars['Bytes'],
   type: Scalars['String'],
 };
 
@@ -1025,12 +1016,6 @@ export type ControllerGlobalConstraint_Filter = {
   address_not_in?: Maybe<Array<Scalars['Bytes']>>,
   address_contains?: Maybe<Scalars['Bytes']>,
   address_not_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash?: Maybe<Scalars['Bytes']>,
-  paramsHash_not?: Maybe<Scalars['Bytes']>,
-  paramsHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash_not_contains?: Maybe<Scalars['Bytes']>,
   type?: Maybe<Scalars['String']>,
   type_not?: Maybe<Scalars['String']>,
   type_gt?: Maybe<Scalars['String']>,
@@ -1050,7 +1035,6 @@ export type ControllerGlobalConstraint_Filter = {
 export enum ControllerGlobalConstraint_OrderBy {
   Id = 'id',
   Address = 'address',
-  ParamsHash = 'paramsHash',
   Type = 'type'
 }
 
@@ -1228,7 +1212,6 @@ export type ControllerScheme = {
    __typename?: 'ControllerScheme',
   id: Scalars['ID'],
   dao: Dao,
-  paramsHash: Scalars['Bytes'],
   canRegisterSchemes?: Maybe<Scalars['Boolean']>,
   canManageGlobalConstraints?: Maybe<Scalars['Boolean']>,
   canUpgradeController?: Maybe<Scalars['Boolean']>,
@@ -1265,12 +1248,6 @@ export type ControllerScheme_Filter = {
   dao_not_starts_with?: Maybe<Scalars['String']>,
   dao_ends_with?: Maybe<Scalars['String']>,
   dao_not_ends_with?: Maybe<Scalars['String']>,
-  paramsHash?: Maybe<Scalars['Bytes']>,
-  paramsHash_not?: Maybe<Scalars['Bytes']>,
-  paramsHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash_not_contains?: Maybe<Scalars['Bytes']>,
   canRegisterSchemes?: Maybe<Scalars['Boolean']>,
   canRegisterSchemes_not?: Maybe<Scalars['Boolean']>,
   canRegisterSchemes_in?: Maybe<Array<Scalars['Boolean']>>,
@@ -1382,7 +1359,6 @@ export type ControllerScheme_Filter = {
 export enum ControllerScheme_OrderBy {
   Id = 'id',
   Dao = 'dao',
-  ParamsHash = 'paramsHash',
   CanRegisterSchemes = 'canRegisterSchemes',
   CanManageGlobalConstraints = 'canManageGlobalConstraints',
   CanUpgradeController = 'canUpgradeController',
@@ -1706,26 +1682,6 @@ export type Debug_Filter = {
 export enum Debug_OrderBy {
   Id = 'id',
   Message = 'message'
-}
-
-export type FirstRegisterSchemeFlag = {
-   __typename?: 'FirstRegisterSchemeFlag',
-  id: Scalars['ID'],
-};
-
-export type FirstRegisterSchemeFlag_Filter = {
-  id?: Maybe<Scalars['ID']>,
-  id_not?: Maybe<Scalars['ID']>,
-  id_gt?: Maybe<Scalars['ID']>,
-  id_lt?: Maybe<Scalars['ID']>,
-  id_gte?: Maybe<Scalars['ID']>,
-  id_lte?: Maybe<Scalars['ID']>,
-  id_in?: Maybe<Array<Scalars['ID']>>,
-  id_not_in?: Maybe<Array<Scalars['ID']>>,
-};
-
-export enum FirstRegisterSchemeFlag_OrderBy {
-  Id = 'id'
 }
 
 export type GenericSchemeParam = {
@@ -3450,8 +3406,6 @@ export type Query = {
   controllerUnregisterSchemes: Array<ControllerUnregisterScheme>,
   controllerUpgradeController?: Maybe<ControllerUpgradeController>,
   controllerUpgradeControllers: Array<ControllerUpgradeController>,
-  controllerAddGlobalConstraint?: Maybe<ControllerAddGlobalConstraint>,
-  controllerAddGlobalConstraints: Array<ControllerAddGlobalConstraint>,
   controllerRemoveGlobalConstraint?: Maybe<ControllerRemoveGlobalConstraint>,
   controllerRemoveGlobalConstraints: Array<ControllerRemoveGlobalConstraint>,
   contributionRewardParam?: Maybe<ContributionRewardParam>,
@@ -3506,20 +3460,6 @@ export type Query = {
   schemeRegistrarProposalExecuteds: Array<SchemeRegistrarProposalExecuted>,
   schemeRegistrarProposal?: Maybe<SchemeRegistrarProposal>,
   schemeRegistrarProposals: Array<SchemeRegistrarProposal>,
-  ucontrollerOrganization?: Maybe<UControllerOrganization>,
-  ucontrollerOrganizations: Array<UControllerOrganization>,
-  ucontrollerGlobalConstraint?: Maybe<UControllerGlobalConstraint>,
-  ucontrollerGlobalConstraints: Array<UControllerGlobalConstraint>,
-  ucontrollerRegisterScheme?: Maybe<UControllerRegisterScheme>,
-  ucontrollerRegisterSchemes: Array<UControllerRegisterScheme>,
-  ucontrollerUnregisterScheme?: Maybe<UControllerUnregisterScheme>,
-  ucontrollerUnregisterSchemes: Array<UControllerUnregisterScheme>,
-  ucontrollerUpgradeController?: Maybe<UControllerUpgradeController>,
-  ucontrollerUpgradeControllers: Array<UControllerUpgradeController>,
-  ucontrollerAddGlobalConstraint?: Maybe<UControllerAddGlobalConstraint>,
-  ucontrollerAddGlobalConstraints: Array<UControllerAddGlobalConstraint>,
-  ucontrollerRemoveGlobalConstraint?: Maybe<UControllerRemoveGlobalConstraint>,
-  ucontrollerRemoveGlobalConstraints: Array<UControllerRemoveGlobalConstraint>,
   debug?: Maybe<Debug>,
   debugs: Array<Debug>,
   dao?: Maybe<Dao>,
@@ -3542,8 +3482,6 @@ export type Query = {
   preGPRewards: Array<PreGpReward>,
   gpreward?: Maybe<GpReward>,
   gprewards: Array<GpReward>,
-  firstRegisterSchemeFlag?: Maybe<FirstRegisterSchemeFlag>,
-  firstRegisterSchemeFlags: Array<FirstRegisterSchemeFlag>,
   contractInfo?: Maybe<ContractInfo>,
   contractInfos: Array<ContractInfo>,
 };
@@ -4137,104 +4075,6 @@ export type QuerySchemeRegistrarProposalsArgs = {
 };
 
 
-export type QueryUcontrollerOrganizationArgs = {
-  id: Scalars['ID']
-};
-
-
-export type QueryUcontrollerOrganizationsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerOrganization_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerOrganization_Filter>
-};
-
-
-export type QueryUcontrollerGlobalConstraintArgs = {
-  id: Scalars['ID']
-};
-
-
-export type QueryUcontrollerGlobalConstraintsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerGlobalConstraint_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerGlobalConstraint_Filter>
-};
-
-
-export type QueryUcontrollerRegisterSchemeArgs = {
-  id: Scalars['ID']
-};
-
-
-export type QueryUcontrollerRegisterSchemesArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerRegisterScheme_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerRegisterScheme_Filter>
-};
-
-
-export type QueryUcontrollerUnregisterSchemeArgs = {
-  id: Scalars['ID']
-};
-
-
-export type QueryUcontrollerUnregisterSchemesArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerUnregisterScheme_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerUnregisterScheme_Filter>
-};
-
-
-export type QueryUcontrollerUpgradeControllerArgs = {
-  id: Scalars['ID']
-};
-
-
-export type QueryUcontrollerUpgradeControllersArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerUpgradeController_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerUpgradeController_Filter>
-};
-
-
-export type QueryUcontrollerAddGlobalConstraintArgs = {
-  id: Scalars['ID']
-};
-
-
-export type QueryUcontrollerAddGlobalConstraintsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerAddGlobalConstraint_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerAddGlobalConstraint_Filter>
-};
-
-
-export type QueryUcontrollerRemoveGlobalConstraintArgs = {
-  id: Scalars['ID']
-};
-
-
-export type QueryUcontrollerRemoveGlobalConstraintsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerRemoveGlobalConstraint_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerRemoveGlobalConstraint_Filter>
-};
-
-
 export type QueryDebugArgs = {
   id: Scalars['ID']
 };
@@ -4386,20 +4226,6 @@ export type QueryGprewardsArgs = {
   orderBy?: Maybe<GpReward_OrderBy>,
   orderDirection?: Maybe<OrderDirection>,
   where?: Maybe<GpReward_Filter>
-};
-
-
-export type QueryFirstRegisterSchemeFlagArgs = {
-  id: Scalars['ID']
-};
-
-
-export type QueryFirstRegisterSchemeFlagsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<FirstRegisterSchemeFlag_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<FirstRegisterSchemeFlag_Filter>
 };
 
 
@@ -4700,7 +4526,6 @@ export type SchemeRegistrarNewSchemeProposal = {
   proposalId: Scalars['Bytes'],
   votingMachine: Scalars['Bytes'],
   scheme: Scalars['Bytes'],
-  paramsHash: Scalars['Bytes'],
   permission: Scalars['Bytes'],
   descriptionHash: Scalars['String'],
 };
@@ -4750,12 +4575,6 @@ export type SchemeRegistrarNewSchemeProposal_Filter = {
   scheme_not_in?: Maybe<Array<Scalars['Bytes']>>,
   scheme_contains?: Maybe<Scalars['Bytes']>,
   scheme_not_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash?: Maybe<Scalars['Bytes']>,
-  paramsHash_not?: Maybe<Scalars['Bytes']>,
-  paramsHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash_not_contains?: Maybe<Scalars['Bytes']>,
   permission?: Maybe<Scalars['Bytes']>,
   permission_not?: Maybe<Scalars['Bytes']>,
   permission_in?: Maybe<Array<Scalars['Bytes']>>,
@@ -4786,7 +4605,6 @@ export enum SchemeRegistrarNewSchemeProposal_OrderBy {
   ProposalId = 'proposalId',
   VotingMachine = 'votingMachine',
   Scheme = 'scheme',
-  ParamsHash = 'paramsHash',
   Permission = 'permission',
   DescriptionHash = 'descriptionHash'
 }
@@ -4856,7 +4674,6 @@ export type SchemeRegistrarProposal = {
   id: Scalars['ID'],
   dao: Dao,
   schemeToRegister?: Maybe<Scalars['Bytes']>,
-  schemeToRegisterParamsHash?: Maybe<Scalars['Bytes']>,
   schemeToRegisterPermission?: Maybe<Scalars['Bytes']>,
   schemeToRemove?: Maybe<Scalars['Bytes']>,
   decision?: Maybe<Scalars['BigInt']>,
@@ -4893,12 +4710,6 @@ export type SchemeRegistrarProposal_Filter = {
   schemeToRegister_not_in?: Maybe<Array<Scalars['Bytes']>>,
   schemeToRegister_contains?: Maybe<Scalars['Bytes']>,
   schemeToRegister_not_contains?: Maybe<Scalars['Bytes']>,
-  schemeToRegisterParamsHash?: Maybe<Scalars['Bytes']>,
-  schemeToRegisterParamsHash_not?: Maybe<Scalars['Bytes']>,
-  schemeToRegisterParamsHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  schemeToRegisterParamsHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  schemeToRegisterParamsHash_contains?: Maybe<Scalars['Bytes']>,
-  schemeToRegisterParamsHash_not_contains?: Maybe<Scalars['Bytes']>,
   schemeToRegisterPermission?: Maybe<Scalars['Bytes']>,
   schemeToRegisterPermission_not?: Maybe<Scalars['Bytes']>,
   schemeToRegisterPermission_in?: Maybe<Array<Scalars['Bytes']>>,
@@ -4933,7 +4744,6 @@ export enum SchemeRegistrarProposal_OrderBy {
   Id = 'id',
   Dao = 'dao',
   SchemeToRegister = 'schemeToRegister',
-  SchemeToRegisterParamsHash = 'schemeToRegisterParamsHash',
   SchemeToRegisterPermission = 'schemeToRegisterPermission',
   SchemeToRemove = 'schemeToRemove',
   Decision = 'decision',
@@ -5173,20 +4983,6 @@ export type Subscription = {
   schemeRegistrarProposalExecuteds: Array<SchemeRegistrarProposalExecuted>,
   schemeRegistrarProposal?: Maybe<SchemeRegistrarProposal>,
   schemeRegistrarProposals: Array<SchemeRegistrarProposal>,
-  ucontrollerOrganization?: Maybe<UControllerOrganization>,
-  ucontrollerOrganizations: Array<UControllerOrganization>,
-  ucontrollerGlobalConstraint?: Maybe<UControllerGlobalConstraint>,
-  ucontrollerGlobalConstraints: Array<UControllerGlobalConstraint>,
-  ucontrollerRegisterScheme?: Maybe<UControllerRegisterScheme>,
-  ucontrollerRegisterSchemes: Array<UControllerRegisterScheme>,
-  ucontrollerUnregisterScheme?: Maybe<UControllerUnregisterScheme>,
-  ucontrollerUnregisterSchemes: Array<UControllerUnregisterScheme>,
-  ucontrollerUpgradeController?: Maybe<UControllerUpgradeController>,
-  ucontrollerUpgradeControllers: Array<UControllerUpgradeController>,
-  ucontrollerAddGlobalConstraint?: Maybe<UControllerAddGlobalConstraint>,
-  ucontrollerAddGlobalConstraints: Array<UControllerAddGlobalConstraint>,
-  ucontrollerRemoveGlobalConstraint?: Maybe<UControllerRemoveGlobalConstraint>,
-  ucontrollerRemoveGlobalConstraints: Array<UControllerRemoveGlobalConstraint>,
   debug?: Maybe<Debug>,
   debugs: Array<Debug>,
   dao?: Maybe<Dao>,
@@ -5209,8 +5005,6 @@ export type Subscription = {
   preGPRewards: Array<PreGpReward>,
   gpreward?: Maybe<GpReward>,
   gprewards: Array<GpReward>,
-  firstRegisterSchemeFlag?: Maybe<FirstRegisterSchemeFlag>,
-  firstRegisterSchemeFlags: Array<FirstRegisterSchemeFlag>,
   contractInfo?: Maybe<ContractInfo>,
   contractInfos: Array<ContractInfo>,
 };
@@ -5804,104 +5598,6 @@ export type SubscriptionSchemeRegistrarProposalsArgs = {
 };
 
 
-export type SubscriptionUcontrollerOrganizationArgs = {
-  id: Scalars['ID']
-};
-
-
-export type SubscriptionUcontrollerOrganizationsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerOrganization_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerOrganization_Filter>
-};
-
-
-export type SubscriptionUcontrollerGlobalConstraintArgs = {
-  id: Scalars['ID']
-};
-
-
-export type SubscriptionUcontrollerGlobalConstraintsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerGlobalConstraint_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerGlobalConstraint_Filter>
-};
-
-
-export type SubscriptionUcontrollerRegisterSchemeArgs = {
-  id: Scalars['ID']
-};
-
-
-export type SubscriptionUcontrollerRegisterSchemesArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerRegisterScheme_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerRegisterScheme_Filter>
-};
-
-
-export type SubscriptionUcontrollerUnregisterSchemeArgs = {
-  id: Scalars['ID']
-};
-
-
-export type SubscriptionUcontrollerUnregisterSchemesArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerUnregisterScheme_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerUnregisterScheme_Filter>
-};
-
-
-export type SubscriptionUcontrollerUpgradeControllerArgs = {
-  id: Scalars['ID']
-};
-
-
-export type SubscriptionUcontrollerUpgradeControllersArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerUpgradeController_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerUpgradeController_Filter>
-};
-
-
-export type SubscriptionUcontrollerAddGlobalConstraintArgs = {
-  id: Scalars['ID']
-};
-
-
-export type SubscriptionUcontrollerAddGlobalConstraintsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerAddGlobalConstraint_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerAddGlobalConstraint_Filter>
-};
-
-
-export type SubscriptionUcontrollerRemoveGlobalConstraintArgs = {
-  id: Scalars['ID']
-};
-
-
-export type SubscriptionUcontrollerRemoveGlobalConstraintsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<UControllerRemoveGlobalConstraint_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<UControllerRemoveGlobalConstraint_Filter>
-};
-
-
 export type SubscriptionDebugArgs = {
   id: Scalars['ID']
 };
@@ -6053,20 +5749,6 @@ export type SubscriptionGprewardsArgs = {
   orderBy?: Maybe<GpReward_OrderBy>,
   orderDirection?: Maybe<OrderDirection>,
   where?: Maybe<GpReward_Filter>
-};
-
-
-export type SubscriptionFirstRegisterSchemeFlagArgs = {
-  id: Scalars['ID']
-};
-
-
-export type SubscriptionFirstRegisterSchemeFlagsArgs = {
-  skip?: Maybe<Scalars['Int']>,
-  first?: Maybe<Scalars['Int']>,
-  orderBy?: Maybe<FirstRegisterSchemeFlag_OrderBy>,
-  orderDirection?: Maybe<OrderDirection>,
-  where?: Maybe<FirstRegisterSchemeFlag_Filter>
 };
 
 
@@ -6383,438 +6065,5 @@ export enum TokenTransfer_OrderBy {
   Value = 'value'
 }
 
-export type UControllerAddGlobalConstraint = {
-   __typename?: 'UControllerAddGlobalConstraint',
-  id: Scalars['ID'],
-  txHash: Scalars['Bytes'],
-  controller: Scalars['Bytes'],
-  avatarAddress: Scalars['Bytes'],
-  globalConstraint: Scalars['Bytes'],
-  paramsHash: Scalars['Bytes'],
-  type: Scalars['String'],
-};
-
-export type UControllerAddGlobalConstraint_Filter = {
-  id?: Maybe<Scalars['ID']>,
-  id_not?: Maybe<Scalars['ID']>,
-  id_gt?: Maybe<Scalars['ID']>,
-  id_lt?: Maybe<Scalars['ID']>,
-  id_gte?: Maybe<Scalars['ID']>,
-  id_lte?: Maybe<Scalars['ID']>,
-  id_in?: Maybe<Array<Scalars['ID']>>,
-  id_not_in?: Maybe<Array<Scalars['ID']>>,
-  txHash?: Maybe<Scalars['Bytes']>,
-  txHash_not?: Maybe<Scalars['Bytes']>,
-  txHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_contains?: Maybe<Scalars['Bytes']>,
-  txHash_not_contains?: Maybe<Scalars['Bytes']>,
-  controller?: Maybe<Scalars['Bytes']>,
-  controller_not?: Maybe<Scalars['Bytes']>,
-  controller_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_contains?: Maybe<Scalars['Bytes']>,
-  controller_not_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not?: Maybe<Scalars['Bytes']>,
-  avatarAddress_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not_contains?: Maybe<Scalars['Bytes']>,
-  globalConstraint?: Maybe<Scalars['Bytes']>,
-  globalConstraint_not?: Maybe<Scalars['Bytes']>,
-  globalConstraint_in?: Maybe<Array<Scalars['Bytes']>>,
-  globalConstraint_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  globalConstraint_contains?: Maybe<Scalars['Bytes']>,
-  globalConstraint_not_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash?: Maybe<Scalars['Bytes']>,
-  paramsHash_not?: Maybe<Scalars['Bytes']>,
-  paramsHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash_not_contains?: Maybe<Scalars['Bytes']>,
-  type?: Maybe<Scalars['String']>,
-  type_not?: Maybe<Scalars['String']>,
-  type_gt?: Maybe<Scalars['String']>,
-  type_lt?: Maybe<Scalars['String']>,
-  type_gte?: Maybe<Scalars['String']>,
-  type_lte?: Maybe<Scalars['String']>,
-  type_in?: Maybe<Array<Scalars['String']>>,
-  type_not_in?: Maybe<Array<Scalars['String']>>,
-  type_contains?: Maybe<Scalars['String']>,
-  type_not_contains?: Maybe<Scalars['String']>,
-  type_starts_with?: Maybe<Scalars['String']>,
-  type_not_starts_with?: Maybe<Scalars['String']>,
-  type_ends_with?: Maybe<Scalars['String']>,
-  type_not_ends_with?: Maybe<Scalars['String']>,
-};
-
-export enum UControllerAddGlobalConstraint_OrderBy {
-  Id = 'id',
-  TxHash = 'txHash',
-  Controller = 'controller',
-  AvatarAddress = 'avatarAddress',
-  GlobalConstraint = 'globalConstraint',
-  ParamsHash = 'paramsHash',
-  Type = 'type'
-}
-
-export type UControllerGlobalConstraint = {
-   __typename?: 'UControllerGlobalConstraint',
-  id: Scalars['ID'],
-  avatarAddress: Scalars['Bytes'],
-  address: Scalars['Bytes'],
-  paramsHash: Scalars['Bytes'],
-  type: Scalars['String'],
-};
-
-export type UControllerGlobalConstraint_Filter = {
-  id?: Maybe<Scalars['ID']>,
-  id_not?: Maybe<Scalars['ID']>,
-  id_gt?: Maybe<Scalars['ID']>,
-  id_lt?: Maybe<Scalars['ID']>,
-  id_gte?: Maybe<Scalars['ID']>,
-  id_lte?: Maybe<Scalars['ID']>,
-  id_in?: Maybe<Array<Scalars['ID']>>,
-  id_not_in?: Maybe<Array<Scalars['ID']>>,
-  avatarAddress?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not?: Maybe<Scalars['Bytes']>,
-  avatarAddress_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not_contains?: Maybe<Scalars['Bytes']>,
-  address?: Maybe<Scalars['Bytes']>,
-  address_not?: Maybe<Scalars['Bytes']>,
-  address_in?: Maybe<Array<Scalars['Bytes']>>,
-  address_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  address_contains?: Maybe<Scalars['Bytes']>,
-  address_not_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash?: Maybe<Scalars['Bytes']>,
-  paramsHash_not?: Maybe<Scalars['Bytes']>,
-  paramsHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  paramsHash_contains?: Maybe<Scalars['Bytes']>,
-  paramsHash_not_contains?: Maybe<Scalars['Bytes']>,
-  type?: Maybe<Scalars['String']>,
-  type_not?: Maybe<Scalars['String']>,
-  type_gt?: Maybe<Scalars['String']>,
-  type_lt?: Maybe<Scalars['String']>,
-  type_gte?: Maybe<Scalars['String']>,
-  type_lte?: Maybe<Scalars['String']>,
-  type_in?: Maybe<Array<Scalars['String']>>,
-  type_not_in?: Maybe<Array<Scalars['String']>>,
-  type_contains?: Maybe<Scalars['String']>,
-  type_not_contains?: Maybe<Scalars['String']>,
-  type_starts_with?: Maybe<Scalars['String']>,
-  type_not_starts_with?: Maybe<Scalars['String']>,
-  type_ends_with?: Maybe<Scalars['String']>,
-  type_not_ends_with?: Maybe<Scalars['String']>,
-};
-
-export enum UControllerGlobalConstraint_OrderBy {
-  Id = 'id',
-  AvatarAddress = 'avatarAddress',
-  Address = 'address',
-  ParamsHash = 'paramsHash',
-  Type = 'type'
-}
-
-export type UControllerOrganization = {
-   __typename?: 'UControllerOrganization',
-  id: Scalars['ID'],
-  avatarAddress: Scalars['Bytes'],
-  nativeToken: TokenContract,
-  nativeReputation: ReputationContract,
-  controller: Scalars['Bytes'],
-};
-
-export type UControllerOrganization_Filter = {
-  id?: Maybe<Scalars['ID']>,
-  id_not?: Maybe<Scalars['ID']>,
-  id_gt?: Maybe<Scalars['ID']>,
-  id_lt?: Maybe<Scalars['ID']>,
-  id_gte?: Maybe<Scalars['ID']>,
-  id_lte?: Maybe<Scalars['ID']>,
-  id_in?: Maybe<Array<Scalars['ID']>>,
-  id_not_in?: Maybe<Array<Scalars['ID']>>,
-  avatarAddress?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not?: Maybe<Scalars['Bytes']>,
-  avatarAddress_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not_contains?: Maybe<Scalars['Bytes']>,
-  nativeToken?: Maybe<Scalars['String']>,
-  nativeToken_not?: Maybe<Scalars['String']>,
-  nativeToken_gt?: Maybe<Scalars['String']>,
-  nativeToken_lt?: Maybe<Scalars['String']>,
-  nativeToken_gte?: Maybe<Scalars['String']>,
-  nativeToken_lte?: Maybe<Scalars['String']>,
-  nativeToken_in?: Maybe<Array<Scalars['String']>>,
-  nativeToken_not_in?: Maybe<Array<Scalars['String']>>,
-  nativeToken_contains?: Maybe<Scalars['String']>,
-  nativeToken_not_contains?: Maybe<Scalars['String']>,
-  nativeToken_starts_with?: Maybe<Scalars['String']>,
-  nativeToken_not_starts_with?: Maybe<Scalars['String']>,
-  nativeToken_ends_with?: Maybe<Scalars['String']>,
-  nativeToken_not_ends_with?: Maybe<Scalars['String']>,
-  nativeReputation?: Maybe<Scalars['String']>,
-  nativeReputation_not?: Maybe<Scalars['String']>,
-  nativeReputation_gt?: Maybe<Scalars['String']>,
-  nativeReputation_lt?: Maybe<Scalars['String']>,
-  nativeReputation_gte?: Maybe<Scalars['String']>,
-  nativeReputation_lte?: Maybe<Scalars['String']>,
-  nativeReputation_in?: Maybe<Array<Scalars['String']>>,
-  nativeReputation_not_in?: Maybe<Array<Scalars['String']>>,
-  nativeReputation_contains?: Maybe<Scalars['String']>,
-  nativeReputation_not_contains?: Maybe<Scalars['String']>,
-  nativeReputation_starts_with?: Maybe<Scalars['String']>,
-  nativeReputation_not_starts_with?: Maybe<Scalars['String']>,
-  nativeReputation_ends_with?: Maybe<Scalars['String']>,
-  nativeReputation_not_ends_with?: Maybe<Scalars['String']>,
-  controller?: Maybe<Scalars['Bytes']>,
-  controller_not?: Maybe<Scalars['Bytes']>,
-  controller_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_contains?: Maybe<Scalars['Bytes']>,
-  controller_not_contains?: Maybe<Scalars['Bytes']>,
-};
-
-export enum UControllerOrganization_OrderBy {
-  Id = 'id',
-  AvatarAddress = 'avatarAddress',
-  NativeToken = 'nativeToken',
-  NativeReputation = 'nativeReputation',
-  Controller = 'controller'
-}
-
-export type UControllerRegisterScheme = {
-   __typename?: 'UControllerRegisterScheme',
-  id: Scalars['ID'],
-  txHash: Scalars['Bytes'],
-  controller: Scalars['Bytes'],
-  contract: Scalars['Bytes'],
-  avatarAddress: Scalars['Bytes'],
-  scheme: Scalars['Bytes'],
-};
-
-export type UControllerRegisterScheme_Filter = {
-  id?: Maybe<Scalars['ID']>,
-  id_not?: Maybe<Scalars['ID']>,
-  id_gt?: Maybe<Scalars['ID']>,
-  id_lt?: Maybe<Scalars['ID']>,
-  id_gte?: Maybe<Scalars['ID']>,
-  id_lte?: Maybe<Scalars['ID']>,
-  id_in?: Maybe<Array<Scalars['ID']>>,
-  id_not_in?: Maybe<Array<Scalars['ID']>>,
-  txHash?: Maybe<Scalars['Bytes']>,
-  txHash_not?: Maybe<Scalars['Bytes']>,
-  txHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_contains?: Maybe<Scalars['Bytes']>,
-  txHash_not_contains?: Maybe<Scalars['Bytes']>,
-  controller?: Maybe<Scalars['Bytes']>,
-  controller_not?: Maybe<Scalars['Bytes']>,
-  controller_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_contains?: Maybe<Scalars['Bytes']>,
-  controller_not_contains?: Maybe<Scalars['Bytes']>,
-  contract?: Maybe<Scalars['Bytes']>,
-  contract_not?: Maybe<Scalars['Bytes']>,
-  contract_in?: Maybe<Array<Scalars['Bytes']>>,
-  contract_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  contract_contains?: Maybe<Scalars['Bytes']>,
-  contract_not_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not?: Maybe<Scalars['Bytes']>,
-  avatarAddress_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not_contains?: Maybe<Scalars['Bytes']>,
-  scheme?: Maybe<Scalars['Bytes']>,
-  scheme_not?: Maybe<Scalars['Bytes']>,
-  scheme_in?: Maybe<Array<Scalars['Bytes']>>,
-  scheme_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  scheme_contains?: Maybe<Scalars['Bytes']>,
-  scheme_not_contains?: Maybe<Scalars['Bytes']>,
-};
-
-export enum UControllerRegisterScheme_OrderBy {
-  Id = 'id',
-  TxHash = 'txHash',
-  Controller = 'controller',
-  Contract = 'contract',
-  AvatarAddress = 'avatarAddress',
-  Scheme = 'scheme'
-}
-
-export type UControllerRemoveGlobalConstraint = {
-   __typename?: 'UControllerRemoveGlobalConstraint',
-  id: Scalars['ID'],
-  txHash: Scalars['Bytes'],
-  controller: Scalars['Bytes'],
-  avatarAddress: Scalars['Bytes'],
-  globalConstraint: Scalars['Bytes'],
-  isPre?: Maybe<Scalars['Boolean']>,
-};
-
-export type UControllerRemoveGlobalConstraint_Filter = {
-  id?: Maybe<Scalars['ID']>,
-  id_not?: Maybe<Scalars['ID']>,
-  id_gt?: Maybe<Scalars['ID']>,
-  id_lt?: Maybe<Scalars['ID']>,
-  id_gte?: Maybe<Scalars['ID']>,
-  id_lte?: Maybe<Scalars['ID']>,
-  id_in?: Maybe<Array<Scalars['ID']>>,
-  id_not_in?: Maybe<Array<Scalars['ID']>>,
-  txHash?: Maybe<Scalars['Bytes']>,
-  txHash_not?: Maybe<Scalars['Bytes']>,
-  txHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_contains?: Maybe<Scalars['Bytes']>,
-  txHash_not_contains?: Maybe<Scalars['Bytes']>,
-  controller?: Maybe<Scalars['Bytes']>,
-  controller_not?: Maybe<Scalars['Bytes']>,
-  controller_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_contains?: Maybe<Scalars['Bytes']>,
-  controller_not_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not?: Maybe<Scalars['Bytes']>,
-  avatarAddress_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not_contains?: Maybe<Scalars['Bytes']>,
-  globalConstraint?: Maybe<Scalars['Bytes']>,
-  globalConstraint_not?: Maybe<Scalars['Bytes']>,
-  globalConstraint_in?: Maybe<Array<Scalars['Bytes']>>,
-  globalConstraint_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  globalConstraint_contains?: Maybe<Scalars['Bytes']>,
-  globalConstraint_not_contains?: Maybe<Scalars['Bytes']>,
-  isPre?: Maybe<Scalars['Boolean']>,
-  isPre_not?: Maybe<Scalars['Boolean']>,
-  isPre_in?: Maybe<Array<Scalars['Boolean']>>,
-  isPre_not_in?: Maybe<Array<Scalars['Boolean']>>,
-};
-
-export enum UControllerRemoveGlobalConstraint_OrderBy {
-  Id = 'id',
-  TxHash = 'txHash',
-  Controller = 'controller',
-  AvatarAddress = 'avatarAddress',
-  GlobalConstraint = 'globalConstraint',
-  IsPre = 'isPre'
-}
-
-export type UControllerUnregisterScheme = {
-   __typename?: 'UControllerUnregisterScheme',
-  id: Scalars['ID'],
-  txHash: Scalars['Bytes'],
-  controller: Scalars['Bytes'],
-  contract: Scalars['Bytes'],
-  avatarAddress: Scalars['Bytes'],
-  scheme: Scalars['Bytes'],
-};
-
-export type UControllerUnregisterScheme_Filter = {
-  id?: Maybe<Scalars['ID']>,
-  id_not?: Maybe<Scalars['ID']>,
-  id_gt?: Maybe<Scalars['ID']>,
-  id_lt?: Maybe<Scalars['ID']>,
-  id_gte?: Maybe<Scalars['ID']>,
-  id_lte?: Maybe<Scalars['ID']>,
-  id_in?: Maybe<Array<Scalars['ID']>>,
-  id_not_in?: Maybe<Array<Scalars['ID']>>,
-  txHash?: Maybe<Scalars['Bytes']>,
-  txHash_not?: Maybe<Scalars['Bytes']>,
-  txHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_contains?: Maybe<Scalars['Bytes']>,
-  txHash_not_contains?: Maybe<Scalars['Bytes']>,
-  controller?: Maybe<Scalars['Bytes']>,
-  controller_not?: Maybe<Scalars['Bytes']>,
-  controller_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_contains?: Maybe<Scalars['Bytes']>,
-  controller_not_contains?: Maybe<Scalars['Bytes']>,
-  contract?: Maybe<Scalars['Bytes']>,
-  contract_not?: Maybe<Scalars['Bytes']>,
-  contract_in?: Maybe<Array<Scalars['Bytes']>>,
-  contract_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  contract_contains?: Maybe<Scalars['Bytes']>,
-  contract_not_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not?: Maybe<Scalars['Bytes']>,
-  avatarAddress_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not_contains?: Maybe<Scalars['Bytes']>,
-  scheme?: Maybe<Scalars['Bytes']>,
-  scheme_not?: Maybe<Scalars['Bytes']>,
-  scheme_in?: Maybe<Array<Scalars['Bytes']>>,
-  scheme_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  scheme_contains?: Maybe<Scalars['Bytes']>,
-  scheme_not_contains?: Maybe<Scalars['Bytes']>,
-};
-
-export enum UControllerUnregisterScheme_OrderBy {
-  Id = 'id',
-  TxHash = 'txHash',
-  Controller = 'controller',
-  Contract = 'contract',
-  AvatarAddress = 'avatarAddress',
-  Scheme = 'scheme'
-}
-
-export type UControllerUpgradeController = {
-   __typename?: 'UControllerUpgradeController',
-  id: Scalars['ID'],
-  txHash: Scalars['Bytes'],
-  controller: Scalars['Bytes'],
-  avatarAddress: Scalars['Bytes'],
-  newController: Scalars['Bytes'],
-};
-
-export type UControllerUpgradeController_Filter = {
-  id?: Maybe<Scalars['ID']>,
-  id_not?: Maybe<Scalars['ID']>,
-  id_gt?: Maybe<Scalars['ID']>,
-  id_lt?: Maybe<Scalars['ID']>,
-  id_gte?: Maybe<Scalars['ID']>,
-  id_lte?: Maybe<Scalars['ID']>,
-  id_in?: Maybe<Array<Scalars['ID']>>,
-  id_not_in?: Maybe<Array<Scalars['ID']>>,
-  txHash?: Maybe<Scalars['Bytes']>,
-  txHash_not?: Maybe<Scalars['Bytes']>,
-  txHash_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  txHash_contains?: Maybe<Scalars['Bytes']>,
-  txHash_not_contains?: Maybe<Scalars['Bytes']>,
-  controller?: Maybe<Scalars['Bytes']>,
-  controller_not?: Maybe<Scalars['Bytes']>,
-  controller_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  controller_contains?: Maybe<Scalars['Bytes']>,
-  controller_not_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not?: Maybe<Scalars['Bytes']>,
-  avatarAddress_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  avatarAddress_contains?: Maybe<Scalars['Bytes']>,
-  avatarAddress_not_contains?: Maybe<Scalars['Bytes']>,
-  newController?: Maybe<Scalars['Bytes']>,
-  newController_not?: Maybe<Scalars['Bytes']>,
-  newController_in?: Maybe<Array<Scalars['Bytes']>>,
-  newController_not_in?: Maybe<Array<Scalars['Bytes']>>,
-  newController_contains?: Maybe<Scalars['Bytes']>,
-  newController_not_contains?: Maybe<Scalars['Bytes']>,
-};
-
-export enum UControllerUpgradeController_OrderBy {
-  Id = 'id',
-  TxHash = 'txHash',
-  Controller = 'controller',
-  AvatarAddress = 'avatarAddress',
-  NewController = 'newController'
-}
 
 declare module '@daostack/migration-experimental'
