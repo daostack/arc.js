@@ -22,7 +22,7 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [src/member.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L17)*
+*Defined in [src/member.ts:17](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L17)*
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • **contract**? : *[Address](../globals.md#address)*
 
-*Defined in [src/member.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L19)*
+*Defined in [src/member.ts:19](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L19)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **dao**? : *[Address](../globals.md#address)*
 
-*Defined in [src/member.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L18)*
+*Defined in [src/member.ts:18](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L18)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **id**? : *undefined | string*
 
-*Defined in [src/member.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L20)*
+*Defined in [src/member.ts:20](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L20)*
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 • **reputation**: *BN*
 
-*Defined in [src/member.ts:21](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L21)*
+*Defined in [src/member.ts:21](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L21)*

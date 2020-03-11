@@ -20,7 +20,7 @@
 
 • **id**: *string*
 
-*Defined in [src/tag.ts:10](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L10)*
+*Defined in [src/tag.ts:10](https://github.com/daostack/client/blob/ca3cbac/src/tag.ts#L10)*
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 • **numberOfProposals**: *number*
 
-*Defined in [src/tag.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L11)*
+*Defined in [src/tag.ts:11](https://github.com/daostack/client/blob/ca3cbac/src/tag.ts#L11)*
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 • **proposals**? : *[Proposal](../classes/proposal.md)[]*
 
-*Defined in [src/tag.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L12)*
+*Defined in [src/tag.ts:12](https://github.com/daostack/client/blob/ca3cbac/src/tag.ts#L12)*

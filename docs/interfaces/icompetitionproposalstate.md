@@ -32,7 +32,7 @@
 
 • **admin**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/competition.ts:38](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L38)*
+*Defined in [src/schemes/competition.ts:38](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L38)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **contract**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/competition.ts:39](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L39)*
+*Defined in [src/schemes/competition.ts:39](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L39)*
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **createdAt**: *Date*
 
-*Defined in [src/schemes/competition.ts:48](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L48)*
+*Defined in [src/schemes/competition.ts:48](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L48)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **endTime**: *Date*
 
-*Defined in [src/schemes/competition.ts:40](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L40)*
+*Defined in [src/schemes/competition.ts:40](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L40)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/schemes/competition.ts:37](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L37)*
+*Defined in [src/schemes/competition.ts:37](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L37)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **numberOfVotesPerVoter**: *number*
 
-*Defined in [src/schemes/competition.ts:46](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L46)*
+*Defined in [src/schemes/competition.ts:46](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L46)*
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **numberOfWinners**: *number*
 
-*Defined in [src/schemes/competition.ts:41](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L41)*
+*Defined in [src/schemes/competition.ts:41](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L41)*
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 • **numberOfWinningSuggestions**: *number*
 
-*Defined in [src/schemes/competition.ts:51](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L51)*
+*Defined in [src/schemes/competition.ts:51](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L51)*
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 • **rewardSplit**: *number[]*
 
-*Defined in [src/schemes/competition.ts:42](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L42)*
+*Defined in [src/schemes/competition.ts:42](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L42)*
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 • **snapshotBlock**: *number*
 
-*Defined in [src/schemes/competition.ts:47](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L47)*
+*Defined in [src/schemes/competition.ts:47](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L47)*
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 • **startTime**: *Date*
 
-*Defined in [src/schemes/competition.ts:43](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L43)*
+*Defined in [src/schemes/competition.ts:43](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L43)*
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 • **suggestionsEndTime**: *Date*
 
-*Defined in [src/schemes/competition.ts:45](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L45)*
+*Defined in [src/schemes/competition.ts:45](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L45)*
 
 ___
 
@@ -128,7 +128,7 @@ ___
 
 • **totalSuggestions**: *number*
 
-*Defined in [src/schemes/competition.ts:50](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L50)*
+*Defined in [src/schemes/competition.ts:50](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L50)*
 
 ___
 
@@ -136,7 +136,7 @@ ___
 
 • **totalVotes**: *number*
 
-*Defined in [src/schemes/competition.ts:49](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L49)*
+*Defined in [src/schemes/competition.ts:49](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L49)*
 
 ___
 
@@ -144,4 +144,4 @@ ___
 
 • **votingStartTime**: *Date*
 
-*Defined in [src/schemes/competition.ts:44](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L44)*
+*Defined in [src/schemes/competition.ts:44](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L44)*

@@ -19,7 +19,7 @@
 
 • **BoostedBarCrossed**:
 
-*Defined in [src/proposal.ts:60](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L60)*
+*Defined in [src/proposal.ts:60](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L60)*
 
 ___
 
@@ -27,7 +27,7 @@ ___
 
 • **BoostedTimeOut**:
 
-*Defined in [src/proposal.ts:59](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L59)*
+*Defined in [src/proposal.ts:59](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L59)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **None**:
 
-*Defined in [src/proposal.ts:55](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L55)*
+*Defined in [src/proposal.ts:55](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L55)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 • **PreBoostedBarCrossed**:
 
-*Defined in [src/proposal.ts:58](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L58)*
+*Defined in [src/proposal.ts:58](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L58)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **QueueBarCrossed**:
 
-*Defined in [src/proposal.ts:56](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L56)*
+*Defined in [src/proposal.ts:56](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L56)*
 
 ___
 
@@ -59,4 +59,4 @@ ___
 
 • **QueueTimeOut**:
 
-*Defined in [src/proposal.ts:57](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L57)*
+*Defined in [src/proposal.ts:57](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L57)*

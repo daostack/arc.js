@@ -20,7 +20,7 @@
 
 • **fetchAllData**? : *true | false*
 
-*Defined in [src/graphnode.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L20)*
+*Defined in [src/graphnode.ts:20](https://github.com/daostack/client/blob/ca3cbac/src/graphnode.ts#L20)*
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 • **fetchPolicy**? : *"cache-first" | "network-only" | "cache-only" | "no-cache" | "standby"*
 
-*Defined in [src/graphnode.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L18)*
+*Defined in [src/graphnode.ts:18](https://github.com/daostack/client/blob/ca3cbac/src/graphnode.ts#L18)*
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 • **subscribe**? : *true | false*
 
-*Defined in [src/graphnode.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L19)*
+*Defined in [src/graphnode.ts:19](https://github.com/daostack/client/blob/ca3cbac/src/graphnode.ts#L19)*

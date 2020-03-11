@@ -22,7 +22,7 @@
 
 • **callData**: *string*
 
-*Defined in [src/schemes/uGenericScheme.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/schemes/uGenericScheme.ts#L19)*
+*Defined in [src/schemes/uGenericScheme.ts:19](https://github.com/daostack/client/blob/ca3cbac/src/schemes/uGenericScheme.ts#L19)*
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • **contractToCall**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/uGenericScheme.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/schemes/uGenericScheme.ts#L18)*
+*Defined in [src/schemes/uGenericScheme.ts:18](https://github.com/daostack/client/blob/ca3cbac/src/schemes/uGenericScheme.ts#L18)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **executed**: *boolean*
 
-*Defined in [src/schemes/uGenericScheme.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/schemes/uGenericScheme.ts#L20)*
+*Defined in [src/schemes/uGenericScheme.ts:20](https://github.com/daostack/client/blob/ca3cbac/src/schemes/uGenericScheme.ts#L20)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/schemes/uGenericScheme.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/schemes/uGenericScheme.ts#L17)*
+*Defined in [src/schemes/uGenericScheme.ts:17](https://github.com/daostack/client/blob/ca3cbac/src/schemes/uGenericScheme.ts#L17)*
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 • **returnValue**: *string*
 
-*Defined in [src/schemes/uGenericScheme.ts:21](https://github.com/dorgtech/client/blob/19b4373/src/schemes/uGenericScheme.ts#L21)*
+*Defined in [src/schemes/uGenericScheme.ts:21](https://github.com/daostack/client/blob/ca3cbac/src/schemes/uGenericScheme.ts#L21)*
