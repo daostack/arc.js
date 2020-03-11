@@ -51,11 +51,12 @@ export interface ITestAddresses {
   }
 }
 
+// TODO: Changed UGenericScheme to GenericScheme here, test
 export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION): ITestAddresses {
   const migration = require('@daostack/migration-experimental/migration.json').private
-  let UGenericScheme: string = ''
+  let GenericScheme: string = ''
   try {
-    UGenericScheme = arc.getContractInfoByName('GenericScheme', version).address
+    GenericScheme = arc.getContractInfoByName('GenericScheme', version).address
   } catch (err) {
     if (err.message.match(/no contract/i)) {
       // pass
@@ -69,8 +70,7 @@ export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION)
       ContributionReward: arc.getContractInfoByName('ContributionReward', version).address,
       GEN: arc.GENToken().address,
       GenericScheme: arc.getContractInfoByName('GenericScheme', version).address,
-      SchemeRegistrar: arc.getContractInfoByName('SchemeRegistrar', version).address,
-      UGenericScheme
+      SchemeRegistrar: arc.getContractInfoByName('SchemeRegistrar', version).address
     },
     dao: migration.dao[version],
     test: migration.test[version]

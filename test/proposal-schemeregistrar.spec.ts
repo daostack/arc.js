@@ -48,7 +48,6 @@ describe('Proposal', () => {
       schemeRegistered: null,
       schemeRemoved: null,
       schemeToRegister,
-      schemeToRegisterParamsHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       schemeToRegisterPermission: '0x0000001f',
       schemeToRemove: null
     })
@@ -102,7 +101,6 @@ describe('Proposal', () => {
       schemeRegistered: null,
       schemeRemoved: null,
       schemeToRegister,
-      schemeToRegisterParamsHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       schemeToRegisterPermission: '0x0000001f',
       schemeToRemove: null
     })
@@ -129,7 +127,6 @@ describe('Proposal', () => {
       schemeRegistered: null,
       schemeRemoved: null,
       schemeToRegister: null,
-      schemeToRegisterParamsHash: null,
       schemeToRegisterPermission: null,
       schemeToRemove: schemeToRegister.toLowerCase()
     })
@@ -145,7 +142,6 @@ describe('Proposal', () => {
       decision: '1',
       schemeRegistered: null,
       schemeRemoved: true,
-      schemeToRegisterParamsHash: null,
       schemeToRegisterPermission: null,
       schemeToRemove: schemeToRegister.toLowerCase()
     })

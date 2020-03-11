@@ -2,7 +2,6 @@ import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from '../arc'
-// import { DAO } from './dao'
 import { IGenesisProtocolParams } from '../genesisProtocol'
 import {
   ITransaction,
@@ -15,19 +14,13 @@ import {
   IProposalCreateOptions,
   IProposalQueryOptions, Proposal } from '../proposal'
 import { Address, ICommonQueryOptions, IStateful } from '../types'
-// import * as ContributionReward from './contributionReward'
-// import * as ContributionRewardExt from './schemes/contributionRewardExt'
-// import * as GenericScheme from './genericScheme'
 import { ReputationFromTokenScheme } from './reputationFromToken'
-// import * as SchemeRegistrar from './schemeRegistrar'
-// import * as UGenericScheme from './uGenericScheme'
 
 export interface ISchemeState {
   id: string
   address: Address
   dao: Address
   name: string
-  paramsHash: string
   version: string
   canDelegateCall: boolean
   canRegisterSchemes: boolean
@@ -44,7 +37,6 @@ export interface ISchemeState {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
-  uGenericSchemeParams?: IGenericSchemeParams
   schemeParams?: IGenericSchemeParams | IContributionRewardParams | IContributionRewardExtParams | ISchemeRegisterParams
 }
 
@@ -80,7 +72,6 @@ export interface ISchemeQueryOptions extends ICommonQueryOptions {
     dao?: Address
     id?: string
     name?: string
-    paramsHash?: string
     [key: string]: any
   }
 }
@@ -95,7 +86,6 @@ export interface ISchemeQueryOptions extends ICommonQueryOptions {
     dao?: Address
     id?: string
     name?: string
-    paramsHash?: string
     [key: string]: any
   }
 }
@@ -115,7 +105,6 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
       canRegisterSchemes
       canUpgradeController
       canManageGlobalConstraints
-      paramsHash
       contributionRewardParams {
         id
         votingMachine
@@ -212,25 +201,6 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
       numberOfQueuedProposals
       numberOfPreBoostedProposals
       numberOfBoostedProposals
-      uGenericSchemeParams {
-        votingMachine
-        contractToCall
-        voteParams {
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-      }
       version
     }`
   }

@@ -148,15 +148,16 @@ describe('Claim rewards', () => {
      await proposal.redeemRewards().send()
   })
 
+  // TODO-J: Changed UGenericScheme to GenericScheme here, test
   it('works with non-CR proposal', async () => {
 
     const version = '0.0.1-rc.32'
     testAddresses = getTestAddresses(arc)
     // dao = await getTestDAO()
-    const ugenericSchemes = await arc.schemes({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
-    const ugenericScheme = ugenericSchemes[0] as Scheme
-    const ugenericSchemeState = await ugenericScheme.fetchState()
-    dao  = new DAO(arc, ugenericSchemeState.dao)
+    const genericSchemes = await arc.schemes({where: {name: "GenericScheme", version}}).pipe(first()).toPromise()
+    const genericScheme = genericSchemes[0]
+    const genericSchemeState = await genericScheme.state().pipe(first()).toPromise()
+    dao  = new DAO(arc, genericSchemeState.dao)
 
     const beneficiary = await arc.getAccount().pipe(first()).toPromise()
     const stakeAmount = new BN(123456789)
@@ -170,8 +171,8 @@ describe('Claim rewards', () => {
 
     const proposal = await createAProposal(dao, {
       callData,
-      scheme: ugenericSchemeState.address,
-      schemeToRegister: actionMock.address,
+      scheme: genericSchemeState.address,
+      schemeToRegister: actionMock.options.address,
       value: 0
     })
 
