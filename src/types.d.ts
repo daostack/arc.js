@@ -6817,4 +6817,4 @@ export enum UControllerUpgradeController_OrderBy {
   NewController = 'newController'
 }
 
-declare module '@daostack/migration'
+declare module '@daostack/migration-experimental'

@@ -61,7 +61,7 @@ export interface ITestAddresses {
 
 export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION): ITestAddresses {
   // const contractInfos = arc.contractInfos
-  const migrationFile = path.resolve(`${require.resolve('@daostack/migration' )}/../migration.json`)
+  const migrationFile = path.resolve(`${require.resolve('@daostack/migration-experimental' )}/../migration.json`)
   const migration = require(migrationFile).private
   let UGenericScheme: string = ''
   try {
@@ -327,7 +327,7 @@ export async function firstResult(observable: Observable<any>) {
 }
 
 export function getContractAddressesFromMigration(environment: 'private'|'rinkeby'|'mainnet'): IContractInfo[] {
-  const migration = require('@daostack/migration/migration.json')[environment]
+  const migration = require('@daostack/migration-experimental/migration.json')[environment]
   const contracts: IContractInfo[] = []
   for (const version of Object.keys( migration.base)) {
     for (const name of Object.keys(migration.base[version])) {

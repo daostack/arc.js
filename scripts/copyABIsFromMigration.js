@@ -4,7 +4,7 @@ const verbose = true
 const ABI_DIR = path.resolve('./src/abis')
 const ncp = require("ncp").ncp
 const rimraf = require("rimraf")
-const optimizer = require("@daostack/migration/optimize-abis")
+const optimizer = require("@daostack/migration-experimental/optimize-abis")
 
 async function optimizeABIs () {
   optimizer.initDirectory()
@@ -21,7 +21,7 @@ async function copyMigrationScript () {
     // "migration.json",
     "contracts-optimized"
   ]
-  const baseDir = path.dirname(require.resolve("@daostack/migration"))
+  const baseDir = path.dirname(require.resolve("@daostack/migration-experimental"))
   const destDir = path.join(__dirname, "../src/abis")
 
   // Remove all existing files in the destination directory
@@ -69,7 +69,7 @@ const getDirectories = source =>
  */
 async function copyABIs() {
   const destDir = ABI_DIR
-  const sourcePath = path.resolve(`${require.resolve('@daostack/migration')}/../contracts-optimized`)
+  const sourcePath = path.resolve(`${require.resolve('@daostack/migration-experimental')}/../contracts-optimized`)
   log(`copying ABIs from ${sourcePath} to ${destDir}`)
   getDirectories(sourcePath).forEach(arcVersion => {
     if (!fs.existsSync(path.join(destDir, arcVersion))) {
