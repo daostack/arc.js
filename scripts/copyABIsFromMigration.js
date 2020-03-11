@@ -65,7 +65,7 @@ const getDirectories = source =>
     .map(dirent => dirent.name)
 
 /**
- * Fetch all abis from @daostack/migration into the `abis` folder.
+ * Fetch all abis from @daostack/migration-experimental into the `abis` folder.
  */
 async function copyABIs() {
   const destDir = ABI_DIR

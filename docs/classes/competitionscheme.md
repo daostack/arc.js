@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [CompetitionScheme](competitionscheme.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [CompetitionScheme](competitionscheme.md)
 
 # Class: CompetitionScheme
 
@@ -39,7 +39,6 @@
 * [setStaticState](competitionscheme.md#setstaticstate)
 * [state](competitionscheme.md#state)
 * [voteSuggestion](competitionscheme.md#votesuggestion)
-* [x](competitionscheme.md#x)
 
 ### Object literals
 
@@ -53,7 +52,7 @@
 
 *Inherited from [SchemeBase](schemebase.md).[constructor](schemebase.md#constructor)*
 
-*Defined in [schemes/base.ts:239](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L239)*
+*Defined in [src/schemes/base.ts:208](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L208)*
 
 **Parameters:**
 
@@ -72,7 +71,7 @@ Name | Type |
 
 *Inherited from [SchemeBase](schemebase.md).[ReputationFromToken](schemebase.md#reputationfromtoken)*
 
-*Defined in [schemes/base.ts:239](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L239)*
+*Defined in [src/schemes/base.ts:208](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L208)*
 
 ___
 
@@ -82,7 +81,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[context](schemebase.md#context)*
 
-*Defined in [schemes/base.ts:241](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L241)*
+*Defined in [src/schemes/base.ts:210](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L210)*
 
 ___
 
@@ -92,7 +91,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[id](schemebase.md#id)*
 
-*Defined in [schemes/base.ts:237](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L237)*
+*Defined in [src/schemes/base.ts:206](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L206)*
 
 ___
 
@@ -102,7 +101,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[staticState](schemebase.md#staticstate)*
 
-*Defined in [schemes/base.ts:238](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L238)*
+*Defined in [src/schemes/base.ts:207](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L207)*
 
 ## Methods
 
@@ -110,7 +109,7 @@ ___
 
 ▸ **competitions**(`options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Competition](competition.md)[]›*
 
-*Defined in [schemes/competition.ts:167](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L167)*
+*Defined in [src/schemes/competition.ts:168](https://github.com/daostack/client/blob/b547acc/src/schemes/competition.ts#L168)*
 
 Return a list of competitions in this scheme.
 
@@ -131,7 +130,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposal](schemebase.md#createproposal)*
 
-*Defined in [schemes/competition.ts:277](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L277)*
+*Defined in [src/schemes/competition.ts:281](https://github.com/daostack/client/blob/b547acc/src/schemes/competition.ts#L281)*
 
 create a proposal for starting a Competition
 
@@ -153,7 +152,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#createproposalerrorhandler)*
 
-*Defined in [schemes/competition.ts:253](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L253)*
+*Defined in [src/schemes/competition.ts:256](https://github.com/daostack/client/blob/b547acc/src/schemes/competition.ts#L256)*
 
 **Parameters:**
 
@@ -179,7 +178,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#createproposaltransaction)*
 
-*Defined in [schemes/competition.ts:187](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L187)*
+*Defined in [src/schemes/competition.ts:188](https://github.com/daostack/client/blob/b547acc/src/schemes/competition.ts#L188)*
 
 **Parameters:**
 
@@ -197,7 +196,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#createproposaltransactionmap)*
 
-*Defined in [schemes/competition.ts:244](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L244)*
+*Defined in [src/schemes/competition.ts:247](https://github.com/daostack/client/blob/b547acc/src/schemes/competition.ts#L247)*
 
 **Returns:** *txMap*
 
@@ -209,7 +208,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[fetchStaticState](schemebase.md#fetchstaticstate)*
 
-*Defined in [schemes/base.ts:256](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L256)*
+*Defined in [src/schemes/base.ts:225](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L225)*
 
 fetch the static state from the subgraph
 
@@ -223,7 +222,7 @@ ___
 
 ▸ **getCompetitionContract**(): *Promise‹any›*
 
-*Defined in [schemes/competition.ts:281](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L281)*
+*Defined in [src/schemes/competition.ts:285](https://github.com/daostack/client/blob/b547acc/src/schemes/competition.ts#L285)*
 
 **Returns:** *Promise‹any›*
 
@@ -235,7 +234,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[proposals](schemebase.md#proposals)*
 
-*Defined in [schemes/base.ts:467](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L467)*
+*Defined in [src/schemes/base.ts:288](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L288)*
 
 **Parameters:**
 
@@ -252,7 +251,7 @@ ___
 
 ▸ **redeemSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [schemes/competition.ts:347](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L347)*
+*Defined in [src/schemes/competition.ts:359](https://github.com/daostack/client/blob/b547acc/src/schemes/competition.ts#L359)*
 
 **Parameters:**
 
@@ -260,7 +259,6 @@ ___
 
 Name | Type |
 ------ | ------ |
-`beneficiary` | [Address](../globals.md#address) |
 `suggestionId` | number |
 
 **Returns:** *[Operation](../globals.md#operation)‹boolean›*
@@ -273,7 +271,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[setStaticState](schemebase.md#setstaticstate)*
 
-*Defined in [schemes/base.ts:279](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L279)*
+*Defined in [src/schemes/base.ts:247](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L247)*
 
 **Parameters:**
 
@@ -291,7 +289,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[state](schemebase.md#abstract-state)*
 
-*Defined in [schemes/competition.ts:82](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L82)*
+*Defined in [src/schemes/competition.ts:90](https://github.com/daostack/client/blob/b547acc/src/schemes/competition.ts#L90)*
 
 **Parameters:**
 
@@ -307,7 +305,7 @@ ___
 
 ▸ **voteSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-*Defined in [schemes/competition.ts:296](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L296)*
+*Defined in [src/schemes/competition.ts:300](https://github.com/daostack/client/blob/b547acc/src/schemes/competition.ts#L300)*
 
 Vote for the suggestion that is, in the current scheme, identified by  suggestionId
 
@@ -323,18 +321,6 @@ Name | Type |
 
 **Returns:** *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-___
-
-###  x
-
-▸ **x**(): *void*
-
-*Inherited from [SchemeBase](schemebase.md).[x](schemebase.md#x)*
-
-*Defined in [schemes/base.ts:319](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L319)*
-
-**Returns:** *void*
-
 ## Object literals
 
 ### `Static` fragments
@@ -343,7 +329,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[fragments](schemebase.md#static-fragments)*
 
-*Defined in [schemes/base.ts:106](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L106)*
+*Defined in [src/schemes/base.ts:95](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L95)*
 
 ###  SchemeFields
 
@@ -357,7 +343,6 @@ ___
       canRegisterSchemes
       canUpgradeController
       canManageGlobalConstraints
-      paramsHash
       contributionRewardParams {
         id
         votingMachine
@@ -454,26 +439,7 @@ ___
       numberOfQueuedProposals
       numberOfPreBoostedProposals
       numberOfBoostedProposals
-      uGenericSchemeParams {
-        votingMachine
-        contractToCall
-        voteParams {
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-      }
       version
     }`
 
-*Defined in [schemes/base.ts:107](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L107)*
+*Defined in [src/schemes/base.ts:96](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L96)*

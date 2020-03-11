@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IVoteStaticState](ivotestaticstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IVoteStaticState](ivotestaticstate.md)
 
 # Interface: IVoteStaticState
 
@@ -26,7 +26,7 @@
 
 • **amount**: *BN*
 
-*Defined in [vote.ts:15](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L15)*
+*Defined in [src/vote.ts:15](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L15)*
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 • **createdAt**: *[Date](../globals.md#date) | undefined*
 
-*Defined in [vote.ts:13](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L13)*
+*Defined in [src/vote.ts:13](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L13)*
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • **dao**? : *[Address](../globals.md#address)*
 
-*Defined in [vote.ts:17](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L17)*
+*Defined in [src/vote.ts:17](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L17)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 • **id**? : *undefined | string*
 
-*Defined in [vote.ts:11](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L11)*
+*Defined in [src/vote.ts:11](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L11)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **outcome**: *[IProposalOutcome](../enums/iproposaloutcome.md)*
 
-*Defined in [vote.ts:14](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L14)*
+*Defined in [src/vote.ts:14](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L14)*
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **proposal**: *string*
 
-*Defined in [vote.ts:16](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L16)*
+*Defined in [src/vote.ts:16](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L16)*
 
 ___
 
@@ -74,4 +74,4 @@ ___
 
 • **voter**: *[Address](../globals.md#address)*
 
-*Defined in [vote.ts:12](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L12)*
+*Defined in [src/vote.ts:12](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L12)*

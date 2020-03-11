@@ -6064,6 +6064,3 @@ export enum TokenTransfer_OrderBy {
   To = 'to',
   Value = 'value'
 }
-
-
-declare module '@daostack/migration-experimental'

@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IProposalCreateOptionsSR](iproposalcreateoptionssr.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IProposalCreateOptionsSR](iproposalcreateoptionssr.md)
 
 # Interface: IProposalCreateOptionsSR
 
@@ -20,7 +20,7 @@
 
 • **parametersHash**? : *undefined | string*
 
-*Defined in [schemes/schemeRegistrar.ts:17](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L17)*
+*Defined in [src/schemes/schemeRegistrar.ts:16](https://github.com/daostack/client/blob/b547acc/src/schemes/schemeRegistrar.ts#L16)*
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 • **permissions**? : *undefined | string*
 
-*Defined in [schemes/schemeRegistrar.ts:18](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L18)*
+*Defined in [src/schemes/schemeRegistrar.ts:17](https://github.com/daostack/client/blob/b547acc/src/schemes/schemeRegistrar.ts#L17)*
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 • **schemeToRegister**? : *[Address](../globals.md#address)*
 
-*Defined in [schemes/schemeRegistrar.ts:19](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L19)*
+*Defined in [src/schemes/schemeRegistrar.ts:18](https://github.com/daostack/client/blob/b547acc/src/schemes/schemeRegistrar.ts#L18)*

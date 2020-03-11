@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IVoteState](ivotestate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IVoteState](ivotestate.md)
 
 # Interface: IVoteState
 
@@ -28,7 +28,7 @@
 
 *Inherited from [IVoteStaticState](ivotestaticstate.md).[amount](ivotestaticstate.md#amount)*
 
-*Defined in [vote.ts:15](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L15)*
+*Defined in [src/vote.ts:15](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L15)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 *Inherited from [IVoteStaticState](ivotestaticstate.md).[createdAt](ivotestaticstate.md#createdat)*
 
-*Defined in [vote.ts:13](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L13)*
+*Defined in [src/vote.ts:13](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L13)*
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 *Inherited from [IVoteStaticState](ivotestaticstate.md).[dao](ivotestaticstate.md#optional-dao)*
 
-*Defined in [vote.ts:17](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L17)*
+*Defined in [src/vote.ts:17](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L17)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 *Overrides [IVoteStaticState](ivotestaticstate.md).[id](ivotestaticstate.md#optional-id)*
 
-*Defined in [vote.ts:21](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L21)*
+*Defined in [src/vote.ts:21](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L21)*
 
 ___
 
@@ -68,7 +68,7 @@ ___
 
 *Inherited from [IVoteStaticState](ivotestaticstate.md).[outcome](ivotestaticstate.md#outcome)*
 
-*Defined in [vote.ts:14](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L14)*
+*Defined in [src/vote.ts:14](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L14)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 *Inherited from [IVoteStaticState](ivotestaticstate.md).[proposal](ivotestaticstate.md#proposal)*
 
-*Defined in [vote.ts:16](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L16)*
+*Defined in [src/vote.ts:16](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L16)*
 
 ___
 
@@ -88,4 +88,4 @@ ___
 
 *Inherited from [IVoteStaticState](ivotestaticstate.md).[voter](ivotestaticstate.md#voter)*
 
-*Defined in [vote.ts:12](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L12)*
+*Defined in [src/vote.ts:12](https://github.com/daostack/client/blob/b547acc/src/vote.ts#L12)*

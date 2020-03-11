@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IExecutionState](iexecutionstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IExecutionState](iexecutionstate.md)
 
 # Enumeration: IExecutionState
 
@@ -19,7 +19,7 @@
 
 • **BoostedBarCrossed**:
 
-*Defined in [proposal.ts:58](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L58)*
+*Defined in [src/proposal.ts:60](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L60)*
 
 ___
 
@@ -27,7 +27,7 @@ ___
 
 • **BoostedTimeOut**:
 
-*Defined in [proposal.ts:57](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L57)*
+*Defined in [src/proposal.ts:59](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L59)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **None**:
 
-*Defined in [proposal.ts:53](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L53)*
+*Defined in [src/proposal.ts:55](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L55)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 • **PreBoostedBarCrossed**:
 
-*Defined in [proposal.ts:56](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L56)*
+*Defined in [src/proposal.ts:58](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L58)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **QueueBarCrossed**:
 
-*Defined in [proposal.ts:54](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L54)*
+*Defined in [src/proposal.ts:56](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L56)*
 
 ___
 
@@ -59,4 +59,4 @@ ___
 
 • **QueueTimeOut**:
 
-*Defined in [proposal.ts:55](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L55)*
+*Defined in [src/proposal.ts:57](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L57)*

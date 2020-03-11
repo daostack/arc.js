@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ISchemeStaticState](ischemestaticstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ISchemeStaticState](ischemestaticstate.md)
 
 # Interface: ISchemeStaticState
 
@@ -16,7 +16,6 @@
 * [dao](ischemestaticstate.md#dao)
 * [id](ischemestaticstate.md#id)
 * [name](ischemestaticstate.md#name)
-* [paramsHash](ischemestaticstate.md#paramshash)
 * [version](ischemestaticstate.md#version)
 
 ## Properties
@@ -25,9 +24,9 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/base.ts:21](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L21)*
+*Defined in [src/schemes/base.ts:15](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L15)*
 
-*Defined in [scheme.ts:24](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L24)*
+*Defined in [src/scheme.ts:21](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L21)*
 
 ___
 
@@ -35,9 +34,9 @@ ___
 
 • **dao**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/base.ts:22](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L22)*
+*Defined in [src/schemes/base.ts:16](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L16)*
 
-*Defined in [scheme.ts:25](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L25)*
+*Defined in [src/scheme.ts:22](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L22)*
 
 ___
 
@@ -45,9 +44,9 @@ ___
 
 • **id**: *string*
 
-*Defined in [schemes/base.ts:20](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L20)*
+*Defined in [src/schemes/base.ts:14](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L14)*
 
-*Defined in [scheme.ts:23](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L23)*
+*Defined in [src/scheme.ts:20](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L20)*
 
 ___
 
@@ -55,19 +54,9 @@ ___
 
 • **name**: *string*
 
-*Defined in [schemes/base.ts:23](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L23)*
+*Defined in [src/schemes/base.ts:17](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L17)*
 
-*Defined in [scheme.ts:26](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L26)*
-
-___
-
-###  paramsHash
-
-• **paramsHash**: *string*
-
-*Defined in [schemes/base.ts:24](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L24)*
-
-*Defined in [scheme.ts:27](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L27)*
+*Defined in [src/scheme.ts:23](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L23)*
 
 ___
 
@@ -75,6 +64,6 @@ ___
 
 • **version**: *string*
 
-*Defined in [schemes/base.ts:25](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L25)*
+*Defined in [src/schemes/base.ts:18](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L18)*
 
-*Defined in [scheme.ts:28](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L28)*
+*Defined in [src/scheme.ts:24](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L24)*

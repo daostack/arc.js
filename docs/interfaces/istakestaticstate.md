@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IStakeStaticState](istakestaticstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IStakeStaticState](istakestaticstate.md)
 
 # Interface: IStakeStaticState
 
@@ -25,7 +25,7 @@
 
 • **amount**: *BN*
 
-*Defined in [stake.ts:15](https://github.com/daostack/client/blob/1bc237e/src/stake.ts#L15)*
+*Defined in [src/stake.ts:15](https://github.com/daostack/client/blob/b547acc/src/stake.ts#L15)*
 
 ___
 
@@ -33,7 +33,7 @@ ___
 
 • **createdAt**: *Date | undefined*
 
-*Defined in [stake.ts:13](https://github.com/daostack/client/blob/1bc237e/src/stake.ts#L13)*
+*Defined in [src/stake.ts:13](https://github.com/daostack/client/blob/b547acc/src/stake.ts#L13)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **id**? : *undefined | string*
 
-*Defined in [stake.ts:11](https://github.com/daostack/client/blob/1bc237e/src/stake.ts#L11)*
+*Defined in [src/stake.ts:11](https://github.com/daostack/client/blob/b547acc/src/stake.ts#L11)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **outcome**: *[IProposalOutcome](../enums/iproposaloutcome.md)*
 
-*Defined in [stake.ts:14](https://github.com/daostack/client/blob/1bc237e/src/stake.ts#L14)*
+*Defined in [src/stake.ts:14](https://github.com/daostack/client/blob/b547acc/src/stake.ts#L14)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **proposal**: *string*
 
-*Defined in [stake.ts:16](https://github.com/daostack/client/blob/1bc237e/src/stake.ts#L16)*
+*Defined in [src/stake.ts:16](https://github.com/daostack/client/blob/b547acc/src/stake.ts#L16)*
 
 ___
 
@@ -65,4 +65,4 @@ ___
 
 • **staker**: *[Address](../globals.md#address)*
 
-*Defined in [stake.ts:12](https://github.com/daostack/client/blob/1bc237e/src/stake.ts#L12)*
+*Defined in [src/stake.ts:12](https://github.com/daostack/client/blob/b547acc/src/stake.ts#L12)*

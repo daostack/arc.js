@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IEventStaticState](ieventstaticstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IEventStaticState](ieventstaticstate.md)
 
 # Interface: IEventStaticState
 
@@ -26,7 +26,7 @@
 
 • **dao**: *string*
 
-*Defined in [event.ts:10](https://github.com/daostack/client/blob/1bc237e/src/event.ts#L10)*
+*Defined in [src/event.ts:10](https://github.com/daostack/client/blob/b547acc/src/event.ts#L10)*
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 • **data**: *object*
 
-*Defined in [event.ts:14](https://github.com/daostack/client/blob/1bc237e/src/event.ts#L14)*
+*Defined in [src/event.ts:14](https://github.com/daostack/client/blob/b547acc/src/event.ts#L14)*
 
 #### Type declaration:
 
@@ -46,7 +46,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [event.ts:9](https://github.com/daostack/client/blob/1bc237e/src/event.ts#L9)*
+*Defined in [src/event.ts:9](https://github.com/daostack/client/blob/b547acc/src/event.ts#L9)*
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • **proposal**: *string*
 
-*Defined in [event.ts:11](https://github.com/daostack/client/blob/1bc237e/src/event.ts#L11)*
+*Defined in [src/event.ts:11](https://github.com/daostack/client/blob/b547acc/src/event.ts#L11)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **timestamp**: *string*
 
-*Defined in [event.ts:15](https://github.com/daostack/client/blob/1bc237e/src/event.ts#L15)*
+*Defined in [src/event.ts:15](https://github.com/daostack/client/blob/b547acc/src/event.ts#L15)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **type**: *string*
 
-*Defined in [event.ts:13](https://github.com/daostack/client/blob/1bc237e/src/event.ts#L13)*
+*Defined in [src/event.ts:13](https://github.com/daostack/client/blob/b547acc/src/event.ts#L13)*
 
 ___
 
@@ -78,4 +78,4 @@ ___
 
 • **user**: *string*
 
-*Defined in [event.ts:12](https://github.com/daostack/client/blob/1bc237e/src/event.ts#L12)*
+*Defined in [src/event.ts:12](https://github.com/daostack/client/blob/b547acc/src/event.ts#L12)*

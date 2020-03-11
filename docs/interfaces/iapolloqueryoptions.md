@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IApolloQueryOptions](iapolloqueryoptions.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IApolloQueryOptions](iapolloqueryoptions.md)
 
 # Interface: IApolloQueryOptions
 
@@ -20,7 +20,7 @@
 
 • **fetchAllData**? : *true | false*
 
-*Defined in [graphnode.ts:19](https://github.com/daostack/client/blob/1bc237e/src/graphnode.ts#L19)*
+*Defined in [src/graphnode.ts:20](https://github.com/daostack/client/blob/b547acc/src/graphnode.ts#L20)*
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 • **fetchPolicy**? : *"cache-first" | "network-only" | "cache-only" | "no-cache" | "standby"*
 
-*Defined in [graphnode.ts:17](https://github.com/daostack/client/blob/1bc237e/src/graphnode.ts#L17)*
+*Defined in [src/graphnode.ts:18](https://github.com/daostack/client/blob/b547acc/src/graphnode.ts#L18)*
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 • **subscribe**? : *true | false*
 
-*Defined in [graphnode.ts:18](https://github.com/daostack/client/blob/1bc237e/src/graphnode.ts#L18)*
+*Defined in [src/graphnode.ts:19](https://github.com/daostack/client/blob/b547acc/src/graphnode.ts#L19)*

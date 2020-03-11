@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ReputationFromTokenScheme](reputationfromtokenscheme.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ReputationFromTokenScheme](reputationfromtokenscheme.md)
 
 # Class: ReputationFromTokenScheme
 
@@ -29,7 +29,7 @@
 
 \+ **new ReputationFromTokenScheme**(`scheme`: [Scheme](scheme.md)): *[ReputationFromTokenScheme](reputationfromtokenscheme.md)*
 
-*Defined in [schemes/reputationFromToken.ts:13](https://github.com/daostack/client/blob/1bc237e/src/schemes/reputationFromToken.ts#L13)*
+*Defined in [src/schemes/reputationFromToken.ts:13](https://github.com/daostack/client/blob/b547acc/src/schemes/reputationFromToken.ts#L13)*
 
 **Parameters:**
 
@@ -45,7 +45,7 @@ Name | Type |
 
 • **scheme**: *[Scheme](scheme.md)*
 
-*Defined in [schemes/reputationFromToken.ts:15](https://github.com/daostack/client/blob/1bc237e/src/schemes/reputationFromToken.ts#L15)*
+*Defined in [src/schemes/reputationFromToken.ts:15](https://github.com/daostack/client/blob/b547acc/src/schemes/reputationFromToken.ts#L15)*
 
 ## Methods
 
@@ -53,7 +53,7 @@ Name | Type |
 
 ▸ **getAgreementHash**(): *Promise‹string›*
 
-*Defined in [schemes/reputationFromToken.ts:19](https://github.com/daostack/client/blob/1bc237e/src/schemes/reputationFromToken.ts#L19)*
+*Defined in [src/schemes/reputationFromToken.ts:19](https://github.com/daostack/client/blob/b547acc/src/schemes/reputationFromToken.ts#L19)*
 
 **Returns:** *Promise‹string›*
 
@@ -63,7 +63,7 @@ ___
 
 ▸ **getContract**(): *Promise‹any›*
 
-*Defined in [schemes/reputationFromToken.ts:73](https://github.com/daostack/client/blob/1bc237e/src/schemes/reputationFromToken.ts#L73)*
+*Defined in [src/schemes/reputationFromToken.ts:73](https://github.com/daostack/client/blob/b547acc/src/schemes/reputationFromToken.ts#L73)*
 
 **Returns:** *Promise‹any›*
 
@@ -73,7 +73,7 @@ ___
 
 ▸ **redeem**(`beneficiary`: [Address](../globals.md#address), `agreementHash?`: undefined | string): *[Operation](../globals.md#operation)‹any›*
 
-*Defined in [schemes/reputationFromToken.ts:25](https://github.com/daostack/client/blob/1bc237e/src/schemes/reputationFromToken.ts#L25)*
+*Defined in [src/schemes/reputationFromToken.ts:25](https://github.com/daostack/client/blob/b547acc/src/schemes/reputationFromToken.ts#L25)*
 
 **Parameters:**
 
@@ -90,7 +90,7 @@ ___
 
 ▸ **redemptionAmount**(`beneficiary`: [Address](../globals.md#address)): *Promise‹number›*
 
-*Defined in [schemes/reputationFromToken.ts:67](https://github.com/daostack/client/blob/1bc237e/src/schemes/reputationFromToken.ts#L67)*
+*Defined in [src/schemes/reputationFromToken.ts:67](https://github.com/daostack/client/blob/b547acc/src/schemes/reputationFromToken.ts#L67)*
 
 **Parameters:**
 

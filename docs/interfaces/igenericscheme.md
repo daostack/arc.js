@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IGenericScheme](igenericscheme.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IGenericScheme](igenericscheme.md)
 
 # Interface: IGenericScheme
 
@@ -22,7 +22,7 @@
 
 • **callData**: *string*
 
-*Defined in [schemes/genericScheme.ts:14](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L14)*
+*Defined in [src/schemes/genericScheme.ts:14](https://github.com/daostack/client/blob/b547acc/src/schemes/genericScheme.ts#L14)*
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • **contractToCall**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/genericScheme.ts:13](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L13)*
+*Defined in [src/schemes/genericScheme.ts:13](https://github.com/daostack/client/blob/b547acc/src/schemes/genericScheme.ts#L13)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **executed**: *boolean*
 
-*Defined in [schemes/genericScheme.ts:15](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L15)*
+*Defined in [src/schemes/genericScheme.ts:15](https://github.com/daostack/client/blob/b547acc/src/schemes/genericScheme.ts#L15)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [schemes/genericScheme.ts:12](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L12)*
+*Defined in [src/schemes/genericScheme.ts:12](https://github.com/daostack/client/blob/b547acc/src/schemes/genericScheme.ts#L12)*
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 • **returnValue**: *string*
 
-*Defined in [schemes/genericScheme.ts:16](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L16)*
+*Defined in [src/schemes/genericScheme.ts:16](https://github.com/daostack/client/blob/b547acc/src/schemes/genericScheme.ts#L16)*

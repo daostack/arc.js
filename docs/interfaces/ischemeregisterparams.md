@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ISchemeRegisterParams](ischemeregisterparams.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ISchemeRegisterParams](ischemeregisterparams.md)
 
 # Interface: ISchemeRegisterParams
 
@@ -20,9 +20,9 @@
 
 • **contractToCall**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/base.ts:68](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L68)*
+*Defined in [src/schemes/base.ts:59](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L59)*
 
-*Defined in [scheme.ts:71](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L71)*
+*Defined in [src/scheme.ts:65](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L65)*
 
 ___
 
@@ -30,9 +30,9 @@ ___
 
 • **voteParams**: *[IGenesisProtocolParams](igenesisprotocolparams.md)*
 
-*Defined in [schemes/base.ts:69](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L69)*
+*Defined in [src/schemes/base.ts:60](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L60)*
 
-*Defined in [scheme.ts:72](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L72)*
+*Defined in [src/scheme.ts:66](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L66)*
 
 ___
 
@@ -40,6 +40,6 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/base.ts:67](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L67)*
+*Defined in [src/schemes/base.ts:58](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L58)*
 
-*Defined in [scheme.ts:70](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L70)*
+*Defined in [src/scheme.ts:64](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L64)*

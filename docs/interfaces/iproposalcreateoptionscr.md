@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IProposalCreateOptionsCR](iproposalcreateoptionscr.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IProposalCreateOptionsCR](iproposalcreateoptionscr.md)
 
 # Interface: IProposalCreateOptionsCR
 
@@ -25,7 +25,7 @@
 
 • **beneficiary**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/contributionReward.ts:23](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L23)*
+*Defined in [src/schemes/contributionReward.ts:27](https://github.com/daostack/client/blob/b547acc/src/schemes/contributionReward.ts#L27)*
 
 ___
 
@@ -33,7 +33,7 @@ ___
 
 • **ethReward**? : *BN*
 
-*Defined in [schemes/contributionReward.ts:26](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L26)*
+*Defined in [src/schemes/contributionReward.ts:30](https://github.com/daostack/client/blob/b547acc/src/schemes/contributionReward.ts#L30)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **externalTokenAddress**? : *[Address](../globals.md#address)*
 
-*Defined in [schemes/contributionReward.ts:28](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L28)*
+*Defined in [src/schemes/contributionReward.ts:32](https://github.com/daostack/client/blob/b547acc/src/schemes/contributionReward.ts#L32)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **externalTokenReward**? : *BN*
 
-*Defined in [schemes/contributionReward.ts:27](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L27)*
+*Defined in [src/schemes/contributionReward.ts:31](https://github.com/daostack/client/blob/b547acc/src/schemes/contributionReward.ts#L31)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **nativeTokenReward**? : *BN*
 
-*Defined in [schemes/contributionReward.ts:24](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L24)*
+*Defined in [src/schemes/contributionReward.ts:28](https://github.com/daostack/client/blob/b547acc/src/schemes/contributionReward.ts#L28)*
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **periodLength**? : *undefined | number*
 
-*Defined in [schemes/contributionReward.ts:29](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L29)*
+*Defined in [src/schemes/contributionReward.ts:33](https://github.com/daostack/client/blob/b547acc/src/schemes/contributionReward.ts#L33)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **periods**? : *any*
 
-*Defined in [schemes/contributionReward.ts:30](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L30)*
+*Defined in [src/schemes/contributionReward.ts:34](https://github.com/daostack/client/blob/b547acc/src/schemes/contributionReward.ts#L34)*
 
 ___
 
@@ -81,4 +81,4 @@ ___
 
 • **reputationReward**? : *BN*
 
-*Defined in [schemes/contributionReward.ts:25](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L25)*
+*Defined in [src/schemes/contributionReward.ts:29](https://github.com/daostack/client/blob/b547acc/src/schemes/contributionReward.ts#L29)*

@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IProposalBaseCreateOptions](iproposalbasecreateoptions.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IProposalBaseCreateOptions](iproposalbasecreateoptions.md)
 
 # Interface: IProposalBaseCreateOptions
 
@@ -29,7 +29,7 @@
 
 • **dao**: *[Address](../globals.md#address)*
 
-*Defined in [proposal.ts:871](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L871)*
+*Defined in [src/proposal.ts:945](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L945)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [proposal.ts:872](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L872)*
+*Defined in [src/proposal.ts:946](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L946)*
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **descriptionHash**? : *undefined | string*
 
-*Defined in [proposal.ts:873](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L873)*
+*Defined in [src/proposal.ts:947](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L947)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **proposalType**? : *undefined | string*
 
-*Defined in [proposal.ts:879](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L879)*
+*Defined in [src/proposal.ts:953](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L953)*
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **scheme**? : *[Address](../globals.md#address)*
 
-*Defined in [proposal.ts:876](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L876)*
+*Defined in [src/proposal.ts:950](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L950)*
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 • **tags**? : *string[]*
 
-*Defined in [proposal.ts:875](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L875)*
+*Defined in [src/proposal.ts:949](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L949)*
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 • **title**? : *undefined | string*
 
-*Defined in [proposal.ts:874](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L874)*
+*Defined in [src/proposal.ts:948](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L948)*
 
 ___
 
@@ -85,4 +85,4 @@ ___
 
 • **url**? : *undefined | string*
 
-*Defined in [proposal.ts:877](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L877)*
+*Defined in [src/proposal.ts:951](https://github.com/daostack/client/blob/b547acc/src/proposal.ts#L951)*

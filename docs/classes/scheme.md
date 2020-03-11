@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [Scheme](scheme.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Scheme](scheme.md)
 
 # Class: Scheme
 
@@ -37,7 +37,6 @@ A Scheme represents a scheme instance that is registered at a DAO
 * [proposals](scheme.md#proposals)
 * [setStaticState](scheme.md#setstaticstate)
 * [state](scheme.md#state)
-* [x](scheme.md#x)
 * [itemMap](scheme.md#static-itemmap)
 * [search](scheme.md#static-search)
 
@@ -53,7 +52,7 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 *Overrides [SchemeBase](schemebase.md).[constructor](schemebase.md#constructor)*
 
-*Defined in [scheme.ts:259](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L259)*
+*Defined in [src/scheme.ts:241](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L241)*
 
 **Parameters:**
 
@@ -72,7 +71,7 @@ Name | Type |
 
 *Overrides [SchemeBase](schemebase.md).[ReputationFromToken](schemebase.md#reputationfromtoken)*
 
-*Defined in [scheme.ts:259](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L259)*
+*Defined in [src/scheme.ts:241](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L241)*
 
 ___
 
@@ -82,7 +81,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[context](schemebase.md#context)*
 
-*Defined in [scheme.ts:261](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L261)*
+*Defined in [src/scheme.ts:243](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L243)*
 
 ___
 
@@ -92,7 +91,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[id](schemebase.md#id)*
 
-*Defined in [scheme.ts:257](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L257)*
+*Defined in [src/scheme.ts:239](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L239)*
 
 ___
 
@@ -102,7 +101,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[staticState](schemebase.md#staticstate)*
 
-*Defined in [scheme.ts:258](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L258)*
+*Defined in [src/scheme.ts:240](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L240)*
 
 ## Methods
 
@@ -112,7 +111,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposal](schemebase.md#createproposal)*
 
-*Defined in [scheme.ts:323](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L323)*
+*Defined in [src/scheme.ts:304](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L304)*
 
 create a new proposal in this Scheme
 
@@ -130,11 +129,11 @@ ___
 
 ###  createProposalErrorHandler
 
-▸ **createProposalErrorHandler**(`options?`: any): *function*
+▸ **createProposalErrorHandler**(`options?`: any): *function | undefined*
 
 *Inherited from [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#createproposalerrorhandler)*
 
-*Defined in [schemes/base.ts:296](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L296)*
+*Defined in [src/schemes/base.ts:264](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L264)*
 
 **Parameters:**
 
@@ -142,15 +141,7 @@ Name | Type |
 ------ | ------ |
 `options?` | any |
 
-**Returns:** *function*
-
-▸ (`err`: Error): *Error | Promise‹Error›*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`err` | Error |
+**Returns:** *function | undefined*
 
 ___
 
@@ -160,7 +151,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#createproposaltransaction)*
 
-*Defined in [schemes/base.ts:288](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L288)*
+*Defined in [src/schemes/base.ts:256](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L256)*
 
 create a new proposal in this scheme
 TODO: move this to the schemes - we should call proposal.scheme.createProposal
@@ -185,7 +176,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#createproposaltransactionmap)*
 
-*Defined in [schemes/base.ts:292](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L292)*
+*Defined in [src/schemes/base.ts:260](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L260)*
 
 **Returns:** *function*
 
@@ -205,7 +196,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[fetchStaticState](schemebase.md#fetchstaticstate)*
 
-*Defined in [scheme.ts:284](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L284)*
+*Defined in [src/scheme.ts:266](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L266)*
 
 fetch the static state from the subgraph
 
@@ -221,7 +212,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[proposals](schemebase.md#proposals)*
 
-*Defined in [scheme.ts:390](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L390)*
+*Defined in [src/scheme.ts:357](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L357)*
 
 **Parameters:**
 
@@ -240,7 +231,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[setStaticState](schemebase.md#setstaticstate)*
 
-*Defined in [scheme.ts:273](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L273)*
+*Defined in [src/scheme.ts:255](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L255)*
 
 **Parameters:**
 
@@ -258,7 +249,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[state](schemebase.md#abstract-state)*
 
-*Defined in [scheme.ts:305](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L305)*
+*Defined in [src/scheme.ts:286](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L286)*
 
 **Parameters:**
 
@@ -270,23 +261,11 @@ Name | Type | Default |
 
 ___
 
-###  x
-
-▸ **x**(): *void*
-
-*Inherited from [SchemeBase](schemebase.md).[x](schemebase.md#x)*
-
-*Defined in [schemes/base.ts:319](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L319)*
-
-**Returns:** *void*
-
-___
-
 ### `Static` itemMap
 
 ▸ **itemMap**(`item`: any, `arc`: [Arc](arc.md)): *ISchemeState | null*
 
-*Defined in [scheme.ts:188](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L188)*
+*Defined in [src/scheme.ts:177](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L177)*
 
 map an apollo query result to ISchemeState
 
@@ -309,7 +288,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: ISchemeQueryOptions, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹Array‹[Scheme](scheme.md) | [CompetitionScheme](competitionscheme.md)››*
 
-*Defined in [scheme.ts:116](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L116)*
+*Defined in [src/scheme.ts:108](https://github.com/daostack/client/blob/b547acc/src/scheme.ts#L108)*
 
 Scheme.search(context, options) searches for scheme entities
 
@@ -333,7 +312,7 @@ an observable of Scheme objects
 
 *Inherited from [SchemeBase](schemebase.md).[fragments](schemebase.md#static-fragments)*
 
-*Defined in [schemes/base.ts:106](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L106)*
+*Defined in [src/schemes/base.ts:95](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L95)*
 
 ###  SchemeFields
 
@@ -347,7 +326,6 @@ an observable of Scheme objects
       canRegisterSchemes
       canUpgradeController
       canManageGlobalConstraints
-      paramsHash
       contributionRewardParams {
         id
         votingMachine
@@ -444,26 +422,7 @@ an observable of Scheme objects
       numberOfQueuedProposals
       numberOfPreBoostedProposals
       numberOfBoostedProposals
-      uGenericSchemeParams {
-        votingMachine
-        contractToCall
-        voteParams {
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-      }
       version
     }`
 
-*Defined in [schemes/base.ts:107](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L107)*
+*Defined in [src/schemes/base.ts:96](https://github.com/daostack/client/blob/b547acc/src/schemes/base.ts#L96)*

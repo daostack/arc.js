@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IProposalCreateOptionsGS](iproposalcreateoptionsgs.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IProposalCreateOptionsGS](iproposalcreateoptionsgs.md)
 
 # Interface: IProposalCreateOptionsGS
 
@@ -19,9 +19,7 @@
 
 • **callData**? : *undefined | string*
 
-*Defined in [schemes/genericScheme.ts:20](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L20)*
-
-*Defined in [schemes/uGenericScheme.ts:20](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L20)*
+*Defined in [src/schemes/genericScheme.ts:20](https://github.com/daostack/client/blob/b547acc/src/schemes/genericScheme.ts#L20)*
 
 ___
 
@@ -29,6 +27,4 @@ ___
 
 • **value**? : *undefined | number*
 
-*Defined in [schemes/genericScheme.ts:21](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L21)*
-
-*Defined in [schemes/uGenericScheme.ts:21](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L21)*
+*Defined in [src/schemes/genericScheme.ts:21](https://github.com/daostack/client/blob/b547acc/src/schemes/genericScheme.ts#L21)*
