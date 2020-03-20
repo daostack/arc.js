@@ -112,9 +112,9 @@ export class DAO implements IStateful<IDAOState> {
       query,
       (r: any) => {
         if (apolloQueryOptions.fetchAllData) {
-          const reputation = new Reputation(r.nativeReputation.id, context)
-          const token = new Token(r.nativeToken.id, context)
-          return new DAO({
+          const reputation = new Reputation(context, r.nativeReputation.id)
+          const token = new Token(context, r.nativeToken.id)
+          return new DAO(context, {
             address: r.id,
             id: r.id,
             name: r.name,
@@ -123,9 +123,9 @@ export class DAO implements IStateful<IDAOState> {
             token,
             tokenName: r.tokenName,
             tokenSymbol: r.tokenSymbol
-          }, context)
+          })
         } else {
-          return new DAO(r.id, context)
+          return new DAO(context, r.id)
         }
       },
       apolloQueryOptions
@@ -135,7 +135,7 @@ export class DAO implements IStateful<IDAOState> {
   public id: Address
   public staticState: IDAOStaticState|undefined
 
-  constructor(idOrOpts: Address|IDAOStaticState, public context: Arc) {
+  constructor(public context: Arc, idOrOpts: Address|IDAOStaticState) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts.toLowerCase()
     } else {
@@ -185,8 +185,8 @@ export class DAO implements IStateful<IDAOState> {
       if (item === null) {
         throw Error(`Could not find a DAO with id ${this.id}`)
       }
-      const reputation = new Reputation(item.nativeReputation.id, this.context)
-      const token = new Token(item.nativeToken.id, this.context)
+      const reputation = new Reputation(this.context, item.nativeReputation.id)
+      const token = new Token(this.context, item.nativeToken.id)
       this.setStaticState({
         address: item.id,
         id: item.id,
@@ -256,9 +256,9 @@ export class DAO implements IStateful<IDAOState> {
     if (this.staticState) {
       // construct member with the reputationcontract address, if this is known
       // so it can make use of the apollo cache
-      return new Member({ address, contract: this.staticState.reputation.address}, this.context)
+      return new Member(this.context, { address, contract: this.staticState.reputation.address})
     } else {
-      return new Member({ address, dao: this.id}, this.context)
+      return new Member(this.context, { address, dao: this.id})
     }
   }
 
@@ -305,7 +305,7 @@ export class DAO implements IStateful<IDAOState> {
   }
 
   public proposal(proposalId: string ): Proposal {
-    return new Proposal(proposalId, this.context)
+    return new Proposal(this.context, proposalId)
   }
 
   public rewards(

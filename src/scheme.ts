@@ -148,23 +148,23 @@ export class Scheme extends SchemeBase  {
     const itemMap = (item: any): Scheme|null => {
       if (!options.where) { options.where = {}}
       if (isCompetitionScheme(context, item)) {
-        return new Competition.CompetitionScheme({
+        return new Competition.CompetitionScheme(context, {
           address: item.address,
           dao: item.dao.id,
           id: item.id,
           name: item.name,
           paramsHash: item.paramsHash,
           version: item.version
-        }, context)
+        })
       } else {
-        const scheme = new Scheme({
+        const scheme = new Scheme(context, {
           address: item.address,
           dao: item.dao.id,
           id: item.id,
           name: item.name,
           paramsHash: item.paramsHash,
           version: item.version
-        }, context)
+        })
         return scheme
       }
     }
@@ -258,8 +258,8 @@ export class Scheme extends SchemeBase  {
   public staticState: ISchemeStaticState | null = null
   public ReputationFromToken: ReputationFromTokenScheme | null = null
 
-  constructor(idOrOpts: Address | ISchemeStaticState, public context: Arc) {
-    super(idOrOpts, context)
+  constructor(public context: Arc, idOrOpts: Address | ISchemeStaticState) {
+    super(context, idOrOpts)
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts as string
@@ -330,46 +330,46 @@ export class Scheme extends SchemeBase  {
 
       switch (state.name) {
         case 'ContributionReward':
-          createTransaction  = ContributionReward.createProposal(options, this.context)
-          map = ContributionReward.createTransactionMap(options, this.context)
+          createTransaction  = ContributionReward.createProposal(this.context, options)
+          map = ContributionReward.createTransactionMap(this.context, options)
           break
         case 'ContributionRewardExt':
           // TODO: ContributionRewardExt can also be used to create a Competition proposal
           // For now, we explicitly pass this in the options, but in reality (once 36-4 is released) we
           // should be able to sniff this: if the rewarder of the scheme is a Contribution.sol instance....
           if (options.proposalType === 'competition') {
-            const competitionScheme = new CompetitionScheme(this.id, this.context)
+            const competitionScheme = new CompetitionScheme(this.context, this.id)
             return competitionScheme.createProposal(options as Competition.IProposalCreateOptionsCompetition)
             // createTransaction = competitionScheme.createProposal(options, this.context)
             // map = Competition.createTransactionMap(options, this.context),
             // errHandler = Competition.createProposalErrorHandler
           } else {
-            createTransaction  = ContributionRewardExt.createProposal(options, this.context)
-            map = ContributionRewardExt.createTransactionMap(options, this.context)
+            createTransaction  = ContributionRewardExt.createProposal(this.context, options)
+            map = ContributionRewardExt.createTransactionMap(this.context, options)
           }
           break
 
         case 'UGenericScheme':
-            createTransaction  = UGenericScheme.createTransaction(options, this.context)
-            map = UGenericScheme.createTransactionMap(options, this.context)
+            createTransaction  = UGenericScheme.createTransaction(this.context, options)
+            map = UGenericScheme.createTransactionMap(this.context, options)
             break
 
         case 'GenericScheme':
           const versionNumber = Number(state.version.split('rc.')[1])
           if (versionNumber < 23) {
             // the pre-24 " GenericScheme" contracts have beeen renamed to UGenericScheme
-            createTransaction  = UGenericScheme.createTransaction(options, this.context)
-            map = UGenericScheme.createTransactionMap(options, this.context)
+            createTransaction  = UGenericScheme.createTransaction(this.context, options)
+            map = UGenericScheme.createTransactionMap(this.context, options)
             break
           } else {
-            createTransaction  = GenericScheme.createTransaction(options, this.context)
-            map = GenericScheme.createTransactionMap(options, this.context)
+            createTransaction  = GenericScheme.createTransaction(this.context, options)
+            map = GenericScheme.createTransactionMap(this.context, options)
             break
           }
 
         case 'SchemeRegistrar':
-          createTransaction  = SchemeRegistrar.createTransaction(options, this.context)
-          map = SchemeRegistrar.createTransactionMap(options, this.context)
+          createTransaction  = SchemeRegistrar.createTransaction(this.context, options)
+          map = SchemeRegistrar.createTransactionMap(this.context, options)
           break
 
         default:

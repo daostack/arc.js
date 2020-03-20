@@ -81,8 +81,8 @@ describe('Vote on a ContributionReward', () => {
   it('throws a meaningful error if the proposal does not exist', async () => {
     // a non-existing proposal
     const proposal = new Proposal(
+      arc,
       '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
-      arc
     )
 
     proposal.context.defaultAccount = arc.accounts[2]

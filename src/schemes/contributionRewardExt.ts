@@ -43,7 +43,7 @@ export enum IProposalType {
  * @param options
  * @param context
  */
-export function createProposal(options: any, context: Arc) {
+export function createProposal(context: Arc, options: any) {
   const contract = context.getContract(options.scheme)
   if (!options.proposer) {
     options.proposer = NULL_ADDRESS
@@ -66,11 +66,11 @@ export function createProposal(options: any, context: Arc) {
   }
 }
 
-export function createTransactionMap(options: any, context: Arc) {
+export function createTransactionMap(context: Arc, options: any) {
   const eventName = 'NewContributionProposal'
   const map = (receipt: any) => {
     const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
-    return new Proposal(proposalId, context)
+    return new Proposal(context, proposalId)
   }
   return map
 }

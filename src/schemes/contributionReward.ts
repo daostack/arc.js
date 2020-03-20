@@ -38,7 +38,7 @@ export enum IProposalType {
   ContributionReward = 'ContributionReward' // propose a contributionReward
 }
 
-export function createProposal(options: any, context: Arc) {
+export function createProposal(context: Arc, options: any) {
   const contributionReward = context.getContract(options.scheme)
 
   return async () => {
@@ -62,13 +62,13 @@ export function createProposal(options: any, context: Arc) {
 }
 
 // @ts-ignore
-export function createTransactionMap(options: any, context: Arc) {
+export function createTransactionMap(context: Arc, options: any) {
   const eventName = 'NewContributionProposal'
   const map = (receipt: any) => {
     const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
-    return new Proposal(proposalId,
+    return new Proposal(context, proposalId
       // options.dao as string, options.scheme, votingMachineAddress,
-      context)
+      )
   }
   return map
 }

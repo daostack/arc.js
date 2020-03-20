@@ -23,9 +23,9 @@ describe('Queue', () => {
 
   it('Queue is instantiable', () => {
     const queue = new Queue(
+      arc,
       '0x1234id',
-      new DAO('0x124daoAddress', arc),
-      arc
+      new DAO(arc, '0x124daoAddress'),
     )
     expect(queue).toBeInstanceOf(Queue)
   })
@@ -54,7 +54,7 @@ describe('Queue', () => {
     const { queuedProposalId } = addresses.test
     const proposal = await dao.proposal(queuedProposalId)
     const proposalState = await proposal.state().pipe(first()).toPromise()
-    const queue = new Queue(proposalState.queue.id, proposalState.queue.dao, arc)
+    const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.dao)
     const queueState = await queue.state().pipe(first()).toPromise()
     expect(proposalState.queue).toEqual(queueState)
   })

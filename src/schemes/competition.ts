@@ -199,7 +199,7 @@ export class CompetitionScheme extends SchemeBase {
       if (!schemeState) {
         throw Error(`No scheme was found with this id: ${this.id}`)
       }
-      const contract = getCompetitionContract(schemeState, this.context)
+      const contract = getCompetitionContract(this.context, schemeState)
 
       // check sanity -- is the competition contract actually c
       const contributionRewardExtAddress = await contract.contributionRewardExt()
@@ -254,7 +254,7 @@ export class CompetitionScheme extends SchemeBase {
     const eventName = 'NewCompetitionProposal'
     const txMap = (receipt: any) => {
       const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
-      return new Proposal(proposalId, this.context)
+      return new Proposal( this.context, proposalId)
     }
     return txMap
   }
@@ -290,7 +290,7 @@ export class CompetitionScheme extends SchemeBase {
 
   public async getCompetitionContract() {
     const schemeState = await this.state().pipe(first()).toPromise()
-    const contract = getCompetitionContract(schemeState, this.context)
+    const contract = getCompetitionContract(this.context, schemeState)
     return contract
   }
 
@@ -330,17 +330,17 @@ export class CompetitionScheme extends SchemeBase {
           scheme: this.id,
           suggestionId
         })
-        return new CompetitionVote({
+        return new CompetitionVote(this.context, {
           proposal,
           reputation,
           suggestion,
           voter
-        }, this.context)
+        })
       }
     }
     const errorHandler = async (err: Error) => {
       const schemeState = await this.state().pipe(first()).toPromise()
-      const contract = getCompetitionContract(schemeState, this.context)
+      const contract = getCompetitionContract(this.context, schemeState)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
@@ -349,7 +349,7 @@ export class CompetitionScheme extends SchemeBase {
 
       // check if the sender has reputation in the DAO
       const state = await this.state().pipe(first()).toPromise()
-      const dao = new DAO(state.dao, this.context)
+      const dao = new DAO(this.context, state.dao)
       const reputation = await dao.nativeReputation().pipe(first()).toPromise()
       const sender = await this.context.getAccount().pipe(first()).toPromise()
       const reputationOfUser = await reputation.reputationOf(sender).pipe(first()).toPromise()
@@ -370,7 +370,7 @@ export class CompetitionScheme extends SchemeBase {
   }): Operation<boolean> {
     const createTransaction = async () => {
       const schemeState = await this.state().pipe(first()).toPromise()
-      const contract = getCompetitionContract(schemeState, this.context)
+      const contract = getCompetitionContract(this.context, schemeState)
       const transaction = contract.redeem(options.suggestionId)
       return transaction
     }
@@ -384,7 +384,7 @@ export class CompetitionScheme extends SchemeBase {
     }
     const errorHandler = async (err: Error) => {
       const schemeState = await this.state().pipe(first()).toPromise()
-      const contract = getCompetitionContract(schemeState, this.context)
+      const contract = getCompetitionContract(this.context, schemeState)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
@@ -439,13 +439,13 @@ export class Competition { // extends Proposal {
   }): Operation<any> {
     let schemeState: ISchemeState
     const createTransaction = async () => {
-      const proposalState = await (new Proposal(this.id, this.context)).state().pipe(first()).toPromise()
+      const proposalState = await (new Proposal(this.context,this.id)).state().pipe(first()).toPromise()
       if (!options.beneficiary) {
         options.beneficiary = await this.context.getAccount().pipe(first()).toPromise()
       }
-      schemeState = await (new CompetitionScheme(proposalState.scheme.id, this.context))
+      schemeState = await (new CompetitionScheme(this.context, proposalState.scheme.id))
         .state().pipe(first()).toPromise()
-      const contract = getCompetitionContract(schemeState, this.context)
+      const contract = getCompetitionContract(this.context, schemeState)
       const descriptionHash = await this.context.saveIPFSData(options)
       const transaction = contract.suggest(this.id, descriptionHash, options.beneficiary)
       return transaction
@@ -458,12 +458,12 @@ export class Competition { // extends Proposal {
       } else {
         const eventName = 'NewSuggestion'
         const suggestionId = receipt.events.find((event: any) => event.event === eventName).args._suggestionId
-        return new CompetitionSuggestion({ scheme: (schemeState as ISchemeState).id, suggestionId }, this.context)
+        return new CompetitionSuggestion(this.context, { scheme: (schemeState as ISchemeState).id, suggestionId })
       }
     }
     const errorHandler = async (err: Error, transaction: any, opts?: any) => {
       // we got an error
-      const contract = getCompetitionContract(schemeState, this.context)
+      const contract = getCompetitionContract(this.context, schemeState)
 
       //TODO: .call(opts)?
 
@@ -480,25 +480,25 @@ export class Competition { // extends Proposal {
   }
 
   public voteSuggestion(suggestionId: number): Operation<CompetitionVote> {
-    const proposal = new Proposal(this.id, this.context)
+    const proposal = new Proposal(this.context, this.id)
     const observable = proposal.state().pipe(
       first(),
       concatMap((competitionState: IProposalState) => {
         if (competitionState === null) {
           throw Error(`Cannot vote on this suggestion, because the competition with id ${this.id} could not be foound`)
         }
-        const scheme = new CompetitionScheme(competitionState.scheme, this.context)
+        const scheme = new CompetitionScheme(this.context, competitionState.scheme)
         return scheme.voteSuggestion({ suggestionId })
       })
     )
     return toIOperationObservable(observable)
   }
   public redeemSuggestion(suggestionId: number): Operation<boolean> {
-    const proposal = new Proposal(this.id, this.context)
+    const proposal = new Proposal(this.context, this.id)
     const observable = proposal.state().pipe(
       first(),
       concatMap((competitionState: IProposalState) => {
-        const scheme = new CompetitionScheme(competitionState.scheme, this.context)
+        const scheme = new CompetitionScheme(this.context, competitionState.scheme)
         return scheme.redeemSuggestion({ suggestionId })
       })
     )
@@ -579,7 +579,7 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
 
     let query
     const itemMap = (item: any) => {
-      return new CompetitionSuggestion(this.mapItemToObject(item, context) as ICompetitionSuggestionState, context)
+      return new CompetitionSuggestion(context, this.mapItemToObject(item, context) as ICompetitionSuggestionState)
     }
 
     // if we are looing for the suggestions of a particular proposal, we prime the cache..
@@ -661,8 +661,8 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
   public staticState?: ICompetitionSuggestionState
 
   constructor(
-    idOrOpts: string | { suggestionId: number, scheme: string } | ICompetitionSuggestionState,
-    public context: Arc
+    public context: Arc,
+    idOrOpts: string | { suggestionId: number, scheme: string } | ICompetitionSuggestionState
   ) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
@@ -777,7 +777,7 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
     if (!options.where) { options.where = {} }
 
     const itemMap = (item: any) => {
-      return new CompetitionVote(CompetitionVote.itemMap(item), context)
+      return new CompetitionVote(context, CompetitionVote.itemMap(item))
     }
     let query
     if (options.where.suggestion && !options.where.id) {
@@ -836,7 +836,7 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
   public id?: string
   public staticState?: ICompetitionVoteState
 
-  constructor(idOrOpts: string | ICompetitionVoteState, public context: Arc) {
+  constructor(public context: Arc, idOrOpts: string | ICompetitionVoteState) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
@@ -870,7 +870,7 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
  * @param schemeState
  * @returns A Web3 contract instance
  */
-export function getCompetitionContract(schemeState: ISchemeState, arc: Arc) {
+export function getCompetitionContract(arc: Arc, schemeState: ISchemeState) {
   if (schemeState === null) {
     throw Error(`No scheme was provided`)
   }
@@ -902,10 +902,10 @@ export function isCompetitionScheme(arc: Arc, item: any) {
 /**
  * @returns true if this is a ContributionRewardExt scheme and the rewarder of this scheme is a competition contract
  */
-export function hasCompetitionContract(schemeState: ISchemeState, arc: Arc) {
+export function hasCompetitionContract(arc: Arc, schemeState: ISchemeState) {
   let contract
   try {
-    contract = getCompetitionContract(schemeState, arc)
+    contract = getCompetitionContract(arc, schemeState)
   } catch (err) {
     // pass
   }

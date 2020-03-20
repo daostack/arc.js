@@ -62,10 +62,10 @@ export class Tag implements IStateful<ITagState> {
 
     let query
     const itemMap = (r: any) => {
-      return new Tag({
+      return new Tag(context, {
         id: r.id,
         numberOfProposals: Number(r.numberOfProposals)
-      }, context)
+      })
     }
 
     if (proposalId) {
@@ -113,8 +113,8 @@ export class Tag implements IStateful<ITagState> {
   public staticState: ITagStaticState|undefined
 
   constructor(
-      idOrOpts: string|ITagStaticState,
-      public context: Arc
+      public context: Arc,
+      idOrOpts: string|ITagStaticState
   ) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
@@ -145,7 +145,7 @@ export class Tag implements IStateful<ITagState> {
       return {
         id: item.id,
         numberOfProposals: Number(item.numberOfProposals),
-        proposals: item.proposals.map((id: string) => new Proposal(id, this.context))
+        proposals: item.proposals.map((id: string) => new Proposal(this.context, id))
       }
     }
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)

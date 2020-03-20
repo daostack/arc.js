@@ -59,13 +59,13 @@ export class Reputation implements IStateful<IReputationState> {
 
     return context.getObservableList(
       query,
-      (r: any) => new Reputation(r.id, context),
+      (r: any) => new Reputation(context, r.id),
       apolloQueryOptions
     )
   }
 
   public address: Address
-  constructor(public id: Address, public context: Arc) {
+  constructor(public context: Arc, public id: Address) {
     isAddress(id)
     this.address = id
   }

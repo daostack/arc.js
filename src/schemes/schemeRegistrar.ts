@@ -25,7 +25,7 @@ export enum IProposalType {
   SchemeRegistrarRemove = 'SchemeRegistrarRemove' // propose to remove a registered scheme
 }
 
-export function createTransaction(options: any, context: Arc): () => any {
+export function createTransaction(context: Arc, options: any): () => any {
   let msg: string
   switch (options.type) {
     case IProposalType.SchemeRegistrarAdd:
@@ -74,7 +74,7 @@ export function createTransaction(options: any, context: Arc): () => any {
   throw Error('For a schemeregistrar proposal, you must specifcy proposal.type')
 }
 
-export function createTransactionMap(options: any, context: Arc) {
+export function createTransactionMap(context: Arc, options: any) {
   let eventName: string
   switch (options.type) {
     case IProposalType.SchemeRegistrarAdd:
@@ -86,9 +86,9 @@ export function createTransactionMap(options: any, context: Arc) {
   }
   const map = (receipt: any) => {
     const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
-    return new Proposal(proposalId,
+    return new Proposal(context, proposalId
       // options.dao as string, options.scheme, votingMachineAddress,
-      context)
+      )
   }
   return map
 }

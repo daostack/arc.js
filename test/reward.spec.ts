@@ -23,7 +23,7 @@ describe('Reward', () => {
 
   it('Reward is instantiable', () => {
     const id = 'some-id'
-    const reward = new Reward(id, arc)
+    const reward = new Reward(arc, id)
     expect(reward).toBeInstanceOf(Reward)
   })
 
@@ -86,11 +86,11 @@ describe('Reward', () => {
     const reward = rewards[0]
     // staticState should be set on search
     expect(reward.staticState).toBeTruthy()
-    const rewardFromId = new Reward(reward.id, arc)
+    const rewardFromId = new Reward(arc, reward.id)
     expect(rewardFromId.staticState).not.toBeTruthy()
     await rewardFromId.fetchStaticState()
     expect(rewardFromId.staticState).toBeTruthy()
-    const  rewardFromStaticState = new Reward(reward.staticState as IRewardStaticState, arc)
+    const  rewardFromStaticState = new Reward(arc, reward.staticState as IRewardStaticState)
     expect(rewardFromStaticState.staticState).toBeTruthy()
   })
 })

@@ -25,7 +25,7 @@ export enum IProposalType {
   GenericScheme = 'GenericScheme' // propose a contributionReward
 }
 
-export function createTransaction(options: any, context: Arc) {
+export function createTransaction(context: Arc, options: any) {
   if (!options.callData) {
     throw new Error(`Missing argument "callData" for GenericScheme in Proposal.create()`)
   }
@@ -51,11 +51,11 @@ export function createTransaction(options: any, context: Arc) {
  * @param  context an Arc instance
  * @return         [description]
  */
-export function createTransactionMap(options: any, context: Arc) {
+export function createTransactionMap(context: Arc, options: any) {
   const eventName = 'NewCallProposal'
   const map = async (receipt: any) => {
     const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
-    return new Proposal(proposalId, context)
+    return new Proposal(context, proposalId)
   }
   return map
 }

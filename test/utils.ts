@@ -189,7 +189,7 @@ export async function createAProposal(
 export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
   const addresses = getTestAddresses(arc, version)
-  const token = new Reputation(addresses.test.organs.DemoReputation, arc)
+  const token = new Reputation(arc, addresses.test.organs.DemoReputation)
   const accounts = arc.accounts
   await token.mint(accounts[1], new BN('99')).send()
 }

@@ -23,7 +23,7 @@ describe('Event', () => {
 
   it('Event is instantiable', () => {
     const id = 'some-id'
-    const event = new Event(id, arc)
+    const event = new Event(arc, id)
     expect(event).toBeInstanceOf(Event)
   })
 
@@ -97,11 +97,11 @@ describe('Event', () => {
     const state = await event.state().pipe(first()).toPromise()
     expect(state).toEqual(event.staticState)
 
-    const eventFromId = new Event(event.id, arc)
+    const eventFromId = new Event(arc, event.id)
     expect(eventFromId.staticState).not.toBeTruthy()
     await eventFromId.fetchStaticState()
     expect(eventFromId.staticState).toBeTruthy()
-    const  eventFromStaticState = new Event(event.staticState as IEventState, arc)
+    const  eventFromStaticState = new Event(arc, event.staticState as IEventState)
     expect(eventFromStaticState.staticState).toBeTruthy()
   })
 

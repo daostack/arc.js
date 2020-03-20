@@ -59,7 +59,7 @@ export class Event implements IStateful<IEventState> {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Event[]> {
 
-    const itemMap = (item: any) => new Event({
+    const itemMap = (item: any) => new Event(context, {
       dao: item.dao.id,
       data: JSON.parse(item.data),
       id: item.id,
@@ -67,7 +67,7 @@ export class Event implements IStateful<IEventState> {
       timestamp: item.timestamp,
       type: item.type,
       user: item.user
-    }, context)
+    })
 
     let query
     query = gql`query EventSearch
@@ -89,7 +89,7 @@ export class Event implements IStateful<IEventState> {
   public id: string
   public staticState: IEventStaticState | undefined
 
-constructor(public idOrOpts: string | IEventStaticState, public context: Arc) {
+constructor(public context: Arc, public idOrOpts: string | IEventStaticState) {
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts

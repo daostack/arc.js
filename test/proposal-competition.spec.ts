@@ -84,7 +84,7 @@ describe('Competition Proposal', () => {
     contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
 
     contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
-    dao = new DAO(contributionRewardExtState.dao, arc)
+    dao = new DAO(arc, contributionRewardExtState.dao)
     address0 = arc.accounts[0].toLowerCase()
     address1 = arc.accounts[1].toLowerCase()
   })
@@ -96,7 +96,7 @@ describe('Competition Proposal', () => {
       rewardSplit?: number[],
       proposerIsAdmin?: boolean
     }  = {}) {
-    const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
+    const scheme = new  CompetitionScheme(arc, contributionRewardExt.id)
     // make sure that the DAO has enough Ether to pay forthe reward
 
     if(!arc.web3) throw new Error('Web3 provider not set')
@@ -192,7 +192,7 @@ describe('Competition Proposal', () => {
   })
 
   it('create a competition proposal with starttime set to null', async () => {
-    const scheme = new CompetitionScheme(contributionRewardExt.id, arc)
+    const scheme = new CompetitionScheme(arc,contributionRewardExt.id)
     // TODO: test error handling for all these params
     // - all args are present
     // - order of times
@@ -236,7 +236,7 @@ describe('Competition Proposal', () => {
   it('Create a competition proposal, compete, win the competition..', async () => {
     // const scheme = new CompetitionScheme(contributionRewardExtState.id, arc)
     expect(contributionRewardExt).toBeInstanceOf(CompetitionScheme)
-    const scheme = new CompetitionScheme(contributionRewardExt.id, arc)
+    const scheme = new CompetitionScheme(arc, contributionRewardExt.id)
 
     if(!arc.web3) throw new Error("Web3 provider not set")
 
@@ -439,7 +439,7 @@ describe('Competition Proposal', () => {
   it(`Rewards left are updated correctdly`, async () => {
     // before any votes are cast, all suggesitons are winnners
     const competition = await createCompetition()
-    const proposal = new Proposal(competition.id, arc)
+    const proposal = new Proposal(arc, competition.id)
     let competitionState: any
 
     await proposal.state().subscribe(

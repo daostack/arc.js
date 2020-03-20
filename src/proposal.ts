@@ -305,7 +305,7 @@ export class Proposal implements IStateful<IProposalState> {
       `
       return context.getObservableList(
         query,
-        (r: any) => new Proposal(r, context),
+        (r: any) => new Proposal(context, r),
         apolloQueryOptions
       ) as IObservable<Proposal[]>
     } else {
@@ -326,7 +326,7 @@ export class Proposal implements IStateful<IProposalState> {
       `
       return context.getObservableList(
         query,
-        (r: any) => new Proposal(r.id, context),
+        (r: any) => new Proposal(context, r.id),
         apolloQueryOptions
       ) as IObservable<Proposal[]>
     }
@@ -336,8 +336,8 @@ export class Proposal implements IStateful<IProposalState> {
   public id: string
   public staticState: IProposalStaticState | undefined
   constructor(
-    idOrOpts: string | IProposalStaticState,
-    context: Arc
+    context: Arc,
+    idOrOpts: string | IProposalStaticState
   ) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
@@ -554,7 +554,7 @@ export class Proposal implements IStateful<IProposalState> {
         confidenceThreshold: Number(item.confidenceThreshold),
         contributionReward,
         createdAt: Number(item.createdAt),
-        dao: new DAO(item.dao.id, this.context),
+        dao: new DAO(this.context, item.dao.id),
         description: item.description,
         descriptionHash: item.descriptionHash,
         downStakeNeededToQueue,
@@ -654,14 +654,14 @@ export class Proposal implements IStateful<IProposalState> {
         return null
       }
 
-      return new Vote({
+      return new Vote(this.context, {
         amount: foundEventValues.args._reputation, // amount
         // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
         createdAt: 0, // createdAt -
         outcome,
         proposal: this.id, // proposalID
         voter: foundEventValues.args._voter
-      }, this.context)
+      })
     }
 
     const observable = from(this.votingMachine()).pipe(
@@ -725,14 +725,14 @@ export class Proposal implements IStateful<IProposalState> {
             // for some reason, a transaction was mined but no error was raised before
             throw new Error(`Error staking: no "Stake" event was found - ${Object.keys(receipt.events)}`)
           }
-          return new Stake({
+          return new Stake(this.context, {
             amount: foundEventValues.args._reputation, // amount
             // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
             createdAt: undefined,
             outcome,
             proposal: this.id, // proposalID
             staker: foundEventValues.args._staker
-          }, this.context)
+          })
         }
 
         const errorHandler = async (error: Error) => {

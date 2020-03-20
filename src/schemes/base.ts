@@ -238,7 +238,7 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
   public staticState: ISchemeStaticState | null = null
   public ReputationFromToken: ReputationFromTokenScheme | null = null
 
-  constructor(idOrOpts: Address | ISchemeStaticState, public context: Arc) {
+  constructor(public context: Arc, idOrOpts: Address | ISchemeStaticState) {
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts as string

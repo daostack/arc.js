@@ -26,7 +26,7 @@ describe('DAO', () => {
 
   it('is instantiable', () => {
     const address = '0x12345'
-    const dao = new DAO(address, arc)
+    const dao = new DAO(arc, address)
     expect(dao).toBeInstanceOf(DAO)
   })
 
@@ -93,7 +93,7 @@ describe('DAO', () => {
 
   it('throws a reasonable error if the contract does not exist', async () => {
     expect.assertions(1)
-    const dao = new DAO('0xfake', arc)
+    const dao = new DAO(arc, '0xfake')
     await expect(dao.state().toPromise()).rejects.toThrow(
       'Could not find a DAO with id 0xfake'
     )

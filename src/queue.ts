@@ -80,9 +80,9 @@ export class Queue implements IStateful<IQueueState> {
       // we must filter explictly by name as the subgraph does not return the name
 
       return new Queue(
+        context,
         item.id,
-        new DAO(item.dao.id, context),
-        context
+        new DAO(context, item.dao.id),
       )
     }
 
@@ -90,9 +90,9 @@ export class Queue implements IStateful<IQueueState> {
   }
 
   constructor(
+    public context: Arc,
     public id: string,
     public dao: DAO,
-    public context: Arc
   ) {
     this.context = context
   }
