@@ -18,16 +18,14 @@ jest.setTimeout(20000)
 
 describe('Create a ContributionReward proposal', () => {
   let arc: Arc
-  let web3: any
-  let accounts: any
+  let accounts: string[]
   let testAddresses: ITestAddresses
   let dao: DAO
 
   beforeAll(async () => {
     arc = await newArc()
-    web3 = arc.web3
-    accounts = web3.eth.accounts.wallet
-    web3.eth.defaultAccount = accounts[0].address
+    accounts = arc.accounts
+    arc.defaultAccount = accounts[0]
     testAddresses = getTestAddresses(arc)
     dao = await getTestDAO()
   })
@@ -60,16 +58,19 @@ describe('Create a ContributionReward proposal', () => {
     const proposalState = await proposal.state().pipe(first()).toPromise()
 
     const contributionReward = proposalState.contributionReward as IContributionReward
-    expect(fromWei(contributionReward.externalTokenReward)).toEqual('0')
-    expect(fromWei(contributionReward.ethReward)).toEqual('300')
-    expect(fromWei(contributionReward.nativeTokenReward)).toEqual('1')
-    expect(fromWei(contributionReward.reputationReward)).toEqual('10')
-    expect(fromWei(proposalState.stakesAgainst)).toEqual('100')
-    expect(fromWei(proposalState.stakesFor)).toEqual('0')
+    expect(fromWei(contributionReward.externalTokenReward)).toEqual('0.0')
+    expect(fromWei(contributionReward.ethReward)).toEqual('300.0')
+    expect(fromWei(contributionReward.nativeTokenReward)).toEqual('1.0')
+    expect(fromWei(contributionReward.reputationReward)).toEqual('10.0')
+    expect(fromWei(proposalState.stakesAgainst)).toEqual('100.0')
+    expect(fromWei(proposalState.stakesFor)).toEqual('0.0')
+
+    if(!dao.context.web3) throw new Error('Web3 provider not set')
+    const defaultAccount = dao.context.defaultAccount? dao.context.defaultAccount: await dao.context.web3.getSigner().getAddress()
 
     expect(proposalState).toMatchObject({
       executedAt: 0,
-      proposer: dao.context.web3.eth.defaultAccount.toLowerCase(),
+      proposer: defaultAccount.toLowerCase(),
       quietEndingPeriodBeganAt: 0,
       resolvedAt: 0,
       stage: IProposalStage.Queued

@@ -25,7 +25,9 @@ describe('Member', () => {
     arc = await newArc()
     dao = await getTestDAO()
     daoState = await dao.state().pipe(first()).toPromise()
-    defaultAccount = arc.web3.eth.defaultAccount
+
+    if(!arc.web3) throw new Error("Web3 provider not set")
+    defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
   })
 
   it('Member is instantiable', () => {
@@ -89,16 +91,17 @@ describe('Member', () => {
   })
 
   it('Member stakes() works', async () => {
-      const stakerAccount = arc.web3.eth.accounts.wallet[1].address
+      const stakerAccount = arc.accounts[1]
       const member = new Member({ address: stakerAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
       const proposal = await createAProposal()
       const stakingToken =  await proposal.stakingToken()
       // mint tokens with defaultAccount
       await stakingToken.mint(stakerAccount, toWei('10000')).send()
       // switch the defaultAccount to a fresh one
-      stakingToken.context.web3.eth.defaultAccount = stakerAccount
+
+      stakingToken.context.defaultAccount = stakerAccount
       const votingMachine = await proposal.votingMachine()
-      await stakingToken.approveForStaking(votingMachine.options.address, toWei('1000')).send()
+      await stakingToken.approveForStaking(votingMachine.address, toWei('1000')).send()
 
       await proposal.stake(IProposalOutcome.Pass, toWei('99')).send()
       let stakes: Stake[] = []
@@ -113,7 +116,7 @@ describe('Member', () => {
       expect(stakeState.staker).toEqual(stakerAccount.toLowerCase())
       expect(fromWei(stakeState.amount)).toEqual('99')
       // clean up after test
-      arc.web3.eth.defaultAccount = defaultAccount
+      arc.defaultAccount = defaultAccount
     })
 
   it('Member votes() works', async () => {

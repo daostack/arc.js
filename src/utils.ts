@@ -2,15 +2,28 @@ import { Observable as ZenObservable } from 'apollo-link'
 import * as WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
 import { Address, ICommonQueryOptions } from './types'
-const Web3 = require('web3')
 import BN = require('bn.js')
+import { utils, providers } from 'ethers'
+
+const checkAddress = (address: string) => {
+  try {
+    const result = utils.getAddress(address)
+    if(!result) throw new Error("Invalid address")
+
+    return true
+  } catch (error) {
+    return false
+  }
+}
 
 export function fromWei(amount: BN): string {
-  return Web3.utils.fromWei(amount, 'ether')
+  const etherAmount = utils.formatEther(amount.toString())
+  return etherAmount.toString()
 }
 
 export function toWei(amount: string | number): BN {
-  return Web3.utils.toWei(amount.toString(), 'ether')
+  const weiAmount = utils.parseEther(amount.toString())
+  return new BN(weiAmount.toString())
 }
 
 export function checkWebsocket(options: { url: string }) {
@@ -59,7 +72,7 @@ export function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
 type EthereumEvent = any
 
 export function eventId(event: EthereumEvent): string {
-  const hash = Web3.utils.keccak256(concat(event.transactionHash, event.logIndex as Uint8Array))
+  const hash = utils.keccak256(concat(event.transactionHash, event.logIndex as Uint8Array))
   return hash
 }
 
@@ -67,7 +80,7 @@ export function isAddress(address: Address) {
   if (!address) {
     throw new Error(`Not a valid address: ${address}`)
   }
-  if (!Web3.utils.isAddress(address)) {
+  if (!checkAddress(address)) {
     throw new Error(`Not a valid address: ${address}`)
   }
 }
@@ -189,7 +202,11 @@ export function secondSinceEpochToDate(seconds: number): Date {
  * @returns
  */
 export async function getBlockTime(web3: any) {
-  const block = await web3.eth.getBlock('latest')
+
+  //TODO: not instantiating web3 JSONRpcProvider here
+
+  web3 = new providers.JsonRpcProvider("http://localhost:8545")
+  const block = await web3.getBlock('latest')
   const blockTime = new Date(block.timestamp * 1000)
   const now = new Date()
   now.setMilliseconds(0)

@@ -50,7 +50,7 @@ export function createProposal(options: any, context: Arc) {
   }
   return async () => {
     options.descriptionHash = await context.saveIPFSData(options)
-    const transaction = contract.methods.proposeContributionReward(
+    const transaction = contract.proposeContributionReward(
         options.descriptionHash || '',
         options.reputationReward && options.reputationReward.toString() || 0,
         [
@@ -69,7 +69,7 @@ export function createProposal(options: any, context: Arc) {
 export function createTransactionMap(options: any, context: Arc) {
   const eventName = 'NewContributionProposal'
   const map = (receipt: any) => {
-    const proposalId = receipt.events[eventName].returnValues._proposalId
+    const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
     return new Proposal(proposalId, context)
   }
   return map

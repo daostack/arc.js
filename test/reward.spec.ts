@@ -4,6 +4,7 @@ import { DAO } from '../src/dao'
 import { Proposal } from '../src/proposal'
 import { IRewardStaticState, Reward } from '../src/reward'
 import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei } from './utils'
+import { getAddress } from 'ethers/utils'
 
 /**
  * Reward test
@@ -53,7 +54,7 @@ describe('Reward', () => {
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(0)
 
-    result = await Reward.search(arc, { where: {beneficiary: arc.web3.utils.toChecksumAddress(beneficiary)}})
+    result = await Reward.search(arc, { where: {beneficiary: getAddress(beneficiary)}})
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(0)
 

@@ -9,6 +9,7 @@ import { Scheme } from '../src/scheme'
 import { ISchemeRegistrar } from '../src/schemes/schemeRegistrar'
 import { createAProposal, firstResult, getTestAddresses, getTestDAO,
   newArc, voteToPassProposal, waitUntilTrue } from './utils'
+import { Wallet } from 'ethers'
 
 jest.setTimeout(60000)
 
@@ -24,7 +25,7 @@ describe('Proposal', () => {
 
   it('Check proposal state is correct', async () => {
     const dao = await getTestDAO()
-    const schemeToRegister = arc.web3.eth.accounts.create().address.toLowerCase()
+    const schemeToRegister = Wallet.createRandom().address.toLowerCase()
     const proposalToAddStates: IProposalState[] = []
     const lastProposalToAddState = (): IProposalState => proposalToAddStates[proposalToAddStates.length - 1]
 

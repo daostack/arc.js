@@ -14,6 +14,7 @@ import { concat, createGraphQlQuery, hexStringToUint8Array,
   // stringToUint8Array
  } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
+import { utils } from 'ethers'
 
 export interface IMemberStaticState {
   id?: string,
@@ -138,7 +139,7 @@ export class Member implements IStateful<IMemberState> {
       hexStringToUint8Array(opts.contract.toLowerCase()),
       hexStringToUint8Array(opts.address.toLowerCase())
     )
-    return this.context.web3.utils.keccak256(seed)
+    return utils.keccak256(seed)
   }
   public setStaticState(opts: IMemberStaticState) {
     isAddress(opts.address)

@@ -26,6 +26,7 @@ import {
   voteToPassProposal,
   waitUntilTrue
 } from './utils'
+import { BigNumber } from 'ethers/utils'
 
 jest.setTimeout(10000)
 
@@ -84,8 +85,8 @@ describe('Competition Proposal', () => {
 
     contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
     dao = new DAO(contributionRewardExtState.dao, arc)
-    address0 = arc.web3.eth.accounts.wallet[0].address.toLowerCase()
-    address1 = arc.web3.eth.accounts.wallet[1].address.toLowerCase()
+    address0 = arc.accounts[0].toLowerCase()
+    address1 = arc.accounts[1].toLowerCase()
   })
 
   afterEach(async () => {
@@ -97,11 +98,14 @@ describe('Competition Proposal', () => {
     }  = {}) {
     const scheme = new  CompetitionScheme(contributionRewardExt.id, arc)
     // make sure that the DAO has enough Ether to pay forthe reward
-    await arc.web3.eth.sendTransaction({
-      gas: 4000000,
+
+    if(!arc.web3) throw new Error('Web3 provider not set')
+
+    await arc.web3.getSigner().sendTransaction({
+      gasLimit: 4000000,
       gasPrice: 100000000000,
       to: dao.id,
-      value: ethReward
+      value: new BigNumber(ethReward.toString()).toHexString()
     })
     const externalTokenReward = new BN(0)
     const nativeTokenReward = new BN(0)
@@ -234,12 +238,17 @@ describe('Competition Proposal', () => {
     expect(contributionRewardExt).toBeInstanceOf(CompetitionScheme)
     const scheme = new CompetitionScheme(contributionRewardExt.id, arc)
 
+    if(!arc.web3) throw new Error("Web3 provider not set")
+
     // make sure that the DAO has enough Ether to pay forthe reward
-    await arc.web3.eth.sendTransaction({
-      gas: 4000000,
+
+    if(!arc.web3) throw new Error('Web3 provider not set')
+
+    await arc.web3.getSigner().sendTransaction({
+      gasLimit: 4000000,
       gasPrice: 100000000000,
       to: dao.id,
-      value: ethReward
+      value: new BigNumber(ethReward.toString()).toHexString()
     })
     const externalTokenReward = new BN(0)
     const nativeTokenReward = new BN(0)
@@ -413,10 +422,16 @@ describe('Competition Proposal', () => {
     )
     await advanceTimeAndBlock(2000)
 
+    if(!arc.web3) throw new Error('Web3 provider not set')
+
     // get the current balance of addres1 (who we will send the rewards to)
-    const balanceBefore = new BN(await arc.web3.eth.getBalance(address1))
+
+    const beforeBalanceBigNum = await arc.web3.getBalance(address1)
+    const balanceBefore = new BN(beforeBalanceBigNum.toString())
     await suggestion1.redeem().send()
-    const balanceAfter = new BN(await arc.web3.eth.getBalance(address1))
+
+    const afterBalanceBigNum = await arc.web3.getBalance(address1)
+    const balanceAfter = new BN(afterBalanceBigNum.toString())
     const balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).not.toEqual('0')
   })
@@ -513,25 +528,35 @@ describe('Competition Proposal', () => {
 
     await advanceTimeAndBlock(2000)
 
+    if(!arc.web3) throw new Error('Web3 provider not set')
+
     const crextContractAddress = contributionRewardExtState.address
-    const crExtBalanceBefore = await arc.web3.eth.getBalance(crextContractAddress)
+    const crExtBalanceBefore = await arc.web3.getBalance(crextContractAddress)
     const beneficiary = address1
 
-    let balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
+    const beforeBalanceBigNum = await arc.web3.getBalance(beneficiary)
+    let balanceBefore = new BN(beforeBalanceBigNum.toString())
     await suggestion1.redeem().send()
-    let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
+
+    const afterBalanceBigNum = await arc.web3.getBalance(beneficiary)
+    let balanceAfter = new BN(afterBalanceBigNum.toString())
     let balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual('150')
-    const crExtBalanceAfter = await arc.web3.eth.getBalance(crextContractAddress)
-    const crExtBalanceDelta = new BN(crExtBalanceBefore).sub(new BN(crExtBalanceAfter))
+
+
+    const crExtBalanceAfter = await arc.web3.getBalance(crextContractAddress)
+    const crExtBalanceDelta = new BN(crExtBalanceBefore.toString()).sub(new BN(crExtBalanceAfter.toString()))
     expect(crExtBalanceDelta.toString()).toEqual('150')
 
     // the reward _is_ redeemed
     await expect(suggestion1.redeem().send()).rejects.toThrow('suggestion was already redeemed')
 
-    balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
+    const beforeBalanceBigNum2 = await arc.web3.getBalance(beneficiary)
+    balanceBefore = new BN(beforeBalanceBigNum2.toString())
     await suggestion2.redeem(beneficiary).send()
-    balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
+
+    const afterBalanceBigNum2 = await arc.web3.getBalance(beneficiary)
+    balanceAfter = new BN(afterBalanceBigNum2.toString())
     balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual('150')
 
@@ -569,15 +594,23 @@ describe('Competition Proposal', () => {
 
     const beneficiary = address1
 
-    let balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
+    if(!arc.web3) throw new Error('Web3 provider not set')
+
+    const beforeBalanceBigNum = await arc.web3.getBalance(beneficiary)
+    let balanceBefore = new BN(beforeBalanceBigNum.toString())
     await suggestion3.redeem(beneficiary).send()
-    let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
+
+    const afterBalanceBigNum = await arc.web3.getBalance(beneficiary)
+    let balanceAfter = new BN(afterBalanceBigNum.toString())
     let balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual((new BN(240)).toString())
 
-    balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
+    const beforeBalanceBigNum2 = await arc.web3.getBalance(beneficiary)
+    balanceBefore = new BN(beforeBalanceBigNum2.toString())
     await suggestion1.redeem().send()
-    balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
+
+    const afterBalanceBigNum2 = await arc.web3.getBalance(beneficiary)
+    balanceAfter = new BN(afterBalanceBigNum2.toString())
     balanceDelta = balanceAfter.sub(balanceBefore)
 
     expect(suggestion4.redeem().send()).rejects.toThrow('not in winners list')

@@ -27,8 +27,11 @@ describe('Utils', () => {
   it('advanceTime works', async () => {
     const arc = await newArc()
     const web3 = arc.web3
+
     async function getBlockTime() {
-      const block = await web3.eth.getBlock('latest')
+      if(!web3) throw new Error("Web3 provider not set")
+
+      const block = await web3.getBlock('latest')
       return block.timestamp
     }
     const blockTimeBefore  = await getBlockTime()

@@ -9,6 +9,7 @@ import {
 import { IGenericScheme} from '../src/schemes/genericScheme'
 import { createAProposal, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION,
   newArc, voteToPassProposal, waitUntilTrue } from './utils'
+import { Contract, ethers } from 'ethers'
 
 jest.setTimeout(60000)
 
@@ -42,14 +43,17 @@ describe('Proposal', () => {
     const lastState = (): IProposalState => states[states.length - 1]
 
     const actionMockABI = arc.getABI(undefined, 'ActionMock', version)
-    const actionMock = new arc.web3.eth.Contract(actionMockABI, testAddresses.test.ActionMock)
-    const callData = await actionMock.methods.test2(dao.id).encodeABI()
+
+    if(!arc.web3) throw new Error('Web3 provider not set')
+
+    const actionMock = new Contract( testAddresses.test.ActionMock.toString(), actionMockABI, arc.web3.getSigner())
+    const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
     const proposal = await createAProposal(dao, {
       callData,
       // scheme: testAddresses.base.UGenericScheme,
       scheme: ugenericSchemeState.address,
-      schemeToRegister: actionMock.options.address,
+      schemeToRegister: actionMock.address,
       value: 0
     })
     expect(proposal).toBeInstanceOf(Proposal)
@@ -70,6 +74,7 @@ describe('Proposal', () => {
     await voteToPassProposal(proposal)
 
     await waitUntilTrue(() => (lastState().genericScheme as IGenericScheme).executed)
+
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Executed
     })
@@ -88,13 +93,16 @@ describe('Proposal', () => {
     const lastState = (): IProposalState => states[states.length - 1]
 
     const actionMockABI = arc.getABI(undefined, 'ActionMock', LATEST_ARC_VERSION)
-    const actionMock = new arc.web3.eth.Contract(actionMockABI, testAddresses.test.ActionMock)
-    const callData = await actionMock.methods.test2(dao.id).encodeABI()
+    
+    if(!arc.web3) throw new Error('Web3 provider not set')
+
+    const actionMock = new Contract(testAddresses.test.ActionMock.toString(), actionMockABI, arc.web3.getSigner())
+    const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
     const proposal = await createAProposal(dao, {
       callData,
       scheme: testAddresses.base.GenericScheme, // the contract _was_ called GenericScheme
-      schemeToRegister: actionMock.options.address,
+      schemeToRegister: actionMock.address,
       value: 0
     })
     expect(proposal).toBeInstanceOf(Proposal)

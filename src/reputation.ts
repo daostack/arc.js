@@ -124,11 +124,12 @@ export class Reputation implements IStateful<IReputationState> {
 
   public mint(beneficiary: Address, amount: BN) {
     const contract = this.contract()
-    const transaction = contract.methods.mint(beneficiary, amount.toString())
+    const transaction = contract.mint(beneficiary, amount.toString())
     const mapReceipt = (receipt: Web3Receipt) => receipt
-    const sender = this.context.web3.eth.accounts.wallet[0].address
+    const sender = this.context.accounts[0]
+
     const errHandler = async (err: Error) => {
-      const owner = await contract.methods.owner().call()
+      const owner = await contract.owner()
       if (owner.toLowerCase() !== sender.toLowerCase()) {
         return Error(`Minting failed: sender ${sender} is not the owner of the contract at ${contract._address}` +
           `(which is ${owner})`)

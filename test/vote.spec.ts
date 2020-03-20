@@ -3,6 +3,7 @@ import { Arc } from '../src/arc'
 import { IProposalOutcome} from '../src/proposal'
 import { Vote } from '../src/vote'
 import { createAProposal, getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
+import { getAddress } from 'ethers/utils'
 
 jest.setTimeout(60000)
 
@@ -66,7 +67,7 @@ describe('vote', () => {
     expect(result.length).toEqual(1)
 
     const voteState = await vote.fetchStaticState()
-    result = await Vote.search(arc, {where: {id: vote.id, voter: arc.web3.utils.toChecksumAddress(voteState.voter)}})
+    result = await Vote.search(arc, {where: {id: vote.id, voter: getAddress(voteState.voter)}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
   })

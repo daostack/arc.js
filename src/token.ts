@@ -7,6 +7,9 @@ import { DAOTOKEN_CONTRACT_VERSION } from './settings'
 import { Address, Hash, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
+import { providers } from 'ethers'
+import { BigNumber } from 'ethers/utils'
+
 export interface ITokenState {
   address: Address
   name: string
@@ -134,7 +137,11 @@ export class Token implements IStateful<ITokenState> {
     const errHandler = async (err: Error) => {
       if (err.message.match(/Returned values aren't valid/g)) {
         // check if there is actually a contract deployed there
-        const code = await this.context.web3.eth.getCode(this.address)
+        
+        //TODO: Not instantiating web3 provider here
+        this.context.web3 = new providers.JsonRpcProvider('http://localhost:8545')
+
+        const code = await this.context.web3.getCode(this.address)
         if (code === '0x') {
           return new Error(`Cannot get balanceOf(): there is no contract at this address ${this.address}`)
         }
@@ -149,22 +156,26 @@ export class Token implements IStateful<ITokenState> {
         if (subscriptionReceive) { subscriptionReceive.unsubscribe() }
         if (subscriptionSend) { subscriptionSend.unsubscribe() }
       }
-      const subscribe = () => contract.methods.balanceOf(owner).call()
-        .then((balance: string) => {
+      const subscribe = () => contract.balanceOf(owner)
+        .then((balance: BigNumber) => {
           if (balance === null) {
             observer.error(`balanceOf ${owner} returned null`)
           }
-          observer.next(new BN(balance))
-          subscriptionReceive = contract.events.Transfer({ filter: { to: owner }})
-            .on('data', (data: any) => {
-              contract.methods.balanceOf(owner).call().then((newBalance: string) => {
-                observer.next(new BN(newBalance))
+          observer.next(new BN(balance.toString()))
+
+          const toFilter = contract.filters.Transfer(null, owner)
+
+          subscriptionReceive = contract.on(toFilter, (data: any) => {
+              contract.balanceOf(owner).then((newBalance: BigNumber) => {
+                observer.next(new BN(newBalance.toString()))
               })
             })
-          subscriptionSend = contract.events.Transfer({ filter: { from: owner }})
-            .on('data', (data: any) => {
-              contract.methods.balanceOf(owner).call().then((newBalance: number) => {
-                observer.next(new BN(newBalance))
+
+          const fromFilter = contract.filters.Transfer(owner)
+
+          subscriptionSend = contract.on(fromFilter, (data: any) => {
+              contract.balanceOf(owner).then((newBalance: number) => {
+                observer.next(new BN(newBalance.toString()))
               })
             })
         })
@@ -186,17 +197,18 @@ export class Token implements IStateful<ITokenState> {
     return Observable.create(async (observer: Observer<BN>) => {
       let subscription: Subscription
       const contract = this.contract('readonly')
-      contract.methods.allowance(owner, spender).call()
-        .then((balance: string) => {
+      contract.allowance(owner, spender)
+        .then((balance: BigNumber) => {
           if (balance === null) {
             observer.error(`balanceOf ${owner} returned null`)
           }
-          observer.next(new BN(balance))
-          subscription = contract.events.Approval({ filter: { _owner: owner }})
-            .on('data', () => {
+          observer.next(new BN(balance.toString()))
+          const filter = contract.filters.Approval(owner)
+          subscription = contract
+            .on(filter, () => {
               // const newBalance = data.returnValues.value
-              contract.methods.allowance(owner, spender).call().then((newBalance: number) => {
-                observer.next(new BN(newBalance))
+              contract.allowance(owner, spender).then((newBalance: number) => {
+                observer.next(new BN(newBalance.toString()))
             })
           })
         })
@@ -211,21 +223,21 @@ export class Token implements IStateful<ITokenState> {
 
   public mint(beneficiary: Address, amount: BN) {
     const contract = this.contract()
-    const transaction = contract.methods.mint(beneficiary, amount.toString())
+    const transaction = contract.mint(beneficiary, amount.toString())
     const mapReceipt = (receipt: Web3Receipt) => receipt
     return this.context.sendTransaction(transaction, mapReceipt)
   }
 
   public transfer(beneficiary: Address, amount: BN) {
     const contract = this.contract()
-    const transaction = contract.methods.transfer(beneficiary, amount.toString())
+    const transaction = contract.transfer(beneficiary, amount.toString())
     const mapReceipt = (receipt: Web3Receipt) => receipt
     return this.context.sendTransaction(transaction, mapReceipt)
   }
 
   public approveForStaking(spender: Address, amount: BN) {
     const stakingToken = this.contract()
-    const transaction = stakingToken.methods.approve(spender, amount.toString())
+    const transaction = stakingToken.approve(spender, amount.toString())
     const mapReceipt = (receipt: Web3Receipt) => receipt
     return this.context.sendTransaction(transaction, mapReceipt)
   }

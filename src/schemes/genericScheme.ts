@@ -36,7 +36,7 @@ export function createTransaction(options: any, context: Arc) {
     options.descriptionHash = await context.saveIPFSData(options)
 
     const genericScheme = context.getContract(options.scheme)
-    const transaction = genericScheme.methods.proposeCall(
+    const transaction = genericScheme.proposeCall(
       options.callData,
       options.value,
       options.descriptionHash
@@ -54,7 +54,7 @@ export function createTransaction(options: any, context: Arc) {
 export function createTransactionMap(options: any, context: Arc) {
   const eventName = 'NewCallProposal'
   const map = async (receipt: any) => {
-    const proposalId = receipt.events[eventName].returnValues._proposalId
+    const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
     return new Proposal(proposalId, context)
   }
   return map

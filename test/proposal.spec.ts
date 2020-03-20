@@ -20,6 +20,7 @@ import { createAProposal,
   voteToPassProposal,
   waitUntilTrue
 } from './utils'
+import { getAddress } from 'ethers/utils'
 
 jest.setTimeout(20000)
 /**
@@ -118,12 +119,12 @@ describe('Proposal', () => {
     expect(result.length).toEqual(1)
 
     result = await Proposal
-      .search(arc, { where: {proposer: arc.web3.utils.toChecksumAddress(proposer), id: queuedProposal.id}})
+      .search(arc, { where: {proposer: getAddress(proposer), id: queuedProposal.id}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
 
     result = await Proposal
-      .search(arc, {where: {dao: arc.web3.utils.toChecksumAddress(proposalState.dao.id), id: queuedProposal.id}})
+      .search(arc, {where: {dao: getAddress(proposalState.dao.id), id: queuedProposal.id}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
   })
@@ -183,14 +184,14 @@ describe('Proposal', () => {
     expect(proposal).toBeInstanceOf(Proposal)
 
     const contributionReward = pState.contributionReward as IContributionReward
-    expect(fromWei(contributionReward.nativeTokenReward)).toEqual('10')
-    expect(fromWei(pState.stakesAgainst)).toEqual('100')
-    expect(fromWei(pState.stakesFor)).toEqual('1000')
-    expect(fromWei(contributionReward.reputationReward)).toEqual('10')
-    expect(fromWei(contributionReward.ethReward)).toEqual('10')
-    expect(fromWei(contributionReward.externalTokenReward)).toEqual('10')
-    expect(fromWei(pState.votesFor)).toEqual('0')
-    expect(fromWei(pState.votesAgainst)).toEqual('0')
+    expect(fromWei(contributionReward.nativeTokenReward)).toEqual('10.0')
+    expect(fromWei(pState.stakesAgainst)).toEqual('100.0')
+    expect(fromWei(pState.stakesFor)).toEqual('1000.0')
+    expect(fromWei(contributionReward.reputationReward)).toEqual('10.0')
+    expect(fromWei(contributionReward.ethReward)).toEqual('10.0')
+    expect(fromWei(contributionReward.externalTokenReward)).toEqual('10.0')
+    expect(fromWei(pState.votesFor)).toEqual('0.0')
+    expect(fromWei(pState.votesAgainst)).toEqual('0.0')
 
     expect(pState).toMatchObject({
         boostedAt: 0,
@@ -276,9 +277,13 @@ describe('Proposal', () => {
     proposal.stakes().subscribe((next) => stakes.push(next))
 
     const stakeAmount = toWei('18')
-    await proposal.stakingToken().mint(arc.web3.eth.defaultAccount, stakeAmount).send()
+
+    if(!arc.web3) throw new Error('Web3 provider not set')
+    const defaultAccount = arc.defaultAccount? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+
+    await proposal.stakingToken().mint(defaultAccount, stakeAmount).send()
     const votingMachine = await proposal.votingMachine()
-    await arc.approveForStaking(votingMachine.options.address, stakeAmount).send()
+    await arc.approveForStaking(votingMachine.address, stakeAmount).send()
     await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
 
     // wait until we have the we received the stake update

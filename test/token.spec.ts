@@ -54,7 +54,7 @@ describe('Token', () => {
     const token = new Token(address, arc)
     const balanceOf = await token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
       .pipe(first()).toPromise()
-    expect(fromWei(balanceOf)).toEqual('1000')
+    expect(fromWei(balanceOf)).toEqual('1000.0')
   })
 
   it('mint some new tokens', async () => {
@@ -93,7 +93,11 @@ describe('Token', () => {
     const lastAllowance = () => allowances[allowances.length - 1]
     const someAddress = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
 
-    token.allowance(arc.web3.eth.defaultAccount, someAddress).subscribe(
+    if(!arc.web3) throw new Error("Web3 provider not set")
+
+    const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+
+    token.allowance(defaultAccount, someAddress).subscribe(
       (next: any) => allowances.push(next)
     )
 
@@ -107,9 +111,7 @@ describe('Token', () => {
     const token = new Token('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1', arc)
     const promise = token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
       .pipe(first()).toPromise()
-    await expect(promise).rejects.toThrow(
-      'no contract'
-    )
+    await expect(promise).rejects.toThrow(new RegExp("^contract not deployed"))
   })
 
   it('paging and sorting works', async () => {

@@ -1,8 +1,9 @@
 import { Observable, Observer } from 'rxjs'
-import { first, take } from 'rxjs/operators'
+import { take } from 'rxjs/operators'
 import { Arc } from './arc'
 import { Logger } from './logger'
 import { Web3Receipt } from './types'
+import { TransactionReceipt } from 'ethers/providers'
 
 export enum ITransactionState {
   Sending,
@@ -39,8 +40,8 @@ export type Operation<T> = IOperationObservable<ITransactionUpdate<T>>
 
 export type web3receipt = object
 
-export type transactionErrorHandler =  (
-  error: Error, transaction?: any, options?: { from?: string}) => Promise<Error> | Error
+export type transactionErrorHandler = (
+  error: Error, transaction?: any, options?: { from?: string }) => Promise<Error> | Error
 
 /**
  *
@@ -68,15 +69,19 @@ export type transactionErrorHandler =  (
 export function sendTransaction<T>(
   context: Arc,
   transaction: any,
-  mapReceipt: (receipt: web3receipt) => T | Promise<T>,
-  errorHandler: transactionErrorHandler = async (err: Error, tx: any = transaction, options: { from?: string} = {}) => {
-      await tx.call(options)
-      throw err
-    }
+  mapReceipt: (receipt: TransactionReceipt) => T | Promise<T>,
+  errorHandler: transactionErrorHandler = async (err: Error, tx: any = transaction, options: { from?: string } = {}) => {
+
+    if (!context.web3) throw new Error("Web3 provider not set")
+
+    await context.web3.call(tx)
+
+    throw err
+  }
 ): Operation<T> {
 
   const observable = Observable.create(async (observer: Observer<ITransactionUpdate<T>>) => {
-    let transactionHash: string
+    let transactionHash: string = ''
     let result: any
     let tx: any
     if (typeof transaction === 'function') {
@@ -86,23 +91,10 @@ export function sendTransaction<T>(
         observer.error(err)
       }
     } else {
-      tx = transaction
+      tx = await transaction
     }
-
-    const from = await context.getAccount().pipe(first()).toPromise()
 
     let gasEstimate: number = 0
-    try {
-      gasEstimate = await tx.estimateGas({ from })
-    } catch (error) {
-      try {
-        error = await errorHandler(error, transaction, {from})
-      } catch (err) {
-        error = err
-      }
-      observer.error(error)
-      return
-    }
     let gas: number
     if (gasEstimate) {
       gas = gasEstimate * 2
@@ -111,10 +103,7 @@ export function sendTransaction<T>(
     }
     gas = Math.min(1000000, gas)
     // gas = new BN(1000000)
-    const options = {
-      from,
-      gas
-    }
+
     observer.next({
       state: ITransactionState.Sending
     })
@@ -126,16 +115,25 @@ export function sendTransaction<T>(
      * we may have incorrectly counted the "receipt" event as a confirmation.
      */
     let confirmationCount = 0
-    tx.send(options)
-      .once('transactionHash', (hash: string) => {
-        Logger.debug('Sending transaction..')
-        transactionHash = hash
-        observer.next({
-          state: ITransactionState.Sent,
-          transactionHash
-        })
-      })
-      .once('receipt', async (receipt: any) => {
+
+    if (!context.web3) throw new Error("Web3 provider not set")
+
+    Logger.debug('Sending transaction..')
+    transactionHash = tx.hash
+    observer.next({
+      state: ITransactionState.Sent,
+      transactionHash
+    })
+
+    await context.web3
+    .on('block', async () => {
+
+      if (!context.web3) throw new Error("Web3 provider not set")
+
+      const receipt = await tx.wait()
+
+      if (confirmationCount === 0) {
+        Logger.debug(`transaction mined!`)
         try {
           result = await mapReceipt(receipt)
         } catch (error) {
@@ -146,9 +144,7 @@ export function sendTransaction<T>(
           }
           observer.error(error)
         }
-        if (confirmationCount === 0) {
-          Logger.debug(`transaction mined!`)
-        }
+
         observer.next({
           confirmations: confirmationCount++,
           receipt,
@@ -156,23 +152,21 @@ export function sendTransaction<T>(
           state: ITransactionState.Mined,
           transactionHash
         })
-      })
-      .on('confirmation', async (confNumber: number, receipt: any) => {
-        if (!result) {
+      }
+
+      if(receipt.confirmations !== undefined && receipt.confirmations > confirmationCount){
+
+        try {
+          result = await mapReceipt(receipt)
+        } catch (error) {
           try {
-            result = await mapReceipt(receipt)
-          } catch (error) {
-            try {
-              error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
-            } catch (err) {
-              error = err
-            }
-            observer.error(error)
+            error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
+          } catch (err) {
+            error = err
           }
+          observer.error(error)
         }
-        if (confirmationCount === 0) {
-          Logger.debug(`transaction mined!`)
-        }
+
         observer.next({
           confirmations: confirmationCount++,
           receipt,
@@ -180,20 +174,24 @@ export function sendTransaction<T>(
           state: ITransactionState.Mined,
           transactionHash
         })
-        if (confirmationCount > 23) {
-          // the web3 observer will confirm up to 24 subscriptions, so we are done here
+
+        if(confirmationCount > 23){
+          context.web3.polling = false
           observer.complete()
         }
-      })
-      .on('error', async (error: Error) => {
-        try {
-          error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
-        } catch (err) {
-          error = err
-        }
-        observer.error(error)
-      })
-  }
+
+      }
+    })
+    .on('error', async (error: Error) => {
+      try {
+        error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
+      } catch (err) {
+        error = err
+      }
+      observer.error(error)
+    })
+
+    }
   )
   return toIOperationObservable(observable)
 }

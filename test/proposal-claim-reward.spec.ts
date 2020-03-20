@@ -6,6 +6,8 @@ import { IProposalOutcome, IProposalStage, IProposalState, Proposal } from '../s
 import BN = require('bn.js')
 import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION, newArc,
   toWei, voteToPassProposal, waitUntilTrue } from './utils'
+import { BigNumber } from 'ethers/utils'
+import { Contract, ethers } from 'ethers'
 
 jest.setTimeout(60000)
 
@@ -28,14 +30,19 @@ describe('Claim rewards', () => {
     const states: IProposalState[] = []
     const lastState = () => states[states.length - 1]
 
+    if(!arc.web3) throw new Error("Web3 provider not set")
+
     // make sure that the DAO has enough Ether to pay forthe reward
-    await arc.web3.eth.sendTransaction({
-      gas: 4000000,
+    await arc.web3.getSigner().sendTransaction({
+      gasLimit: 4000000,
       gasPrice: 100000000000,
       to: dao.id,
-      value: ethReward
+      value: new BigNumber(ethReward.toString()).toHexString()
     })
-    const daoEthBalance = new BN(await arc.web3.eth.getBalance(dao.id))
+
+    const daoBalance = await arc.web3.getBalance(dao.id)
+
+    const daoEthBalance = new BN(daoBalance.toString())
     expect(Number(daoEthBalance.toString())).toBeGreaterThanOrEqual(Number(ethReward.toString()))
 
     const options = {
@@ -68,14 +75,17 @@ describe('Claim rewards', () => {
     daoState.reputation.reputationOf(beneficiary).subscribe((next: BN) => {
       reputationBalances.push(next)
     })
-    const prevEthBalance = new BN(await arc.web3.eth.getBalance(beneficiary))
+
+    const prevBalance = await arc.web3.getBalance(beneficiary)
+    const prevEthBalance = new BN(prevBalance.toString())
 
     await proposal.claimRewards(beneficiary).send()
 
     const newNativeTokenBalance = await firstResult(daoState.token.balanceOf(beneficiary))
     expect(newNativeTokenBalance.sub(prevNativeTokenBalance).toString()).toEqual(nativeTokenReward.toString())
 
-    const newethBalance = new BN(await arc.web3.eth.getBalance(beneficiary))
+    const newBalance = await arc.web3.getBalance(beneficiary)
+    const newethBalance = new BN(newBalance.toString())
     expect(newethBalance.sub(prevEthBalance).toString()).toEqual(ethReward.toString())
     // no rewards were claimable yet
     await waitUntilTrue(() => reputationBalances.length === 2)
@@ -147,17 +157,20 @@ describe('Claim rewards', () => {
     const ugenericSchemeState = await ugenericScheme.state().pipe(first()).toPromise()
     dao  = new DAO(ugenericSchemeState.dao, arc)
 
-    const beneficiary = arc.web3.eth.defaultAccount
+    const beneficiary = arc.defaultAccount
     const stakeAmount = new BN(123456789)
     await arc.GENToken().transfer(dao.id, stakeAmount).send()
     const actionMockABI = arc.getABI(undefined, 'ActionMock', LATEST_ARC_VERSION)
-    const actionMock = new arc.web3.eth.Contract(actionMockABI, testAddresses.test.ActionMock)
-    const callData = await actionMock.methods.test2(dao.id).encodeABI()
+
+    if(!arc.web3) throw new Error("Web3 provider not set")
+
+    const actionMock = new Contract(testAddresses.test.ActionMock.toString(), actionMockABI, arc.web3.getSigner())
+    const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
     const proposal = await createAProposal(dao, {
       callData,
       scheme: ugenericSchemeState.address,
-      schemeToRegister: actionMock.options.address,
+      schemeToRegister: actionMock.address,
       value: 0
     })
 
@@ -175,6 +188,8 @@ describe('Claim rewards', () => {
     await waitUntilTrue(() => {
       return lastState() && lastState().stage === IProposalStage.Executed
     })
+
+    if(!beneficiary) throw new Error("Beneficiary not set")
 
     const prevBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
     await proposal.claimRewards(beneficiary).send()

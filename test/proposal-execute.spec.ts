@@ -25,7 +25,7 @@ describe('Proposal execute()', () => {
   it('runs correctly through the stages', async () => {
 
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    const accounts = arc.web3.eth.accounts.wallet
+    const accounts = arc.accounts
     const state = await executedProposal.fetchStaticState()
     const schemeAddress = state.scheme.address
 
@@ -69,10 +69,10 @@ describe('Proposal execute()', () => {
     proposalState = lastState()
     expect(proposalState.stage).toEqual(IProposalStage.Queued)
     expect(Number(fromWei(proposalState.votesFor))).toBeGreaterThan(0)
-    expect(fromWei(proposalState.votesAgainst)).toEqual('0')
+    expect(fromWei(proposalState.votesAgainst)).toEqual('0.0')
 
     const amountToStakeFor = toWei(10000)
-    await proposal.stakingToken().mint(accounts[0].address, amountToStakeFor).send()
+    await proposal.stakingToken().mint(accounts[0], amountToStakeFor).send()
     await proposal.stakingToken()
       .approveForStaking(proposalState.votingMachine, amountToStakeFor.add(new BN(1000))).send()
 
@@ -88,9 +88,9 @@ describe('Proposal execute()', () => {
 
     // TODO: find out why the state is not updated to Boosted akreadt at this point
     await advanceTime(60000 * 60) // 30 minutes
-    proposal.context.web3.eth.accounts.defaultAccount = accounts[2]
+    proposal.context.defaultAccount = accounts[2]
     await proposal.vote(IProposalOutcome.Pass).send()
-    proposal.context.web3.eth.accounts.defaultAccount = accounts[0]
+    proposal.context.defaultAccount = accounts[0]
 
     await waitUntilTrue(() => {
       return lastState().stage === IProposalStage.Boosted

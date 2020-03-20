@@ -13,13 +13,13 @@ describe('Reputation', () => {
   let addresses: any
   let arc: Arc
   let address: Address
-  let accounts: any
+  let accounts: string[]
 
   beforeAll(async () => {
     arc = await newArc()
     addresses = getTestAddresses(arc)
     address = addresses.dao.Reputation
-    accounts = arc.web3.eth.accounts.wallet
+    accounts = arc.accounts
   })
 
   it('Reputation is instantiable', () => {
@@ -49,27 +49,27 @@ describe('Reputation', () => {
 
   it('get someones reputation', async () => {
     const reputation = new Reputation(address, arc)
-    const reputationOf = await reputation.reputationOf(accounts[2].address)
+    const reputationOf = await reputation.reputationOf(accounts[2])
       .pipe(first()).toPromise()
     expect(Number(reputationOf.toString())).toBeGreaterThan(0)
   })
 
   it('mint() works', async () => {
     const reputation = new Reputation(addresses.test.organs.DemoReputation, arc)
-    const reputationBefore = new BN(await reputation.contract().methods.balanceOf(accounts[3].address).call())
-    await reputation.mint(accounts[3].address, toWei(1)).send()
-    await reputation.mint(accounts[3].address, new BN('1')).send()
-    await reputation.mint(accounts[3].address, new BN('1e18')).send()
-    await reputation.mint(accounts[3].address, new BN('3000e18')).send()
+    const reputationBefore = new BN(await reputation.contract().balanceOf(accounts[3]))
+    await reputation.mint(accounts[3], toWei(1)).send()
+    await reputation.mint(accounts[3], new BN('1')).send()
+    await reputation.mint(accounts[3], new BN('1e18')).send()
+    await reputation.mint(accounts[3], new BN('3000e18')).send()
 
-    const reputationAfter = new BN(await reputation.contract().methods.balanceOf(accounts[3].address).call())
+    const reputationAfter = new BN(await reputation.contract().balanceOf(accounts[3]))
     const difference = reputationAfter.sub(reputationBefore)
     expect(difference.toString()).toEqual('1000000000003003837')
   })
 
   it('mint() throws a meaningful error if the sender is not the contract owner', async () => {
     const reputation = new Reputation(addresses.test.Reputation, arc)
-    await expect(reputation.mint(accounts[3].address, toWei(1)).send()).rejects.toThrow(
+    await expect(reputation.mint(accounts[3], toWei(1)).send()).rejects.toThrow(
       /is not the owner/i
     )
   })

@@ -18,7 +18,7 @@ export class ReputationFromTokenScheme {
 
   public async getAgreementHash(): Promise<string> {
     const contract = await this.getContract()
-    const result = await contract.methods.getAgreementHash().call()
+    const result = await contract.getAgreementHash()
     return result
   }
 
@@ -31,18 +31,18 @@ export class ReputationFromTokenScheme {
       .pipe(
       concatMap((contract) => {
         let transaction: any
-        const contractInfo = this.scheme.context.getContractInfo(contract.options.address)
+        const contractInfo = this.scheme.context.getContractInfo(contract.address)
         const contractVersion = contractInfo.version
         const versionNumber = Number(contractVersion.split('rc.')[1])
         if (versionNumber <= 32) {
-          transaction = contract.methods.redeem(
+          transaction = contract.redeem(
             beneficiary
           )
         } else {
           if (!agreementHash) {
             throw Error(`For ReputationForToken version > rc.32, an "agreementHash" argument must be provided`)
           }
-          transaction = contract.methods.redeem(
+          transaction = contract.redeem(
             beneficiary,
             agreementHash
           )
@@ -51,8 +51,9 @@ export class ReputationFromTokenScheme {
 
         const errorHandler = async (error: Error) => {
           try {
-            await transaction.call()
+            await transaction
           } catch (err) {
+            console.log("HAHAH")
             throw err
           }
           return error
@@ -66,7 +67,7 @@ export class ReputationFromTokenScheme {
 
   public async redemptionAmount(beneficiary: Address): Promise<number> {
     const contract = await this.getContract()
-    const amount = await contract.methods.redeem(beneficiary).call()
+    const amount = await contract.redeem(beneficiary)
     return amount
   }
 

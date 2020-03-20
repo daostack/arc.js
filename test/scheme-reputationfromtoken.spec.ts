@@ -21,11 +21,13 @@ describe('Scheme', () => {
     const scheme = schemes[0]
     expect(scheme.ReputationFromToken).not.toBeFalsy()
     const reputationFromToken = scheme.ReputationFromToken as ReputationFromTokenScheme
-    // const amount = await scheme.ReputationFromToken.redemptionAmount(arc.web3.eth.defaultAccount)
-    // expect(amount).toEqual(0)
-    const redemptionPromise = reputationFromToken.redeem(arc.web3.eth.defaultAccount).send()
+
+    if(!arc.web3) throw new Error("Web3 provider not set")
+    const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+
+    const redemptionPromise = reputationFromToken.redeem(defaultAccount).send()
     // TODO: the transaction reverts, for erasons to check :-/
-    await expect(redemptionPromise).rejects.toThrow('revert')
+    expect(redemptionPromise).rejects.toThrow()
   })
   it('version 0.0.1-rc.34', async () => {
     const schemeContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.34')
@@ -33,14 +35,18 @@ describe('Scheme', () => {
       .pipe(first()).toPromise()
     const scheme = schemes[0]
     const reputationFromToken = scheme.ReputationFromToken as ReputationFromTokenScheme
+
+    if(!arc.web3) throw new Error("Web3 provider not set")
+    const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+
     await expect(reputationFromToken.redeem(
-      arc.web3.eth.defaultAccount,
+      defaultAccount,
       '0x01234' // <- wrong hash
     ).send()).rejects.toThrow('must send the right agreementHash')
 
     // TODO: this reverst, would be nice to have a working test
     await expect(reputationFromToken.redeem(
-      arc.web3.eth.defaultAccount,
+      defaultAccount,
       agreementHash // <- right hash
     ).send()).rejects.toThrow('revert')
    })

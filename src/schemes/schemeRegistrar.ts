@@ -46,7 +46,7 @@ export function createTransaction(options: any, context: Arc): () => any {
         const schemeRegistrar = context.getContract(options.scheme)
         options.descriptionHash = await context.saveIPFSData(options)
 
-        const transaction = schemeRegistrar.methods.proposeScheme(
+        const transaction = schemeRegistrar.proposeScheme(
           options.dao,
           options.schemeToRegister,
           options.parametersHash,
@@ -63,7 +63,7 @@ export function createTransaction(options: any, context: Arc): () => any {
      return async () => {
         const schemeRegistrar = context.getContract(options.scheme)
         options.descriptionHash = await context.saveIPFSData(options)
-        const transaction = schemeRegistrar.methods.proposeToRemoveScheme(
+        const transaction = schemeRegistrar.proposeToRemoveScheme(
           options.dao,
           options.schemeToRegister,
           options.descriptionHash
@@ -85,8 +85,7 @@ export function createTransactionMap(options: any, context: Arc) {
        eventName = 'RemoveSchemeProposal'
   }
   const map = (receipt: any) => {
-    const proposalId = receipt.events[eventName].returnValues._proposalId
-    // const votingMachineAddress = receipt.events[eventName].returnValues._intVoteInterface
+    const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
     return new Proposal(proposalId,
       // options.dao as string, options.scheme, votingMachineAddress,
       context)

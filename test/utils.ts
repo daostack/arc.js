@@ -4,17 +4,19 @@ import { first } from 'rxjs/operators'
 import { IContractInfo, IProposalCreateOptions, Proposal } from '../src'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { IProposalOutcome} from '../src/proposal'
+import { IProposalOutcome } from '../src/proposal'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
+import { Wallet } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
+import { utils } from 'ethers'
 
-const Web3 = require('web3')
 const path = require('path')
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
 export const graphqlHttpMetaProvider: string = 'http://127.0.0.1:8000/subgraphs'
 export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/daostack'
-export const web3Provider: string = 'ws://127.0.0.1:8545'
+export const web3Provider: string = 'http://127.0.0.1:8545'
 export const ipfsProvider: string = 'http://127.0.0.1:5001/api/v0'
 
 export const LATEST_ARC_VERSION = '0.0.1-rc.32'
@@ -38,11 +40,13 @@ const pks = [
 ]
 
 export function fromWei(amount: BN): string {
-  return Web3.utils.fromWei(amount, 'ether')
+  const etherAmount = utils.formatEther(amount.toString())
+  return etherAmount.toString()
 }
 
 export function toWei(amount: string | number): BN {
-  return new BN(Web3.utils.toWei(amount.toString(), 'ether'))
+  const weiAmount = utils.parseEther(amount.toString())
+  return new BN(weiAmount.toString())
 }
 
 export interface ITestAddresses {
@@ -55,13 +59,13 @@ export interface ITestAddresses {
     executedProposalId: Address,
     queuedProposalId: Address,
     preBoostedProposalId: Address,
-    [key: string]: Address|{ [key: string]: Address }
+    [key: string]: Address | { [key: string]: Address }
   }
 }
 
 export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION): ITestAddresses {
   // const contractInfos = arc.contractInfos
-  const migrationFile = path.resolve(`${require.resolve('@daostack/migration' )}/../migration.json`)
+  const migrationFile = path.resolve(`${require.resolve('@daostack/migration')}/../migration.json`)
   const migration = require(migrationFile).private
   let UGenericScheme: string = ''
   try {
@@ -88,15 +92,15 @@ export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION)
   return addresses
 
 }
-export async function getOptions(web3: any) {
-  const block = await web3.eth.getBlock('latest')
+export async function getOptions(web3: JsonRpcProvider) {
+  const block = await web3.getBlock('latest')
   return {
-    from: web3.eth.defaultAccount,
-    gas: block.gasLimit - 100000
+    from: await web3.getSigner().getAddress(),
+    gas: block.gasUsed.toNumber() - 100000
   }
 }
 
-export async function newArc(options: { [key: string]: any} = {}): Promise<Arc> {
+export async function newArc(options: { [key: string]: any } = {}): Promise<Arc> {
   const defaultOptions = {
     graphqlHttpProvider,
     graphqlWsProvider,
@@ -107,10 +111,10 @@ export async function newArc(options: { [key: string]: any} = {}): Promise<Arc> 
   // get the contract addresses from the subgraph
   await arc.fetchContractInfos()
   for (const pk of pks) {
-    const account = arc.web3.eth.accounts.privateKeyToAccount(pk)
-    arc.web3.eth.accounts.wallet.add(account)
+    const account = new Wallet(pk, arc.web3).address
+    arc.accounts.push(account)
   }
-  arc.web3.eth.defaultAccount = arc.web3.eth.accounts.wallet[0].address
+  arc.defaultAccount = arc.accounts[0]
   return arc
 }
 
@@ -160,7 +164,7 @@ export async function createAProposal(
   if (!dao) {
     dao = await getTestDAO()
   }
-  options  = {
+  options = {
     beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
     ethReward: toWei('300'),
     externalTokenAddress: undefined,
@@ -186,8 +190,8 @@ export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
   const addresses = getTestAddresses(arc, version)
   const token = new Reputation(addresses.test.organs.DemoReputation, arc)
-  const accounts = arc.web3.eth.accounts.wallet
-  await token.mint(accounts[1].address, new BN('99')).send()
+  const accounts = arc.accounts
+  await token.mint(accounts[1], new BN('99')).send()
 }
 
 export function mineANewBlock() {
@@ -206,16 +210,16 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
 // Vote and vote and vote for proposal until it is accepted
 export async function voteToPassProposal(proposal: Proposal) {
   const arc = proposal.context
-  const accounts = arc.web3.eth.accounts.wallet
+  const accounts = arc.accounts
   // make sure the proposal is indexed
   await waitUntilTrue(async () => {
-    const state = await proposal.state({ fetchPolicy: 'network-only'}).pipe(first()).toPromise()
+    const state = await proposal.state({ fetchPolicy: 'network-only' }).pipe(first()).toPromise()
     return !!state
   })
 
-  for (let i = 0; i <= 3; i ++) {
+  for (let i = 0; i <= 3; i++) {
     try {
-      arc.setAccount(accounts[i].address)
+      arc.setAccount(accounts[i])
       await proposal.vote(IProposalOutcome.Pass).send()
     } catch (err) {
       // TODO: this sometimes fails with uninformative `revert`, cannot find out why
@@ -226,110 +230,39 @@ export async function voteToPassProposal(proposal: Proposal) {
         throw err
       }
     } finally {
-      arc.setAccount(accounts[0].address)
+      arc.setAccount(accounts[0])
     }
   }
   return
 }
 
-// export async function timeTravel(seconds: number, web3: any) {
-//   const jsonrpc = '2.0'
-//   // web3 = new Web3('http://localhost:8545')
-//   // web3.providers.HttpProvider.prototype.sendAsync = web3.providers.HttpProvider.prototype.send
-//   return new Promise((resolve, reject) => {
-//     web3.currentProvider.send({
-//       id: new Date().getTime(),
-//       jsonrpc,
-//       method: 'evm_increaseTime',
-//       // method: 'evm_mine',
-//       params: [seconds]
-//     }, (err1: Error) => {
-//       if (err1) { return reject(err1) }
-//       // resolve(res)
+const web3 = new JsonRpcProvider('http://127.0.0.1:8545')
 
-//       web3.currentProvider.send({
-//         id: new Date().getTime(),
-//         jsonrpc,
-//         method: 'evm_mine'
-//       }, (err2: Error, res: any) => {
-//         return err2 ? reject(err2) : resolve(res)
-//       })
-//     })
-//   })
-// }
+export const advanceTime = async (time: number) => await web3.send('evm_increaseTime', [time])
 
-const web3 = new Web3('http://127.0.0.1:8545')
-
-export const advanceTime = (time: number) => {
-  return new Promise((resolve, reject) => {
-    web3.currentProvider.send({
-      jsonrpc: '2.0',
-      method: 'evm_increaseTime',
-      params: [time],
-      id: new Date().getTime()
-    }, (err: Error, result: any) => {
-      if (err) { return reject(err) }
-      return resolve(result)
-    })
-  })
+export const advanceBlock = async () => {
+  await web3.send('evm_mine', [])
+  return (await web3.getBlock('latest')).hash
 }
 
-export const advanceBlock = () => {
-  return new Promise((resolve, reject) => {
-    web3.currentProvider.send({
-      jsonrpc: '2.0',
-      method: 'evm_mine',
-      id: new Date().getTime()
-    }, (err: Error, result: any) => {
-      if (err) { return reject(err) }
-      const newBlockHash = web3.eth.getBlock('latest').hash
+export const takeSnapshot = async () => await web3.send('evm_snapshot', [])
 
-      return resolve(newBlockHash)
-    })
-  })
-}
-
-export const takeSnapshot = () => {
-  return new Promise((resolve, reject) => {
-    web3.currentProvider.send({
-      jsonrpc: '2.0',
-      method: 'evm_snapshot',
-      id: new Date().getTime()
-    }, (err: Error, snapshotId: string) => {
-      if (err) { return reject(err) }
-      return resolve(snapshotId)
-    })
-  })
-}
-
-export const revertToSnapShot = (id: string) => {
-  return new Promise((resolve, reject) => {
-    web3.currentProvider.send({
-      id: new Date().getTime(),
-      jsonrpc: '2.0',
-      method: 'evm_revert',
-      params: [id]
-    }, (err: Error, result: any) => {
-      if (err) { return reject(err) }
-      return resolve(result)
-    })
-  })
-}
+export const revertToSnapShot = async (id: string) => await web3.send('evm_revert', [id])
 
 export const advanceTimeAndBlock = async (time: number) => {
   await advanceTime(time)
   await advanceBlock()
-  return Promise.resolve(web3.eth.getBlock('latest'))
+  return Promise.resolve(web3.getBlock('latest'))
 }
 
 export async function firstResult(observable: Observable<any>) {
   return observable.pipe(first()).toPromise()
 }
 
-export function getContractAddressesFromMigration(environment: 'private'|'rinkeby'|'mainnet'): IContractInfo[] {
+export function getContractAddressesFromMigration(environment: 'private' | 'rinkeby' | 'mainnet'): IContractInfo[] {
   const migration = require('@daostack/migration/migration.json')[environment]
   const contracts: IContractInfo[] = []
-  for (const version of Object.keys( migration.base)) {
+  for (const version of Object.keys(migration.base)) {
     for (const name of Object.keys(migration.base[version])) {
       contracts.push({
         address: migration.base[version][name].toLowerCase(),

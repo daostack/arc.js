@@ -85,7 +85,7 @@ describe('Vote on a ContributionReward', () => {
       arc
     )
 
-    proposal.context.web3.eth.defaultAccount = arc.web3.eth.accounts.wallet[2].address
+    proposal.context.defaultAccount = arc.accounts[2]
     await expect(proposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
       /No proposal/i
     )
@@ -106,14 +106,14 @@ describe('Vote on a ContributionReward', () => {
     // TODO: write this test!
     const proposal = await createAProposal()
 
-    const accounts = arc.web3.eth.accounts.wallet
-    const accountWithNoRep = accounts[6].address
+    const accounts = arc.accounts
+    const accountWithNoRep = accounts[6]
     const reputation = await firstResult(dao.nativeReputation())
     const balance = await firstResult(reputation.reputationOf(accountWithNoRep))
     expect(balance.toString()).toEqual('0')
     arc.setAccount(accountWithNoRep) // a fake address
     await proposal.vote(IProposalOutcome.Pass)
-    arc.setAccount(accounts[0].address)
+    arc.setAccount(accounts[0])
   })
 
 })
