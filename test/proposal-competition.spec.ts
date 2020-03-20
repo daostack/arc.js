@@ -136,7 +136,7 @@ describe('Competition Proposal', () => {
 
     // accept the proposal by voting for et
     await voteToPassProposal(proposal)
-    await proposal.claimRewards().send()
+    await proposal.redeemRewards().send()
 
     // find the competition
     const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
@@ -325,7 +325,7 @@ describe('Competition Proposal', () => {
     expect(schemeState.address).toEqual(lastState().scheme.address)
 
     // redeem the proposal
-    await proposal.claimRewards().send()
+    await proposal.redeemRewards().send()
 
     // find the competition
     const competitions = await scheme.competitions({ where: { id: proposal.id } }).pipe(first()).toPromise()
@@ -453,7 +453,7 @@ describe('Competition Proposal', () => {
       reputationChangeLeft: null
     })
     // redeem the proposal
-    await proposal.claimRewards().send()
+    await proposal.redeemRewards().send()
     // wait for indexing to be done
     await waitUntilTrue(() => {
       return competitionState.contributionReward.ethRewardLeft !== null

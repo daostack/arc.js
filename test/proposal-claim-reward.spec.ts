@@ -79,7 +79,7 @@ describe('Claim rewards', () => {
     const prevBalance = await arc.web3.getBalance(beneficiary)
     const prevEthBalance = new BN(prevBalance.toString())
 
-    await proposal.claimRewards(beneficiary).send()
+    await proposal.redeemRewards(beneficiary).send()
 
     const newNativeTokenBalance = await firstResult(daoState.token.balanceOf(beneficiary))
     expect(newNativeTokenBalance.sub(prevNativeTokenBalance).toString()).toEqual(nativeTokenReward.toString())
@@ -130,21 +130,21 @@ describe('Claim rewards', () => {
 
     const prevTokenBalance = await firstResult(arc.GENToken().balanceOf(beneficiary))
 
-    await proposal.claimRewards(beneficiary).send()
+    await proposal.redeemRewards(beneficiary).send()
 
     const newTokenBalance = await firstResult(arc.GENToken().balanceOf(beneficiary))
     expect(newTokenBalance.sub(prevTokenBalance).toString()).toEqual(externalTokenReward.toString())
 
   })
 
-  it('claimRewards should also work without providing a "beneficiary" argument', async () => {
+  it('redeemRewards should also work without providing a "beneficiary" argument', async () => {
     const proposal: Proposal = await createAProposal()
-    await proposal.claimRewards().send()
+    await proposal.redeemRewards().send()
   })
 
-  it('claimRewards should also work for expired proposals', async () => {
+  it('redeemRewards should also work for expired proposals', async () => {
      const proposal: Proposal = await arc.proposal(testAddresses.test.queuedProposalId)
-     await proposal.claimRewards().send()
+     await proposal.redeemRewards().send()
   })
 
   it('works with non-CR proposal', async () => {
@@ -192,7 +192,7 @@ describe('Claim rewards', () => {
     if(!beneficiary) throw new Error("Beneficiary not set")
 
     const prevBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
-    await proposal.claimRewards(beneficiary).send()
+    await proposal.redeemRewards(beneficiary).send()
     const newBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
     expect(newBalance.sub(prevBalance).toString()).toEqual(stakeAmount.toString())
 

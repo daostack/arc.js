@@ -24,7 +24,7 @@
 
 ### Methods
 
-* [claimRewards](proposal.md#claimrewards)
+* [redeemRewards](proposal.md#redeemRewards)
 * [execute](proposal.md#execute)
 * [fetchStaticState](proposal.md#fetchstaticstate)
 * [redeemerContract](proposal.md#redeemercontract)
@@ -87,13 +87,13 @@ ___
 
 ## Methods
 
-###  claimRewards
+###  redeemRewards
 
-▸ **claimRewards**(`beneficiary?`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹boolean›*
+▸ **redeemRewards**(`beneficiary?`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹boolean›*
 
 *Defined in [proposal.ts:764](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L764)*
 
-[claimRewards description] Execute the proposal and distribute the rewards
+[redeemRewards description] Execute the proposal and distribute the rewards
 to the beneficiary.
 This uses the Redeemer.sol helper contract
 
