@@ -36,12 +36,12 @@ describe('Scheme', () => {
     expect(result.length).toBeGreaterThanOrEqual(3)
 
     // the schemes have their static state set
-    const staticState = await result[0].fetchStaticState()
-    expect(staticState.name).toBeTruthy()
-    expect(staticState.address).toBeTruthy()
-    expect(staticState.id).toBeTruthy()
-    expect(staticState.dao).toBeTruthy()
-    expect(staticState.paramsHash).toBeTruthy()
+    const state = await result[0].fetchState()
+    expect(state.name).toBeTruthy()
+    expect(state.address).toBeTruthy()
+    expect(state.id).toBeTruthy()
+    expect(state.dao).toBeTruthy()
+    expect(state.paramsHash).toBeTruthy()
 
     const schemeStates: ISchemeState[] = []
 
@@ -179,10 +179,10 @@ describe('Scheme', () => {
     expect((await firstResult(ls3[0].state())).address >= (await firstResult(ls3[1].state())).address).toBeTruthy()
   })
 
-  it('fetchStaticState works', async () => {
+  it('fetchState works', async () => {
     const schemes = await firstResult(Scheme.search(arc))
     const scheme = schemes[0]
-    const state = await scheme.fetchStaticState()
+    const state = await scheme.fetchState()
     expect(Object.keys(state)).toContain('address')
   })
 

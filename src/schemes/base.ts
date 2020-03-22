@@ -16,22 +16,17 @@ import { ReputationFromTokenScheme } from './reputationFromToken'
 // import * as SchemeRegistrar from './schemeRegistrar'
 // import * as UGenericScheme from './uGenericScheme'
 
-export interface ISchemeStaticState {
+export interface ISchemeState {
   id: string
   address: Address
   dao: Address
   name: string
   paramsHash: string
   version: string
-}
-
-export interface ISchemeState extends ISchemeStaticState {
   canDelegateCall: boolean
   canRegisterSchemes: boolean
   canUpgradeController: boolean
   canManageGlobalConstraints: boolean
-  dao: Address
-  paramsHash: string
   contributionRewardParams?: IContributionRewardParams
   contributionRewardExtParams?: IContributionRewardExtParams
   genericSchemeParams?: IGenericSchemeParams
@@ -235,17 +230,17 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
   }
 
   public id: Address
-  public staticState: ISchemeStaticState | null = null
+  public coreState: ISchemeState | null = null
   public ReputationFromToken: ReputationFromTokenScheme | null = null
 
-  constructor(idOrOpts: Address | ISchemeStaticState, public context: Arc) {
+  constructor(idOrOpts: Address | ISchemeState, public context: Arc) {
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts as string
       this.id = this.id.toLowerCase()
     } else {
-      this.setStaticState(idOrOpts)
-      this.id = (this.staticState as ISchemeStaticState).id
+      this.setState(idOrOpts)
+      this.id = (this.coreState as ISchemeState).id
     }
   }
 
@@ -253,31 +248,20 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
    * fetch the static state from the subgraph
    * @return the statatic state
    */
-  public async fetchStaticState(): Promise < ISchemeStaticState > {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state = await this.state({ subscribe: false}).pipe(first()).toPromise()
-      if (state === null) {
-        throw Error(`No scheme with id ${this.id} was found in the subgraph`)
-      }
-      this.staticState = {
-        address: state.address,
-        dao: state.dao,
-        id: this.id,
-        name: state.name,
-        paramsHash: state.paramsHash,
-        version: state.version
-      }
-      if (this.staticState.name ===  'ReputationFromToken') {
-        this.ReputationFromToken = new ReputationFromTokenScheme(this)
-      }
-      return state
+  public async fetchState(): Promise < ISchemeState > {
+    const state = await this.state({ subscribe: false}).pipe(first()).toPromise()
+    if (state === null) {
+      throw Error(`No scheme with id ${this.id} was found in the subgraph`)
     }
+    if (state.name ===  'ReputationFromToken') {
+      this.ReputationFromToken = new ReputationFromTokenScheme(this)
+    }
+    this.setState(state)
+    return state
   }
 
-  public setStaticState(opts: ISchemeStaticState) {
-    this.staticState = opts
+  public setState(opts: ISchemeState) {
+    this.coreState = opts
   }
   /**
    * create a new proposal in this scheme

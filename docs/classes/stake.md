@@ -24,7 +24,7 @@
 
 ### Methods
 
-* [fetchStaticState](stake.md#fetchstaticstate)
+* [fetchState](stake.md#fetchState)
 * [setStaticState](stake.md#setstaticstate)
 * [state](stake.md#state)
 * [search](stake.md#static-search)
@@ -76,9 +76,9 @@ ___
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[IStakeStaticState](../interfaces/istakestaticstate.md)›*
+▸ **fetchState**(): *Promise‹[IStakeStaticState](../interfaces/istakestaticstate.md)›*
 
 *Defined in [stake.ts:207](https://github.com/daostack/client/blob/1bc237e/src/stake.ts#L207)*
 

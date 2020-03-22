@@ -24,7 +24,7 @@
 
 ### Methods
 
-* [fetchStaticState](vote.md#fetchstaticstate)
+* [fetchState](vote.md#fetchState)
 * [setStaticState](vote.md#setstaticstate)
 * [state](vote.md#state)
 * [search](vote.md#static-search)
@@ -76,9 +76,9 @@ ___
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[IVoteStaticState](../interfaces/ivotestaticstate.md)›*
+▸ **fetchState**(): *Promise‹[IVoteStaticState](../interfaces/ivotestaticstate.md)›*
 
 *Defined in [vote.ts:197](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L197)*
 

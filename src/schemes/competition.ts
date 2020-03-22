@@ -176,7 +176,7 @@ export class CompetitionScheme extends SchemeBase {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Competition[]> {
     // TODO: This function will error if the current scheme is not a competiion scheme
-    // const staticState = await this.fetchStaticState()
+    // const staticState = await this.fetchState()
     // if (staticState.name !== `ContributionRewardExt`) {
     //   // TODO: we should also check if the calling
     //   throw Error(`This scheme is not a competition scheme - so no competitions can be found`)
@@ -658,7 +658,7 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
 
   public id: string
   public suggestionId?: number
-  public staticState?: ICompetitionSuggestionState
+  public coreState?: ICompetitionSuggestionState
 
   constructor(
     idOrOpts: string | { suggestionId: number, scheme: string } | ICompetitionSuggestionState,
@@ -676,17 +676,19 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
       } else {
         const opts = idOrOpts as ICompetitionSuggestionState
         this.id = opts.id
-        this.setStaticState(opts)
+        this.setState(opts)
       }
     }
   }
 
-  public setStaticState(opts: ICompetitionSuggestionState) {
-    this.staticState = opts
+  public setState(opts: ICompetitionSuggestionState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<ICompetitionSuggestionState> {
-    return this.state({ fetchPolicy: 'cache-first' }).pipe(first()).toPromise()
+  public async fetchState(): Promise<ICompetitionSuggestionState> {
+    const state = await this.state({ fetchPolicy: 'cache-first' }).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionSuggestionState> {
@@ -834,7 +836,7 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
   }
 
   public id?: string
-  public staticState?: ICompetitionVoteState
+  public coreState?: ICompetitionVoteState
 
   constructor(idOrOpts: string | ICompetitionVoteState, public context: Arc) {
     if (typeof idOrOpts === 'string') {
@@ -842,13 +844,13 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
     } else {
       const opts = idOrOpts as ICompetitionVoteState
       // this.id = opts.id
-      this.setStaticState(opts)
+      this.setState(opts)
     }
   }
 
-  public setStaticState(opts: ICompetitionVoteState) {
+  public setState(opts: ICompetitionVoteState) {
     this.id = opts.id
-    this.staticState = opts
+    this.coreState = opts
   }
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionVoteState> {
     const query = gql`query CompetitionVoteById

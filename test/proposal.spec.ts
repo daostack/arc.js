@@ -299,7 +299,7 @@ describe('Proposal', () => {
     const votes = await proposal.votes({}, { fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     expect(votes.length).toBeGreaterThanOrEqual(1)
     // @ts-ignore
-    const someAccount = votes[0].staticState.voter
+    const someAccount = votes[0].coreState.voter
     const votesForAccount = await proposal.votes({where: {voter: someAccount}}, { fetchPolicy: 'no-cache'})
       .pipe(first()).toPromise()
     expect(votesForAccount.length).toEqual(1)

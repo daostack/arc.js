@@ -26,7 +26,7 @@ describe('Proposal execute()', () => {
 
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
     const accounts = arc.accounts
-    const state = await executedProposal.fetchStaticState()
+    const state = await executedProposal.fetchState()
     const schemeAddress = state.scheme.address
 
     const options = {

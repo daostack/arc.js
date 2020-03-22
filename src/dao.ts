@@ -16,7 +16,7 @@ import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
-export interface IDAOStaticState {
+export interface IDAOState {
   id: Address,
   address: Address, // address of the avatar
   name: string,
@@ -25,9 +25,6 @@ export interface IDAOStaticState {
   token: Token,
   tokenName: string,
   tokenSymbol: string
-}
-
-export interface IDAOState extends IDAOStaticState {
   memberCount: number,
   reputationTotalSupply: BN,
   tokenTotalSupply: BN,
@@ -35,6 +32,10 @@ export interface IDAOState extends IDAOStaticState {
   numberOfQueuedProposals: number,
   numberOfPreBoostedProposals: number,
   numberOfBoostedProposals: number
+}
+
+export interface StateOptions extends Partial<IDAOState>{
+  address: Address
 }
 
 export interface IDAOQueryOptions extends ICommonQueryOptions {
@@ -133,39 +134,25 @@ export class DAO implements IStateful<IDAOState> {
   }
 
   public id: Address
-  public staticState: IDAOStaticState|undefined
+  public coreState: IDAOState|undefined
 
-  constructor(idOrOpts: Address|IDAOStaticState, public context: Arc) {
+  constructor(idOrOpts: Address| StateOptions, public context: Arc) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts.toLowerCase()
     } else {
       this.id = idOrOpts.address
-      this.setStaticState(idOrOpts)
+      this.setState(idOrOpts)
     }
   }
 
-  public setStaticState(opts: IDAOStaticState) {
-    this.staticState = opts
+  public setState(opts: Partial<IDAOState>) {
+    Object.assign(this.coreState, opts)
   }
 
-  public async fetchStaticState(): Promise<IDAOStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state =  await this.state().pipe(first()).toPromise()
-      const staticState = {
-        address: state.address,
-        id: state.id,
-        name: state.name,
-        register: state.register,
-        reputation: state.reputation,
-        token: state.token,
-        tokenName: state.tokenName,
-        tokenSymbol: state.tokenSymbol
-      }
-      this.setStaticState(staticState)
-      return staticState
-    }
+  public async fetchState(): Promise<IDAOState> {
+    const state =  await this.state().pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
 
   /**
@@ -187,17 +174,7 @@ export class DAO implements IStateful<IDAOState> {
       }
       const reputation = new Reputation(item.nativeReputation.id, this.context)
       const token = new Token(item.nativeToken.id, this.context)
-      this.setStaticState({
-        address: item.id,
-        id: item.id,
-        name: item.name,
-        register: item.register,
-        reputation,
-        token,
-        tokenName: item.nativeToken.name,
-        tokenSymbol: item.nativeToken.symbol
-      })
-      return {
+      const state = {
         address: item.id,
         dao: this,
         id: item.id,
@@ -214,6 +191,8 @@ export class DAO implements IStateful<IDAOState> {
         tokenSymbol: item.nativeToken.symbol,
         tokenTotalSupply: item.nativeToken.totalSupply
       }
+      this.setState(state)
+      return state
     }
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
@@ -253,10 +232,10 @@ export class DAO implements IStateful<IDAOState> {
   }
 
   public member(address: Address): Member {
-    if (this.staticState) {
+    if (this.coreState) {
       // construct member with the reputationcontract address, if this is known
       // so it can make use of the apollo cache
-      return new Member({ address, contract: this.staticState.reputation.address}, this.context)
+      return new Member({ address, contract: this.coreState.reputation.address}, this.context)
     } else {
       return new Member({ address, dao: this.id}, this.context)
     }

@@ -38,7 +38,7 @@ describe('Stake on a ContributionReward', () => {
 
     const stake = await proposal.stake(IProposalOutcome.Pass, new BN(100)).send()
 
-    const state =  await stake.result.fetchStaticState()
+    const state =  await stake.result.fetchState()
     expect(state).toMatchObject({
       outcome : IProposalOutcome.Pass
     })
@@ -123,7 +123,7 @@ describe('Stake on a ContributionReward', () => {
       const ls = lastStake()
       return ls.length > 0
     })
-    const state = await lastStake()[0].fetchStaticState()
+    const state = await lastStake()[0].fetchState()
     expect(state.outcome).toEqual(IProposalOutcome.Pass)
   })
 

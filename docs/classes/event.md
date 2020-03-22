@@ -25,7 +25,7 @@
 
 ### Methods
 
-* [fetchStaticState](event.md#fetchstaticstate)
+* [fetchState](event.md#fetchState)
 * [setStaticState](event.md#setstaticstate)
 * [state](event.md#state)
 * [search](event.md#static-search)
@@ -85,9 +85,9 @@ ___
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[IEventStaticState](../interfaces/ieventstaticstate.md)›*
+▸ **fetchState**(): *Promise‹[IEventStaticState](../interfaces/ieventstaticstate.md)›*
 
 *Defined in [event.ts:135](https://github.com/daostack/client/blob/1bc237e/src/event.ts#L135)*
 

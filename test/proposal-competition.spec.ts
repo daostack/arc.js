@@ -375,7 +375,7 @@ describe('Competition Proposal', () => {
       totalVotes: new BN(0)
     })
 
-    expect(suggestion1State).toEqual(await suggestion1.fetchStaticState())
+    expect(suggestion1State).toEqual(await suggestion1.fetchState())
 
     // filter suggestions by id, suggestionId, and proposal.id works
     expect(

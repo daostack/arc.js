@@ -25,7 +25,7 @@
 
 ### Methods
 
-* [fetchStaticState](reward.md#fetchstaticstate)
+* [fetchState](reward.md#fetchState)
 * [setStaticState](reward.md#setstaticstate)
 * [state](reward.md#state)
 * [search](reward.md#static-search)
@@ -85,9 +85,9 @@ ___
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[IRewardStaticState](../interfaces/irewardstaticstate.md)›*
+▸ **fetchState**(): *Promise‹[IRewardStaticState](../interfaces/irewardstaticstate.md)›*
 
 *Defined in [reward.ts:215](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L215)*
 

@@ -58,7 +58,7 @@ describe('Stake', () => {
     result = await Stake.search(arc, {where:  {proposal: proposal.id}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
-    const state = await result[0].fetchStaticState()
+    const state = await result[0].fetchState()
     expect(state.outcome).toEqual(IProposalOutcome.Pass)
 
     result = await Stake

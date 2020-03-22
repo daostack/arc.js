@@ -39,7 +39,7 @@ describe('Vote on a ContributionReward', () => {
     const defaultAccount = proposal.context.defaultAccount? proposal.context.defaultAccount : await proposal.context.web3.getSigner().getAddress()
 
     await waitUntilTrue(() => lastRewards().length > 1)
-    expect(lastRewards().map((r: Reward) => (r.staticState as any).beneficiary))
+    expect(lastRewards().map((r: Reward) => (r.coreState as any).beneficiary))
       .toContain(defaultAccount.toLowerCase())
   })
 

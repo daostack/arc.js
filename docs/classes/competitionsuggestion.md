@@ -21,7 +21,7 @@
 
 ### Methods
 
-* [fetchStaticState](competitionsuggestion.md#fetchstaticstate)
+* [fetchState](competitionsuggestion.md#fetchState)
 * [getPosition](competitionsuggestion.md#getposition)
 * [isWinner](competitionsuggestion.md#iswinner)
 * [redeem](competitionsuggestion.md#redeem)
@@ -88,9 +88,9 @@ ___
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[ICompetitionSuggestionState](../interfaces/icompetitionsuggestionstate.md)›*
+▸ **fetchState**(): *Promise‹[ICompetitionSuggestionState](../interfaces/icompetitionsuggestionstate.md)›*
 
 *Defined in [schemes/competition.ts:643](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L643)*
 

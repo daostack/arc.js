@@ -32,7 +32,7 @@
 * [createProposalErrorHandler](competitionscheme.md#createproposalerrorhandler)
 * [createProposalTransaction](competitionscheme.md#createproposaltransaction)
 * [createProposalTransactionMap](competitionscheme.md#createproposaltransactionmap)
-* [fetchStaticState](competitionscheme.md#fetchstaticstate)
+* [fetchState](competitionscheme.md#fetchState)
 * [getCompetitionContract](competitionscheme.md#getcompetitioncontract)
 * [proposals](competitionscheme.md#proposals)
 * [redeemSuggestion](competitionscheme.md#redeemsuggestion)
@@ -203,11 +203,11 @@ ___
 
 ___
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
+▸ **fetchState**(): *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
 
-*Inherited from [SchemeBase](schemebase.md).[fetchStaticState](schemebase.md#fetchstaticstate)*
+*Inherited from [SchemeBase](schemebase.md).[fetchState](schemebase.md#fetchState)*
 
 *Defined in [schemes/base.ts:256](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L256)*
 

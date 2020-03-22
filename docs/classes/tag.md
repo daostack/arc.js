@@ -24,7 +24,7 @@
 
 ### Methods
 
-* [fetchStaticState](tag.md#fetchstaticstate)
+* [fetchState](tag.md#fetchState)
 * [setStaticState](tag.md#setstaticstate)
 * [state](tag.md#state)
 * [search](tag.md#static-search)
@@ -76,9 +76,9 @@ ___
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[ITagStaticState](../interfaces/itagstaticstate.md)›*
+▸ **fetchState**(): *Promise‹[ITagStaticState](../interfaces/itagstaticstate.md)›*
 
 *Defined in [tag.ts:158](https://github.com/daostack/client/blob/1bc237e/src/tag.ts#L158)*
 

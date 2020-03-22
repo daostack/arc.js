@@ -26,7 +26,7 @@
 
 * [claimRewards](proposal.md#claimrewards)
 * [execute](proposal.md#execute)
-* [fetchStaticState](proposal.md#fetchstaticstate)
+* [fetchState](proposal.md#fetchState)
 * [redeemerContract](proposal.md#redeemercontract)
 * [rewards](proposal.md#rewards)
 * [scheme](proposal.md#scheme)
@@ -125,9 +125,9 @@ an Operation that, when sucessful, will contain the receipt of the transaction
 
 ___
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[IProposalStaticState](../interfaces/iproposalstaticstate.md)›*
+▸ **fetchState**(): *Promise‹[IProposalStaticState](../interfaces/iproposalstaticstate.md)›*
 
 *Defined in [proposal.ts:346](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L346)*
 

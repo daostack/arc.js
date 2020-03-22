@@ -35,7 +35,7 @@ A Scheme represents a scheme instance that is registered at a DAO
 * [createProposalErrorHandler](schemebase.md#createproposalerrorhandler)
 * [createProposalTransaction](schemebase.md#createproposaltransaction)
 * [createProposalTransactionMap](schemebase.md#createproposaltransactionmap)
-* [fetchStaticState](schemebase.md#fetchstaticstate)
+* [fetchState](schemebase.md#fetchState)
 * [proposals](schemebase.md#proposals)
 * [setStaticState](schemebase.md#setstaticstate)
 * [state](schemebase.md#abstract-state)
@@ -177,9 +177,9 @@ Name | Type |
 
 ___
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
+▸ **fetchState**(): *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
 
 *Defined in [schemes/base.ts:256](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L256)*
 

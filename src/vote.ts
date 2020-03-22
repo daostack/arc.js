@@ -7,18 +7,14 @@ import { IProposalOutcome } from './proposal'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
-export interface IVoteStaticState {
-  id?: string
+export interface IVoteState {
+  id: string
   voter: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount of reputation that was voted with
   proposal: string
   dao?: Address
-}
-
-export interface IVoteState extends IVoteStaticState {
-  id: string
 }
 
 export interface IVoteQueryOptions extends ICommonQueryOptions {
@@ -154,15 +150,15 @@ export class Vote implements IStateful<IVoteState> {
     }
   }
   public id: string|undefined
-  public staticState: IVoteStaticState|undefined
+  public coreState: IVoteState|undefined
 
-  constructor(idOrOpts: string|IVoteStaticState, public context: Arc) {
+  constructor(idOrOpts: string|IVoteState, public context: Arc) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
-      const opts = idOrOpts as IVoteStaticState
+      const opts = idOrOpts as IVoteState
       this.id = opts.id
-      this.setStaticState(opts)
+      this.setState(opts)
     }
   }
 
@@ -192,15 +188,17 @@ export class Vote implements IStateful<IVoteState> {
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
-  public setStaticState(opts: IVoteStaticState) {
-    this.staticState = opts
+  public setState(opts: IVoteState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<IVoteStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
+  public async fetchState(): Promise<IVoteState> {
+    if (!!this.coreState) {
+      return this.coreState
     } else {
-      return await this.state().pipe(first()).toPromise()
+      const state = await this.state().pipe(first()).toPromise()
+      this.setState(state)
+      return state
     }
   }
 }

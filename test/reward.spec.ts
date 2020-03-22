@@ -2,7 +2,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { Proposal } from '../src/proposal'
-import { IRewardStaticState, Reward } from '../src/reward'
+import { IRewardState, Reward } from '../src/reward'
 import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei } from './utils'
 import { getAddress } from 'ethers/utils'
 
@@ -81,16 +81,16 @@ describe('Reward', () => {
     expect(Number(ls3[0].id)).toBeGreaterThanOrEqual(Number(ls3[1].id))
   })
 
-  it('fetchStaticState works as expected', async () => {
+  it('fetchState works as expected', async () => {
     const rewards = await Reward.search(arc).pipe(first()).toPromise()
     const reward = rewards[0]
-    // staticState should be set on search
-    expect(reward.staticState).toBeTruthy()
+    // State should be set on search
+    expect(reward.coreState).toBeTruthy()
     const rewardFromId = new Reward(reward.id, arc)
-    expect(rewardFromId.staticState).not.toBeTruthy()
-    await rewardFromId.fetchStaticState()
-    expect(rewardFromId.staticState).toBeTruthy()
-    const  rewardFromStaticState = new Reward(reward.staticState as IRewardStaticState, arc)
-    expect(rewardFromStaticState.staticState).toBeTruthy()
+    expect(rewardFromId.coreState).not.toBeTruthy()
+    await rewardFromId.fetchState()
+    expect(rewardFromId.coreState).toBeTruthy()
+    const  rewardFromState = new Reward(reward.coreState as IRewardState, arc)
+    expect(rewardFromState.coreState).toBeTruthy()
   })
 })

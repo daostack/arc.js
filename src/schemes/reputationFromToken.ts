@@ -72,7 +72,7 @@ export class ReputationFromTokenScheme {
   }
 
   public async getContract() {
-    const state = await this.scheme.fetchStaticState()
+    const state = await this.scheme.fetchState()
     const contract = this.scheme.context.getContract(state.address)
     return contract
   }
