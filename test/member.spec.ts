@@ -91,33 +91,34 @@ describe('Member', () => {
   })
 
   it('Member stakes() works', async () => {
-      const stakerAccount = arc.accounts[1]
-      const member = new Member({ address: stakerAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
-      const proposal = await createAProposal()
-      const stakingToken =  await proposal.stakingToken()
-      // mint tokens with defaultAccount
-      await stakingToken.mint(stakerAccount, toWei('10000')).send()
-      // switch the defaultAccount to a fresh one
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    const stakerAccount = await arc.web3.getSigner(0).getAddress()
+    const member = new Member({ address: stakerAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
+    const proposal = await createAProposal()
+    const stakingToken =  await proposal.stakingToken()
+    // mint tokens with defaultAccount
+    await stakingToken.mint(stakerAccount, toWei('10000')).send()
+    // switch the defaultAccount to a fresh one
 
-      stakingToken.context.defaultAccount = stakerAccount
-      const votingMachine = await proposal.votingMachine()
-      await stakingToken.approveForStaking(votingMachine.address, toWei('1000')).send()
+    stakingToken.context.defaultAccount = stakerAccount
+    const votingMachine = await proposal.votingMachine()
+    await stakingToken.approveForStaking(votingMachine.address, toWei('1000')).send()
 
-      await proposal.stake(IProposalOutcome.Pass, toWei('99')).send()
-      let stakes: Stake[] = []
-      member.stakes({ where: { proposal: proposal.id}}).subscribe(
-        (next: Stake[]) => { stakes = next }
-      )
-      // wait until the proposal has been indexed
-      await waitUntilTrue(() => stakes.length > 0)
+    await proposal.stake(IProposalOutcome.Pass, toWei('99')).send()
+    let stakes: Stake[] = []
+    member.stakes({ where: { proposal: proposal.id}}).subscribe(
+      (next: Stake[]) => { stakes = next }
+    )
+    // wait until the proposal has been indexed
+    await waitUntilTrue(() => stakes.length > 0)
 
-      expect(stakes.length).toBeGreaterThan(0)
-      const stakeState = await stakes[0].fetchStaticState()
-      expect(stakeState.staker).toEqual(stakerAccount.toLowerCase())
-      expect(fromWei(stakeState.amount)).toEqual('99')
-      // clean up after test
-      arc.defaultAccount = defaultAccount
-    })
+    expect(stakes.length).toBeGreaterThan(0)
+    const stakeState = await stakes[0].fetchStaticState()
+    expect(stakeState.staker).toEqual(stakerAccount.toLowerCase())
+    expect(fromWei(stakeState.amount)).toEqual('99')
+    // clean up after test
+    arc.defaultAccount = defaultAccount
+  })
 
   it('Member votes() works', async () => {
     const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address}, arc)

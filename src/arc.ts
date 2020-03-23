@@ -1,6 +1,6 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
-import { Observable, Observer, of, Subscription } from 'rxjs'
+import { Observable, Observer, of } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { DAO, IDAOQueryOptions } from './dao'
 import { GraphNodeObserver, IApolloQueryOptions } from './graphnode'
@@ -20,9 +20,7 @@ import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
 import { JsonRpcProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
-import { ethers } from 'ethers'
-
-//import { providers } from 'ethers'
+import { ethers, Contract } from 'ethers'
 
 /**
  * The Arc class holds all configuration.
@@ -33,7 +31,7 @@ export class Arc extends GraphNodeObserver {
   public web3Provider: Web3Provider = ''
   public web3ProviderRead: Web3Provider = ''
   public ipfsProvider: IPFSProvider
-  public accounts: string[] = []
+
   public defaultAccount: string | undefined = undefined
 
   public pendingOperations: Observable<Array<Operation<any>>> = of()
@@ -41,16 +39,13 @@ export class Arc extends GraphNodeObserver {
   public ipfs: any
   public web3: JsonRpcProvider | undefined = undefined
   public web3Read: JsonRpcProvider | undefined = undefined // if provided, arc will read all data from this provider
+
   /**
    * a mapping of contrct names to contract addresses
    */
   public contractInfos: IContractInfo[]
-  public contracts: { [key: string]: any } = {} // a cache for the contracts
-  public contractsR: { [key: string]: any } = {} // a cache for teh "read-only" contracts
 
   // accounts observed by ethBalance
-  public blockHeaderSubscription: Subscription | undefined = undefined
-  public blockHeaderObservable: Observable<any> = new Observable()
   public observedAccounts: {
     [address: string]: {
       observable?: Observable<BN>
@@ -116,9 +111,6 @@ export class Arc extends GraphNodeObserver {
    * @return
    */
   public async setContractInfos(contractInfos: IContractInfo[]) {
-    // reset the cache
-    this.contracts = {}
-    this.contractsR = {}
     this.contractInfos = contractInfos
   }
 
@@ -222,68 +214,28 @@ export class Arc extends GraphNodeObserver {
     const observable = Observable.create((observer: Observer<BN>) => {
       this.observedAccounts[owner].observer = observer
 
-      // get the current balance and return it
-
-      if (!this.web3Read) throw new Error('Web3 Read Provider not defined')
-
-      this.web3Read.getBalance(owner)
-        .then((currentBalance: BigNumber) => {
-          const accInfo = this.observedAccounts[owner];
-          (accInfo.observer as Observer<BN>).next(new BN(currentBalance.toString()))
-          accInfo.lastBalance = currentBalance.toString()
-        })
-        .catch((err: Error) => {
-          observer.error(err)
-          throw err
-        })
-
-      // set up the blockheadersubscription if it does not exist yet
-      if (!this.blockHeaderSubscription) {
-        const subscribeToBlockHeaders = () => {
-          this.blockHeaderSubscription = new Observable(() => {
-            console.log("HERE")
-            if (!this.web3Read) throw new Error('Web3 Read Provider not defined')
-            this.web3Read.on('block', async () => {
-              Object.keys(this.observedAccounts).forEach(async (addr) => {
-                const accInfo = this.observedAccounts[addr]
-                try {
-  
-                  if (!this.web3Read) throw new Error('Web3 Read Provider not defined')
-  
-                  const balanceBigNumber = await this.web3Read.getBalance(addr)
-                  const balance = balanceBigNumber.toString()
-                  if (balance !== accInfo.lastBalance) {
-                    (accInfo.observer as Observer<BN>).next(new BN(balance))
-                    accInfo.lastBalance = balance
-                  }
-                } catch (err) {
-                  observer.error(err)
-                  throw err
-                }
-              })
-            })
-          }).subscribe()
-        }
-        try {
-          subscribeToBlockHeaders()
-        } catch (err) {
-          if (err.message.match(/connection not open/g)) {
-            // we need to re-establish the connection and then resubscribe
-            this.web3 = new JsonRpcProvider(this.web3Provider.toString())
-            subscribeToBlockHeaders()
-          }
-          throw err
-        }
+      if (!this.web3Read) {
+        throw new Error('Web3 Read Provider not defined')
       }
+
+      const onBalanceChange = (balance: BigNumber) => {
+        const accInfo = this.observedAccounts[owner];
+        (accInfo.observer as Observer<BN>).next(new BN(balance.toString()))
+        accInfo.lastBalance = balance.toString()
+      }
+
+      // called whenever the account balance changes
+      this.web3Read.on(owner, onBalanceChange)
+
+
       // unsubscribe
       return () => {
         this.observedAccounts[owner].subscriptionsCount -= 1
         if (this.observedAccounts[owner].subscriptionsCount <= 0) {
           delete this.observedAccounts[owner]
         }
-        if (Object.keys(this.observedAccounts).length === 0 && this.blockHeaderSubscription) {
-          this.blockHeaderSubscription.unsubscribe()
-          this.blockHeaderSubscription = undefined
+        if (this.web3Read) {
+          this.web3Read.removeListener(owner, onBalanceChange)
         }
       }
     })
@@ -355,35 +307,28 @@ export class Arc extends GraphNodeObserver {
    * @param  [version] (optional) Arc version of contract (https://www.npmjs.com/package/@daostack/arc)
    * @return   a web3 contract instance
    */
-  public getContract(address: Address, abi?: any, mode?: 'readonly') {
+  public getContract(address: Address, abi?: any, mode?: 'readonly'): Contract {
     // we use a contract "cache" because web3 contract instances add an event listener
 
     const readonlyContract = (mode === 'readonly' && this.web3Read !== this.web3)
-    if (readonlyContract && this.contractsR[address]) {
-      return this.contractsR[address]
-    } else if (this.contracts[address]) {
-      return this.contracts[address]
-    } else {
-      if (!abi) {
-        abi = this.getABI(address)
-      }
-      let contract: any
 
-      if (readonlyContract) {
-
-        if (!this.web3Read) throw new Error('Web3 Read provider not set')
-
-        contract = new ethers.Contract(address, abi, this.web3Read.getSigner())
-        this.contractsR[address] = contract
-      } else {
-
-        if (!this.web3) throw new Error('Web3 provider not set')
-
-        contract = new ethers.Contract(address, abi, this.web3.getSigner())
-        this.contracts[address] = contract
-      }
-      return contract
+    if (!abi) {
+      abi = this.getABI(address)
     }
+    let contract: Contract
+
+    if (readonlyContract) {
+
+      if (!this.web3Read) throw new Error('Web3 Read provider not set')
+
+      contract = new Contract(address, abi, this.web3Read.getSigner(this.defaultAccount))
+    } else {
+
+      if (!this.web3) throw new Error('Web3 provider not set')
+
+      contract = new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
+    }
+    return contract
   }
 
   /**
@@ -411,27 +356,25 @@ export class Arc extends GraphNodeObserver {
       const interval = 1000 /// poll once a second
       let account: any
       let prevAccount: any
-      //const web3 = this.web3
+      const web3 = this.web3
 
-      if (this.accounts[0]) {
-        observer.next(this.accounts[0])
-        prevAccount = this.accounts[0]
-      } else if (this.defaultAccount) {
+      if (this.defaultAccount) {
         observer.next(this.defaultAccount)
         prevAccount = this.defaultAccount
       }
+
       const timeout = setInterval(() => {
+        if (!web3) {
+          throw new Error('Web3 provider not set')
+        }
 
-        if (!this.web3) throw new Error('Web3 provider not set')
-
-        this.web3.listAccounts().then((accounts: string[]) => {
-          if (accounts) {
+        web3.listAccounts().then((accounts: string[]) => {
+          if (this.defaultAccount) {
+            account = this.defaultAccount
+          } else if (accounts) {
             account = accounts[0]
-          } else if (this.accounts) {
-            account = this.accounts[0]
           }
           if (prevAccount !== account && account) {
-            this.defaultAccount = account
             observer.next(account)
             prevAccount = account
           }

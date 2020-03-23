@@ -85,8 +85,10 @@ describe('Competition Proposal', () => {
 
     contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
     dao = new DAO(contributionRewardExtState.dao, arc)
-    address0 = arc.accounts[0].toLowerCase()
-    address1 = arc.accounts[1].toLowerCase()
+
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    address0 = (await arc.web3.getSigner(0).getAddress()).toLowerCase()
+    address1 = (await arc.web3.getSigner(1).getAddress()).toLowerCase()
   })
 
   afterEach(async () => {

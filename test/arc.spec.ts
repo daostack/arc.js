@@ -119,8 +119,11 @@ describe('Arc ', () => {
     const balances1: BN[] = []
     const balances2: BN[] = []
     const balances3: BN[] = []
-    const address1 = arc.accounts[1]
-    const address2 = arc.accounts[2]
+
+    if (!arc.web3) throw new Error('Web3 provider not set')
+
+    const address1 = await arc.web3.getSigner(1).getAddress()
+    const address2 = await arc.web3.getSigner(2).getAddress()
 
     const subscription1 = arc.ethBalance(address1).subscribe((balance) => {
       balances1.push(balance)
@@ -177,8 +180,6 @@ describe('Arc ', () => {
     await subscription3.unsubscribe()
     // check if we cleanup up completely
     expect(Object.keys(arc.observedAccounts).length).toEqual(0)
-    expect(arc.blockHeaderSubscription).toEqual(undefined)
-
   })
 
   it('arc.proposal() should work', async () => {

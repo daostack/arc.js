@@ -19,7 +19,8 @@ describe('Reputation', () => {
     arc = await newArc()
     addresses = getTestAddresses(arc)
     address = addresses.dao.Reputation
-    accounts = arc.accounts
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    accounts = await arc.web3.listAccounts()
   })
 
   it('Reputation is instantiable', () => {

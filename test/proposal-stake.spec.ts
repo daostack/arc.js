@@ -23,7 +23,8 @@ describe('Stake on a ContributionReward', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    accounts = arc.accounts
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    accounts = await arc.web3.listAccounts()
     dao = await getTestDAO()
   })
 

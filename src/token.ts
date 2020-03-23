@@ -6,8 +6,6 @@ import { Arc, IApolloQueryOptions } from './arc'
 import { DAOTOKEN_CONTRACT_VERSION } from './settings'
 import { Address, Hash, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
-
-import { providers } from 'ethers'
 import { BigNumber } from 'ethers/utils'
 
 export interface ITokenState {
@@ -135,12 +133,8 @@ export class Token implements IStateful<ITokenState> {
 
   public balanceOf(owner: string): Observable<BN> {
     const errHandler = async (err: Error) => {
-      if (err.message.match(/Returned values aren't valid/g)) {
+      if (err.message.match(/Returned values aren't valid/g) && this.context.web3) {
         // check if there is actually a contract deployed there
-        
-        //TODO: Not instantiating web3 provider here
-        this.context.web3 = new providers.JsonRpcProvider('http://localhost:8545')
-
         const code = await this.context.web3.getCode(this.address)
         if (code === '0x') {
           return new Error(`Cannot get balanceOf(): there is no contract at this address ${this.address}`)

@@ -25,7 +25,8 @@ describe('Proposal execute()', () => {
   it('runs correctly through the stages', async () => {
 
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    const accounts = arc.accounts
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    const accounts = await arc.web3.listAccounts()
     const state = await executedProposal.fetchStaticState()
     const schemeAddress = state.scheme.address
 
