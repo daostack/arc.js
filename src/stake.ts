@@ -8,7 +8,7 @@ import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IStakeState {
-  id: string
+  id?: string
   staker: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome

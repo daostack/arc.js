@@ -19,8 +19,8 @@ import { utils } from 'ethers'
 export interface IMemberState {
   address: Address,
   dao?: Address
-  contract: Address
-  id: string
+  contract?: Address
+  id?: string
   reputation: BN
 }
 
@@ -94,7 +94,13 @@ export class Member implements IStateful<IMemberState> {
 
       return context.getObservableList(
           query,
-          (r: any) => new Member({ id: r.id, address: r.address, dao: r.dao.id, contract: r.contract}, context),
+          (r: any) => {
+            return new Member({
+              address: r.address,
+              contract: r.contract,
+              reputation: new BN(r.balance)
+            }, context)
+          },
           apolloQueryOptions
         )
       }
@@ -119,12 +125,8 @@ export class Member implements IStateful<IMemberState> {
 
   public async fetchState(): Promise<IMemberState> {
     const state = await this.state().pipe(first()).toPromise()
-    return this.setState({
-      address: state.address,
-      contract: state.contract,
-      dao: state.dao,
-      id: state.id
-    })
+    this.setState(state)
+    return state
   }
   public calculateId(opts: { contract: Address, address: Address}): string {
     const seed = concat(
@@ -143,7 +145,8 @@ export class Member implements IStateful<IMemberState> {
       address: opts.address.toLowerCase(),
       contract: opts.contract && opts.contract.toLowerCase(),
       dao: opts.dao && opts.dao.toLowerCase(),
-      id: opts.id
+      id: opts.id,
+      reputation: opts.reputation
     }
     return this.coreState
   }

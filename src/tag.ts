@@ -9,7 +9,7 @@ import { createGraphQlQuery } from './utils'
 export interface ITagState {
   id: string
   numberOfProposals: number
-  proposals: Proposal[]
+  proposals?: Proposal[]
 }
 
 export interface ITagQueryOptions extends ICommonQueryOptions {
@@ -60,7 +60,8 @@ export class Tag implements IStateful<ITagState> {
     const itemMap = (r: any) => {
       return new Tag({
         id: r.id,
-        numberOfProposals: Number(r.numberOfProposals)
+        numberOfProposals: Number(r.numberOfProposals),
+        proposals: r.proposals.map((id: string) => new Proposal(id, context))
       }, context)
     }
 

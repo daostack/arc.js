@@ -8,7 +8,7 @@ import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IVoteState {
-  id: string
+  id?: string
   voter: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome

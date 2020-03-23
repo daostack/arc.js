@@ -142,21 +142,36 @@ export class Scheme extends SchemeBase  {
 
     const itemMap = (item: any): Scheme|null => {
       if (!options.where) { options.where = {}}
+      
       if (isCompetitionScheme(context, item)) {
         return new Competition.CompetitionScheme({
           address: item.address,
+          canDelegateCall: item.canDelegateCall,
+          canManageGlobalConstraints: item.canManageGlobalConstraints,
+          canRegisterSchemes: item.canRegisterSchemes,
+          canUpgradeController: item.canUpgradeController,
           dao: item.dao.id,
           id: item.id,
           name: item.name,
+          numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+          numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+          numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
           paramsHash: item.paramsHash,
           version: item.version
         }, context)
       } else {
         const scheme = new Scheme({
           address: item.address,
+          canDelegateCall: item.canDelegateCall,
+          canManageGlobalConstraints: item.canManageGlobalConstraints,
+          canRegisterSchemes: item.canRegisterSchemes,
+          canUpgradeController: item.canUpgradeController,
           dao: item.dao.id,
           id: item.id,
           name: item.name,
+          numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+          numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+          numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
           paramsHash: item.paramsHash,
           version: item.version
         }, context)

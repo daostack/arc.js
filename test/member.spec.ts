@@ -7,7 +7,7 @@ import { Stake } from '../src/stake'
 import { Address } from '../src/types'
 import { Vote } from '../src/vote'
 import { createAProposal, fromWei,
-  getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
+  getTestDAO, newArc, toWei, waitUntilTrue, BN } from './utils'
 
 jest.setTimeout(60000)
 
@@ -31,7 +31,7 @@ describe('Member', () => {
   })
 
   it('Member is instantiable', () => {
-    const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
+    const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address, reputation: new BN(0)}, arc)
     expect(member).toBeInstanceOf(Member)
     const memberFromId = new Member('0xsomeId', arc)
     expect(memberFromId).toBeInstanceOf(Member)
@@ -49,7 +49,7 @@ describe('Member', () => {
     const members = await Member.search(arc, {where: { dao: dao.id}}).pipe(first()).toPromise()
     const member = members[0]
     const memberState = await member.state().pipe(first()).toPromise()
-    const newMember = new Member({dao: memberState.dao, address: memberState.address}, arc)
+    const newMember = new Member(memberState, arc)
     const newMemberState = await newMember.state().pipe(first()).toPromise()
     expect(memberState).toEqual(newMemberState)
   })
@@ -58,7 +58,8 @@ describe('Member', () => {
     const member = new Member({
       address: '0xe3016a92b6c728f5a55fe45029804de60148c689',
       contract: daoState.reputation.address,
-      dao: dao.id
+      dao: dao.id,
+      reputation: new BN(0)
     }, arc)
     const memberState = await member.state().pipe(first()).toPromise()
     expect(Number(memberState.reputation)).toEqual(0)
@@ -70,7 +71,8 @@ describe('Member', () => {
     const member = new Member({
       address: '0xe3016a92b6c728f5a55fe45029804de601481234',
       contract: daoState.reputation.address,
-      dao: dao.id
+      dao: dao.id,
+      reputation: new BN(0)
     }, arc)
     const memberState = await member.state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
     expect(Number(memberState.reputation)).toEqual(0)
@@ -80,7 +82,7 @@ describe('Member', () => {
 
 
   it('Member proposals() works', async () => {
-    const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
+    const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address, reputation: new BN(0)}, arc)
     let proposals: Proposal[] = []
     member.proposals().subscribe((next: Proposal[]) => proposals = next)
     // wait until the proposal has been indexed
@@ -92,7 +94,7 @@ describe('Member', () => {
 
   it('Member stakes() works', async () => {
       const stakerAccount = arc.accounts[1]
-      const member = new Member({ address: stakerAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
+      const member = new Member({ address: stakerAccount, dao: dao.id, contract: daoState.reputation.address, reputation: new BN(0)}, arc)
       const proposal = await createAProposal()
       const stakingToken =  await proposal.stakingToken()
       // mint tokens with defaultAccount
@@ -120,7 +122,7 @@ describe('Member', () => {
     })
 
   it('Member votes() works', async () => {
-    const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
+    const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address, reputation: new BN(0)}, arc)
     const proposal = await createAProposal()
     const votes: Vote[][] = []
     member.votes().subscribe((next: Vote[]) => votes.push(next))

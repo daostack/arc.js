@@ -28,14 +28,10 @@ export interface IDAOState {
   memberCount: number,
   reputationTotalSupply: BN,
   tokenTotalSupply: BN,
-  dao: DAO,
+  dao?: DAO,
   numberOfQueuedProposals: number,
   numberOfPreBoostedProposals: number,
   numberOfBoostedProposals: number
-}
-
-export interface StateOptions extends Partial<IDAOState>{
-  address: Address
 }
 
 export interface IDAOQueryOptions extends ICommonQueryOptions {
@@ -118,12 +114,18 @@ export class DAO implements IStateful<IDAOState> {
           return new DAO({
             address: r.id,
             id: r.id,
+            memberCount: Number(r.reputationHoldersCount),
             name: r.name,
+            numberOfBoostedProposals: Number(r.numberOfBoostedProposals),
+            numberOfPreBoostedProposals: Number(r.numberOfPreBoostedProposals),
+            numberOfQueuedProposals: Number(r.numberOfQueuedProposals),
             register: r.register,
             reputation,
+            reputationTotalSupply: new BN(r.nativeReputation.totalSupply),
             token,
-            tokenName: r.tokenName,
-            tokenSymbol: r.tokenSymbol
+            tokenName: r.nativeToken.name,
+            tokenSymbol: r.nativeToken.symbol,
+            tokenTotalSupply: r.nativeToken.totalSupply
           }, context)
         } else {
           return new DAO(r.id, context)
@@ -136,7 +138,7 @@ export class DAO implements IStateful<IDAOState> {
   public id: Address
   public coreState: IDAOState|undefined
 
-  constructor(idOrOpts: Address| StateOptions, public context: Arc) {
+  constructor(idOrOpts: Address| IDAOState, public context: Arc) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts.toLowerCase()
     } else {
@@ -145,8 +147,8 @@ export class DAO implements IStateful<IDAOState> {
     }
   }
 
-  public setState(opts: Partial<IDAOState>) {
-    Object.assign(this.coreState, opts)
+  public setState(opts: IDAOState) {
+    this.coreState = opts
   }
 
   public async fetchState(): Promise<IDAOState> {
@@ -235,9 +237,9 @@ export class DAO implements IStateful<IDAOState> {
     if (this.coreState) {
       // construct member with the reputationcontract address, if this is known
       // so it can make use of the apollo cache
-      return new Member({ address, contract: this.coreState.reputation.address}, this.context)
+      return new Member({ address, contract: this.coreState.reputation.address, reputation: this.coreState.reputationTotalSupply}, this.context)
     } else {
-      return new Member({ address, dao: this.id}, this.context)
+      return new Member({ address, dao: this.id, reputation: new BN(0)}, this.context)
     }
   }
 

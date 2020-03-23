@@ -98,12 +98,16 @@ export class Reward implements IStateful<IRewardState> {
       beneficiary: item.beneficiary,
       createdAt: item.createdAt,
       daoBountyForStaker: new BN(item.daoBountyForStaker),
+      daoBountyForStakerRedeemedAt: Number(item.daoBountyForStakerRedeemedAt),
       id: item.id,
       proposalId: item.proposal.id,
       reputationForProposer: new BN(item.reputationForProposer),
+      reputationForProposerRedeemedAt: Number(item.reputationForProposerRedeemedAt),
       reputationForVoter: new BN(item.reputationForVoter),
+      reputationForVoterRedeemedAt: Number(item.reputationForVoterRedeemedAt),
       tokenAddress: item.tokenAddress,
-      tokensForStaker: new BN(item.tokensForStaker)
+      tokensForStaker: new BN(item.tokensForStaker),
+      tokensForStakerRedeemedAt: Number(item.tokensForStakerRedeemedAt)
     }, context)
 
     let query
