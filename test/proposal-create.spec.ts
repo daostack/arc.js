@@ -24,8 +24,8 @@ describe('Create a ContributionReward proposal', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    if (!arc.web3) throw new Error('Web3 provider not set')
-    accounts = await arc.web3.listAccounts()
+    if (!arc.web3Read) throw new Error('Web3 provider not set')
+    accounts = await arc.web3Read.listAccounts()
     arc.defaultAccount = accounts[0]
     testAddresses = getTestAddresses(arc)
     dao = await getTestDAO()

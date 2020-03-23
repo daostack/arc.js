@@ -89,7 +89,7 @@ describe('apolloClient', () => {
       graphqlHttpProvider,
       graphqlWsProvider,
       ipfsProvider: '',
-      web3Provider: 'ws://127.0.0.1:8545'
+      web3Provider: 'http://127.0.0.1:8545'
     })
     const query = gql`{
         reputationMints {
@@ -128,7 +128,7 @@ describe('apolloClient', () => {
       graphqlHttpProvider,
       graphqlWsProvider,
       ipfsProvider: '',
-      web3Provider: 'ws://127.0.0.1:8545'
+      web3Provider: 'http://127.0.0.1:8545'
     })
     const query = gql`{
         reputationMints {

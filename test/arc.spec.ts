@@ -13,8 +13,7 @@ import {
   newArcWithoutEthereum,
   newArcWithoutGraphql,
   toWei,
-  waitUntilTrue,
-  web3Provider
+  waitUntilTrue
 } from './utils'
 
 import { BigNumber } from 'ethers/utils'
@@ -31,7 +30,7 @@ describe('Arc ', () => {
       graphqlHttpProvider: 'https://graphql.provider',
       graphqlWsProvider: 'https://graphql.provider',
       ipfsProvider: 'http://localhost:5001/api/v0',
-      web3Provider: 'wss://web3.provider'
+      web3Provider: 'http://web3.provider'
     })
     expect(arc).toBeInstanceOf(Arc)
   })
@@ -195,25 +194,6 @@ describe('Arc ', () => {
     expect(proposals.length).toBeGreaterThanOrEqual(6)
   })
 
-  it('separates reading and sending transactions correctly', async () => {
-    // these tests are a bit clumsy, because we have access to only a single node
-
-    // we now expect all read operations to fail, and all write operations to succeed
-    const arcWrite = await newArc({ web3ProviderRead: 'http://does.not.exist' })
-
-    expect(arcWrite.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
-      .rejects.toThrow()
-    expect(arcWrite.GENToken().balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
-      .rejects.toThrow()
-    expect(arcWrite.GENToken()
-      .allowance('0x90f8bf6a479f320ead074411a4b0e7944ea81111', '0x90f8bf6a479f320ead074411a4b0e7944ea81111')
-      .pipe(first()).toPromise())
-      .rejects.toThrow()
-    // we now expect all write operations to fail, and all read operations to succeed
-    const arcRead = await newArc({ web3Provider: 'http://doesnotexist.com', web3ProviderRead: web3Provider})
-    expect(await arcRead.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
-      .toEqual(new BN(0))
-  })
   it('arc.scheme() should work', async () => {
     const arc = await newArc()
     const schemeId = '0x124355'

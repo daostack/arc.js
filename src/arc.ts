@@ -366,7 +366,7 @@ export class Arc extends GraphNodeObserver {
       const interval = 1000 /// poll once a second
       let account: any
       let prevAccount: any
-      const web3 = this.web3
+      const web3 = this.web3Read
 
       if (this.defaultAccount) {
         observer.next(this.defaultAccount)

@@ -106,8 +106,8 @@ describe('Vote on a ContributionReward', () => {
   it('handles the case of voting without reputation nicely', async () => {
     // TODO: write this test!
     const proposal = await createAProposal()
-    if (!arc.web3) throw new Error('Web3 provider not set')
-    const accounts = await arc.web3.listAccounts()
+    if (!arc.web3Read) throw new Error('Web3 provider not set')
+    const accounts = await arc.web3Read.listAccounts()
     const accountWithNoRep = accounts[6]
     const reputation = await firstResult(dao.nativeReputation())
     const balance = await firstResult(reputation.reputationOf(accountWithNoRep))

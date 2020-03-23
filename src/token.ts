@@ -1,6 +1,6 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
-import { Observable, Observer, Subscription } from 'rxjs'
+import { Observable, Observer } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAOTOKEN_CONTRACT_VERSION } from './settings'
@@ -144,11 +144,24 @@ export class Token implements IStateful<ITokenState> {
     }
     const observable = Observable.create(async (observer: Observer<BN>) => {
       const contract = this.contract('readonly')
-      let subscriptionReceive: Subscription
-      let subscriptionSend: Subscription
+
+      const toFilter = contract.filters.Transfer(null, owner)
+      const onTransferTo = (data: any) => {
+        contract.balanceOf(owner).then((newBalance: BigNumber) => {
+          observer.next(new BN(newBalance.toString()))
+        })
+      }
+
+      const fromFilter = contract.filters.Transfer(owner)
+      const onTransferFrom = (data: any) => {
+        contract.balanceOf(owner).then((newBalance: number) => {
+          observer.next(new BN(newBalance.toString()))
+        })
+      }
+
       const unsubscribe = () => {
-        if (subscriptionReceive) { subscriptionReceive.unsubscribe() }
-        if (subscriptionSend) { subscriptionSend.unsubscribe() }
+        contract.removeListener(toFilter, onTransferTo)
+        contract.removeListener(fromFilter, onTransferFrom)
       }
       const subscribe = () => contract.balanceOf(owner)
         .then((balance: BigNumber) => {
@@ -156,22 +169,8 @@ export class Token implements IStateful<ITokenState> {
             observer.error(`balanceOf ${owner} returned null`)
           }
           observer.next(new BN(balance.toString()))
-
-          const toFilter = contract.filters.Transfer(null, owner)
-
-          subscriptionReceive = contract.on(toFilter, (data: any) => {
-              contract.balanceOf(owner).then((newBalance: BigNumber) => {
-                observer.next(new BN(newBalance.toString()))
-              })
-            })
-
-          const fromFilter = contract.filters.Transfer(owner)
-
-          subscriptionSend = contract.on(fromFilter, (data: any) => {
-              contract.balanceOf(owner).then((newBalance: number) => {
-                observer.next(new BN(newBalance.toString()))
-              })
-            })
+          contract.on(toFilter, onTransferTo)
+          contract.on(fromFilter, onTransferFrom)
         })
         .catch(async (err: Error) => {
           if (err.message.match(/connection not open/g)) {
@@ -189,28 +188,27 @@ export class Token implements IStateful<ITokenState> {
 
   public allowance(owner: Address, spender: Address): Observable<BN> {
     return Observable.create(async (observer: Observer<BN>) => {
-      let subscription: Subscription
       const contract = this.contract('readonly')
+
+      const filter = contract.filters.Approval(owner)
+      const onApproval = () => {
+        // const newBalance = data.returnValues.value
+        contract.allowance(owner, spender).then((newBalance: number) => {
+          observer.next(new BN(newBalance.toString()))
+        })
+      }
+
       contract.allowance(owner, spender)
         .then((balance: BigNumber) => {
           if (balance === null) {
             observer.error(`balanceOf ${owner} returned null`)
           }
           observer.next(new BN(balance.toString()))
-          const filter = contract.filters.Approval(owner)
-          subscription = contract
-            .on(filter, () => {
-              // const newBalance = data.returnValues.value
-              contract.allowance(owner, spender).then((newBalance: number) => {
-                observer.next(new BN(newBalance.toString()))
-            })
-          })
+          contract.on(filter, onApproval)
         })
         .catch((err: Error) => { observer.error(err)})
       return () => {
-        if (subscription) {
-          subscription.unsubscribe()
-        }
+        contract.removeListener(filter, onApproval)
       }
     })
   }

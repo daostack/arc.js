@@ -7,6 +7,11 @@ import { utils, providers } from 'ethers'
 
 const checkAddress = (address: string) => {
   try {
+    // If the address is all upper-case, convert to lower case
+    if (address.indexOf('0X') > -1) {
+      address = address.toLowerCase()
+    }
+
     const result = utils.getAddress(address)
     if(!result) throw new Error("Invalid address")
 

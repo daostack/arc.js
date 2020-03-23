@@ -33,7 +33,7 @@ describe('client handles errors', () => {
       graphqlRetryLink: retryLink,
       graphqlWsProvider,
       ipfsProvider: '',
-      web3Provider: 'ws://127.0.0.1:8545'
+      web3Provider: 'http://127.0.0.1:8545'
     })
 
     // the call to fetchContractInfos() will fail because the graphqlHttp endpoint is not reposding

@@ -98,8 +98,6 @@ export async function newArc(options: { [key: string]: any } = {}): Promise<Arc>
   const arc = new Arc(Object.assign(defaultOptions, options))
   // get the contract addresses from the subgraph
   await arc.fetchContractInfos()
-  if (!arc.web3) throw new Error('Web3 provider not set')
-  arc.defaultAccount = (await arc.web3.listAccounts())[0]
   return arc
 }
 
@@ -175,8 +173,8 @@ export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
   const addresses = getTestAddresses(arc, version)
   const token = new Reputation(addresses.test.organs.DemoReputation, arc)
-  if (!arc.web3) throw new Error('Web3 provider not set')
-  const accounts = await arc.web3.listAccounts()
+  if (!arc.web3Read) throw new Error('Web3 provider not set')
+  const accounts = await arc.web3Read.listAccounts()
   await token.mint(accounts[1], new BN('99')).send()
 }
 
@@ -196,8 +194,8 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
 // Vote and vote and vote for proposal until it is accepted
 export async function voteToPassProposal(proposal: Proposal) {
   const arc = proposal.context
-  if (!arc.web3) throw new Error('Web3 provider not set')
-  const accounts = await arc.web3.listAccounts()
+  if (!arc.web3Read) throw new Error('Web3 provider not set')
+  const accounts = await arc.web3Read.listAccounts()
   // make sure the proposal is indexed
   await waitUntilTrue(async () => {
     const state = await proposal.state({ fetchPolicy: 'network-only' }).pipe(first()).toPromise()

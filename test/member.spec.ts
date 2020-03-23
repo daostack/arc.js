@@ -115,7 +115,7 @@ describe('Member', () => {
     expect(stakes.length).toBeGreaterThan(0)
     const stakeState = await stakes[0].fetchStaticState()
     expect(stakeState.staker).toEqual(stakerAccount.toLowerCase())
-    expect(fromWei(stakeState.amount)).toEqual('99')
+    expect(fromWei(stakeState.amount)).toEqual('99.0')
     // clean up after test
     arc.defaultAccount = defaultAccount
   })
