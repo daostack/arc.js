@@ -10,8 +10,6 @@ import { Address } from '../types'
 
 import { Scheme } from '../scheme'
 
-import { stringToBytes32 } from '../utils'
-
 export class ReputationFromTokenScheme {
 
   constructor(public scheme: Scheme) {
@@ -46,7 +44,7 @@ export class ReputationFromTokenScheme {
           }
           transaction = contract.redeem(
             beneficiary,
-            stringToBytes32(agreementHash)
+            agreementHash
           )
 
         }

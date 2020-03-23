@@ -221,7 +221,3 @@ export async function getBlockTime(web3: any) {
     return now
   }
 }
-
-export function stringToBytes32(value: string) {
-  return utils.formatBytes32String(value)
-}

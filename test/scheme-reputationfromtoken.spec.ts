@@ -41,7 +41,7 @@ describe('Scheme', () => {
 
     await expect(reputationFromToken.redeem(
       defaultAccount,
-      '0x01234' // <- wrong hash
+      '0x0123400000000000000000000000000000000000000000000000000000000000' // <- wrong hash
     ).send()).rejects.toThrow('must send the right agreementHash')
 
     // TODO: this reverst, would be nice to have a working test
