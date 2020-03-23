@@ -57,7 +57,7 @@ describe('Arc ', () => {
     const allowances: BN[] = []
     const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
     const amount = toWei(1001)
-    await arc.approveForStaking(spender, amount)
+    await arc.approveForStaking(spender, amount).send()
 
     if (!arc.web3) throw new Error('Web3 provider not set')
     const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
@@ -78,7 +78,7 @@ describe('Arc ', () => {
     const allowances: BN[] = []
     const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
     const amount = toWei(1001)
-    await arc.approveForStaking(spender, amount)
+    await arc.approveForStaking(spender, amount).send()
 
     if (!arc.web3) throw new Error('Web3 provider not set')
     const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
@@ -140,7 +140,7 @@ describe('Arc ', () => {
       await arc.web3.getSigner().sendTransaction({
         gasPrice: 100000000000,
         to: address,
-        value: new BigNumber(amount.toString()).toHexString()
+        value: new BigNumber(amount.toString())
       })
 
     }
@@ -201,20 +201,16 @@ describe('Arc ', () => {
     // we now expect all read operations to fail, and all write operations to succeed
     const arcWrite = await newArc({ web3ProviderRead: 'http://does.not.exist' })
 
-    expect(() =>
-      arcWrite.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').toPromise()
-    ).toThrow()
-
-    expect(() =>
-      arcWrite.GENToken().balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea81111').toPromise()
-    ).toThrow()
-
-    expect(() =>
-      arcWrite.GENToken().allowance('0x90f8bf6a479f320ead074411a4b0e7944ea81111', '0x90f8bf6a479f320ead074411a4b0e7944ea81111').toPromise()
-    ).toThrow()
-
+    expect(arcWrite.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
+      .rejects.toThrow()
+    expect(arcWrite.GENToken().balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
+      .rejects.toThrow()
+    expect(arcWrite.GENToken()
+      .allowance('0x90f8bf6a479f320ead074411a4b0e7944ea81111', '0x90f8bf6a479f320ead074411a4b0e7944ea81111')
+      .pipe(first()).toPromise())
+      .rejects.toThrow()
     // we now expect all write operations to fail, and all read operations to succeed
-    const arcRead = await newArc({ web3Provider: 'http://doesnotexist.com', web3ProviderRead: web3Provider })
+    const arcRead = await newArc({ web3Provider: 'http://doesnotexist.com', web3ProviderRead: web3Provider})
     expect(await arcRead.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
       .toEqual(new BN(0))
   })

@@ -53,7 +53,6 @@ export class ReputationFromTokenScheme {
           try {
             await transaction
           } catch (err) {
-            console.log("HAHAH")
             throw err
           }
           return error

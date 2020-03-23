@@ -20,7 +20,7 @@ import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
 import { JsonRpcProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
-import { ethers, Contract } from 'ethers'
+import { Contract } from 'ethers'
 
 /**
  * The Arc class holds all configuration.
@@ -218,24 +218,34 @@ export class Arc extends GraphNodeObserver {
         throw new Error('Web3 Read Provider not defined')
       }
 
-      const onBalanceChange = (balance: BigNumber) => {
-        const accInfo = this.observedAccounts[owner];
-        (accInfo.observer as Observer<BN>).next(new BN(balance.toString()))
-        accInfo.lastBalance = balance.toString()
-      }
+      // publish the initial balance
+      this.web3Read.getBalance(owner)
+        .then((currentBalance: BigNumber) => {
+          const balance = currentBalance.toString()
+          const accInfo = this.observedAccounts[owner];
+          (accInfo.observer as Observer<BN>).next(new BN(balance))
+          this.observedAccounts[owner].lastBalance = balance
+        })
+        .catch((err: Error) => observer.error(err))
 
       // called whenever the account balance changes
+      const onBalanceChange = (balance: BigNumber) => {
+        const accInfo = this.observedAccounts[owner];
+        if (accInfo && balance.toString() !== accInfo.lastBalance) {
+          (accInfo.observer as Observer<BN>).next(new BN(balance.toString()))
+          accInfo.lastBalance = balance.toString()
+        }
+      }
       this.web3Read.on(owner, onBalanceChange)
-
 
       // unsubscribe
       return () => {
         this.observedAccounts[owner].subscriptionsCount -= 1
         if (this.observedAccounts[owner].subscriptionsCount <= 0) {
+          if (this.web3Read) {
+            this.web3Read.removeListener(owner, onBalanceChange)
+          }
           delete this.observedAccounts[owner]
-        }
-        if (this.web3Read) {
-          this.web3Read.removeListener(owner, onBalanceChange)
         }
       }
     })

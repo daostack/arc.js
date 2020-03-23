@@ -60,9 +60,9 @@ describe('Stake on a ContributionReward', () => {
   it('throws a meaningful error if an insufficient amount tokens is approved for staking', async () => {
     const stakingToken =  arc.GENToken().contract()
     const proposal = await createAProposal(dao)
+    arc.setAccount(accounts[0])
     await stakingToken
       .mint(accounts[2], toWei('100').toString())
-      .send({ gas: 1000000, from: accounts[0]})
     proposal.context.defaultAccount = accounts[2]
     await expect(proposal.stake(IProposalOutcome.Pass, toWei('100')).send()).rejects.toThrow(
       /insufficient allowance/i
