@@ -173,8 +173,8 @@ export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
   const addresses = getTestAddresses(arc, version)
   const token = new Reputation(addresses.test.organs.DemoReputation, arc)
-  if (!arc.web3Read) throw new Error('Web3 provider not set')
-  const accounts = await arc.web3Read.listAccounts()
+  if (!arc.web3) throw new Error('Web3 provider not set')
+  const accounts = await arc.web3.listAccounts()
   await token.mint(accounts[1], new BN('99')).send()
 }
 
@@ -194,8 +194,8 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
 // Vote and vote and vote for proposal until it is accepted
 export async function voteToPassProposal(proposal: Proposal) {
   const arc = proposal.context
-  if (!arc.web3Read) throw new Error('Web3 provider not set')
-  const accounts = await arc.web3Read.listAccounts()
+  if (!arc.web3) throw new Error('Web3 provider not set')
+  const accounts = await arc.web3.listAccounts()
   // make sure the proposal is indexed
   await waitUntilTrue(async () => {
     const state = await proposal.state({ fetchPolicy: 'network-only' }).pipe(first()).toPromise()

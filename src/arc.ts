@@ -29,7 +29,6 @@ import { Contract } from 'ethers'
  */
 export class Arc extends GraphNodeObserver {
   public web3Provider: Web3Provider = ''
-  public web3ProviderRead: Web3Provider = ''
   public ipfsProvider: IPFSProvider
 
   public defaultAccount: string | undefined = undefined
@@ -38,7 +37,6 @@ export class Arc extends GraphNodeObserver {
 
   public ipfs: any
   public web3: JsonRpcProvider | undefined = undefined
-  public web3Read: JsonRpcProvider | undefined = undefined // if provided, arc will read all data from this provider
 
   /**
    * a mapping of contrct names to contract addresses
@@ -62,7 +60,6 @@ export class Arc extends GraphNodeObserver {
     graphqlWsProvider?: string
     ipfsProvider?: IPFSProvider
     web3Provider?: string
-    web3ProviderRead?: string
     /** this function will be called before a query is sent to the graphql provider */
     graphqlPrefetchHook?: (query: any) => void
     /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
@@ -83,11 +80,6 @@ export class Arc extends GraphNodeObserver {
 
     if (options.web3Provider) {
       this.web3 = new JsonRpcProvider(options.web3Provider)
-    }
-    if (options.web3ProviderRead) {
-      this.web3Read = new JsonRpcProvider(options.web3ProviderRead)
-    } else {
-      this.web3Read = this.web3
     }
 
     this.contractInfos = options.contractInfos || []
@@ -214,12 +206,10 @@ export class Arc extends GraphNodeObserver {
     const observable = Observable.create((observer: Observer<BN>) => {
       this.observedAccounts[owner].observer = observer
 
-      if (!this.web3Read) {
-        throw new Error('Web3 Read Provider not defined')
-      }
+      // get the current balance and return it
+      if (!this.web3) throw new Error('Web3 provider not defined')
 
-      // publish the initial balance
-      this.web3Read.getBalance(owner)
+      this.web3.getBalance(owner)
         .then((currentBalance: BigNumber) => {
           const balance = currentBalance.toString()
           const accInfo = this.observedAccounts[owner];
@@ -236,14 +226,14 @@ export class Arc extends GraphNodeObserver {
           accInfo.lastBalance = balance.toString()
         }
       }
-      this.web3Read.on(owner, onBalanceChange)
+      this.web3.on(owner, onBalanceChange)
 
       // unsubscribe
       return () => {
         this.observedAccounts[owner].subscriptionsCount -= 1
         if (this.observedAccounts[owner].subscriptionsCount <= 0) {
-          if (this.web3Read) {
-            this.web3Read.removeListener(owner, onBalanceChange)
+          if (this.web3) {
+            this.web3.removeListener(owner, onBalanceChange)
           }
           delete this.observedAccounts[owner]
         }
@@ -317,28 +307,14 @@ export class Arc extends GraphNodeObserver {
    * @param  [version] (optional) Arc version of contract (https://www.npmjs.com/package/@daostack/arc)
    * @return   a web3 contract instance
    */
-  public getContract(address: Address, abi?: any, mode?: 'readonly'): Contract {
-    // we use a contract "cache" because web3 contract instances add an event listener
-
-    const readonlyContract = (mode === 'readonly' && this.web3Read !== this.web3)
-
+  public getContract(address: Address, abi?: any): Contract {
     if (!abi) {
       abi = this.getABI(address)
     }
-    let contract: Contract
-
-    if (readonlyContract) {
-
-      if (!this.web3Read) throw new Error('Web3 Read provider not set')
-
-      contract = new Contract(address, abi, this.web3Read.getSigner(this.defaultAccount))
-    } else {
-
-      if (!this.web3) throw new Error('Web3 provider not set')
-
-      contract = new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
+    if (!this.web3) {
+      throw new Error('Web3 provider not set')
     }
-    return contract
+    return new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
   }
 
   /**
@@ -366,7 +342,7 @@ export class Arc extends GraphNodeObserver {
       const interval = 1000 /// poll once a second
       let account: any
       let prevAccount: any
-      const web3 = this.web3Read
+      const web3 = this.web3
 
       if (this.defaultAccount) {
         observer.next(this.defaultAccount)

@@ -126,9 +126,9 @@ export class Token implements IStateful<ITokenState> {
   /*
    * get a web3 contract instance for this token
    */
-  public contract(mode?: 'readonly') {
+  public contract() {
     const abi = this.context.getABI(undefined, `DAOToken`, DAOTOKEN_CONTRACT_VERSION)
-    return this.context.getContract(this.address, abi, mode)
+    return this.context.getContract(this.address, abi)
   }
 
   public balanceOf(owner: string): Observable<BN> {
@@ -143,7 +143,7 @@ export class Token implements IStateful<ITokenState> {
       return err
     }
     const observable = Observable.create(async (observer: Observer<BN>) => {
-      const contract = this.contract('readonly')
+      const contract = this.contract()
 
       const toFilter = contract.filters.Transfer(null, owner)
       const onTransferTo = (data: any) => {
@@ -188,7 +188,7 @@ export class Token implements IStateful<ITokenState> {
 
   public allowance(owner: Address, spender: Address): Observable<BN> {
     return Observable.create(async (observer: Observer<BN>) => {
-      const contract = this.contract('readonly')
+      const contract = this.contract()
 
       const filter = contract.filters.Approval(owner)
       const onApproval = () => {

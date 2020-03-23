@@ -36,7 +36,6 @@ Any useage of the library typically will start with instantiating a new Arc inst
 * [pendingOperations](arc.md#pendingoperations)
 * [web3](arc.md#web3)
 * [web3Provider](arc.md#web3provider)
-* [web3ProviderRead](arc.md#web3providerread)
 * [web3Read](arc.md#web3read)
 
 ### Methods
@@ -92,7 +91,6 @@ Name | Type | Description |
 `graphqlWsProvider?` | undefined &#124; string | - |
 `ipfsProvider?` | [IPFSProvider](../globals.md#ipfsprovider) | - |
 `web3Provider?` | undefined &#124; string | - |
-`web3ProviderRead?` | undefined &#124; string | - |
 
 **Returns:** *[Arc](arc.md)*
 
@@ -250,13 +248,6 @@ ___
 
 ___
 
-###  web3ProviderRead
-
-• **web3ProviderRead**: *[Web3Provider](../globals.md#web3provider)* = ""
-
-*Defined in [arc.ts:28](https://github.com/daostack/client/blob/1bc237e/src/arc.ts#L28)*
-
-___
 
 ###  web3Read
 
