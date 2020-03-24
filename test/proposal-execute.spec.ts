@@ -114,7 +114,7 @@ describe('Proposal execute()', () => {
 
   it('execute a proposal by voting only', async () => {
     // daoBalance
-    const daoState = await dao.state().pipe(first()).toPromise()
+    const daoState = await dao.fetchState()
     const repTotalSupply = daoState.reputationTotalSupply
     const proposalStates: IProposalState[] = []
     const lastState = () => proposalStates[proposalStates.length - 1]

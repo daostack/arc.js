@@ -44,7 +44,7 @@ describe('Queue', () => {
         .pipe(first()).toPromise()
 
     const queue = result[0]
-    const state = await queue.state().pipe(first()).toPromise()
+    const state = await queue.fetchState()
     expect(state).toMatchObject({
       id: queue.id
     })
@@ -53,9 +53,9 @@ describe('Queue', () => {
   it('Queue.state() should be equal to proposal.state().queue', async () => {
     const { queuedProposalId } = addresses.test
     const proposal = await dao.proposal(queuedProposalId)
-    const proposalState = await proposal.state().pipe(first()).toPromise()
+    const proposalState = await proposal.fetchState()
     const queue = new Queue(proposalState.queue.id, proposalState.queue.dao, arc)
-    const queueState = await queue.state().pipe(first()).toPromise()
+    const queueState = await queue.fetchState()
     expect(proposalState.queue).toEqual(queueState)
   })
 

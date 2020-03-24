@@ -64,7 +64,7 @@ describe('Reward', () => {
 
     // get the reward state
     const reward = result[0]
-    const rewardState = await reward.state().pipe(first()).toPromise()
+    const rewardState = await reward.fetchState()
     expect(rewardState.id).toEqual(reward.id)
   })
 

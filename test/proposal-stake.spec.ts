@@ -96,7 +96,7 @@ describe('Stake on a ContributionReward', () => {
       throw Error(`No boosted proposals were found, so this test fails... (perhap restart docker containers?)`)
     }
     const boostedProposal = boostedProposals[0]
-    const state = await boostedProposal.state().pipe(first()).toPromise()
+    const state = await boostedProposal.fetchState()
     console.log(state)
     expect(state.stage).toEqual(IProposalStage.Boosted)
     await expect(boostedProposal.stake(IProposalOutcome.Pass, new BN(10000000)).send()).rejects.toThrow(

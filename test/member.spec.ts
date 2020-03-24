@@ -24,7 +24,7 @@ describe('Member', () => {
   beforeAll(async () => {
     arc = await newArc()
     dao = await getTestDAO()
-    daoState = await dao.state().pipe(first()).toPromise()
+    daoState = await dao.fetchState()
 
     if(!arc.web3) throw new Error("Web3 provider not set")
     defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
@@ -40,7 +40,7 @@ describe('Member', () => {
   it('Member state works', async () => {
     const members = await Member.search(arc, {where: { dao: dao.id}}).pipe(first()).toPromise()
     const member = members[0]
-    const memberState = await member.state().pipe(first()).toPromise()
+    const memberState = await member.fetchState()
     expect(Number(memberState.reputation)).toBeGreaterThan(0)
     expect(memberState.dao).toBe(dao.id.toLowerCase())
   })
@@ -48,9 +48,9 @@ describe('Member', () => {
   it('Member is usable without knowing id or contract', async () => {
     const members = await Member.search(arc, {where: { dao: dao.id}}).pipe(first()).toPromise()
     const member = members[0]
-    const memberState = await member.state().pipe(first()).toPromise()
+    const memberState = await member.fetchState()
     const newMember = new Member(memberState, arc)
-    const newMemberState = await newMember.state().pipe(first()).toPromise()
+    const newMemberState = await newMember.fetchState()
     expect(memberState).toEqual(newMemberState)
   })
 
@@ -61,7 +61,7 @@ describe('Member', () => {
       dao: dao.id,
       reputation: new BN(0)
     }, arc)
-    const memberState = await member.state().pipe(first()).toPromise()
+    const memberState = await member.fetchState()
     expect(Number(memberState.reputation)).toEqual(0)
     expect(memberState.address).toEqual('0xe3016a92b6c728f5a55fe45029804de60148c689')
     expect(memberState.dao).toBe(dao.id.toLowerCase())
@@ -168,7 +168,7 @@ describe('Member', () => {
   it('member: generate id is correctly', async () => {
     const members = await Member.search(arc).pipe(first()).toPromise()
     const member = members[0]
-    const memberState = await member.state().pipe(first()).toPromise()
+    const memberState = await member.fetchState()
     expect(memberState.contract).toBeTruthy()
     const calculatedId = member.calculateId({contract: memberState.contract, address: memberState.address})
     expect(memberState.id).toEqual(calculatedId)
@@ -177,7 +177,7 @@ describe('Member', () => {
     //   { contract: memberState.contract, dao: memberState.dao, address: memberState.address}, arc)
     // const newMemberState = await newMember.fetchState()
     // expect(newMemberState.id).toEqual(memberState.id)
-    // const newMemberState = await newMember.state().pipe(first()).toPromise()
+    // const newMemberState = await newMember.fetchState()
     // expect(newMemberState.id).toEqual(memberState.id)
   })
 })

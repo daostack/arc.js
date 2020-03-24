@@ -6,6 +6,7 @@ import { DAO } from './dao'
 import { ISchemeState, Scheme } from './scheme'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
+import { first } from 'rxjs/operators'
 
 export interface IQueueState {
   dao: DAO
@@ -92,6 +93,10 @@ export class Queue implements IStateful<IQueueState> {
     public context: Arc
   ) {
     this.context = context
+  }
+
+  public async fetchState(){
+    return await this.state().pipe(first()).toPromise()
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IQueueState> {

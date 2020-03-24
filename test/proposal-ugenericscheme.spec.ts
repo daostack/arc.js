@@ -37,7 +37,7 @@ describe('Proposal', () => {
     // dao = await getTestDAO()
     const ugenericSchemes = await arc.schemes({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
     const ugenericScheme = ugenericSchemes[0]
-    const ugenericSchemeState = await ugenericScheme.state().pipe(first()).toPromise()
+    const ugenericSchemeState = await ugenericScheme.fetchState()
     dao  = new DAO(ugenericSchemeState.dao, arc)
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]

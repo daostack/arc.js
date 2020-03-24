@@ -48,7 +48,7 @@ describe('DAO', () => {
 
   it('should be possible to get the token balance of the DAO', async () => {
     const dao = await getTestDAO()
-    const { token } = await dao.state().pipe(first()).toPromise()
+    const { token } = await dao.fetchState()
     const balance = await token.balanceOf(dao.id).pipe(first()).toPromise()
     expect(fromWei(balance)).toEqual('0.0')
   })
@@ -68,7 +68,7 @@ describe('DAO', () => {
   it('get the dao state', async () => {
     const dao = await getTestDAO()
     expect(dao).toBeInstanceOf(DAO)
-    const state = await dao.state().pipe(first()).toPromise()
+    const state = await dao.fetchState()
     expect(Object.keys(state)).toEqual([
       'address',
       'dao',
@@ -115,7 +115,7 @@ describe('DAO', () => {
     expect(typeof members).toEqual(typeof [])
     expect(members.length).toBeGreaterThanOrEqual(6)
     const member = members[3]
-    const memberState = await member.state().pipe(first()).toPromise()
+    const memberState = await member.fetchState()
     expect(Number(fromWei(memberState.reputation))).toBeGreaterThan(0)
   })
 
@@ -134,7 +134,7 @@ describe('DAO', () => {
 
   it('dao numberOfProposals counts are correct', async () =>  {
     const dao = await getTestDAO()
-    const daoState = await dao.state().pipe(first()).toPromise()
+    const daoState = await dao.fetchState()
     const queuedProposals = await dao.proposals({ where: { stage: IProposalStage.Queued}, first: 1000})
       .pipe(first()).toPromise()
     expect(daoState.numberOfQueuedProposals).toEqual(queuedProposals.length)

@@ -28,7 +28,7 @@ describe('Tag', () => {
 
   it('Tags are saved on a proposal', async () => {
     const proposal = await createAProposal(dao, { tags })
-    const proposalState = await (new Proposal(proposal.id, arc)).state().pipe(first()).toPromise()
+    const proposalState = await (new Proposal(proposal.id, arc)).fetchState()
     expect(proposalState.tags).toEqual(tags)
   })
 

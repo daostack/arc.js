@@ -154,7 +154,7 @@ describe('Claim rewards', () => {
     // dao = await getTestDAO()
     const ugenericSchemes = await arc.schemes({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
     const ugenericScheme = ugenericSchemes[0]
-    const ugenericSchemeState = await ugenericScheme.state().pipe(first()).toPromise()
+    const ugenericSchemeState = await ugenericScheme.fetchState()
     dao  = new DAO(ugenericSchemeState.dao, arc)
 
     const beneficiary = arc.defaultAccount

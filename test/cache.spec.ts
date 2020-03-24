@@ -77,9 +77,9 @@ describe('apolloClient caching checks', () => {
     const proposal = proposals[0]
     // @ts-ignore
     const vote = new Vote(proposals[0].coreState.votes[0], arc)
-    const voteState = await vote.state().pipe(first()).toPromise()
+    const voteState = await vote.fetchState()
     const voterAddress = voteState.voter
-    const proposalState = await proposal.state().pipe(first()).toPromise()
+    const proposalState = await proposal.fetchState()
     const scheme = new Scheme(proposalState.scheme.id, arc)
 
     // now we have our objects, reset the cache

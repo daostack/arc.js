@@ -52,7 +52,7 @@ describe('Event', () => {
     })
     expect(result.length).toEqual(1)
     const event = result[0]
-    const eventState = await event.state().pipe(first()).toPromise()
+    const eventState = await event.fetchState()
 
     expect(eventState).toMatchObject({
       dao: dao.id,
@@ -92,7 +92,7 @@ describe('Event', () => {
     expect(event.coreState).toBeTruthy()
 
     // for events, the State is quel to the event state
-    const state = await event.state().pipe(first()).toPromise()
+    const state = await event.fetchState()
     expect(state).toEqual(event.coreState)
 
     const eventFromId = new Event(event.id, arc)

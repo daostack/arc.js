@@ -83,7 +83,7 @@ describe('Competition Proposal', () => {
 
     contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
 
-    contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
+    contributionRewardExtState = await contributionRewardExt.fetchState()
     dao = new DAO(contributionRewardExtState.dao, arc)
     address0 = arc.accounts[0].toLowerCase()
     address1 = arc.accounts[1].toLowerCase()
@@ -275,7 +275,7 @@ describe('Competition Proposal', () => {
       votingStartTime: addSeconds(startTime, 0)
     }
 
-    const schemeState = await scheme.state().pipe(first()).toPromise()
+    const schemeState = await scheme.fetchState()
 
     // CREATE PROPOSAL
     const tx = await scheme.createProposal(proposalOptions).send()
@@ -362,7 +362,7 @@ describe('Competition Proposal', () => {
 
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
 
-    const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
+    const suggestion1State = await suggestion1.fetchState()
     expect(suggestion1State).toMatchObject({
       ...suggestion1Options,
       beneficiary: address1,
@@ -479,7 +479,7 @@ describe('Competition Proposal', () => {
     const votes = await competition.votes().pipe(first()).toPromise()
     expect(votes.length).toEqual(1)
     const vote = votes[0]
-    const voteState = await vote.state().pipe(first()).toPromise()
+    const voteState = await vote.fetchState()
     // expect(vote.id).toEqual(vote1.id)
     expect(voteState).toMatchObject({
       id: vote.id,
@@ -639,21 +639,21 @@ describe('Competition Proposal', () => {
     })
     await waitUntilTrue(() => voteIsIndexed)
 
-    const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
+    const suggestion1State = await suggestion1.fetchState()
     expect(suggestion1State.positionInWinnerList).toEqual(0)
     expect(suggestion1State.totalVotes).not.toEqual(new BN(0))
     expect(suggestion1State.isWinner).toEqual(true)
 
-    const suggestion2State = await suggestion2.state().pipe(first()).toPromise()
+    const suggestion2State = await suggestion2.fetchState()
     expect(suggestion2State.positionInWinnerList).toEqual(null)
     expect(suggestion2State.totalVotes).toEqual(new BN(0))
 
-    const suggestion3State = await suggestion3.state().pipe(first()).toPromise()
+    const suggestion3State = await suggestion3.fetchState()
     expect(suggestion3State.positionInWinnerList).toEqual(null)
     expect(suggestion3State.totalVotes).toEqual(new BN(0))
     expect(suggestion3State.isWinner).toEqual(false)
 
-    const suggestion4State = await suggestion4.state().pipe(first()).toPromise()
+    const suggestion4State = await suggestion4.fetchState()
     expect(suggestion4State.positionInWinnerList).toEqual(null)
     expect(suggestion4State.totalVotes).toEqual(new BN(0))
 
@@ -796,7 +796,7 @@ describe('Competition Proposal', () => {
     expect(suggestions.length).toBeGreaterThan(0)
 
     // add some exiting data to the cache to seeif we can mess things up
-    await  arc.proposal(competition.id).state().pipe(first()).toPromise()
+    await  arc.proposal(competition.id).fetchState()
 
     // construct our superquery that will fill the cache
     const query = gql`query {

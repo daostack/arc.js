@@ -195,7 +195,7 @@ export class CompetitionScheme extends SchemeBase {
     // we assume this function is called with the correct scheme options..
     return async () => {
       const context = this.context
-      const schemeState = await this.state().pipe(first()).toPromise()
+      const schemeState = await this.fetchState()
       if (!schemeState) {
         throw Error(`No scheme was found with this id: ${this.id}`)
       }
@@ -289,7 +289,7 @@ export class CompetitionScheme extends SchemeBase {
   }
 
   public async getCompetitionContract() {
-    const schemeState = await this.state().pipe(first()).toPromise()
+    const schemeState = await this.fetchState()
     const contract = getCompetitionContract(schemeState, this.context)
     return contract
   }
@@ -339,7 +339,7 @@ export class CompetitionScheme extends SchemeBase {
       }
     }
     const errorHandler = async (err: Error) => {
-      const schemeState = await this.state().pipe(first()).toPromise()
+      const schemeState = await this.fetchState()
       const contract = getCompetitionContract(schemeState, this.context)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
@@ -348,7 +348,7 @@ export class CompetitionScheme extends SchemeBase {
       }
 
       // check if the sender has reputation in the DAO
-      const state = await this.state().pipe(first()).toPromise()
+      const state = await this.fetchState()
       const dao = new DAO(state.dao, this.context)
       const reputation = await dao.nativeReputation().pipe(first()).toPromise()
       const sender = await this.context.getAccount().pipe(first()).toPromise()
@@ -369,7 +369,7 @@ export class CompetitionScheme extends SchemeBase {
     suggestionId: number // this is the suggestion COUNTER
   }): Operation<boolean> {
     const createTransaction = async () => {
-      const schemeState = await this.state().pipe(first()).toPromise()
+      const schemeState = await this.fetchState()
       const contract = getCompetitionContract(schemeState, this.context)
       const transaction = contract.redeem(options.suggestionId)
       return transaction
@@ -383,7 +383,7 @@ export class CompetitionScheme extends SchemeBase {
       }
     }
     const errorHandler = async (err: Error) => {
-      const schemeState = await this.state().pipe(first()).toPromise()
+      const schemeState = await this.fetchState()
       const contract = getCompetitionContract(schemeState, this.context)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
@@ -439,12 +439,12 @@ export class Competition { // extends Proposal {
   }): Operation<any> {
     let schemeState: ISchemeState
     const createTransaction = async () => {
-      const proposalState = await (new Proposal(this.id, this.context)).state().pipe(first()).toPromise()
+      const proposalState = await (new Proposal(this.id, this.context)).fetchState()
       if (!options.beneficiary) {
         options.beneficiary = await this.context.getAccount().pipe(first()).toPromise()
       }
       schemeState = await (new CompetitionScheme(proposalState.scheme.id, this.context))
-        .state().pipe(first()).toPromise()
+        .fetchState()
       const contract = getCompetitionContract(schemeState, this.context)
       const descriptionHash = await this.context.saveIPFSData(options)
       const transaction = contract.suggest(this.id, descriptionHash, options.beneficiary)
@@ -727,13 +727,13 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
 
   public async getPosition() {
     console.warn(`This method is deprecated - please use the positionInWinnerList from the proposal state`)
-    const suggestionState = await this.state().pipe(first()).toPromise()
+    const suggestionState = await this.fetchState()
     return suggestionState.positionInWinnerList
   }
 
   public async isWinner() {
     console.warn(`This method is deprecated - please use the positionInWinnerList !== from the proposal state`)
-    const suggestionState = await this.state().pipe(first()).toPromise()
+    const suggestionState = await this.fetchState()
     return suggestionState.isWinner
   }
 
@@ -846,6 +846,12 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
       // this.id = opts.id
       this.setState(opts)
     }
+  }
+
+  public async fetchState() {
+    const state = await this.state().pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
 
   public setState(opts: ICompetitionVoteState) {

@@ -27,7 +27,7 @@ describe('Token', () => {
 
   it('get the token state', async () => {
     const token = new Token(address, arc)
-    const state = await token.state().pipe(first()).toPromise()
+    const state = await token.fetchState()
     expect(Object.keys(state)).toEqual(['address', 'name', 'owner', 'symbol', 'totalSupply'])
     const expected = {
        address: address.toLowerCase(),
