@@ -81,17 +81,30 @@ export function sendTransaction<T>(
 ): Operation<T> {
 
   const observable = Observable.create(async (observer: Observer<ITransactionUpdate<T>>) => {
+    const catchHandler = async (error: Error) => {
+      try {
+        error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
+      } catch (err) {
+        error = err
+      }
+      observer.error(error)
+    }
+
     let transactionHash: string = ''
     let result: any
     let tx: any
+
     if (typeof transaction === 'function') {
-      try {
-        tx = await transaction()
-      } catch (err) {
-        observer.error(err)
-      }
+      tx = transaction()
     } else {
-      tx = await transaction
+      tx = transaction
+    }
+
+    try {
+      tx = await tx
+    } catch (error) {
+      await catchHandler(error)
+      return
     }
 
     let gasEstimate: number = 0
@@ -137,12 +150,7 @@ export function sendTransaction<T>(
         try {
           result = await mapReceipt(receipt)
         } catch (error) {
-          try {
-            error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
-          } catch (err) {
-            error = err
-          }
-          observer.error(error)
+          await catchHandler(error)
         }
 
         observer.next({
@@ -159,12 +167,7 @@ export function sendTransaction<T>(
         try {
           result = await mapReceipt(receipt)
         } catch (error) {
-          try {
-            error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
-          } catch (err) {
-            error = err
-          }
-          observer.error(error)
+          await catchHandler(error)
         }
 
         observer.next({
@@ -183,12 +186,7 @@ export function sendTransaction<T>(
       }
     })
     .on('error', async (error: Error) => {
-      try {
-        error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
-      } catch (err) {
-        error = err
-      }
-      observer.error(error)
+      await catchHandler(error)
     })
 
     }

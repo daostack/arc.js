@@ -42,7 +42,11 @@ describe('Scheme', () => {
     await expect(reputationFromToken.redeem(
       defaultAccount,
       '0x0123400000000000000000000000000000000000000000000000000000000000' // <- wrong hash
-    ).send()).rejects.toThrow('must send the right agreementHash')
+    ).send()).rejects.toThrow(
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      /*'must send the right agreementHash'*/
+    )
 
     // TODO: this reverst, would be nice to have a working test
     await expect(reputationFromToken.redeem(

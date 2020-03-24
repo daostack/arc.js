@@ -32,7 +32,7 @@ describe('Claim rewards', () => {
 
     if(!arc.web3) throw new Error("Web3 provider not set")
 
-    // make sure that the DAO has enough Ether to pay forthe reward
+    // make sure that the DAO has enough Ether to pay for the reward
     await arc.web3.getSigner().sendTransaction({
       gasLimit: 4000000,
       gasPrice: 100000000000,
@@ -157,7 +157,7 @@ describe('Claim rewards', () => {
     const ugenericSchemeState = await ugenericScheme.state().pipe(first()).toPromise()
     dao  = new DAO(ugenericSchemeState.dao, arc)
 
-    const beneficiary = arc.defaultAccount
+    const beneficiary = await arc.getAccount().pipe(first()).toPromise()
     const stakeAmount = new BN(123456789)
     await arc.GENToken().transfer(dao.id, stakeAmount).send()
     const actionMockABI = arc.getABI(undefined, 'ActionMock', LATEST_ARC_VERSION)

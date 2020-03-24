@@ -88,18 +88,24 @@ describe('Vote on a ContributionReward', () => {
     if (!arc.web3) throw new Error('Web3 provider not set')
     proposal.context.defaultAccount = await arc.web3.getSigner(2).getAddress()
     await expect(proposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
-      /No proposal/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      /*/No proposal/i*/
     )
   })
 
   it('throws a meaningful error if the proposal was already executed', async () => {
 
     await expect(executedProposal.execute().send()).rejects.toThrow(
-      /already executed/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      /*/already executed/i*/
     )
 
     await expect(executedProposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
-      /already executed/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      /*/already executed/i*/
     )
   })
 

@@ -60,12 +60,26 @@ describe('Operation', () => {
       confirmations: 1,
       state: ITransactionState.Mined
     })
-    expect(listOfUpdates[4]).toMatchObject({
-      confirmations: 2,
-      receipt: listOfUpdates[2].receipt,
-      state: ITransactionState.Mined,
-      transactionHash: listOfUpdates[2].transactionHash
-    })
+
+    // We turn the objects into multi-line strings as a work around,
+    // since object comparison using `toMatchObject(...)`
+    // is throwing errors due to property type names.
+    const splitLines = (str: any) => str.split(/\r?\n/)
+    const stringify = (obj: any) => splitLines(JSON.stringify(obj, null, 2))
+
+    // Remove the confirmations prop
+    const recipt4 = listOfUpdates[4].receipt as any
+    const recipt2 = listOfUpdates[2].receipt as any
+    delete recipt4.confirmations
+    delete recipt2.confirmations
+
+    expect(stringify(recipt4))
+      .toEqual(stringify(recipt2))
+
+    expect(listOfUpdates[4].confirmations).toEqual(2)
+    expect(listOfUpdates[4].state).toEqual(ITransactionState.Mined)
+    expect(listOfUpdates[4].transactionHash)
+      .toEqual(listOfUpdates[2].transactionHash)
 
   })
 })

@@ -134,7 +134,8 @@ export class Reputation implements IStateful<IReputationState> {
         return Error(`Minting failed: sender ${sender} is not the owner of the contract at ${contract._address}` +
           `(which is ${owner})`)
       }
-      await transaction.call()
+      if (this.context.web3)
+          await this.context.web3.call(transaction)
       return err
     }
     return this.context.sendTransaction(transaction, mapReceipt, errHandler)

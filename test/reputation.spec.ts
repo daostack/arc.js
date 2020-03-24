@@ -5,6 +5,8 @@ import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
 import { getTestAddresses, newArc, toWei, waitUntilTrue } from './utils'
 
+jest.setTimeout(20000)
+
 /**
  * Reputation test
  */
@@ -57,13 +59,13 @@ describe('Reputation', () => {
 
   it('mint() works', async () => {
     const reputation = new Reputation(addresses.test.organs.DemoReputation, arc)
-    const reputationBefore = new BN(await reputation.contract().balanceOf(accounts[3]))
+    const reputationBefore = new BN((await reputation.contract().balanceOf(accounts[3])).toString())
     await reputation.mint(accounts[3], toWei(1)).send()
     await reputation.mint(accounts[3], new BN('1')).send()
     await reputation.mint(accounts[3], new BN('1e18')).send()
     await reputation.mint(accounts[3], new BN('3000e18')).send()
 
-    const reputationAfter = new BN(await reputation.contract().balanceOf(accounts[3]))
+    const reputationAfter = new BN((await reputation.contract().balanceOf(accounts[3])).toString())
     const difference = reputationAfter.sub(reputationBefore)
     expect(difference.toString()).toEqual('1000000000003003837')
   })

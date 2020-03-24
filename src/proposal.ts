@@ -764,7 +764,8 @@ export class Proposal implements IStateful<IProposalState> {
           }
 
           // call the stake function and bubble up any solidity errors
-          await stakeMethod.call()
+          if (this.context.web3)
+            await this.context.web3.call(stakeMethod)
           if (!!error.message.match(/event was found/)) {
             if (proposalState.state === IProposalStage.Boosted) {
               return new Error(`Staking failed because the proposal is boosted`)
@@ -874,7 +875,10 @@ export class Proposal implements IStateful<IProposalState> {
             const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
             return Error(msg)
           }
-          await transaction.call()
+
+          if (this.context.web3)
+            await this.context.web3.call(transaction)
+
           return err
         }
         return this.context.sendTransaction(transaction, map, errorHandler)
@@ -904,7 +908,8 @@ export class Proposal implements IStateful<IProposalState> {
             return Error(msg)
           }
           console.log('accling...')
-          await transaction.call()
+          if (this.context.web3)
+            await this.context.web3.call(transaction)
           return err
         }
         return this.context.sendTransaction(transaction, map, errorHandler)

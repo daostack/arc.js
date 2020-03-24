@@ -172,7 +172,7 @@ describe('DAO', () => {
 
   })
 
-  it.skip('createProposal should work without a grapql connection', async () => {
+  it.skip('createProposal should work without a graphql connection', async () => {
     const arcWithoutGraphql = await newArcWithoutGraphql()
     const dao = await getTestDAO(arcWithoutGraphql)
     const options = {

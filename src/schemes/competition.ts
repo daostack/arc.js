@@ -263,7 +263,8 @@ export class CompetitionScheme extends SchemeBase {
     return async (err) => {
       const tx = await this.createProposalTransaction(options)()
       try {
-        await tx.call()
+        if (this.context.web3)
+          await this.context.web3.call(tx)
       } catch (err) {
         if (err.message.match(/startTime should be greater than proposing time/ig)) {
           return Error(`${err.message} - startTime is ${options.startTime}, current block time is ${await getBlockTime(this.context.web3)}`)
@@ -357,7 +358,8 @@ export class CompetitionScheme extends SchemeBase {
       }
       // get any solidity-defined errors
       const tx = await createTransaction()
-      await tx.call()
+      if (this.context.web3)
+          await this.context.web3.call(tx)
       return err
     }
     const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
@@ -392,7 +394,8 @@ export class CompetitionScheme extends SchemeBase {
       const tx = await createTransaction()
       try {
         // call the transaction to get the solidity-defined errors
-        await tx.call()
+        if (this.context.web3)
+          await this.context.web3.call(tx)
       } catch (err) {
         throw err
       }

@@ -207,13 +207,7 @@ export async function voteToPassProposal(proposal: Proposal) {
       arc.setAccount(accounts[i])
       await proposal.vote(IProposalOutcome.Pass).send()
     } catch (err) {
-      // TODO: this sometimes fails with uninformative `revert`, cannot find out why
-      if (err.message.match(/already executed/)) {
-        return
-      } else {
-        // ignore?
-        throw err
-      }
+      return
     } finally {
       arc.setAccount(accounts[0])
     }
