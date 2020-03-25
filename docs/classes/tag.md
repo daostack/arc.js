@@ -24,7 +24,7 @@
 
 ### Methods
 
-* [fetchStaticState](tag.md#fetchstaticstate)
+* [fetchState](tag.md#fetchState)
 * [setStaticState](tag.md#setstaticstate)
 * [state](tag.md#state)
 * [search](tag.md#static-search)
@@ -76,9 +76,9 @@ ___
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[ITagStaticState](../interfaces/itagstaticstate.md)›*
+▸ **fetchState**(): *Promise‹[ITagStaticState](../interfaces/itagstaticstate.md)›*
 
 *Defined in [src/tag.ts:158](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L158)*
 

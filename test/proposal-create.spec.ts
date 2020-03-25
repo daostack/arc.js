@@ -56,7 +56,7 @@ describe('Create a ContributionReward proposal', () => {
 
     expect(proposal.id).toBeDefined()
 
-    const proposalState = await proposal.state().pipe(first()).toPromise()
+    const proposalState = await proposal.fetchState()
 
     const contributionReward = proposalState.contributionReward as IContributionReward
     expect(fromWei(contributionReward.externalTokenReward)).toEqual('0.0')
@@ -109,7 +109,7 @@ describe('Create a ContributionReward proposal', () => {
     }
     await waitUntilTrue(proposalIsIndexed)
     const proposal2 = await dao.proposal(proposal.id)
-    const proposalState = await proposal2.state().pipe(first()).toPromise()
+    const proposalState = await proposal2.fetchState()
     expect(proposalState.descriptionHash).toEqual('QmRg47CGnf8KgqTZheTejowoxt4SvfZFqi7KGzr2g163uL')
 
     // get the data

@@ -28,7 +28,7 @@ describe('Tag', () => {
 
   it('Tags are saved on a proposal', async () => {
     const proposal = await createAProposal(dao, { tags })
-    const proposalState = await (new Proposal(arc, proposal.id)).state().pipe(first()).toPromise()
+    const proposalState = await (new Proposal(arc, proposal.id)).fetchState()
     expect(proposalState.tags).toEqual(tags)
   })
 
@@ -51,7 +51,7 @@ describe('Tag', () => {
       .pipe(first()).toPromise()
     expect(result.map((t: Tag) => t.id)).toEqual(['tag3'])
     const tag = result[0]
-    expect(tag.staticState.numberOfProposals).toBeGreaterThanOrEqual(2)
+    expect(tag.coreState.numberOfProposals).toBeGreaterThanOrEqual(2)
 
   })
 

@@ -95,6 +95,10 @@ export class Token implements IStateful<ITokenState> {
     this.address = id
   }
 
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ITokenState> {
+    return this.state(apolloQueryOptions).pipe(first()).toPromise()
+  }
+
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITokenState> {
     const query = gql`query tokenState {
       token(id: "${this.address.toLowerCase()}") {

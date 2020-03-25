@@ -34,7 +34,7 @@ describe('Reputation', () => {
   it('get the reputation state', async () => {
     const reputation = new Reputation(arc, address)
     expect(reputation).toBeInstanceOf(Reputation)
-    const state = await reputation.state().pipe(first()).toPromise()
+    const state = await reputation.fetchState()
     expect(Object.keys(state)).toEqual(['address', 'dao', 'totalSupply'])
     const expected = {
        address: address.toLowerCase()

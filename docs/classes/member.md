@@ -28,7 +28,7 @@ Represents an account that holds reputaion in a specific DAO
 
 * [calculateId](member.md#calculateid)
 * [dao](member.md#dao)
-* [fetchStaticState](member.md#fetchstaticstate)
+* [fetchState](member.md#fetchState)
 * [proposals](member.md#proposals)
 * [rewards](member.md#rewards)
 * [setStaticState](member.md#setstaticstate)
@@ -115,9 +115,9 @@ ___
 
 ___
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[IMemberStaticState](../interfaces/imemberstaticstate.md)›*
+▸ **fetchState**(): *Promise‹[IMemberStaticState](../interfaces/imemberstaticstate.md)›*
 
 *Defined in [src/member.ts:121](https://github.com/dorgtech/client/blob/74940d1/src/member.ts#L121)*
 

@@ -60,14 +60,11 @@ export enum IExecutionState {
   BoostedBarCrossed
 }
 
-export interface IProposalStaticState {
+export interface IProposalState {
   id: string
   dao: DAO
   scheme: ISchemeState
   votingMachine: Address
-}
-
-export interface IProposalState extends IProposalStaticState {
   accountsWithUnclaimedRewards: Address[],
   boostedAt: Date
   contributionReward: ContributionReward.IContributionReward | null
@@ -334,42 +331,31 @@ export class Proposal implements IStateful<IProposalState> {
 
   public context: Arc
   public id: string
-  public staticState: IProposalStaticState | undefined
+  public coreState: IProposalState | undefined
   constructor(
     context: Arc,
-    idOrOpts: string | IProposalStaticState
+    idOrOpts: string | IProposalState
   ) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
       this.id = idOrOpts.id
-      this.setStaticState(idOrOpts)
+      this.setState(idOrOpts)
     }
     this.context = context
   }
 
-  public setStaticState(opts: IProposalStaticState) {
-    this.staticState = opts
+  public setState(opts: IProposalState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<IProposalStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state = await this.state({ subscribe: false }).pipe(first()).toPromise()
-      if (state === null) {
-        throw Error(`No proposal with id ${this.id} was found in the subgraph`)
-      }
-      const staticState = {
-        dao: state.dao,
-        id: this.id,
-        scheme: state.scheme,
-        votingMachine: state.votingMachine
-      }
-      this.setStaticState(staticState)
-      return staticState
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IProposalState> {
+    const state = await this.state({ subscribe: false }).pipe(first()).toPromise()
+    if (state === null) {
+      throw Error(`No proposal with id ${this.id} was found in the subgraph`)
     }
-
+    this.setState(state)
+    return state
   }
   /**
    * `state` is an observable of the proposal state
@@ -609,8 +595,8 @@ export class Proposal implements IStateful<IProposalState> {
    * @return a web3 Contract instance
    */
   public async votingMachine() {
-    const staticState = await this.fetchStaticState()
-    return this.context.getContract(staticState.votingMachine)
+    const state = await this.fetchState()
+    return this.context.getContract(state.votingMachine)
   }
   /**
    * [redeemerContract description]
@@ -819,7 +805,7 @@ export class Proposal implements IStateful<IProposalState> {
         beneficiary = NULL_ADDRESS
       }
 
-      const state = await this.state().pipe(first()).toPromise()
+      const state = await this.fetchState()
       let schemeAddress: Address | null
 
       if (state.contributionReward) {

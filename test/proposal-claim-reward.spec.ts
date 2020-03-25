@@ -155,7 +155,7 @@ describe('Claim rewards', () => {
     // dao = await getTestDAO()
     const ugenericSchemes = await arc.schemes({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
     const ugenericScheme = ugenericSchemes[0] as Scheme
-    const ugenericSchemeState = await ugenericScheme.state().pipe(first()).toPromise()
+    const ugenericSchemeState = await ugenericScheme.fetchState()
     dao  = new DAO(arc, ugenericSchemeState.dao)
 
     const beneficiary = await arc.getAccount().pipe(first()).toPromise()
@@ -175,7 +175,7 @@ describe('Claim rewards', () => {
       value: 0
     })
 
-    const proposalState = await proposal.fetchStaticState()
+    const proposalState = await proposal.fetchState()
     await arc.GENToken().approveForStaking(proposalState.votingMachine, stakeAmount).send()
     await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
 

@@ -67,13 +67,13 @@ describe('Proposal', () => {
   it('sorting works', async () => {
     const ls1 = await dao.proposals({ orderBy: 'createdAt'}).pipe(first()).toPromise()
     expect(ls1.length).toBeGreaterThan(3)
-    const state0 = await ls1[0].state().pipe(first()).toPromise()
-    const state1 = await ls1[1].state().pipe(first()).toPromise()
+    const state0 = await ls1[0].fetchState()
+    const state1 = await ls1[1].fetchState()
     expect(state0.createdAt).toBeLessThanOrEqual(state1.createdAt)
 
     const ls2 = await dao.proposals({ orderBy: 'createdAt', orderDirection: 'desc'}).pipe(first()).toPromise()
-    const state3 = await ls2[0].state().pipe(first()).toPromise()
-    const state2 = await ls2[1].state().pipe(first()).toPromise()
+    const state3 = await ls2[0].fetchState()
+    const state2 = await ls2[1].fetchState()
     expect(state2.createdAt).toBeLessThanOrEqual(state3.createdAt)
 
     expect(state1.createdAt).toBeLessThanOrEqual(state2.createdAt)
@@ -83,13 +83,13 @@ describe('Proposal', () => {
     const l1 = await Proposal.search(arc, { where: {expiresInQueueAt_gt: 0}}).pipe(first()).toPromise()
     expect(l1.length).toBeGreaterThan(0)
 
-    const expiryDate = (await l1[0].state().pipe(first()).toPromise()).expiresInQueueAt
+    const expiryDate = (await l1[0].fetchState()).expiresInQueueAt
     const l2 = await Proposal.search(arc, { where: {expiresInQueueAt_gt: expiryDate}}).pipe(first()).toPromise()
     expect(l2.length).toBeLessThan(l1.length)
   })
 
   it('proposal.search() accepts scheme argument', async () => {
-    const state = await queuedProposal.state().pipe(first()).toPromise()
+    const state = await queuedProposal.fetchState()
     const l1 = await Proposal.search(arc, { where: { scheme: state.scheme.id}}).pipe(first()).toPromise()
     expect(l1.length).toBeGreaterThan(0)
   })
@@ -107,7 +107,7 @@ describe('Proposal', () => {
   })
 
   it('proposal.search ignores case in address', async () => {
-    const proposalState = await queuedProposal.state().pipe(first()).toPromise()
+    const proposalState = await queuedProposal.fetchState()
     const proposer = proposalState.proposer
     let result: Proposal[]
 
@@ -140,7 +140,7 @@ describe('Proposal', () => {
   it('get list of redeemable proposals for a user', async () => {
     // check if the executedProposalId indeed has the correct state
     const proposal = await dao.proposal(executedProposal.id)
-    const proposalState = await proposal.state().pipe(first()).toPromise()
+    const proposalState = await proposal.fetchState()
     expect(proposalState.accountsWithUnclaimedRewards.length).toEqual(4)
     const someAccount = proposalState.accountsWithUnclaimedRewards[1]
     // query for redeemable proposals
@@ -172,7 +172,7 @@ describe('Proposal', () => {
     const response = await (dao as DAO).createProposal(options as IProposalCreateOptions).send()
     const proposal = response.result as Proposal
 
-    const proposalState = await proposal.state().pipe(first()).toPromise()
+    const proposalState = await proposal.fetchState()
     // the state is null because the proposal has not been indexed yet
     expect(proposalState).toEqual(null)
   })
@@ -180,7 +180,7 @@ describe('Proposal', () => {
   it('Check queued proposal state is correct', async () => {
 
     const proposal = preBoostedProposal
-    const pState = await proposal.state().pipe(first()).toPromise()
+    const pState = await proposal.fetchState()
     expect(proposal).toBeInstanceOf(Proposal)
 
     const contributionReward = pState.contributionReward as IContributionReward
@@ -251,7 +251,7 @@ describe('Proposal', () => {
 
   it('Check preboosted proposal state is correct', async () => {
     const proposal = preBoostedProposal
-    const pState = await proposal.state().pipe(first()).toPromise()
+    const pState = await proposal.fetchState()
     expect(proposal).toBeInstanceOf(Proposal)
 
     expect(pState.upstakeNeededToPreBoost).toEqual(new BN(0))
@@ -299,7 +299,7 @@ describe('Proposal', () => {
     const votes = await proposal.votes({}, { fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     expect(votes.length).toBeGreaterThanOrEqual(1)
     // @ts-ignore
-    const someAccount = votes[0].staticState.voter
+    const someAccount = votes[0].coreState.voter
     const votesForAccount = await proposal.votes({where: {voter: someAccount}}, { fetchPolicy: 'no-cache'})
       .pipe(first()).toPromise()
     expect(votesForAccount.length).toEqual(1)

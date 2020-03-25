@@ -46,7 +46,7 @@ describe('vote', () => {
     await waitUntilTrue(voteIsIndexed)
     if (result) {
       expect(result.length).toEqual(1)
-      expect((await result[0].fetchStaticState()).outcome).toEqual(IProposalOutcome.Pass)
+      expect((await result[0].fetchState()).outcome).toEqual(IProposalOutcome.Pass)
     }
     const vote = result[0]
 
@@ -66,7 +66,7 @@ describe('vote', () => {
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
 
-    const voteState = await vote.fetchStaticState()
+    const voteState = await vote.fetchState()
     result = await Vote.search(arc, {where: {id: vote.id, voter: getAddress(voteState.voter)}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
@@ -75,14 +75,14 @@ describe('vote', () => {
   it('paging and sorting works', async () => {
     const ls1 = await Vote.search(arc, { first: 3, orderBy: 'voter' }).pipe(first()).toPromise()
     expect(ls1.length).toEqual(3)
-    expect((await ls1[0].fetchStaticState()).voter <= (await ls1[1].fetchStaticState()).voter).toBeTruthy()
+    expect((await ls1[0].fetchState()).voter <= (await ls1[1].fetchState()).voter).toBeTruthy()
 
     const ls2 = await Vote.search(arc, { first: 2, skip: 2, orderBy: 'voter' }).pipe(first()).toPromise()
     expect(ls2.length).toEqual(2)
-    expect((await ls1[2].fetchStaticState()).voter).toEqual((await ls2[0].fetchStaticState()).voter)
+    expect((await ls1[2].fetchState()).voter).toEqual((await ls2[0].fetchState()).voter)
 
     const ls3 = await Vote.search(arc, {  orderBy: 'voter', orderDirection: 'desc'}).pipe(first()).toPromise()
-    expect((await ls3[0].fetchStaticState()).voter <= (await ls3[1].fetchStaticState()).voter).toBeTruthy()
+    expect((await ls3[0].fetchState()).voter <= (await ls3[1].fetchState()).voter).toBeTruthy()
   })
 
 })

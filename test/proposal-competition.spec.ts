@@ -69,7 +69,7 @@ describe('Competition Proposal', () => {
 
     contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
 
-    const contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
+    const contributionRewardExtState = await contributionRewardExt.fetchState()
     contributionRewardExtAddress = contributionRewardExtState.address
     dao = new DAO(arc, contributionRewardExtState.dao)
 
@@ -270,7 +270,7 @@ describe('Competition Proposal', () => {
       votingStartTime: addSeconds(startTime, 0)
     }
 
-    const schemeState = await scheme.state().pipe(first()).toPromise()
+    const schemeState = await scheme.fetchState()
 
     // CREATE PROPOSAL
     const tx = await scheme.createProposal(proposalOptions).send()
@@ -353,7 +353,7 @@ describe('Competition Proposal', () => {
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
     sub.unsubscribe()
 
-    const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
+    const suggestion1State = await suggestion1.fetchState()
     expect(suggestion1State).toMatchObject({
       ...suggestion1Options,
       beneficiary: address1,
@@ -365,7 +365,7 @@ describe('Competition Proposal', () => {
       title: 'title',
       totalVotes: new BN(0)
     })
-    expect(suggestion1State).toEqual(await suggestion1.fetchStaticState())
+    expect(suggestion1State).toEqual(await suggestion1.fetchState())
     // filter suggestions by id, suggestionId, and proposal.id works
     expect(
       (await competition.suggestions({ where: { proposal: competition.id } }).pipe(first()).toPromise()).length)
@@ -468,7 +468,7 @@ describe('Competition Proposal', () => {
     const votes = await competition.votes().pipe(first()).toPromise()
     expect(votes.length).toEqual(1)
     const vote = votes[0]
-    const voteState = await vote.state().pipe(first()).toPromise()
+    const voteState = await vote.fetchState()
     // expect(vote.id).toEqual(vote1.id)
     expect(voteState).toMatchObject({
       id: vote.id,
@@ -642,21 +642,21 @@ describe('Competition Proposal', () => {
     await waitUntilTrue(() => voteIsIndexed)
     sub.unsubscribe()
 
-    const suggestion1State = await suggestions[0].state().pipe(first()).toPromise()
+    const suggestion1State = await suggestions[0].fetchState()
     expect(suggestion1State.positionInWinnerList).toEqual(0)
     expect(suggestion1State.totalVotes).not.toEqual(new BN(0))
     expect(suggestion1State.isWinner).toEqual(true)
 
-    const suggestion2State = await suggestions[1].state().pipe(first()).toPromise()
+    const suggestion2State = await suggestions[1].fetchState()
     expect(suggestion2State.positionInWinnerList).toEqual(null)
     expect(suggestion2State.totalVotes).toEqual(new BN(0))
 
-    const suggestion3State = await suggestions[2].state().pipe(first()).toPromise()
+    const suggestion3State = await suggestions[2].fetchState()
     expect(suggestion3State.positionInWinnerList).toEqual(null)
     expect(suggestion3State.totalVotes).toEqual(new BN(0))
     expect(suggestion3State.isWinner).toEqual(false)
 
-    const suggestion4State = await suggestions[3].state().pipe(first()).toPromise()
+    const suggestion4State = await suggestions[3].fetchState()
     expect(suggestion4State.positionInWinnerList).toEqual(null)
     expect(suggestion4State.totalVotes).toEqual(new BN(0))
   })
@@ -790,7 +790,7 @@ describe('Competition Proposal', () => {
           .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
   
       const cachedSuggestionState = await cachedSuggestions[0]
-        .state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+        .fetchState({ fetchPolicy: 'cache-only'})
       expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
   
     })

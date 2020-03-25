@@ -1,19 +1,17 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
+import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { ISchemeState, Scheme } from './scheme'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
 
-export interface IQueueStaticState {
+export interface IQueueState {
   dao: DAO
   id: string
   name: string
-}
-
-export interface IQueueState extends IQueueStaticState {
   scheme: ISchemeState
   threshold: number
   votingMachine: Address
@@ -96,6 +94,10 @@ export class Queue implements IStateful<IQueueState> {
     public dao: DAO
   ) {
     this.context = context
+  }
+
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IQueueState> {
+    return await this.state(apolloQueryOptions).pipe(first()).toPromise()
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IQueueState> {

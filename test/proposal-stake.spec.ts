@@ -39,7 +39,7 @@ describe('Stake on a ContributionReward', () => {
 
     const stake = await proposal.stake(IProposalOutcome.Pass, new BN(100)).send()
 
-    const state =  await (stake.result as Stake).fetchStaticState()
+    const state =  await (stake.result as Stake).fetchState()
     expect(state).toMatchObject({
       outcome : IProposalOutcome.Pass
     })
@@ -103,7 +103,7 @@ describe('Stake on a ContributionReward', () => {
       throw Error(`No boosted proposals were found, so this test fails... (perhap restart docker containers?)`)
     }
     const boostedProposal = boostedProposals[0]
-    const state = await boostedProposal.state().pipe(first()).toPromise()
+    const state = await boostedProposal.fetchState()
     console.log(state)
     expect(state.stage).toEqual(IProposalStage.Boosted)
     await expect(boostedProposal.stake(IProposalOutcome.Pass, new BN(10000000)).send()).rejects.toThrow(
@@ -132,7 +132,7 @@ describe('Stake on a ContributionReward', () => {
       const ls = lastStake()
       return ls.length > 0
     })
-    const state = await lastStake()[0].fetchStaticState()
+    const state = await lastStake()[0].fetchState()
     expect(state.outcome).toEqual(IProposalOutcome.Pass)
   })
 

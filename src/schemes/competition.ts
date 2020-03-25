@@ -205,7 +205,7 @@ export class CompetitionScheme extends SchemeBase {
   }
 
   public async getCompetitionContract() {
-    const schemeState = await this.state().pipe(first()).toPromise()
+    const schemeState = await this.fetchState()
     const contract = getCompetitionContract(this.context, schemeState)
     return contract
   }
@@ -253,7 +253,7 @@ export class CompetitionScheme extends SchemeBase {
       }
 
       // check if the sender has reputation in the DAO
-      const state = await this.state().pipe(first()).toPromise()
+      const state = await this.fetchState()
       const dao = new DAO(this.context, state.dao)
       const reputation = await dao.nativeReputation().pipe(first()).toPromise()
       const sender = await this.context.getAccount().pipe(first()).toPromise()
@@ -329,7 +329,7 @@ export class CompetitionScheme extends SchemeBase {
    */
   protected async createProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
       const context = this.context
-      const schemeState = await this.state().pipe(first()).toPromise()
+      const schemeState = await this.fetchState()
       if (!schemeState) {
         throw Error(`No scheme was found with this id: ${this.id}`)
       }
@@ -439,7 +439,7 @@ export class Competition { // extends Proposal {
   }): Operation<CompetitionSuggestion> {
 
     const getSchemeState = async (): Promise<ISchemeState> => {
-      const proposalState = await (new Proposal(this.context, this.id)).state().pipe(first()).toPromise()
+      const proposalState = await (new Proposal(this.context, this.id)).fetchState()
       return await (new CompetitionScheme(this.context, proposalState.scheme.id))
         .state().pipe(first()).toPromise()
     }
@@ -666,7 +666,7 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
 
   public id: string
   public suggestionId?: number
-  public staticState?: ICompetitionSuggestionState
+  public coreState?: ICompetitionSuggestionState
 
   constructor(
     public context: Arc,
@@ -684,17 +684,19 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
       } else {
         const opts = idOrOpts as ICompetitionSuggestionState
         this.id = opts.id
-        this.setStaticState(opts)
+        this.setState(opts)
       }
     }
   }
 
-  public setStaticState(opts: ICompetitionSuggestionState) {
-    this.staticState = opts
+  public setState(opts: ICompetitionSuggestionState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<ICompetitionSuggestionState> {
-    return this.state({ fetchPolicy: 'cache-first' }).pipe(first()).toPromise()
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ICompetitionSuggestionState> {
+    const state = await this.state({ fetchPolicy: 'cache-first' }).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionSuggestionState> {
@@ -733,13 +735,13 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
 
   public async getPosition() {
     console.warn(`This method is deprecated - please use the positionInWinnerList from the proposal state`)
-    const suggestionState = await this.state().pipe(first()).toPromise()
+    const suggestionState = await this.fetchState()
     return suggestionState.positionInWinnerList
   }
 
   public async isWinner() {
     console.warn(`This method is deprecated - please use the positionInWinnerList !== from the proposal state`)
-    const suggestionState = await this.state().pipe(first()).toPromise()
+    const suggestionState = await this.fetchState()
     return suggestionState.isWinner
   }
 
@@ -844,7 +846,7 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
   }
 
   public id?: string
-  public staticState?: ICompetitionVoteState
+  public coreState?: ICompetitionVoteState
 
   constructor(public context: Arc, idOrOpts: string | ICompetitionVoteState) {
     if (typeof idOrOpts === 'string') {
@@ -852,14 +854,21 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
     } else {
       const opts = idOrOpts as ICompetitionVoteState
       // this.id = opts.id
-      this.setStaticState(opts)
+      this.setState(opts)
     }
   }
 
-  public setStaticState(opts: ICompetitionVoteState) {
-    this.id = opts.id
-    this.staticState = opts
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ICompetitionVoteState> {
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
+
+  public setState(opts: ICompetitionVoteState) {
+    this.id = opts.id
+    this.coreState = opts
+  }
+
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionVoteState> {
     const query = gql`query CompetitionVoteById
       {

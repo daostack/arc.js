@@ -7,7 +7,7 @@ import { IProposalOutcome } from './proposal'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
-export interface IVoteStaticState {
+export interface IVoteState {
   id?: string
   voter: Address
   createdAt: Date | undefined
@@ -15,10 +15,6 @@ export interface IVoteStaticState {
   amount: BN // amount of reputation that was voted with
   proposal: string
   dao?: Address
-}
-
-export interface IVoteState extends IVoteStaticState {
-  id: string
 }
 
 export interface IVoteQueryOptions extends ICommonQueryOptions {
@@ -154,15 +150,15 @@ export class Vote implements IStateful<IVoteState> {
     }
   }
   public id: string|undefined
-  public staticState: IVoteStaticState|undefined
+  public coreState: IVoteState|undefined
 
-  constructor(public context: Arc, idOrOpts: string|IVoteStaticState) {
+  constructor(public context: Arc, idOrOpts: string|IVoteState) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
-      const opts = idOrOpts as IVoteStaticState
+      const opts = idOrOpts as IVoteState
       this.id = opts.id
-      this.setStaticState(opts)
+      this.setState(opts)
     }
   }
 
@@ -192,15 +188,17 @@ export class Vote implements IStateful<IVoteState> {
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
-  public setStaticState(opts: IVoteStaticState) {
-    this.staticState = opts
+  public setState(opts: IVoteState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<IVoteStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IVoteState> {
+    if (!!this.coreState) {
+      return this.coreState
     } else {
-      return await this.state().pipe(first()).toPromise()
+      const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+      this.setState(state)
+      return state
     }
   }
 }

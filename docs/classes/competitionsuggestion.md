@@ -25,7 +25,7 @@
 
 ### Methods
 
-* [fetchStaticState](competitionsuggestion.md#fetchstaticstate)
+* [fetchState](competitionsuggestion.md#fetchState)
 * [getPosition](competitionsuggestion.md#getposition)
 * [isWinner](competitionsuggestion.md#iswinner)
 * [redeem](competitionsuggestion.md#redeem)
@@ -92,9 +92,9 @@ ___
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[ICompetitionSuggestionState](../interfaces/icompetitionsuggestionstate.md)›*
+▸ **fetchState**(): *Promise‹[ICompetitionSuggestionState](../interfaces/icompetitionsuggestionstate.md)›*
 
 *Defined in [src/schemes/competition.ts:695](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L695)*
 

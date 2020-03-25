@@ -3,7 +3,7 @@ import {
   Arc,
   IProposalStage,
   IProposalState,
-  ISchemeStaticState,
+  ISchemeState,
   Proposal
   } from '../src'
 import { createAProposal, getTestAddresses, ITestAddresses, LATEST_ARC_VERSION,
@@ -41,7 +41,7 @@ describe('Proposal', () => {
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
     const schemes = await dao.schemes({ where: {name: 'GenericScheme' }}).pipe(first()).toPromise()
-    const genericScheme = schemes[0].staticState as ISchemeStaticState
+    const genericScheme = schemes[0].coreState as ISchemeState
     const proposal = await createAProposal(dao, {
       callData,
       scheme: genericScheme.address,

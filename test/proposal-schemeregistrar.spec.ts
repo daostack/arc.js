@@ -73,7 +73,7 @@ describe('Proposal', () => {
     const registeredSchemesAddresses: string[] = []
     await Promise.all(
       registeredSchemes.map(async (x: Scheme) => {
-        const state = await x.fetchStaticState()
+        const state = await x.fetchState()
         registeredSchemesAddresses.push(state.address)
       })
     )

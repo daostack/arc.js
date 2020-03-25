@@ -26,7 +26,7 @@
 
 * [createProposal](dao.md#createproposal)
 * [ethBalance](dao.md#ethbalance)
-* [fetchStaticState](dao.md#fetchstaticstate)
+* [fetchState](dao.md#fetchState)
 * [member](dao.md#member)
 * [members](dao.md#members)
 * [nativeReputation](dao.md#nativereputation)
@@ -122,9 +122,9 @@ an observable stream of BN number instances
 
 ___
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[IDAOStaticState](../interfaces/idaostaticstate.md)›*
+▸ **fetchState**(): *Promise‹[IDAOStaticState](../interfaces/idaostaticstate.md)›*
 
 *Defined in [src/dao.ts:152](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L152)*
 

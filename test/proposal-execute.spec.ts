@@ -25,9 +25,11 @@ describe('Proposal execute()', () => {
   it('runs correctly through the stages', async () => {
 
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) {
+      throw new Error('Web3 provider not set')
+    }
     const accounts = await arc.web3.listAccounts()
-    const state = await executedProposal.fetchStaticState()
+    const state = await executedProposal.fetchState()
     const schemeAddress = state.scheme.address
 
     const options = {
@@ -117,7 +119,7 @@ describe('Proposal execute()', () => {
 
   it('execute a proposal by voting only', async () => {
     // daoBalance
-    const daoState = await dao.state().pipe(first()).toPromise()
+    const daoState = await dao.fetchState()
     const repTotalSupply = daoState.reputationTotalSupply
     const proposalStates: IProposalState[] = []
     const lastState = () => proposalStates[proposalStates.length - 1]

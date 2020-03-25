@@ -63,7 +63,7 @@ describe('Reward', () => {
 
     // get the reward state
     const reward = result[0]
-    const rewardState = await reward.state().pipe(first()).toPromise()
+    const rewardState = await reward.fetchState()
     expect(rewardState.id).toEqual(reward.id)
   })
 
@@ -80,7 +80,7 @@ describe('Reward', () => {
     expect(Number(ls3[0].id)).toBeGreaterThanOrEqual(Number(ls3[1].id))
   })
 
-  it('fetchStaticState works as expected', async () => {
+  it('fetchState works as expected', async () => {
     const rewards = await Reward.search(arc).pipe(first()).toPromise()
     const reward = rewards[0]
     // staticState should be set on search

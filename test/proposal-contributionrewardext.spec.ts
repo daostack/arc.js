@@ -33,7 +33,7 @@ describe('ContributionReward Ext', () => {
       .schemes({where: {address: contributionRewardExtContract.address}}).pipe(first()).toPromise()
 
     const contributionRewardExt = contributionRewardExts[0] as Scheme
-    const contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
+    const contributionRewardExtState = await contributionRewardExt.fetchState()
     const dao = new DAO(arc, contributionRewardExtState.dao)
 
     const tx = await dao.createProposal({

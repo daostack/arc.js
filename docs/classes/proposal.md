@@ -138,7 +138,7 @@ ___
 
 ###  fetchStaticState
 
-▸ **fetchStaticState**(): *Promise‹[IProposalStaticState](../interfaces/iproposalstaticstate.md)›*
+▸ **fetchState**(): *Promise‹[IProposalStaticState](../interfaces/iproposalstaticstate.md)›*
 
 *Defined in [src/proposal.ts:355](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L355)*
 

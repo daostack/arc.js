@@ -7,17 +7,13 @@ import { IProposalOutcome} from './proposal'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
-export interface IStakeStaticState {
+export interface IStakeState {
   id?: string
   staker: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount staked
   proposal: string
-}
-
-export interface IStakeState extends IStakeStaticState {
-  id: string
 }
 
 export interface IStakeQueryOptions extends ICommonQueryOptions {
@@ -146,17 +142,17 @@ export class Stake implements IStateful<IStakeState> {
   }
 
   public id: string|undefined
-  public staticState: IStakeStaticState|undefined
+  public coreState: IStakeState|undefined
 
   constructor(
-      public context: Arc,
-      idOrOpts: string|IStakeStaticState
+    public context: Arc,
+    idOrOpts: string|IStakeState
   ) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
       this.id = idOrOpts.id
-      this.setStaticState(idOrOpts as IStakeStaticState)
+      this.setState(idOrOpts as IStakeState)
     }
   }
 
@@ -180,7 +176,7 @@ export class Stake implements IStateful<IStakeState> {
       if (item === null) {
         throw Error(`Could not find a Stake with id ${this.id}`)
       }
-      this.setStaticState({
+      this.setState({
         amount: new BN(item.amount),
         createdAt: item.createdAt,
         id: item.id,
@@ -200,16 +196,16 @@ export class Stake implements IStateful<IStakeState> {
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
-  public setStaticState(opts: IStakeStaticState) {
-    this.staticState = opts
+  public setState(opts: IStakeState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<IStakeStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IStakeState> {
+    if (!!this.coreState) {
+      return this.coreState
     } else {
       const state = await this.state({subscribe: false}).pipe(first()).toPromise()
-      this.setStaticState(state)
+      this.setState(state)
       return state
     }
   }

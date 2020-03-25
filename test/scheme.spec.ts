@@ -37,17 +37,17 @@ describe('Scheme', () => {
     expect(result.length).toBeGreaterThanOrEqual(3)
 
     // the schemes have their static state set
-    const staticState = await result[0].fetchStaticState()
-    expect(staticState.name).toBeTruthy()
-    expect(staticState.address).toBeTruthy()
-    expect(staticState.id).toBeTruthy()
-    expect(staticState.dao).toBeTruthy()
-    expect(staticState.paramsHash).toBeTruthy()
+    const state = await result[0].fetchState()
+    expect(state.name).toBeTruthy()
+    expect(state.address).toBeTruthy()
+    expect(state.id).toBeTruthy()
+    expect(state.dao).toBeTruthy()
+    expect(state.paramsHash).toBeTruthy()
 
     const schemeStates: ISchemeState[] = []
 
     await Promise.all(result.map(async (item) => {
-      const state = await item.state().pipe(first()).toPromise()
+      const state = await item.fetchState()
       schemeStates.push(state)
     }))
     expect((schemeStates.map((r) => r.name)).sort()).toEqual([
@@ -82,7 +82,7 @@ describe('Scheme', () => {
       .pipe(first()).toPromise()
 
     const scheme = result[0]
-    const state = await scheme.state().pipe(first()).toPromise()
+    const state = await scheme.fetchState()
     expect(state).toMatchObject({
       address: testAddresses.base.ContributionReward.toLowerCase(),
       id: scheme.id,
@@ -98,7 +98,7 @@ describe('Scheme', () => {
       .pipe(first()).toPromise()
 
     const scheme = result[0]
-    const state = await scheme.state().pipe(first()).toPromise()
+    const state = await scheme.fetchState()
     expect(state).toMatchObject({
       address: testAddresses.base.SchemeRegistrar.toLowerCase(),
       id: scheme.id,
@@ -112,7 +112,7 @@ describe('Scheme', () => {
       .search(arc, {where: {name: 'UGenericScheme'}})
       .pipe(first()).toPromise()
     const scheme = result[0]
-    const state = await scheme.state().pipe(first()).toPromise()
+    const state = await scheme.fetchState()
     expect(state).toMatchObject({
       id: scheme.id,
       name: 'UGenericScheme'
@@ -127,7 +127,7 @@ describe('Scheme', () => {
       .pipe(first()).toPromise()
 
     const scheme = result[0]
-    const state = await scheme.state().pipe(first()).toPromise()
+    const state = await scheme.fetchState()
     expect(state).toMatchObject({
       id: scheme.id,
       name: 'GenericScheme'
@@ -140,7 +140,7 @@ describe('Scheme', () => {
     const { queuedProposalId } = testAddresses.test
     const dao = await getTestDAO()
     const proposal = await dao.proposal(queuedProposalId)
-    const proposalState = await proposal.state().pipe(first()).toPromise()
+    const proposalState = await proposal.fetchState()
     const schemes = await firstResult(Scheme.search(arc, {where: {id: proposalState.scheme.id}}))
     const schemeState = await firstResult(schemes[0].state())
     expect(schemeState).toMatchObject(proposalState.scheme)
@@ -150,7 +150,7 @@ describe('Scheme', () => {
     const { queuedProposalId } = testAddresses.test
     const dao = await getTestDAO()
     const proposal = await dao.proposal(queuedProposalId)
-    const proposalState = await proposal.state().pipe(first()).toPromise()
+    const proposalState = await proposal.fetchState()
     const schemes = await firstResult(Scheme.search(arc, {where: {id: proposalState.scheme.id}}))
     const scheme = schemes[0]
     const schemeState = await firstResult(scheme.state())
@@ -180,10 +180,10 @@ describe('Scheme', () => {
     expect((await firstResult(ls3[0].state())).address >= (await firstResult(ls3[1].state())).address).toBeTruthy()
   })
 
-  it('fetchStaticState works', async () => {
+  it('fetchState works', async () => {
     const schemes = await firstResult(Scheme.search(arc))
     const scheme = schemes[0]
-    const state = await scheme.fetchStaticState()
+    const state = await scheme.fetchState()
     expect(Object.keys(state)).toContain('address')
   })
 

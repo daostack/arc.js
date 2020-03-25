@@ -158,9 +158,9 @@ ___
 
 ___
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
+▸ **fetchState**(): *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
 
 *Defined in [src/schemes/base.ts:262](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L262)*
 

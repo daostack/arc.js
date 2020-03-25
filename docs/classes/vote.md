@@ -24,7 +24,7 @@
 
 ### Methods
 
-* [fetchStaticState](vote.md#fetchstaticstate)
+* [fetchState](vote.md#fetchState)
 * [setStaticState](vote.md#setstaticstate)
 * [state](vote.md#state)
 * [search](vote.md#static-search)
@@ -76,9 +76,9 @@ ___
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[IVoteStaticState](../interfaces/ivotestaticstate.md)›*
+▸ **fetchState**(): *Promise‹[IVoteStaticState](../interfaces/ivotestaticstate.md)›*
 
 *Defined in [src/vote.ts:199](https://github.com/dorgtech/client/blob/74940d1/src/vote.ts#L199)*
 

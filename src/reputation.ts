@@ -2,7 +2,7 @@ import { ApolloQueryResult } from 'apollo-client'
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { first, map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { ITransactionReceipt, Operation } from './operation'
 import { REPUTATION_CONTRACT_VERSION } from './settings'
@@ -93,6 +93,8 @@ export class Reputation implements IStateful<IReputationState> {
     }
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IReputationState>
   }
+
+  public fetchState = async () => await this.state({subscribe: false}).pipe(first()).toPromise()
 
   public reputationOf(address: Address): Observable<BN> {
     isAddress(address)

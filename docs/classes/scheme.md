@@ -175,11 +175,11 @@ ___
 
 ___
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹ISchemeStaticState›*
+▸ **fetchState**(): *Promise‹ISchemeStaticState›*
 
-*Overrides [SchemeBase](schemebase.md).[fetchStaticState](schemebase.md#fetchstaticstate)*
+*Overrides [SchemeBase](schemebase.md).[fetchState](schemebase.md#fetchState)*
 
 *Defined in [src/scheme.ts:289](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L289)*
 

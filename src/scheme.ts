@@ -24,22 +24,17 @@ import * as UGenericScheme from './schemes/uGenericScheme'
 import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery } from './utils'
 
-export interface ISchemeStaticState {
+export interface ISchemeState {
   id: string
   address: Address
   dao: Address
   name: string
   paramsHash: string
   version: string
-}
-
-export interface ISchemeState extends ISchemeStaticState {
   canDelegateCall: boolean
   canRegisterSchemes: boolean
   canUpgradeController: boolean
   canManageGlobalConstraints: boolean
-  dao: Address
-  paramsHash: string
   contributionRewardParams?: IContributionRewardParams
   contributionRewardExtParams?: IContributionRewardExtParams
   genericSchemeParams?: IGenericSchemeParams
@@ -151,22 +146,39 @@ export class Scheme extends SchemeBase  {
     }
 
     const itemMap = (item: any): SchemeBase|null => {
-      if (!options.where) { options.where = {}}
+      if (!options.where) {
+        options.where = {}
+      }
+
       if (isCompetitionScheme(context, item)) {
         return new Competition.CompetitionScheme(context, {
           address: item.address,
+          canDelegateCall: item.canDelegateCall,
+          canManageGlobalConstraints: item.canManageGlobalConstraints,
+          canRegisterSchemes: item.canRegisterSchemes,
+          canUpgradeController: item.canUpgradeController,
           dao: item.dao.id,
           id: item.id,
           name: item.name,
+          numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+          numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+          numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
           paramsHash: item.paramsHash,
           version: item.version
         })
       } else {
         const scheme = new Scheme(context, {
           address: item.address,
+          canDelegateCall: item.canDelegateCall,
+          canManageGlobalConstraints: item.canManageGlobalConstraints,
+          canRegisterSchemes: item.canRegisterSchemes,
+          canUpgradeController: item.canUpgradeController,
           dao: item.dao.id,
           id: item.id,
           name: item.name,
+          numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+          numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+          numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
           paramsHash: item.paramsHash,
           version: item.version
         })
@@ -260,24 +272,24 @@ export class Scheme extends SchemeBase  {
   }
 
   public id: Address
-  public staticState: ISchemeStaticState | null = null
+  public coreState: ISchemeState | null = null
   public ReputationFromToken: ReputationFromTokenScheme | null = null
 
-  constructor(public context: Arc, idOrOpts: Address | ISchemeStaticState) {
+  constructor(public context: Arc, idOrOpts: Address | ISchemeState) {
     super(context, idOrOpts)
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts as string
       this.id = this.id.toLowerCase()
     } else {
-      this.setStaticState(idOrOpts)
-      this.id = (this.staticState as ISchemeStaticState).id
+      this.setState(idOrOpts)
+      this.id = (this.coreState as ISchemeState).id
     }
   }
 
-  public setStaticState(opts: ISchemeStaticState) {
-    this.staticState = opts
-    if (this.staticState.name ===  'ReputationFromToken') {
+  public setState(opts: ISchemeState) {
+    this.coreState = opts
+    if (this.coreState.name ===  'ReputationFromToken') {
       this.ReputationFromToken = new ReputationFromTokenScheme(this)
     }
   }
@@ -286,25 +298,13 @@ export class Scheme extends SchemeBase  {
    * fetch the static state from the subgraph
    * @return the statatic state
    */
-  public async fetchStaticState(): Promise<ISchemeStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state = await this.state({ subscribe: false}).pipe(first()).toPromise()
-      if (state === null) {
-        throw Error(`No scheme with id ${this.id} was found in the subgraph`)
-      }
-      const opts = {
-        address: state.address,
-        dao: state.dao,
-        id: this.id,
-        name: state.name,
-        paramsHash: state.paramsHash,
-        version: state.version
-      }
-      this.setStaticState(opts)
-      return state
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ISchemeState> {
+    const state = await this.state({ subscribe: false}).pipe(first()).toPromise()
+    if (state === null) {
+      throw Error(`No scheme with id ${this.id} was found in the subgraph`)
     }
+    this.setState(state)
+    return state
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ISchemeState> {
@@ -332,7 +332,7 @@ export class Scheme extends SchemeBase  {
         const context = this.context
         let transaction: ITransaction
         let map: transactionResultHandler<Proposal>
-        const state = await this.fetchStaticState()
+        const state = await this.fetchState()
 
         switch (state.name) {
           case 'ContributionReward': {
