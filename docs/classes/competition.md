@@ -30,16 +30,16 @@
 
 ###  constructor
 
-\+ **new Competition**(`id`: string, `context`: [Arc](arc.md)): *[Competition](competition.md)*
+\+ **new Competition**(`context`: [Arc](arc.md), `id`: string): *[Competition](competition.md)*
 
-*Defined in [src/schemes/competition.ts:424](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L424)*
+*Defined in [src/schemes/competition.ts:426](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L426)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`id` | string |
 `context` | [Arc](arc.md) |
+`id` | string |
 
 **Returns:** *[Competition](competition.md)*
 
@@ -49,7 +49,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/schemes/competition.ts:424](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L424)*
+*Defined in [src/schemes/competition.ts:426](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L426)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/schemes/competition.ts:423](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L423)*
+*Defined in [src/schemes/competition.ts:425](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L425)*
 
 ## Methods
 
@@ -65,7 +65,7 @@ ___
 
 ▸ **createSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹[CompetitionSuggestion](competitionsuggestion.md)›*
 
-*Defined in [src/schemes/competition.ts:432](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L432)*
+*Defined in [src/schemes/competition.ts:433](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L433)*
 
 **Parameters:**
 
@@ -87,7 +87,7 @@ ___
 
 ▸ **redeemSuggestion**(`suggestionId`: number): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [src/schemes/competition.ts:503](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L503)*
+*Defined in [src/schemes/competition.ts:504](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L504)*
 
 **Parameters:**
 
@@ -103,7 +103,7 @@ ___
 
 ▸ **suggestions**(`options`: [ICompetitionSuggestionQueryOptions](../interfaces/icompetitionsuggestionqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[CompetitionSuggestion](competitionsuggestion.md)[]›*
 
-*Defined in [src/schemes/competition.ts:515](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L515)*
+*Defined in [src/schemes/competition.ts:516](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L516)*
 
 **Parameters:**
 
@@ -120,7 +120,7 @@ ___
 
 ▸ **voteSuggestion**(`suggestionId`: number): *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-*Defined in [src/schemes/competition.ts:488](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L488)*
+*Defined in [src/schemes/competition.ts:489](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L489)*
 
 **Parameters:**
 
@@ -136,7 +136,7 @@ ___
 
 ▸ **votes**(`options`: [IVoteQueryOptions](../interfaces/ivotequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[CompetitionVote](competitionvote.md)[]›*
 
-*Defined in [src/schemes/competition.ts:524](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L524)*
+*Defined in [src/schemes/competition.ts:525](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L525)*
 
 **Parameters:**
 
@@ -153,7 +153,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Competition](competition.md)[]›*
 
-*Defined in [src/schemes/competition.ts:413](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L413)*
+*Defined in [src/schemes/competition.ts:415](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L415)*
 
 **Parameters:**
 

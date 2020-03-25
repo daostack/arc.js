@@ -21,7 +21,7 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [src/arc.ts:465](https://github.com/dorgtech/client/blob/74940d1/src/arc.ts#L465)*
+*Defined in [src/arc.ts:471](https://github.com/dorgtech/client/blob/19b4373/src/arc.ts#L471)*
 
 ___
 
@@ -29,7 +29,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/arc.ts:463](https://github.com/dorgtech/client/blob/74940d1/src/arc.ts#L463)*
+*Defined in [src/arc.ts:469](https://github.com/dorgtech/client/blob/19b4373/src/arc.ts#L469)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [src/arc.ts:466](https://github.com/dorgtech/client/blob/74940d1/src/arc.ts#L466)*
+*Defined in [src/arc.ts:472](https://github.com/dorgtech/client/blob/19b4373/src/arc.ts#L472)*
 
 ___
 
@@ -45,4 +45,4 @@ ___
 
 • **version**: *string*
 
-*Defined in [src/arc.ts:464](https://github.com/dorgtech/client/blob/74940d1/src/arc.ts#L464)*
+*Defined in [src/arc.ts:470](https://github.com/dorgtech/client/blob/19b4373/src/arc.ts#L470)*

@@ -94,7 +94,7 @@ ___
 
 • **send**: *function*
 
-*Defined in [src/operation.ts:66](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L66)*
+*Defined in [src/operation.ts:66](https://github.com/dorgtech/client/blob/19b4373/src/operation.ts#L66)*
 
 #### Type declaration:
 

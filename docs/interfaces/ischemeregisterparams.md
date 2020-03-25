@@ -20,9 +20,9 @@
 
 • **contractToCall**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/base.ts:74](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L74)*
+*Defined in [src/schemes/base.ts:69](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L69)*
 
-*Defined in [src/scheme.ts:76](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L76)*
+*Defined in [src/scheme.ts:71](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L71)*
 
 ___
 
@@ -30,9 +30,9 @@ ___
 
 • **voteParams**: *[IGenesisProtocolParams](igenesisprotocolparams.md)*
 
-*Defined in [src/schemes/base.ts:75](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L75)*
+*Defined in [src/schemes/base.ts:70](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L70)*
 
-*Defined in [src/scheme.ts:77](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L77)*
+*Defined in [src/scheme.ts:72](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L72)*
 
 ___
 
@@ -40,6 +40,6 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/base.ts:73](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L73)*
+*Defined in [src/schemes/base.ts:68](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L68)*
 
-*Defined in [src/scheme.ts:75](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L75)*
+*Defined in [src/scheme.ts:70](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L70)*

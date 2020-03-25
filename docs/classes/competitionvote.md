@@ -19,12 +19,13 @@
 ### Properties
 
 * [context](competitionvote.md#context)
+* [coreState](competitionvote.md#optional-corestate)
 * [id](competitionvote.md#optional-id)
-* [staticState](competitionvote.md#optional-staticstate)
 
 ### Methods
 
-* [setStaticState](competitionvote.md#setstaticstate)
+* [fetchState](competitionvote.md#fetchstate)
+* [setState](competitionvote.md#setstate)
 * [state](competitionvote.md#state)
 * [itemMap](competitionvote.md#static-itemmap)
 * [search](competitionvote.md#static-search)
@@ -37,16 +38,16 @@
 
 ###  constructor
 
-\+ **new CompetitionVote**(`idOrOpts`: string | [ICompetitionVoteState](../interfaces/icompetitionvotestate.md), `context`: [Arc](arc.md)): *[CompetitionVote](competitionvote.md)*
+\+ **new CompetitionVote**(`context`: [Arc](arc.md), `idOrOpts`: string | [ICompetitionVoteState](../interfaces/icompetitionvotestate.md)): *[CompetitionVote](competitionvote.md)*
 
-*Defined in [src/schemes/competition.ts:846](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L846)*
+*Defined in [src/schemes/competition.ts:849](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L849)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | string &#124; [ICompetitionVoteState](../interfaces/icompetitionvotestate.md) |
 `context` | [Arc](arc.md) |
+`idOrOpts` | string &#124; [ICompetitionVoteState](../interfaces/icompetitionvotestate.md) |
 
 **Returns:** *[CompetitionVote](competitionvote.md)*
 
@@ -56,7 +57,15 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/schemes/competition.ts:848](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L848)*
+*Defined in [src/schemes/competition.ts:851](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L851)*
+
+___
+
+### `Optional` coreState
+
+• **coreState**? : *[ICompetitionVoteState](../interfaces/icompetitionvotestate.md)*
+
+*Defined in [src/schemes/competition.ts:849](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L849)*
 
 ___
 
@@ -64,23 +73,31 @@ ___
 
 • **id**? : *undefined | string*
 
-*Defined in [src/schemes/competition.ts:845](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L845)*
-
-___
-
-### `Optional` staticState
-
-• **staticState**? : *[ICompetitionVoteState](../interfaces/icompetitionvotestate.md)*
-
-*Defined in [src/schemes/competition.ts:846](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L846)*
+*Defined in [src/schemes/competition.ts:848](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L848)*
 
 ## Methods
 
-###  setStaticState
+###  fetchState
 
-▸ **setStaticState**(`opts`: [ICompetitionVoteState](../interfaces/icompetitionvotestate.md)): *void*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ICompetitionVoteState](../interfaces/icompetitionvotestate.md)›*
 
-*Defined in [src/schemes/competition.ts:858](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L858)*
+*Defined in [src/schemes/competition.ts:861](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L861)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[ICompetitionVoteState](../interfaces/icompetitionvotestate.md)›*
+
+___
+
+###  setState
+
+▸ **setState**(`opts`: [ICompetitionVoteState](../interfaces/icompetitionvotestate.md)): *void*
+
+*Defined in [src/schemes/competition.ts:867](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L867)*
 
 **Parameters:**
 
@@ -96,7 +113,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ICompetitionVoteState](../interfaces/icompetitionvotestate.md)›*
 
-*Defined in [src/schemes/competition.ts:862](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L862)*
+*Defined in [src/schemes/competition.ts:872](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L872)*
 
 **Parameters:**
 
@@ -112,7 +129,7 @@ ___
 
 ▸ **itemMap**(`item`: any): *object*
 
-*Defined in [src/schemes/competition.ts:833](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L833)*
+*Defined in [src/schemes/competition.ts:836](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L836)*
 
 **Parameters:**
 
@@ -140,7 +157,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [ICompetitionVoteQueryOptions](../interfaces/icompetitionvotequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[CompetitionVote](competitionvote.md)[]›*
 
-*Defined in [src/schemes/competition.ts:780](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L780)*
+*Defined in [src/schemes/competition.ts:783](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L783)*
 
 **Parameters:**
 
@@ -158,7 +175,7 @@ Name | Type | Default |
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/schemes/competition.ts:769](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L769)*
+*Defined in [src/schemes/competition.ts:772](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L772)*
 
 ###  CompetitionVoteFields
 
@@ -171,4 +188,4 @@ Name | Type | Default |
       suggestion { id }
     }`
 
-*Defined in [src/schemes/competition.ts:770](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L770)*
+*Defined in [src/schemes/competition.ts:773](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L773)*

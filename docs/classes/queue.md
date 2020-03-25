@@ -24,6 +24,7 @@
 
 ### Methods
 
+* [fetchState](queue.md#fetchstate)
 * [state](queue.md#state)
 * [search](queue.md#static-search)
 
@@ -31,17 +32,17 @@
 
 ###  constructor
 
-\+ **new Queue**(`id`: string, `dao`: [DAO](dao.md), `context`: [Arc](arc.md)): *[Queue](queue.md)*
+\+ **new Queue**(`context`: [Arc](arc.md), `id`: string, `dao`: [DAO](dao.md)): *[Queue](queue.md)*
 
-*Defined in [src/queue.ts:91](https://github.com/dorgtech/client/blob/74940d1/src/queue.ts#L91)*
+*Defined in [src/queue.ts:89](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L89)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
+`context` | [Arc](arc.md) |
 `id` | string |
 `dao` | [DAO](dao.md) |
-`context` | [Arc](arc.md) |
 
 **Returns:** *[Queue](queue.md)*
 
@@ -51,7 +52,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/queue.ts:96](https://github.com/dorgtech/client/blob/74940d1/src/queue.ts#L96)*
+*Defined in [src/queue.ts:92](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L92)*
 
 ___
 
@@ -59,7 +60,7 @@ ___
 
 • **dao**: *[DAO](dao.md)*
 
-*Defined in [src/queue.ts:95](https://github.com/dorgtech/client/blob/74940d1/src/queue.ts#L95)*
+*Defined in [src/queue.ts:94](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L94)*
 
 ___
 
@@ -67,15 +68,31 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/queue.ts:94](https://github.com/dorgtech/client/blob/74940d1/src/queue.ts#L94)*
+*Defined in [src/queue.ts:93](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L93)*
 
 ## Methods
+
+###  fetchState
+
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IQueueState](../interfaces/iqueuestate.md)›*
+
+*Defined in [src/queue.ts:99](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L99)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[IQueueState](../interfaces/iqueuestate.md)›*
+
+___
 
 ###  state
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IQueueState](../interfaces/iqueuestate.md)›*
 
-*Defined in [src/queue.ts:101](https://github.com/dorgtech/client/blob/74940d1/src/queue.ts#L101)*
+*Defined in [src/queue.ts:103](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L103)*
 
 **Parameters:**
 
@@ -91,7 +108,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IQueueQueryOptions](../interfaces/iqueuequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Queue](queue.md)[]›*
 
-*Defined in [src/queue.ts:39](https://github.com/dorgtech/client/blob/74940d1/src/queue.ts#L39)*
+*Defined in [src/queue.ts:37](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L37)*
 
 Queue.search(context, options) searches for queue entities
 

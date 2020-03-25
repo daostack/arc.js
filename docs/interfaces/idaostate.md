@@ -4,16 +4,14 @@
 
 ## Hierarchy
 
-* [IDAOStaticState](idaostaticstate.md)
-
-  ↳ **IDAOState**
+* **IDAOState**
 
 ## Index
 
 ### Properties
 
 * [address](idaostate.md#address)
-* [dao](idaostate.md#dao)
+* [dao](idaostate.md#optional-dao)
 * [id](idaostate.md#id)
 * [memberCount](idaostate.md#membercount)
 * [name](idaostate.md#name)
@@ -34,17 +32,15 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Inherited from [IDAOStaticState](idaostaticstate.md).[address](idaostaticstate.md#address)*
-
-*Defined in [src/dao.ts:22](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L22)*
+*Defined in [src/dao.ts:22](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L22)*
 
 ___
 
-###  dao
+### `Optional` dao
 
-• **dao**: *[DAO](../classes/dao.md)*
+• **dao**? : *[DAO](../classes/dao.md)*
 
-*Defined in [src/dao.ts:35](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L35)*
+*Defined in [src/dao.ts:32](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L32)*
 
 ___
 
@@ -52,9 +48,7 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Inherited from [IDAOStaticState](idaostaticstate.md).[id](idaostaticstate.md#id)*
-
-*Defined in [src/dao.ts:21](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L21)*
+*Defined in [src/dao.ts:21](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L21)*
 
 ___
 
@@ -62,7 +56,7 @@ ___
 
 • **memberCount**: *number*
 
-*Defined in [src/dao.ts:32](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L32)*
+*Defined in [src/dao.ts:29](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L29)*
 
 ___
 
@@ -70,9 +64,7 @@ ___
 
 • **name**: *string*
 
-*Inherited from [IDAOStaticState](idaostaticstate.md).[name](idaostaticstate.md#name)*
-
-*Defined in [src/dao.ts:23](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L23)*
+*Defined in [src/dao.ts:23](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L23)*
 
 ___
 
@@ -80,7 +72,7 @@ ___
 
 • **numberOfBoostedProposals**: *number*
 
-*Defined in [src/dao.ts:38](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L38)*
+*Defined in [src/dao.ts:35](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L35)*
 
 ___
 
@@ -88,7 +80,7 @@ ___
 
 • **numberOfPreBoostedProposals**: *number*
 
-*Defined in [src/dao.ts:37](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L37)*
+*Defined in [src/dao.ts:34](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L34)*
 
 ___
 
@@ -96,7 +88,7 @@ ___
 
 • **numberOfQueuedProposals**: *number*
 
-*Defined in [src/dao.ts:36](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L36)*
+*Defined in [src/dao.ts:33](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L33)*
 
 ___
 
@@ -104,9 +96,7 @@ ___
 
 • **register**: *"na" | "proposed" | "registered" | "unRegistered"*
 
-*Inherited from [IDAOStaticState](idaostaticstate.md).[register](idaostaticstate.md#register)*
-
-*Defined in [src/dao.ts:24](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L24)*
+*Defined in [src/dao.ts:24](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L24)*
 
 ___
 
@@ -114,9 +104,7 @@ ___
 
 • **reputation**: *[Reputation](../classes/reputation.md)*
 
-*Inherited from [IDAOStaticState](idaostaticstate.md).[reputation](idaostaticstate.md#reputation)*
-
-*Defined in [src/dao.ts:25](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L25)*
+*Defined in [src/dao.ts:25](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L25)*
 
 ___
 
@@ -124,7 +112,7 @@ ___
 
 • **reputationTotalSupply**: *BN*
 
-*Defined in [src/dao.ts:33](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L33)*
+*Defined in [src/dao.ts:30](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L30)*
 
 ___
 
@@ -132,9 +120,7 @@ ___
 
 • **token**: *[Token](../classes/token.md)*
 
-*Inherited from [IDAOStaticState](idaostaticstate.md).[token](idaostaticstate.md#token)*
-
-*Defined in [src/dao.ts:26](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L26)*
+*Defined in [src/dao.ts:26](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L26)*
 
 ___
 
@@ -142,9 +128,7 @@ ___
 
 • **tokenName**: *string*
 
-*Inherited from [IDAOStaticState](idaostaticstate.md).[tokenName](idaostaticstate.md#tokenname)*
-
-*Defined in [src/dao.ts:27](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L27)*
+*Defined in [src/dao.ts:27](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L27)*
 
 ___
 
@@ -152,9 +136,7 @@ ___
 
 • **tokenSymbol**: *string*
 
-*Inherited from [IDAOStaticState](idaostaticstate.md).[tokenSymbol](idaostaticstate.md#tokensymbol)*
-
-*Defined in [src/dao.ts:28](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L28)*
+*Defined in [src/dao.ts:28](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L28)*
 
 ___
 
@@ -162,4 +144,4 @@ ___
 
 • **tokenTotalSupply**: *BN*
 
-*Defined in [src/dao.ts:34](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L34)*
+*Defined in [src/dao.ts:31](https://github.com/dorgtech/client/blob/19b4373/src/dao.ts#L31)*

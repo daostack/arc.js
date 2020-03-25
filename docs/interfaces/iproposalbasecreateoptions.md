@@ -37,7 +37,7 @@
 
 • **dao**: *[Address](../globals.md#address)*
 
-*Defined in [src/proposal.ts:973](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L973)*
+*Defined in [src/proposal.ts:959](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L959)*
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [src/proposal.ts:974](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L974)*
+*Defined in [src/proposal.ts:960](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L960)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **descriptionHash**? : *undefined | string*
 
-*Defined in [src/proposal.ts:975](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L975)*
+*Defined in [src/proposal.ts:961](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L961)*
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **proposalType**? : *[IProposalType](../globals.md#const-iproposaltype) | "competition"*
 
-*Defined in [src/proposal.ts:980](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L980)*
+*Defined in [src/proposal.ts:966](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L966)*
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 • **scheme**? : *[Address](../globals.md#address)*
 
-*Defined in [src/proposal.ts:978](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L978)*
+*Defined in [src/proposal.ts:964](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L964)*
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 • **tags**? : *string[]*
 
-*Defined in [src/proposal.ts:977](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L977)*
+*Defined in [src/proposal.ts:963](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L963)*
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 • **title**? : *undefined | string*
 
-*Defined in [src/proposal.ts:976](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L976)*
+*Defined in [src/proposal.ts:962](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L962)*
 
 ___
 
@@ -93,4 +93,4 @@ ___
 
 • **url**? : *undefined | string*
 
-*Defined in [src/proposal.ts:979](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L979)*
+*Defined in [src/proposal.ts:965](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L965)*

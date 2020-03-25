@@ -28,6 +28,7 @@
 * [approveForStaking](token.md#approveforstaking)
 * [balanceOf](token.md#balanceof)
 * [contract](token.md#contract)
+* [fetchState](token.md#fetchstate)
 * [mint](token.md#mint)
 * [state](token.md#state)
 * [transfer](token.md#transfer)
@@ -37,16 +38,16 @@
 
 ###  constructor
 
-\+ **new Token**(`id`: [Address](../globals.md#address), `context`: [Arc](arc.md)): *[Token](token.md)*
+\+ **new Token**(`context`: [Arc](arc.md), `id`: [Address](../globals.md#address)): *[Token](token.md)*
 
-*Defined in [src/token.ts:88](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L88)*
+*Defined in [src/token.ts:88](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L88)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`id` | [Address](../globals.md#address) |
 `context` | [Arc](arc.md) |
+`id` | [Address](../globals.md#address) |
 
 **Returns:** *[Token](token.md)*
 
@@ -56,7 +57,7 @@ Name | Type |
 
 • **address**: *string*
 
-*Defined in [src/token.ts:88](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L88)*
+*Defined in [src/token.ts:88](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L88)*
 
 ___
 
@@ -64,7 +65,7 @@ ___
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/token.ts:90](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L90)*
+*Defined in [src/token.ts:90](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L90)*
 
 ___
 
@@ -72,7 +73,7 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Defined in [src/token.ts:90](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L90)*
+*Defined in [src/token.ts:90](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L90)*
 
 ## Methods
 
@@ -80,7 +81,7 @@ ___
 
 ▸ **allowance**(`owner`: [Address](../globals.md#address), `spender`: [Address](../globals.md#address)): *Observable‹BN›*
 
-*Defined in [src/token.ts:189](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L189)*
+*Defined in [src/token.ts:193](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L193)*
 
 **Parameters:**
 
@@ -97,7 +98,7 @@ ___
 
 ▸ **approveForStaking**(`spender`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
-*Defined in [src/token.ts:232](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L232)*
+*Defined in [src/token.ts:236](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L236)*
 
 **Parameters:**
 
@@ -114,7 +115,7 @@ ___
 
 ▸ **balanceOf**(`owner`: string): *Observable‹BN›*
 
-*Defined in [src/token.ts:134](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L134)*
+*Defined in [src/token.ts:138](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L138)*
 
 **Parameters:**
 
@@ -130,9 +131,25 @@ ___
 
 ▸ **contract**(): *Contract‹›*
 
-*Defined in [src/token.ts:129](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L129)*
+*Defined in [src/token.ts:133](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L133)*
 
 **Returns:** *Contract‹›*
+
+___
+
+###  fetchState
+
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ITokenState](../interfaces/itokenstate.md)›*
+
+*Defined in [src/token.ts:98](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L98)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[ITokenState](../interfaces/itokenstate.md)›*
 
 ___
 
@@ -140,7 +157,7 @@ ___
 
 ▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
-*Defined in [src/token.ts:216](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L216)*
+*Defined in [src/token.ts:220](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L220)*
 
 **Parameters:**
 
@@ -157,7 +174,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ITokenState](../interfaces/itokenstate.md)›*
 
-*Defined in [src/token.ts:98](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L98)*
+*Defined in [src/token.ts:102](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L102)*
 
 **Parameters:**
 
@@ -173,7 +190,7 @@ ___
 
 ▸ **transfer**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
-*Defined in [src/token.ts:224](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L224)*
+*Defined in [src/token.ts:228](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L228)*
 
 **Parameters:**
 
@@ -190,7 +207,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [ITokenQueryOptions](../interfaces/itokenqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Token](token.md)[]›*
 
-*Defined in [src/token.ts:53](https://github.com/dorgtech/client/blob/74940d1/src/token.ts#L53)*
+*Defined in [src/token.ts:53](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L53)*
 
 Token.search(context, options) searches for token entities
 

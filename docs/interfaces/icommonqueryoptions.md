@@ -56,7 +56,7 @@
 
 • **first**? : *undefined | number*
 
-*Defined in [src/types.ts:17](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L17)*
+*Defined in [src/types.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L17)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **orderBy**? : *undefined | string*
 
-*Defined in [src/types.ts:18](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L18)*
+*Defined in [src/types.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L18)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **orderDirection**? : *"asc" | "desc"*
 
-*Defined in [src/types.ts:19](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L19)*
+*Defined in [src/types.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L19)*
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **skip**? : *undefined | number*
 
-*Defined in [src/types.ts:16](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L16)*
+*Defined in [src/types.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L16)*
 
 ___
 
@@ -88,4 +88,4 @@ ___
 
 • **where**? : *any*
 
-*Defined in [src/types.ts:20](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L20)*
+*Defined in [src/types.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L20)*

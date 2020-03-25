@@ -24,8 +24,8 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 * [ReputationFromToken](scheme.md#reputationfromtoken)
 * [context](scheme.md#context)
+* [coreState](scheme.md#corestate)
 * [id](scheme.md#id)
-* [staticState](scheme.md#staticstate)
 
 ### Methods
 
@@ -33,9 +33,9 @@ A Scheme represents a scheme instance that is registered at a DAO
 * [createProposalErrorHandler](scheme.md#protected-createproposalerrorhandler)
 * [createProposalTransaction](scheme.md#protected-createproposaltransaction)
 * [createProposalTransactionMap](scheme.md#protected-createproposaltransactionmap)
-* [fetchStaticState](scheme.md#fetchstaticstate)
+* [fetchState](scheme.md#fetchstate)
 * [proposals](scheme.md#proposals)
-* [setStaticState](scheme.md#setstaticstate)
+* [setState](scheme.md#setstate)
 * [state](scheme.md#state)
 * [itemMap](scheme.md#static-itemmap)
 * [search](scheme.md#static-search)
@@ -48,18 +48,18 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 ###  constructor
 
-\+ **new Scheme**(`idOrOpts`: [Address](../globals.md#address) | ISchemeStaticState, `context`: [Arc](arc.md)): *[Scheme](scheme.md)*
+\+ **new Scheme**(`context`: [Arc](arc.md), `idOrOpts`: [Address](../globals.md#address) | ISchemeState): *[Scheme](scheme.md)*
 
 *Overrides [SchemeBase](schemebase.md).[constructor](schemebase.md#constructor)*
 
-*Defined in [src/scheme.ts:264](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L264)*
+*Defined in [src/scheme.ts:276](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L276)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | [Address](../globals.md#address) &#124; ISchemeStaticState |
 `context` | [Arc](arc.md) |
+`idOrOpts` | [Address](../globals.md#address) &#124; ISchemeState |
 
 **Returns:** *[Scheme](scheme.md)*
 
@@ -71,7 +71,7 @@ Name | Type |
 
 *Overrides [SchemeBase](schemebase.md).[ReputationFromToken](schemebase.md#reputationfromtoken)*
 
-*Defined in [src/scheme.ts:264](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L264)*
+*Defined in [src/scheme.ts:276](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L276)*
 
 ___
 
@@ -81,7 +81,17 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[context](schemebase.md#context)*
 
-*Defined in [src/scheme.ts:266](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L266)*
+*Defined in [src/scheme.ts:278](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L278)*
+
+___
+
+###  coreState
+
+• **coreState**: *ISchemeState | null* =  null
+
+*Overrides [SchemeBase](schemebase.md).[coreState](schemebase.md#corestate)*
+
+*Defined in [src/scheme.ts:275](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L275)*
 
 ___
 
@@ -91,17 +101,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[id](schemebase.md#id)*
 
-*Defined in [src/scheme.ts:262](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L262)*
-
-___
-
-###  staticState
-
-• **staticState**: *ISchemeStaticState | null* =  null
-
-*Overrides [SchemeBase](schemebase.md).[staticState](schemebase.md#staticstate)*
-
-*Defined in [src/scheme.ts:263](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L263)*
+*Defined in [src/scheme.ts:274](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L274)*
 
 ## Methods
 
@@ -111,7 +111,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposal](schemebase.md#createproposal)*
 
-*Defined in [src/scheme.ts:344](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L344)*
+*Defined in [src/scheme.ts:328](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L328)*
 
 create a new proposal in this Scheme
 
@@ -133,7 +133,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#protected-abstract-createproposalerrorhandler)*
 
-*Defined in [src/scheme.ts:333](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L333)*
+*Defined in [src/scheme.ts:422](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L422)*
 
 **Parameters:**
 
@@ -151,7 +151,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#protected-abstract-createproposaltransaction)*
 
-*Defined in [src/scheme.ts:323](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L323)*
+*Defined in [src/scheme.ts:412](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L412)*
 
 **Parameters:**
 
@@ -169,7 +169,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#protected-abstract-createproposaltransactionmap)*
 
-*Defined in [src/scheme.ts:329](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L329)*
+*Defined in [src/scheme.ts:418](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L418)*
 
 **Returns:** *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
@@ -177,15 +177,21 @@ ___
 
 ###  fetchState
 
-▸ **fetchState**(): *Promise‹ISchemeStaticState›*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹ISchemeState›*
 
-*Overrides [SchemeBase](schemebase.md).[fetchState](schemebase.md#fetchState)*
+*Overrides [SchemeBase](schemebase.md).[fetchState](schemebase.md#fetchstate)*
 
-*Defined in [src/scheme.ts:289](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L289)*
+*Defined in [src/scheme.ts:301](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L301)*
 
 fetch the static state from the subgraph
 
-**Returns:** *Promise‹ISchemeStaticState›*
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹ISchemeState›*
 
 the statatic state
 
@@ -197,7 +203,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[proposals](schemebase.md#proposals)*
 
-*Defined in [src/scheme.ts:419](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L419)*
+*Defined in [src/scheme.ts:403](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L403)*
 
 **Parameters:**
 
@@ -210,19 +216,19 @@ Name | Type | Default |
 
 ___
 
-###  setStaticState
+###  setState
 
-▸ **setStaticState**(`opts`: ISchemeStaticState): *void*
+▸ **setState**(`opts`: ISchemeState): *void*
 
-*Overrides [SchemeBase](schemebase.md).[setStaticState](schemebase.md#setstaticstate)*
+*Overrides [SchemeBase](schemebase.md).[setState](schemebase.md#setstate)*
 
-*Defined in [src/scheme.ts:278](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L278)*
+*Defined in [src/scheme.ts:290](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L290)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opts` | ISchemeStaticState |
+`opts` | ISchemeState |
 
 **Returns:** *void*
 
@@ -234,7 +240,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[state](schemebase.md#abstract-state)*
 
-*Defined in [src/scheme.ts:310](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L310)*
+*Defined in [src/scheme.ts:310](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L310)*
 
 **Parameters:**
 
@@ -248,9 +254,9 @@ ___
 
 ### `Static` itemMap
 
-▸ **itemMap**(`item`: any, `arc`: [Arc](arc.md)): *ISchemeState | null*
+▸ **itemMap**(`arc`: [Arc](arc.md), `item`: any): *ISchemeState | null*
 
-*Defined in [src/scheme.ts:193](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L193)*
+*Defined in [src/scheme.ts:205](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L205)*
 
 map an apollo query result to ISchemeState
 
@@ -262,8 +268,8 @@ map an apollo query result to ISchemeState
 
 Name | Type |
 ------ | ------ |
-`item` | any |
 `arc` | [Arc](arc.md) |
+`item` | any |
 
 **Returns:** *ISchemeState | null*
 
@@ -271,9 +277,9 @@ ___
 
 ### `Static` search
 
-▸ **search**(`context`: [Arc](arc.md), `options`: ISchemeQueryOptions, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹Array‹[SchemeBase](schemebase.md)››*
+▸ **search**(`context`: [Arc](arc.md), `options`: ISchemeQueryOptions, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[SchemeBase](schemebase.md)[]›*
 
-*Defined in [src/scheme.ts:121](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L121)*
+*Defined in [src/scheme.ts:116](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L116)*
 
 Scheme.search(context, options) searches for scheme entities
 
@@ -285,7 +291,7 @@ Name | Type | Default | Description |
 `options` | ISchemeQueryOptions |  {} | the query options, cf. ISchemeQueryOptions |
 `apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} | - |
 
-**Returns:** *Observable‹Array‹[SchemeBase](schemebase.md)››*
+**Returns:** *Observable‹[SchemeBase](schemebase.md)[]›*
 
 an observable of Scheme objects
 
@@ -297,7 +303,7 @@ an observable of Scheme objects
 
 *Inherited from [SchemeBase](schemebase.md).[fragments](schemebase.md#static-fragments)*
 
-*Defined in [src/schemes/base.ts:112](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L112)*
+*Defined in [src/schemes/base.ts:107](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L107)*
 
 ###  SchemeFields
 
@@ -430,4 +436,4 @@ an observable of Scheme objects
       version
     }`
 
-*Defined in [src/schemes/base.ts:113](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L113)*
+*Defined in [src/schemes/base.ts:108](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L108)*

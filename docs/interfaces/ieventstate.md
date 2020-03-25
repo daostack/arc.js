@@ -4,9 +4,7 @@
 
 ## Hierarchy
 
-* [IEventStaticState](ieventstaticstate.md)
-
-  ↳ **IEventState**
+* **IEventState**
 
 ## Index
 
@@ -26,9 +24,7 @@
 
 • **dao**: *string*
 
-*Inherited from [IEventStaticState](ieventstaticstate.md).[dao](ieventstaticstate.md#dao)*
-
-*Defined in [src/event.ts:10](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L10)*
+*Defined in [src/event.ts:10](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L10)*
 
 ___
 
@@ -36,9 +32,7 @@ ___
 
 • **data**: *object*
 
-*Inherited from [IEventStaticState](ieventstaticstate.md).[data](ieventstaticstate.md#data)*
-
-*Defined in [src/event.ts:14](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L14)*
+*Defined in [src/event.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L14)*
 
 #### Type declaration:
 
@@ -50,9 +44,7 @@ ___
 
 • **id**: *string*
 
-*Overrides [IEventStaticState](ieventstaticstate.md).[id](ieventstaticstate.md#id)*
-
-*Defined in [src/event.ts:19](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L19)*
+*Defined in [src/event.ts:9](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L9)*
 
 ___
 
@@ -60,9 +52,7 @@ ___
 
 • **proposal**: *string*
 
-*Inherited from [IEventStaticState](ieventstaticstate.md).[proposal](ieventstaticstate.md#proposal)*
-
-*Defined in [src/event.ts:11](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L11)*
+*Defined in [src/event.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L11)*
 
 ___
 
@@ -70,9 +60,7 @@ ___
 
 • **timestamp**: *string*
 
-*Inherited from [IEventStaticState](ieventstaticstate.md).[timestamp](ieventstaticstate.md#timestamp)*
-
-*Defined in [src/event.ts:15](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L15)*
+*Defined in [src/event.ts:15](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L15)*
 
 ___
 
@@ -80,9 +68,7 @@ ___
 
 • **type**: *string*
 
-*Inherited from [IEventStaticState](ieventstaticstate.md).[type](ieventstaticstate.md#type)*
-
-*Defined in [src/event.ts:13](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L13)*
+*Defined in [src/event.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L13)*
 
 ___
 
@@ -90,6 +76,4 @@ ___
 
 • **user**: *string*
 
-*Inherited from [IEventStaticState](ieventstaticstate.md).[user](ieventstaticstate.md#user)*
-
-*Defined in [src/event.ts:12](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L12)*
+*Defined in [src/event.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L12)*

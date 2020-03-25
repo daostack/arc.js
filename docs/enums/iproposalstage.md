@@ -19,7 +19,7 @@
 
 • **Boosted**:
 
-*Defined in [src/proposal.ts:50](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L50)*
+*Defined in [src/proposal.ts:50](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L50)*
 
 ___
 
@@ -27,7 +27,7 @@ ___
 
 • **Executed**:
 
-*Defined in [src/proposal.ts:47](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L47)*
+*Defined in [src/proposal.ts:47](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L47)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **ExpiredInQueue**:
 
-*Defined in [src/proposal.ts:46](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L46)*
+*Defined in [src/proposal.ts:46](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L46)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 • **PreBoosted**:
 
-*Defined in [src/proposal.ts:49](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L49)*
+*Defined in [src/proposal.ts:49](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L49)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **Queued**:
 
-*Defined in [src/proposal.ts:48](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L48)*
+*Defined in [src/proposal.ts:48](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L48)*
 
 ___
 
@@ -59,4 +59,4 @@ ___
 
 • **QuietEndingPeriod**:
 
-*Defined in [src/proposal.ts:51](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L51)*
+*Defined in [src/proposal.ts:51](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L51)*

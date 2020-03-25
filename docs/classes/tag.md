@@ -19,13 +19,13 @@
 ### Properties
 
 * [context](tag.md#context)
+* [coreState](tag.md#corestate)
 * [id](tag.md#id)
-* [staticState](tag.md#staticstate)
 
 ### Methods
 
-* [fetchState](tag.md#fetchState)
-* [setStaticState](tag.md#setstaticstate)
+* [fetchState](tag.md#fetchstate)
+* [setState](tag.md#setstate)
 * [state](tag.md#state)
 * [search](tag.md#static-search)
 
@@ -37,16 +37,16 @@
 
 ###  constructor
 
-\+ **new Tag**(`idOrOpts`: string | [ITagStaticState](../interfaces/itagstaticstate.md), `context`: [Arc](arc.md)): *[Tag](tag.md)*
+\+ **new Tag**(`context`: [Arc](arc.md), `idOrOpts`: string | [ITagState](../interfaces/itagstate.md)): *[Tag](tag.md)*
 
-*Defined in [src/tag.ts:113](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L113)*
+*Defined in [src/tag.ts:110](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L110)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | string &#124; [ITagStaticState](../interfaces/itagstaticstate.md) |
 `context` | [Arc](arc.md) |
+`idOrOpts` | string &#124; [ITagState](../interfaces/itagstate.md) |
 
 **Returns:** *[Tag](tag.md)*
 
@@ -56,7 +56,15 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/tag.ts:117](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L117)*
+*Defined in [src/tag.ts:113](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L113)*
+
+___
+
+###  coreState
+
+• **coreState**: *[ITagState](../interfaces/itagstate.md) | undefined*
+
+*Defined in [src/tag.ts:110](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L110)*
 
 ___
 
@@ -64,39 +72,37 @@ ___
 
 • **id**: *string | undefined*
 
-*Defined in [src/tag.ts:112](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L112)*
-
-___
-
-###  staticState
-
-• **staticState**: *[ITagStaticState](../interfaces/itagstaticstate.md) | undefined*
-
-*Defined in [src/tag.ts:113](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L113)*
+*Defined in [src/tag.ts:109](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L109)*
 
 ## Methods
 
 ###  fetchState
 
-▸ **fetchState**(): *Promise‹[ITagStaticState](../interfaces/itagstaticstate.md)›*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ITagState](../interfaces/itagstate.md)›*
 
-*Defined in [src/tag.ts:158](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L158)*
+*Defined in [src/tag.ts:154](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L154)*
 
-**Returns:** *Promise‹[ITagStaticState](../interfaces/itagstaticstate.md)›*
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[ITagState](../interfaces/itagstate.md)›*
 
 ___
 
-###  setStaticState
+###  setState
 
-▸ **setStaticState**(`opts`: [ITagStaticState](../interfaces/itagstaticstate.md)): *void*
+▸ **setState**(`opts`: [ITagState](../interfaces/itagstate.md)): *void*
 
-*Defined in [src/tag.ts:154](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L154)*
+*Defined in [src/tag.ts:150](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L150)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opts` | [ITagStaticState](../interfaces/itagstaticstate.md) |
+`opts` | [ITagState](../interfaces/itagstate.md) |
 
 **Returns:** *void*
 
@@ -106,7 +112,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ITagState](../interfaces/itagstate.md)›*
 
-*Defined in [src/tag.ts:127](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L127)*
+*Defined in [src/tag.ts:124](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L124)*
 
 **Parameters:**
 
@@ -122,7 +128,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [ITagQueryOptions](../interfaces/itagqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Tag](tag.md)[]›*
 
-*Defined in [src/tag.ts:41](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L41)*
+*Defined in [src/tag.ts:37](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L37)*
 
 Tag.search(context, options) searches for stake entities
 
@@ -144,7 +150,7 @@ an observable of Tag objects
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/tag.ts:27](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L27)*
+*Defined in [src/tag.ts:23](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L23)*
 
 ###  TagFields
 
@@ -154,4 +160,4 @@ an observable of Tag objects
       proposals { id }
     }`
 
-*Defined in [src/tag.ts:28](https://github.com/dorgtech/client/blob/74940d1/src/tag.ts#L28)*
+*Defined in [src/tag.ts:24](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L24)*

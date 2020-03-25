@@ -19,14 +19,14 @@
 ### Properties
 
 * [context](event.md#context)
+* [coreState](event.md#corestate)
 * [id](event.md#id)
 * [idOrOpts](event.md#idoropts)
-* [staticState](event.md#staticstate)
 
 ### Methods
 
-* [fetchState](event.md#fetchState)
-* [setStaticState](event.md#setstaticstate)
+* [fetchState](event.md#fetchstate)
+* [setState](event.md#setstate)
 * [state](event.md#state)
 * [search](event.md#static-search)
 
@@ -38,16 +38,16 @@
 
 ###  constructor
 
-\+ **new Event**(`idOrOpts`: string | [IEventStaticState](../interfaces/ieventstaticstate.md), `context`: [Arc](arc.md)): *[Event](event.md)*
+\+ **new Event**(`context`: [Arc](arc.md), `idOrOpts`: string | [IEventState](../interfaces/ieventstate.md)): *[Event](event.md)*
 
-*Defined in [src/event.ts:90](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L90)*
+*Defined in [src/event.ts:86](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L86)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | string &#124; [IEventStaticState](../interfaces/ieventstaticstate.md) |
 `context` | [Arc](arc.md) |
+`idOrOpts` | string &#124; [IEventState](../interfaces/ieventstate.md) |
 
 **Returns:** *[Event](event.md)*
 
@@ -57,7 +57,15 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/event.ts:92](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L92)*
+*Defined in [src/event.ts:88](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L88)*
+
+___
+
+###  coreState
+
+• **coreState**: *[IEventState](../interfaces/ieventstate.md) | undefined*
+
+*Defined in [src/event.ts:86](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L86)*
 
 ___
 
@@ -65,47 +73,45 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/event.ts:89](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L89)*
+*Defined in [src/event.ts:85](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L85)*
 
 ___
 
 ###  idOrOpts
 
-• **idOrOpts**: *string | [IEventStaticState](../interfaces/ieventstaticstate.md)*
+• **idOrOpts**: *string | [IEventState](../interfaces/ieventstate.md)*
 
-*Defined in [src/event.ts:92](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L92)*
-
-___
-
-###  staticState
-
-• **staticState**: *[IEventStaticState](../interfaces/ieventstaticstate.md) | undefined*
-
-*Defined in [src/event.ts:90](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L90)*
+*Defined in [src/event.ts:88](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L88)*
 
 ## Methods
 
 ###  fetchState
 
-▸ **fetchState**(): *Promise‹[IEventStaticState](../interfaces/ieventstaticstate.md)›*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IEventState](../interfaces/ieventstate.md)›*
 
-*Defined in [src/event.ts:135](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L135)*
+*Defined in [src/event.ts:131](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L131)*
 
-**Returns:** *Promise‹[IEventStaticState](../interfaces/ieventstaticstate.md)›*
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[IEventState](../interfaces/ieventstate.md)›*
 
 ___
 
-###  setStaticState
+###  setState
 
-▸ **setStaticState**(`opts`: [IEventStaticState](../interfaces/ieventstaticstate.md)): *void*
+▸ **setState**(`opts`: [IEventState](../interfaces/ieventstate.md)): *void*
 
-*Defined in [src/event.ts:131](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L131)*
+*Defined in [src/event.ts:127](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L127)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opts` | [IEventStaticState](../interfaces/ieventstaticstate.md) |
+`opts` | [IEventState](../interfaces/ieventstate.md) |
 
 **Returns:** *void*
 
@@ -115,7 +121,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IEventState](../interfaces/ieventstate.md)›*
 
-*Defined in [src/event.ts:102](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L102)*
+*Defined in [src/event.ts:98](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L98)*
 
 **Parameters:**
 
@@ -131,7 +137,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IEventQueryOptions](../interfaces/ieventqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Event](event.md)[]›*
 
-*Defined in [src/event.ts:56](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L56)*
+*Defined in [src/event.ts:52](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L52)*
 
 Event.search(context, options) searches for reward entities
 
@@ -153,7 +159,7 @@ an observable of Event objects
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/event.ts:34](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L34)*
+*Defined in [src/event.ts:30](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L30)*
 
 ###  EventFields
 
@@ -171,4 +177,4 @@ an observable of Event objects
       timestamp
     }`
 
-*Defined in [src/event.ts:35](https://github.com/dorgtech/client/blob/74940d1/src/event.ts#L35)*
+*Defined in [src/event.ts:31](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L31)*

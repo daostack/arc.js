@@ -26,8 +26,8 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 * [ReputationFromToken](schemebase.md#reputationfromtoken)
 * [context](schemebase.md#context)
+* [coreState](schemebase.md#corestate)
 * [id](schemebase.md#id)
-* [staticState](schemebase.md#staticstate)
 
 ### Methods
 
@@ -35,9 +35,9 @@ A Scheme represents a scheme instance that is registered at a DAO
 * [createProposalErrorHandler](schemebase.md#protected-abstract-createproposalerrorhandler)
 * [createProposalTransaction](schemebase.md#protected-abstract-createproposaltransaction)
 * [createProposalTransactionMap](schemebase.md#protected-abstract-createproposaltransactionmap)
-* [fetchStaticState](schemebase.md#fetchstaticstate)
+* [fetchState](schemebase.md#fetchstate)
 * [proposals](schemebase.md#proposals)
-* [setStaticState](schemebase.md#setstaticstate)
+* [setState](schemebase.md#setstate)
 * [state](schemebase.md#abstract-state)
 
 ### Object literals
@@ -48,16 +48,16 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 ###  constructor
 
-\+ **new SchemeBase**(`idOrOpts`: [Address](../globals.md#address) | [ISchemeStaticState](../interfaces/ischemestaticstate.md), `context`: [Arc](arc.md)): *[SchemeBase](schemebase.md)*
+\+ **new SchemeBase**(`context`: [Arc](arc.md), `idOrOpts`: [Address](../globals.md#address) | [ISchemeState](../interfaces/ischemestate.md)): *[SchemeBase](schemebase.md)*
 
-*Defined in [src/schemes/base.ts:245](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L245)*
+*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | [Address](../globals.md#address) &#124; [ISchemeStaticState](../interfaces/ischemestaticstate.md) |
 `context` | [Arc](arc.md) |
+`idOrOpts` | [Address](../globals.md#address) &#124; [ISchemeState](../interfaces/ischemestate.md) |
 
 **Returns:** *[SchemeBase](schemebase.md)*
 
@@ -67,7 +67,7 @@ Name | Type |
 
 • **ReputationFromToken**: *[ReputationFromTokenScheme](reputationfromtokenscheme.md) | null* =  null
 
-*Defined in [src/schemes/base.ts:245](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L245)*
+*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
 
 ___
 
@@ -75,7 +75,15 @@ ___
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/schemes/base.ts:247](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L247)*
+*Defined in [src/schemes/base.ts:242](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L242)*
+
+___
+
+###  coreState
+
+• **coreState**: *[ISchemeState](../interfaces/ischemestate.md) | null* =  null
+
+*Defined in [src/schemes/base.ts:239](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L239)*
 
 ___
 
@@ -83,15 +91,7 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/base.ts:243](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L243)*
-
-___
-
-###  staticState
-
-• **staticState**: *[ISchemeStaticState](../interfaces/ischemestaticstate.md) | null* =  null
-
-*Defined in [src/schemes/base.ts:244](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L244)*
+*Defined in [src/schemes/base.ts:238](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L238)*
 
 ## Methods
 
@@ -99,7 +99,7 @@ ___
 
 ▸ **createProposal**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *[Operation](../globals.md#operation)‹[Proposal](proposal.md)›*
 
-*Defined in [src/schemes/base.ts:305](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L305)*
+*Defined in [src/schemes/base.ts:273](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L273)*
 
 **Parameters:**
 
@@ -115,7 +115,7 @@ ___
 
 ▸ **createProposalErrorHandler**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *[transactionErrorHandler](../globals.md#transactionerrorhandler)*
 
-*Defined in [src/schemes/base.ts:301](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L301)*
+*Defined in [src/schemes/base.ts:316](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L316)*
 
 **Parameters:**
 
@@ -131,7 +131,7 @@ ___
 
 ▸ **createProposalTransaction**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *Promise‹[ITransaction](../interfaces/itransaction.md)›*
 
-*Defined in [src/schemes/base.ts:295](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L295)*
+*Defined in [src/schemes/base.ts:310](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L310)*
 
 create a new proposal in this scheme
 TODO: move this to the schemes - we should call proposal.scheme.createProposal
@@ -152,7 +152,7 @@ ___
 
 ▸ **createProposalTransactionMap**(): *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
-*Defined in [src/schemes/base.ts:299](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L299)*
+*Defined in [src/schemes/base.ts:314](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L314)*
 
 **Returns:** *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
@@ -160,13 +160,19 @@ ___
 
 ###  fetchState
 
-▸ **fetchState**(): *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ISchemeState](../interfaces/ischemestate.md)›*
 
-*Defined in [src/schemes/base.ts:262](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L262)*
+*Defined in [src/schemes/base.ts:257](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L257)*
 
 fetch the static state from the subgraph
 
-**Returns:** *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[ISchemeState](../interfaces/ischemestate.md)›*
 
 the statatic state
 
@@ -176,7 +182,7 @@ ___
 
 ▸ **proposals**(`options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Proposal](proposal.md)[]›*
 
-*Defined in [src/schemes/base.ts:327](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L327)*
+*Defined in [src/schemes/base.ts:295](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L295)*
 
 **Parameters:**
 
@@ -189,17 +195,17 @@ Name | Type | Default |
 
 ___
 
-###  setStaticState
+###  setState
 
-▸ **setStaticState**(`opts`: [ISchemeStaticState](../interfaces/ischemestaticstate.md)): *void*
+▸ **setState**(`opts`: [ISchemeState](../interfaces/ischemestate.md)): *void*
 
-*Defined in [src/schemes/base.ts:285](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L285)*
+*Defined in [src/schemes/base.ts:269](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L269)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opts` | [ISchemeStaticState](../interfaces/ischemestaticstate.md) |
+`opts` | [ISchemeState](../interfaces/ischemestate.md) |
 
 **Returns:** *void*
 
@@ -209,7 +215,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions?`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ISchemeState](../interfaces/ischemestate.md)›*
 
-*Defined in [src/schemes/base.ts:325](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L325)*
+*Defined in [src/schemes/base.ts:293](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L293)*
 
 **Parameters:**
 
@@ -225,7 +231,7 @@ Name | Type |
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/schemes/base.ts:112](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L112)*
+*Defined in [src/schemes/base.ts:107](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L107)*
 
 ###  SchemeFields
 
@@ -358,4 +364,4 @@ Name | Type |
       version
     }`
 
-*Defined in [src/schemes/base.ts:113](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L113)*
+*Defined in [src/schemes/base.ts:108](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L108)*

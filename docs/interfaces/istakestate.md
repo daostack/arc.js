@@ -4,9 +4,7 @@
 
 ## Hierarchy
 
-* [IStakeStaticState](istakestaticstate.md)
-
-  ↳ **IStakeState**
+* **IStakeState**
 
 ## Index
 
@@ -14,7 +12,7 @@
 
 * [amount](istakestate.md#amount)
 * [createdAt](istakestate.md#createdat)
-* [id](istakestate.md#id)
+* [id](istakestate.md#optional-id)
 * [outcome](istakestate.md#outcome)
 * [proposal](istakestate.md#proposal)
 * [staker](istakestate.md#staker)
@@ -25,9 +23,7 @@
 
 • **amount**: *BN*
 
-*Inherited from [IStakeStaticState](istakestaticstate.md).[amount](istakestaticstate.md#amount)*
-
-*Defined in [src/stake.ts:15](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L15)*
+*Defined in [src/stake.ts:15](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L15)*
 
 ___
 
@@ -35,19 +31,15 @@ ___
 
 • **createdAt**: *Date | undefined*
 
-*Inherited from [IStakeStaticState](istakestaticstate.md).[createdAt](istakestaticstate.md#createdat)*
-
-*Defined in [src/stake.ts:13](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L13)*
+*Defined in [src/stake.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L13)*
 
 ___
 
-###  id
+### `Optional` id
 
-• **id**: *string*
+• **id**? : *undefined | string*
 
-*Overrides [IStakeStaticState](istakestaticstate.md).[id](istakestaticstate.md#optional-id)*
-
-*Defined in [src/stake.ts:20](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L20)*
+*Defined in [src/stake.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L11)*
 
 ___
 
@@ -55,9 +47,7 @@ ___
 
 • **outcome**: *[IProposalOutcome](../enums/iproposaloutcome.md)*
 
-*Inherited from [IStakeStaticState](istakestaticstate.md).[outcome](istakestaticstate.md#outcome)*
-
-*Defined in [src/stake.ts:14](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L14)*
+*Defined in [src/stake.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L14)*
 
 ___
 
@@ -65,9 +55,7 @@ ___
 
 • **proposal**: *string*
 
-*Inherited from [IStakeStaticState](istakestaticstate.md).[proposal](istakestaticstate.md#proposal)*
-
-*Defined in [src/stake.ts:16](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L16)*
+*Defined in [src/stake.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L16)*
 
 ___
 
@@ -75,6 +63,4 @@ ___
 
 • **staker**: *[Address](../globals.md#address)*
 
-*Inherited from [IStakeStaticState](istakestaticstate.md).[staker](istakestaticstate.md#staker)*
-
-*Defined in [src/stake.ts:12](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L12)*
+*Defined in [src/stake.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L12)*

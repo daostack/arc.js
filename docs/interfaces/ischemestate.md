@@ -4,11 +4,7 @@
 
 ## Hierarchy
 
-* [ISchemeStaticState](ischemestaticstate.md)
-
-* ISchemeStaticState
-
-  ↳ **ISchemeState**
+* **ISchemeState**
 
 ## Index
 
@@ -40,11 +36,9 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Inherited from [ISchemeStaticState](ischemestaticstate.md).[address](ischemestaticstate.md#address)*
+*Defined in [src/schemes/base.ts:27](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L27)*
 
-*Overrides void*
-
-*Defined in [src/schemes/base.ts:27](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L27)*
+*Defined in [src/scheme.ts:29](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L29)*
 
 ___
 
@@ -52,9 +46,9 @@ ___
 
 • **canDelegateCall**: *boolean*
 
-*Defined in [src/schemes/base.ts:35](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L35)*
+*Defined in [src/schemes/base.ts:32](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L32)*
 
-*Defined in [src/scheme.ts:37](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L37)*
+*Defined in [src/scheme.ts:34](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L34)*
 
 ___
 
@@ -62,9 +56,9 @@ ___
 
 • **canManageGlobalConstraints**: *boolean*
 
-*Defined in [src/schemes/base.ts:38](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L38)*
+*Defined in [src/schemes/base.ts:35](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L35)*
 
-*Defined in [src/scheme.ts:40](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L40)*
+*Defined in [src/scheme.ts:37](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L37)*
 
 ___
 
@@ -72,9 +66,9 @@ ___
 
 • **canRegisterSchemes**: *boolean*
 
-*Defined in [src/schemes/base.ts:36](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L36)*
+*Defined in [src/schemes/base.ts:33](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L33)*
 
-*Defined in [src/scheme.ts:38](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L38)*
+*Defined in [src/scheme.ts:35](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L35)*
 
 ___
 
@@ -82,9 +76,9 @@ ___
 
 • **canUpgradeController**: *boolean*
 
-*Defined in [src/schemes/base.ts:37](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L37)*
+*Defined in [src/schemes/base.ts:34](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L34)*
 
-*Defined in [src/scheme.ts:39](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L39)*
+*Defined in [src/scheme.ts:36](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L36)*
 
 ___
 
@@ -92,9 +86,9 @@ ___
 
 • **contributionRewardExtParams**? : *[IContributionRewardExtParams](icontributionrewardextparams.md)*
 
-*Defined in [src/schemes/base.ts:42](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L42)*
+*Defined in [src/schemes/base.ts:37](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L37)*
 
-*Defined in [src/scheme.ts:44](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L44)*
+*Defined in [src/scheme.ts:39](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L39)*
 
 ___
 
@@ -102,9 +96,9 @@ ___
 
 • **contributionRewardParams**? : *[IContributionRewardParams](icontributionrewardparams.md)*
 
-*Defined in [src/schemes/base.ts:41](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L41)*
+*Defined in [src/schemes/base.ts:36](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L36)*
 
-*Defined in [src/scheme.ts:43](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L43)*
+*Defined in [src/scheme.ts:38](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L38)*
 
 ___
 
@@ -112,11 +106,9 @@ ___
 
 • **dao**: *[Address](../globals.md#address)*
 
-*Overrides [ISchemeStaticState](ischemestaticstate.md).[dao](ischemestaticstate.md#dao)*
+*Defined in [src/schemes/base.ts:28](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L28)*
 
-*Defined in [src/schemes/base.ts:39](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L39)*
-
-*Defined in [src/scheme.ts:41](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L41)*
+*Defined in [src/scheme.ts:30](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L30)*
 
 ___
 
@@ -124,9 +116,9 @@ ___
 
 • **genericSchemeParams**? : *[IGenericSchemeParams](igenericschemeparams.md)*
 
-*Defined in [src/schemes/base.ts:43](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L43)*
+*Defined in [src/schemes/base.ts:38](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L38)*
 
-*Defined in [src/scheme.ts:45](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L45)*
+*Defined in [src/scheme.ts:40](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L40)*
 
 ___
 
@@ -134,11 +126,9 @@ ___
 
 • **id**: *string*
 
-*Inherited from [ISchemeStaticState](ischemestaticstate.md).[id](ischemestaticstate.md#id)*
+*Defined in [src/schemes/base.ts:26](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L26)*
 
-*Overrides void*
-
-*Defined in [src/schemes/base.ts:26](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L26)*
+*Defined in [src/scheme.ts:28](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L28)*
 
 ___
 
@@ -146,11 +136,9 @@ ___
 
 • **name**: *string*
 
-*Inherited from [ISchemeStaticState](ischemestaticstate.md).[name](ischemestaticstate.md#name)*
+*Defined in [src/schemes/base.ts:29](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L29)*
 
-*Overrides void*
-
-*Defined in [src/schemes/base.ts:29](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L29)*
+*Defined in [src/scheme.ts:31](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L31)*
 
 ___
 
@@ -158,9 +146,9 @@ ___
 
 • **numberOfBoostedProposals**: *number*
 
-*Defined in [src/schemes/base.ts:51](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L51)*
+*Defined in [src/schemes/base.ts:46](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L46)*
 
-*Defined in [src/scheme.ts:53](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L53)*
+*Defined in [src/scheme.ts:48](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L48)*
 
 ___
 
@@ -168,9 +156,9 @@ ___
 
 • **numberOfPreBoostedProposals**: *number*
 
-*Defined in [src/schemes/base.ts:50](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L50)*
+*Defined in [src/schemes/base.ts:45](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L45)*
 
-*Defined in [src/scheme.ts:52](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L52)*
+*Defined in [src/scheme.ts:47](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L47)*
 
 ___
 
@@ -178,9 +166,9 @@ ___
 
 • **numberOfQueuedProposals**: *number*
 
-*Defined in [src/schemes/base.ts:49](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L49)*
+*Defined in [src/schemes/base.ts:44](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L44)*
 
-*Defined in [src/scheme.ts:51](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L51)*
+*Defined in [src/scheme.ts:46](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L46)*
 
 ___
 
@@ -188,11 +176,9 @@ ___
 
 • **paramsHash**: *string*
 
-*Overrides [ISchemeStaticState](ischemestaticstate.md).[paramsHash](ischemestaticstate.md#paramshash)*
+*Defined in [src/schemes/base.ts:30](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L30)*
 
-*Defined in [src/schemes/base.ts:40](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L40)*
-
-*Defined in [src/scheme.ts:42](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L42)*
+*Defined in [src/scheme.ts:32](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L32)*
 
 ___
 
@@ -200,9 +186,9 @@ ___
 
 • **schemeParams**? : *IGenericSchemeParams | IContributionRewardParams | IContributionRewardExtParams | ISchemeRegisterParams*
 
-*Defined in [src/schemes/base.ts:53](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L53)*
+*Defined in [src/schemes/base.ts:48](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L48)*
 
-*Defined in [src/scheme.ts:55](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L55)*
+*Defined in [src/scheme.ts:50](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L50)*
 
 ___
 
@@ -210,9 +196,9 @@ ___
 
 • **schemeRegistrarParams**? : *object | null*
 
-*Defined in [src/schemes/base.ts:44](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L44)*
+*Defined in [src/schemes/base.ts:39](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L39)*
 
-*Defined in [src/scheme.ts:46](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L46)*
+*Defined in [src/scheme.ts:41](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L41)*
 
 ___
 
@@ -220,9 +206,9 @@ ___
 
 • **uGenericSchemeParams**? : *[IGenericSchemeParams](igenericschemeparams.md)*
 
-*Defined in [src/schemes/base.ts:52](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L52)*
+*Defined in [src/schemes/base.ts:47](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L47)*
 
-*Defined in [src/scheme.ts:54](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L54)*
+*Defined in [src/scheme.ts:49](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L49)*
 
 ___
 
@@ -230,8 +216,6 @@ ___
 
 • **version**: *string*
 
-*Inherited from [ISchemeStaticState](ischemestaticstate.md).[version](ischemestaticstate.md#version)*
+*Defined in [src/schemes/base.ts:31](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L31)*
 
-*Overrides void*
-
-*Defined in [src/schemes/base.ts:31](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L31)*
+*Defined in [src/scheme.ts:33](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L33)*

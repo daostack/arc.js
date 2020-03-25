@@ -19,19 +19,19 @@
 ### Properties
 
 * [context](proposal.md#context)
+* [coreState](proposal.md#corestate)
 * [id](proposal.md#id)
-* [staticState](proposal.md#staticstate)
 
 ### Methods
 
-* [redeemRewards](proposal.md#redeemRewards)
 * [execute](proposal.md#execute)
 * [executeBoosted](proposal.md#executeboosted)
-* [fetchStaticState](proposal.md#fetchstaticstate)
+* [fetchState](proposal.md#fetchstate)
+* [redeemRewards](proposal.md#redeemrewards)
 * [redeemerContract](proposal.md#redeemercontract)
 * [rewards](proposal.md#rewards)
 * [scheme](proposal.md#scheme)
-* [setStaticState](proposal.md#setstaticstate)
+* [setState](proposal.md#setstate)
 * [stake](proposal.md#stake)
 * [stakes](proposal.md#stakes)
 * [stakingToken](proposal.md#stakingtoken)
@@ -49,16 +49,16 @@
 
 ###  constructor
 
-\+ **new Proposal**(`idOrOpts`: string | [IProposalStaticState](../interfaces/iproposalstaticstate.md), `context`: [Arc](arc.md)): *[Proposal](proposal.md)*
+\+ **new Proposal**(`context`: [Arc](arc.md), `idOrOpts`: string | [IProposalState](../interfaces/iproposalstate.md)): *[Proposal](proposal.md)*
 
-*Defined in [src/proposal.ts:337](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L337)*
+*Defined in [src/proposal.ts:334](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L334)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | string &#124; [IProposalStaticState](../interfaces/iproposalstaticstate.md) |
 `context` | [Arc](arc.md) |
+`idOrOpts` | string &#124; [IProposalState](../interfaces/iproposalstate.md) |
 
 **Returns:** *[Proposal](proposal.md)*
 
@@ -68,7 +68,15 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/proposal.ts:335](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L335)*
+*Defined in [src/proposal.ts:332](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L332)*
+
+___
+
+###  coreState
+
+• **coreState**: *[IProposalState](../interfaces/iproposalstate.md) | undefined*
+
+*Defined in [src/proposal.ts:334](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L334)*
 
 ___
 
@@ -76,23 +84,57 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/proposal.ts:336](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L336)*
+*Defined in [src/proposal.ts:333](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L333)*
+
+## Methods
+
+###  execute
+
+▸ **execute**(): *[Operation](../globals.md#operation)‹undefined›*
+
+*Defined in [src/proposal.ts:863](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L863)*
+
+call the 'execute()' function on the votingMachine.
+the main purpose of this function is to set the stage of the proposals
+this call may (or may not) "execute" the proposal itself (i.e. do what the proposal proposes)
+
+**Returns:** *[Operation](../globals.md#operation)‹undefined›*
+
+an Operation that, when sucessful, will contain the receipt of the transaction
 
 ___
 
-###  staticState
+###  executeBoosted
 
-• **staticState**: *[IProposalStaticState](../interfaces/iproposalstaticstate.md) | undefined*
+▸ **executeBoosted**(): *[Operation](../globals.md#operation)‹undefined›*
 
-*Defined in [src/proposal.ts:337](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L337)*
+*Defined in [src/proposal.ts:897](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L897)*
 
-## Methods
+**Returns:** *[Operation](../globals.md#operation)‹undefined›*
+
+___
+
+###  fetchState
+
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IProposalState](../interfaces/iproposalstate.md)›*
+
+*Defined in [src/proposal.ts:352](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L352)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[IProposalState](../interfaces/iproposalstate.md)›*
+
+___
 
 ###  redeemRewards
 
 ▸ **redeemRewards**(`beneficiary?`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [src/proposal.ts:813](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L813)*
+*Defined in [src/proposal.ts:799](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L799)*
 
 [redeemRewards description] Execute the proposal and distribute the rewards
 to the beneficiary.
@@ -110,47 +152,11 @@ an Operation
 
 ___
 
-###  execute
-
-▸ **execute**(): *[Operation](../globals.md#operation)‹undefined›*
-
-*Defined in [src/proposal.ts:877](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L877)*
-
-call the 'execute()' function on the votingMachine.
-the main purpose of this function is to set the stage of the proposals
-this call may (or may not) "execute" the proposal itself (i.e. do what the proposal proposes)
-
-**Returns:** *[Operation](../globals.md#operation)‹undefined›*
-
-an Operation that, when sucessful, will contain the receipt of the transaction
-
-___
-
-###  executeBoosted
-
-▸ **executeBoosted**(): *[Operation](../globals.md#operation)‹undefined›*
-
-*Defined in [src/proposal.ts:911](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L911)*
-
-**Returns:** *[Operation](../globals.md#operation)‹undefined›*
-
-___
-
-###  fetchStaticState
-
-▸ **fetchState**(): *Promise‹[IProposalStaticState](../interfaces/iproposalstaticstate.md)›*
-
-*Defined in [src/proposal.ts:355](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L355)*
-
-**Returns:** *Promise‹[IProposalStaticState](../interfaces/iproposalstaticstate.md)›*
-
-___
-
 ###  redeemerContract
 
 ▸ **redeemerContract**(): *Contract‹›*
 
-*Defined in [src/proposal.ts:619](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L619)*
+*Defined in [src/proposal.ts:605](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L605)*
 
 [redeemerContract description]
 
@@ -164,7 +170,7 @@ ___
 
 ▸ **rewards**(`options`: [IRewardQueryOptions](../interfaces/irewardqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Reward](reward.md)[]›*
 
-*Defined in [src/proposal.ts:796](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L796)*
+*Defined in [src/proposal.ts:782](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L782)*
 
 **Parameters:**
 
@@ -181,7 +187,7 @@ ___
 
 ▸ **scheme**(): *Promise‹Contract‹››*
 
-*Defined in [src/proposal.ts:602](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L602)*
+*Defined in [src/proposal.ts:588](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L588)*
 
 **Returns:** *Promise‹Contract‹››*
 
@@ -189,17 +195,17 @@ the scheme Contract
 
 ___
 
-###  setStaticState
+###  setState
 
-▸ **setStaticState**(`opts`: [IProposalStaticState](../interfaces/iproposalstaticstate.md)): *void*
+▸ **setState**(`opts`: [IProposalState](../interfaces/iproposalstate.md)): *void*
 
-*Defined in [src/proposal.ts:351](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L351)*
+*Defined in [src/proposal.ts:348](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L348)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opts` | [IProposalStaticState](../interfaces/iproposalstaticstate.md) |
+`opts` | [IProposalState](../interfaces/iproposalstate.md) |
 
 **Returns:** *void*
 
@@ -209,7 +215,7 @@ ___
 
 ▸ **stake**(`outcome`: [IProposalOutcome](../enums/iproposaloutcome.md), `amount`: BN): *[Operation](../globals.md#operation)‹[Stake](stake.md)›*
 
-*Defined in [src/proposal.ts:722](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L722)*
+*Defined in [src/proposal.ts:708](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L708)*
 
 Stake on this proposal
 
@@ -230,7 +236,7 @@ ___
 
 ▸ **stakes**(`options`: [IStakeQueryOptions](../interfaces/istakequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Stake](stake.md)[]›*
 
-*Defined in [src/proposal.ts:710](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L710)*
+*Defined in [src/proposal.ts:696](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L696)*
 
 **Parameters:**
 
@@ -247,7 +253,7 @@ ___
 
 ▸ **stakingToken**(): *[Token](token.md)‹›*
 
-*Defined in [src/proposal.ts:706](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L706)*
+*Defined in [src/proposal.ts:692](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L692)*
 
 **Returns:** *[Token](token.md)‹›*
 
@@ -257,7 +263,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IProposalState](../interfaces/iproposalstate.md)›*
 
-*Defined in [src/proposal.ts:377](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L377)*
+*Defined in [src/proposal.ts:363](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L363)*
 
 `state` is an observable of the proposal state
 
@@ -275,7 +281,7 @@ ___
 
 ▸ **vote**(`outcome`: [IProposalOutcome](../enums/iproposaloutcome.md), `amount`: number): *[Operation](../globals.md#operation)‹[Vote](vote.md) | null›*
 
-*Defined in [src/proposal.ts:647](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L647)*
+*Defined in [src/proposal.ts:633](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L633)*
 
 Vote for this proposal
 
@@ -296,7 +302,7 @@ ___
 
 ▸ **votes**(`options`: [IVoteQueryOptions](../interfaces/ivotequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Vote](vote.md)[]›*
 
-*Defined in [src/proposal.ts:634](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L634)*
+*Defined in [src/proposal.ts:620](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L620)*
 
 **Parameters:**
 
@@ -313,7 +319,7 @@ ___
 
 ▸ **votingMachine**(): *Promise‹Contract‹››*
 
-*Defined in [src/proposal.ts:611](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L611)*
+*Defined in [src/proposal.ts:597](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L597)*
 
 [votingMachine description]
 
@@ -327,7 +333,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Proposal](proposal.md)[]›*
 
-*Defined in [src/proposal.ts:246](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L246)*
+*Defined in [src/proposal.ts:243](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L243)*
 
 Search for proposals
 
@@ -352,7 +358,7 @@ For example:
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/proposal.ts:113](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L113)*
+*Defined in [src/proposal.ts:110](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L110)*
 
 ###  ProposalFields
 
@@ -477,4 +483,4 @@ For example:
       winningOutcome
     }`
 
-*Defined in [src/proposal.ts:114](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L114)*
+*Defined in [src/proposal.ts:111](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L111)*

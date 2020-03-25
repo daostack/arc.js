@@ -22,8 +22,8 @@
 
 * [ReputationFromToken](competitionscheme.md#reputationfromtoken)
 * [context](competitionscheme.md#context)
+* [coreState](competitionscheme.md#corestate)
 * [id](competitionscheme.md#id)
-* [staticState](competitionscheme.md#staticstate)
 
 ### Methods
 
@@ -32,11 +32,11 @@
 * [createProposalErrorHandler](competitionscheme.md#protected-createproposalerrorhandler)
 * [createProposalTransaction](competitionscheme.md#protected-createproposaltransaction)
 * [createProposalTransactionMap](competitionscheme.md#protected-createproposaltransactionmap)
-* [fetchStaticState](competitionscheme.md#fetchstaticstate)
+* [fetchState](competitionscheme.md#fetchstate)
 * [getCompetitionContract](competitionscheme.md#getcompetitioncontract)
 * [proposals](competitionscheme.md#proposals)
 * [redeemSuggestion](competitionscheme.md#redeemsuggestion)
-* [setStaticState](competitionscheme.md#setstaticstate)
+* [setState](competitionscheme.md#setstate)
 * [state](competitionscheme.md#state)
 * [voteSuggestion](competitionscheme.md#votesuggestion)
 
@@ -48,18 +48,18 @@
 
 ###  constructor
 
-\+ **new CompetitionScheme**(`idOrOpts`: [Address](../globals.md#address) | [ISchemeStaticState](../interfaces/ischemestaticstate.md), `context`: [Arc](arc.md)): *[CompetitionScheme](competitionscheme.md)*
+\+ **new CompetitionScheme**(`context`: [Arc](arc.md), `idOrOpts`: [Address](../globals.md#address) | [ISchemeState](../interfaces/ischemestate.md)): *[CompetitionScheme](competitionscheme.md)*
 
 *Inherited from [SchemeBase](schemebase.md).[constructor](schemebase.md#constructor)*
 
-*Defined in [src/schemes/base.ts:245](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L245)*
+*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | [Address](../globals.md#address) &#124; [ISchemeStaticState](../interfaces/ischemestaticstate.md) |
 `context` | [Arc](arc.md) |
+`idOrOpts` | [Address](../globals.md#address) &#124; [ISchemeState](../interfaces/ischemestate.md) |
 
 **Returns:** *[CompetitionScheme](competitionscheme.md)*
 
@@ -71,7 +71,7 @@ Name | Type |
 
 *Inherited from [SchemeBase](schemebase.md).[ReputationFromToken](schemebase.md#reputationfromtoken)*
 
-*Defined in [src/schemes/base.ts:245](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L245)*
+*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
 
 ___
 
@@ -81,7 +81,17 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[context](schemebase.md#context)*
 
-*Defined in [src/schemes/base.ts:247](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L247)*
+*Defined in [src/schemes/base.ts:242](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L242)*
+
+___
+
+###  coreState
+
+• **coreState**: *[ISchemeState](../interfaces/ischemestate.md) | null* =  null
+
+*Inherited from [SchemeBase](schemebase.md).[coreState](schemebase.md#corestate)*
+
+*Defined in [src/schemes/base.ts:239](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L239)*
 
 ___
 
@@ -91,17 +101,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[id](schemebase.md#id)*
 
-*Defined in [src/schemes/base.ts:243](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L243)*
-
-___
-
-###  staticState
-
-• **staticState**: *[ISchemeStaticState](../interfaces/ischemestaticstate.md) | null* =  null
-
-*Inherited from [SchemeBase](schemebase.md).[staticState](schemebase.md#staticstate)*
-
-*Defined in [src/schemes/base.ts:244](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L244)*
+*Defined in [src/schemes/base.ts:238](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L238)*
 
 ## Methods
 
@@ -109,7 +109,7 @@ ___
 
 ▸ **competitions**(`options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Competition](competition.md)[]›*
 
-*Defined in [src/schemes/competition.ts:187](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L187)*
+*Defined in [src/schemes/competition.ts:187](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L187)*
 
 Return a list of competitions in this scheme.
 
@@ -130,7 +130,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposal](schemebase.md#createproposal)*
 
-*Defined in [src/schemes/competition.ts:289](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L289)*
+*Defined in [src/schemes/competition.ts:203](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L203)*
 
 create a proposal for starting a Competition
 
@@ -152,7 +152,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#protected-abstract-createproposalerrorhandler)*
 
-*Defined in [src/schemes/competition.ts:270](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L270)*
+*Defined in [src/schemes/competition.ts:399](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L399)*
 
 **Parameters:**
 
@@ -170,7 +170,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#protected-abstract-createproposaltransaction)*
 
-*Defined in [src/schemes/competition.ts:201](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L201)*
+*Defined in [src/schemes/competition.ts:330](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L330)*
 
 **Parameters:**
 
@@ -188,7 +188,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#protected-abstract-createproposaltransactionmap)*
 
-*Defined in [src/schemes/competition.ts:262](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L262)*
+*Defined in [src/schemes/competition.ts:391](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L391)*
 
 **Returns:** *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
@@ -196,15 +196,21 @@ ___
 
 ###  fetchState
 
-▸ **fetchState**(): *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ISchemeState](../interfaces/ischemestate.md)›*
 
-*Inherited from [SchemeBase](schemebase.md).[fetchState](schemebase.md#fetchState)*
+*Inherited from [SchemeBase](schemebase.md).[fetchState](schemebase.md#fetchstate)*
 
-*Defined in [src/schemes/base.ts:262](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L262)*
+*Defined in [src/schemes/base.ts:257](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L257)*
 
 fetch the static state from the subgraph
 
-**Returns:** *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[ISchemeState](../interfaces/ischemestate.md)›*
 
 the statatic state
 
@@ -214,7 +220,7 @@ ___
 
 ▸ **getCompetitionContract**(): *Promise‹Contract‹››*
 
-*Defined in [src/schemes/competition.ts:293](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L293)*
+*Defined in [src/schemes/competition.ts:207](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L207)*
 
 **Returns:** *Promise‹Contract‹››*
 
@@ -226,7 +232,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[proposals](schemebase.md#proposals)*
 
-*Defined in [src/schemes/base.ts:327](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L327)*
+*Defined in [src/schemes/base.ts:295](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L295)*
 
 **Parameters:**
 
@@ -243,7 +249,7 @@ ___
 
 ▸ **redeemSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [src/schemes/competition.ts:371](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L371)*
+*Defined in [src/schemes/competition.ts:285](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L285)*
 
 **Parameters:**
 
@@ -257,19 +263,19 @@ Name | Type |
 
 ___
 
-###  setStaticState
+###  setState
 
-▸ **setStaticState**(`opts`: [ISchemeStaticState](../interfaces/ischemestaticstate.md)): *void*
+▸ **setState**(`opts`: [ISchemeState](../interfaces/ischemestate.md)): *void*
 
-*Inherited from [SchemeBase](schemebase.md).[setStaticState](schemebase.md#setstaticstate)*
+*Inherited from [SchemeBase](schemebase.md).[setState](schemebase.md#setstate)*
 
-*Defined in [src/schemes/base.ts:285](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L285)*
+*Defined in [src/schemes/base.ts:269](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L269)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opts` | [ISchemeStaticState](../interfaces/ischemestaticstate.md) |
+`opts` | [ISchemeState](../interfaces/ischemestate.md) |
 
 **Returns:** *void*
 
@@ -281,7 +287,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[state](schemebase.md#abstract-state)*
 
-*Defined in [src/schemes/competition.ts:102](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L102)*
+*Defined in [src/schemes/competition.ts:102](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L102)*
 
 **Parameters:**
 
@@ -297,7 +303,7 @@ ___
 
 ▸ **voteSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-*Defined in [src/schemes/competition.ts:308](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L308)*
+*Defined in [src/schemes/competition.ts:222](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L222)*
 
 Vote for the suggestion that is, in the current scheme, identified by  suggestionId
 
@@ -321,7 +327,7 @@ Name | Type |
 
 *Inherited from [SchemeBase](schemebase.md).[fragments](schemebase.md#static-fragments)*
 
-*Defined in [src/schemes/base.ts:112](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L112)*
+*Defined in [src/schemes/base.ts:107](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L107)*
 
 ###  SchemeFields
 
@@ -454,4 +460,4 @@ Name | Type |
       version
     }`
 
-*Defined in [src/schemes/base.ts:113](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L113)*
+*Defined in [src/schemes/base.ts:108](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L108)*

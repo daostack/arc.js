@@ -23,7 +23,7 @@
 
 • **createdAt**? : *[Date](../globals.md#date)*
 
-*Defined in [src/schemes/competition.ts:97](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L97)*
+*Defined in [src/schemes/competition.ts:97](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L97)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **id**? : *undefined | string*
 
-*Defined in [src/schemes/competition.ts:93](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L93)*
+*Defined in [src/schemes/competition.ts:93](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L93)*
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 • **proposal**: *string*
 
-*Defined in [src/schemes/competition.ts:94](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L94)*
+*Defined in [src/schemes/competition.ts:94](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L94)*
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **reputation**: *BN*
 
-*Defined in [src/schemes/competition.ts:98](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L98)*
+*Defined in [src/schemes/competition.ts:98](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L98)*
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **suggestion**: *string*
 
-*Defined in [src/schemes/competition.ts:95](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L95)*
+*Defined in [src/schemes/competition.ts:95](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L95)*
 
 ___
 
@@ -63,4 +63,4 @@ ___
 
 • **voter**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/competition.ts:96](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L96)*
+*Defined in [src/schemes/competition.ts:96](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L96)*

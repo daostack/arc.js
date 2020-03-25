@@ -15,7 +15,7 @@
 
 • **preBoostedAt**: = "preBoostedAt"
 
-*Defined in [src/proposal.ts:945](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L945)*
+*Defined in [src/proposal.ts:931](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L931)*
 
 ___
 
@@ -23,4 +23,4 @@ ___
 
 • **resolvesAt**: = "resolvesAt"
 
-*Defined in [src/proposal.ts:944](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L944)*
+*Defined in [src/proposal.ts:930](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L930)*

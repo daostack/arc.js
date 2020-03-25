@@ -19,13 +19,13 @@
 ### Properties
 
 * [context](stake.md#context)
+* [coreState](stake.md#corestate)
 * [id](stake.md#id)
-* [staticState](stake.md#staticstate)
 
 ### Methods
 
-* [fetchState](stake.md#fetchState)
-* [setStaticState](stake.md#setstaticstate)
+* [fetchState](stake.md#fetchstate)
+* [setState](stake.md#setstate)
 * [state](stake.md#state)
 * [search](stake.md#static-search)
 
@@ -37,16 +37,16 @@
 
 ###  constructor
 
-\+ **new Stake**(`idOrOpts`: string | [IStakeStaticState](../interfaces/istakestaticstate.md), `context`: [Arc](arc.md)): *[Stake](stake.md)*
+\+ **new Stake**(`context`: [Arc](arc.md), `idOrOpts`: string | [IStakeState](../interfaces/istakestate.md)): *[Stake](stake.md)*
 
-*Defined in [src/stake.ts:149](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L149)*
+*Defined in [src/stake.ts:145](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L145)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | string &#124; [IStakeStaticState](../interfaces/istakestaticstate.md) |
 `context` | [Arc](arc.md) |
+`idOrOpts` | string &#124; [IStakeState](../interfaces/istakestate.md) |
 
 **Returns:** *[Stake](stake.md)*
 
@@ -56,7 +56,15 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/stake.ts:153](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L153)*
+*Defined in [src/stake.ts:148](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L148)*
+
+___
+
+###  coreState
+
+• **coreState**: *[IStakeState](../interfaces/istakestate.md) | undefined*
+
+*Defined in [src/stake.ts:145](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L145)*
 
 ___
 
@@ -64,39 +72,37 @@ ___
 
 • **id**: *string | undefined*
 
-*Defined in [src/stake.ts:148](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L148)*
-
-___
-
-###  staticState
-
-• **staticState**: *[IStakeStaticState](../interfaces/istakestaticstate.md) | undefined*
-
-*Defined in [src/stake.ts:149](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L149)*
+*Defined in [src/stake.ts:144](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L144)*
 
 ## Methods
 
 ###  fetchState
 
-▸ **fetchState**(): *Promise‹[IStakeStaticState](../interfaces/istakestaticstate.md)›*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IStakeState](../interfaces/istakestate.md)›*
 
-*Defined in [src/stake.ts:207](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L207)*
+*Defined in [src/stake.ts:203](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L203)*
 
-**Returns:** *Promise‹[IStakeStaticState](../interfaces/istakestaticstate.md)›*
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[IStakeState](../interfaces/istakestate.md)›*
 
 ___
 
-###  setStaticState
+###  setState
 
-▸ **setStaticState**(`opts`: [IStakeStaticState](../interfaces/istakestaticstate.md)): *void*
+▸ **setState**(`opts`: [IStakeState](../interfaces/istakestate.md)): *void*
 
-*Defined in [src/stake.ts:203](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L203)*
+*Defined in [src/stake.ts:199](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L199)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opts` | [IStakeStaticState](../interfaces/istakestaticstate.md) |
+`opts` | [IStakeState](../interfaces/istakestate.md) |
 
 **Returns:** *void*
 
@@ -106,7 +112,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IStakeState](../interfaces/istakestate.md)›*
 
-*Defined in [src/stake.ts:163](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L163)*
+*Defined in [src/stake.ts:159](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L159)*
 
 **Parameters:**
 
@@ -122,7 +128,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IStakeQueryOptions](../interfaces/istakequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Stake](stake.md)[]›*
 
-*Defined in [src/stake.ts:57](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L57)*
+*Defined in [src/stake.ts:53](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L53)*
 
 Stake.search(context, options) searches for stake entities
 
@@ -144,7 +150,7 @@ an observable of Stake objects
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/stake.ts:35](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L35)*
+*Defined in [src/stake.ts:31](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L31)*
 
 ###  StakeFields
 
@@ -162,4 +168,4 @@ an observable of Stake objects
       amount
     }`
 
-*Defined in [src/stake.ts:36](https://github.com/dorgtech/client/blob/74940d1/src/stake.ts#L36)*
+*Defined in [src/stake.ts:32](https://github.com/dorgtech/client/blob/19b4373/src/stake.ts#L32)*

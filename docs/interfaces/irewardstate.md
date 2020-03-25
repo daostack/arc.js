@@ -4,9 +4,7 @@
 
 ## Hierarchy
 
-* [IRewardStaticState](irewardstaticstate.md)
-
-  ↳ **IRewardState**
+* **IRewardState**
 
 ## Index
 
@@ -32,9 +30,7 @@
 
 • **beneficiary**: *[Address](../globals.md#address)*
 
-*Inherited from [IRewardStaticState](irewardstaticstate.md).[beneficiary](irewardstaticstate.md#beneficiary)*
-
-*Defined in [src/reward.ts:11](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L11)*
+*Defined in [src/reward.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L11)*
 
 ___
 
@@ -42,9 +38,7 @@ ___
 
 • **createdAt**: *Date*
 
-*Inherited from [IRewardStaticState](irewardstaticstate.md).[createdAt](irewardstaticstate.md#createdat)*
-
-*Defined in [src/reward.ts:12](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L12)*
+*Defined in [src/reward.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L12)*
 
 ___
 
@@ -52,9 +46,7 @@ ___
 
 • **daoBountyForStaker**: *BN*
 
-*Inherited from [IRewardStaticState](irewardstaticstate.md).[daoBountyForStaker](irewardstaticstate.md#daobountyforstaker)*
-
-*Defined in [src/reward.ts:16](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L16)*
+*Defined in [src/reward.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L16)*
 
 ___
 
@@ -62,7 +54,7 @@ ___
 
 • **daoBountyForStakerRedeemedAt**: *number*
 
-*Defined in [src/reward.ts:25](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L25)*
+*Defined in [src/reward.ts:22](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L22)*
 
 ___
 
@@ -70,9 +62,7 @@ ___
 
 • **id**: *string*
 
-*Inherited from [IRewardStaticState](irewardstaticstate.md).[id](irewardstaticstate.md#id)*
-
-*Defined in [src/reward.ts:10](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L10)*
+*Defined in [src/reward.ts:10](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L10)*
 
 ___
 
@@ -80,9 +70,7 @@ ___
 
 • **proposalId**: *string*
 
-*Inherited from [IRewardStaticState](irewardstaticstate.md).[proposalId](irewardstaticstate.md#proposalid)*
-
-*Defined in [src/reward.ts:13](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L13)*
+*Defined in [src/reward.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L13)*
 
 ___
 
@@ -90,9 +78,7 @@ ___
 
 • **reputationForProposer**: *BN*
 
-*Inherited from [IRewardStaticState](irewardstaticstate.md).[reputationForProposer](irewardstaticstate.md#reputationforproposer)*
-
-*Defined in [src/reward.ts:17](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L17)*
+*Defined in [src/reward.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L17)*
 
 ___
 
@@ -100,7 +86,7 @@ ___
 
 • **reputationForProposerRedeemedAt**: *number*
 
-*Defined in [src/reward.ts:24](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L24)*
+*Defined in [src/reward.ts:21](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L21)*
 
 ___
 
@@ -108,9 +94,7 @@ ___
 
 • **reputationForVoter**: *BN*
 
-*Inherited from [IRewardStaticState](irewardstaticstate.md).[reputationForVoter](irewardstaticstate.md#reputationforvoter)*
-
-*Defined in [src/reward.ts:14](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L14)*
+*Defined in [src/reward.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L14)*
 
 ___
 
@@ -118,7 +102,7 @@ ___
 
 • **reputationForVoterRedeemedAt**: *number*
 
-*Defined in [src/reward.ts:22](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L22)*
+*Defined in [src/reward.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L19)*
 
 ___
 
@@ -126,9 +110,7 @@ ___
 
 • **tokenAddress**: *[Address](../globals.md#address)*
 
-*Inherited from [IRewardStaticState](irewardstaticstate.md).[tokenAddress](irewardstaticstate.md#tokenaddress)*
-
-*Defined in [src/reward.ts:18](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L18)*
+*Defined in [src/reward.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L18)*
 
 ___
 
@@ -136,9 +118,7 @@ ___
 
 • **tokensForStaker**: *BN*
 
-*Inherited from [IRewardStaticState](irewardstaticstate.md).[tokensForStaker](irewardstaticstate.md#tokensforstaker)*
-
-*Defined in [src/reward.ts:15](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L15)*
+*Defined in [src/reward.ts:15](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L15)*
 
 ___
 
@@ -146,4 +126,4 @@ ___
 
 • **tokensForStakerRedeemedAt**: *number*
 
-*Defined in [src/reward.ts:23](https://github.com/dorgtech/client/blob/74940d1/src/reward.ts#L23)*
+*Defined in [src/reward.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L20)*
