@@ -96,7 +96,7 @@ describe('Competition Proposal', () => {
     const externalTokenReward = new BN(0)
     const nativeTokenReward = new BN(0)
     const now = await getBlockTime(arc.web3)
-    const startTime = addSeconds(now, 2)
+    const startTime = addSeconds(now, 30)
     const rewardSplit = options.rewardSplit || [80, 20]
     const proposalOptions: IProposalCreateOptionsComp = {
       dao: dao.id,
