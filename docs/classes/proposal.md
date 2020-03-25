@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [Proposal](proposal.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Proposal](proposal.md)
 
 # Class: Proposal
 
@@ -26,6 +26,7 @@
 
 * [claimRewards](proposal.md#claimrewards)
 * [execute](proposal.md#execute)
+* [executeBoosted](proposal.md#executeboosted)
 * [fetchStaticState](proposal.md#fetchstaticstate)
 * [redeemerContract](proposal.md#redeemercontract)
 * [rewards](proposal.md#rewards)
@@ -50,7 +51,7 @@
 
 \+ **new Proposal**(`idOrOpts`: string | [IProposalStaticState](../interfaces/iproposalstaticstate.md), `context`: [Arc](arc.md)): *[Proposal](proposal.md)*
 
-*Defined in [proposal.ts:328](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L328)*
+*Defined in [src/proposal.ts:337](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L337)*
 
 **Parameters:**
 
@@ -67,7 +68,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [proposal.ts:326](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L326)*
+*Defined in [src/proposal.ts:335](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L335)*
 
 ___
 
@@ -75,7 +76,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [proposal.ts:327](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L327)*
+*Defined in [src/proposal.ts:336](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L336)*
 
 ___
 
@@ -83,7 +84,7 @@ ___
 
 • **staticState**: *[IProposalStaticState](../interfaces/iproposalstaticstate.md) | undefined*
 
-*Defined in [proposal.ts:328](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L328)*
+*Defined in [src/proposal.ts:337](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L337)*
 
 ## Methods
 
@@ -91,7 +92,7 @@ ___
 
 ▸ **claimRewards**(`beneficiary?`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [proposal.ts:764](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L764)*
+*Defined in [src/proposal.ts:813](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L813)*
 
 [claimRewards description] Execute the proposal and distribute the rewards
 to the beneficiary.
@@ -111,17 +112,27 @@ ___
 
 ###  execute
 
-▸ **execute**(): *[Operation](../globals.md#operation)‹any›*
+▸ **execute**(): *[Operation](../globals.md#operation)‹undefined›*
 
-*Defined in [proposal.ts:808](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L808)*
+*Defined in [src/proposal.ts:877](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L877)*
 
-calll the 'execute()' function on the votingMachine.
+call the 'execute()' function on the votingMachine.
 the main purpose of this function is to set the stage of the proposals
 this call may (or may not) "execute" the proposal itself (i.e. do what the proposal proposes)
 
-**Returns:** *[Operation](../globals.md#operation)‹any›*
+**Returns:** *[Operation](../globals.md#operation)‹undefined›*
 
 an Operation that, when sucessful, will contain the receipt of the transaction
+
+___
+
+###  executeBoosted
+
+▸ **executeBoosted**(): *[Operation](../globals.md#operation)‹undefined›*
+
+*Defined in [src/proposal.ts:911](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L911)*
+
+**Returns:** *[Operation](../globals.md#operation)‹undefined›*
 
 ___
 
@@ -129,7 +140,7 @@ ___
 
 ▸ **fetchStaticState**(): *Promise‹[IProposalStaticState](../interfaces/iproposalstaticstate.md)›*
 
-*Defined in [proposal.ts:346](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L346)*
+*Defined in [src/proposal.ts:355](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L355)*
 
 **Returns:** *Promise‹[IProposalStaticState](../interfaces/iproposalstaticstate.md)›*
 
@@ -137,13 +148,13 @@ ___
 
 ###  redeemerContract
 
-▸ **redeemerContract**(): *any*
+▸ **redeemerContract**(): *Contract‹›*
 
-*Defined in [proposal.ts:582](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L582)*
+*Defined in [src/proposal.ts:619](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L619)*
 
 [redeemerContract description]
 
-**Returns:** *any*
+**Returns:** *Contract‹›*
 
 a web3 Contract instance
 
@@ -153,7 +164,7 @@ ___
 
 ▸ **rewards**(`options`: [IRewardQueryOptions](../interfaces/irewardqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Reward](reward.md)[]›*
 
-*Defined in [proposal.ts:747](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L747)*
+*Defined in [src/proposal.ts:796](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L796)*
 
 **Parameters:**
 
@@ -168,11 +179,11 @@ ___
 
 ###  scheme
 
-▸ **scheme**(): *Promise‹any›*
+▸ **scheme**(): *Promise‹Contract‹››*
 
-*Defined in [proposal.ts:565](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L565)*
+*Defined in [src/proposal.ts:602](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L602)*
 
-**Returns:** *Promise‹any›*
+**Returns:** *Promise‹Contract‹››*
 
 the scheme Contract
 
@@ -182,7 +193,7 @@ ___
 
 ▸ **setStaticState**(`opts`: [IProposalStaticState](../interfaces/iproposalstaticstate.md)): *void*
 
-*Defined in [proposal.ts:342](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L342)*
+*Defined in [src/proposal.ts:351](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L351)*
 
 **Parameters:**
 
@@ -198,7 +209,7 @@ ___
 
 ▸ **stake**(`outcome`: [IProposalOutcome](../enums/iproposaloutcome.md), `amount`: BN): *[Operation](../globals.md#operation)‹[Stake](stake.md)›*
 
-*Defined in [proposal.ts:674](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L674)*
+*Defined in [src/proposal.ts:722](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L722)*
 
 Stake on this proposal
 
@@ -219,7 +230,7 @@ ___
 
 ▸ **stakes**(`options`: [IStakeQueryOptions](../interfaces/istakequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Stake](stake.md)[]›*
 
-*Defined in [proposal.ts:662](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L662)*
+*Defined in [src/proposal.ts:710](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L710)*
 
 **Parameters:**
 
@@ -236,7 +247,7 @@ ___
 
 ▸ **stakingToken**(): *[Token](token.md)‹›*
 
-*Defined in [proposal.ts:658](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L658)*
+*Defined in [src/proposal.ts:706](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L706)*
 
 **Returns:** *[Token](token.md)‹›*
 
@@ -246,7 +257,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IProposalState](../interfaces/iproposalstate.md)›*
 
-*Defined in [proposal.ts:368](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L368)*
+*Defined in [src/proposal.ts:377](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L377)*
 
 `state` is an observable of the proposal state
 
@@ -264,7 +275,7 @@ ___
 
 ▸ **vote**(`outcome`: [IProposalOutcome](../enums/iproposaloutcome.md), `amount`: number): *[Operation](../globals.md#operation)‹[Vote](vote.md) | null›*
 
-*Defined in [proposal.ts:604](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L604)*
+*Defined in [src/proposal.ts:647](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L647)*
 
 Vote for this proposal
 
@@ -285,7 +296,7 @@ ___
 
 ▸ **votes**(`options`: [IVoteQueryOptions](../interfaces/ivotequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Vote](vote.md)[]›*
 
-*Defined in [proposal.ts:591](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L591)*
+*Defined in [src/proposal.ts:634](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L634)*
 
 **Parameters:**
 
@@ -300,13 +311,13 @@ ___
 
 ###  votingMachine
 
-▸ **votingMachine**(): *Promise‹any›*
+▸ **votingMachine**(): *Promise‹Contract‹››*
 
-*Defined in [proposal.ts:574](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L574)*
+*Defined in [src/proposal.ts:611](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L611)*
 
 [votingMachine description]
 
-**Returns:** *Promise‹any›*
+**Returns:** *Promise‹Contract‹››*
 
 a web3 Contract instance
 
@@ -316,7 +327,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Proposal](proposal.md)[]›*
 
-*Defined in [proposal.ts:237](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L237)*
+*Defined in [src/proposal.ts:246](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L246)*
 
 Search for proposals
 
@@ -341,11 +352,11 @@ For example:
 
 ### ▪ **fragments**: *object*
 
-*Defined in [proposal.ts:111](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L111)*
+*Defined in [src/proposal.ts:113](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L113)*
 
 ###  ProposalFields
 
-• **ProposalFields**: *any* =  gql`fragment ProposalFields on Proposal {
+• **ProposalFields**: *DocumentNode* =  gql`fragment ProposalFields on Proposal {
       id
       accountsWithUnclaimedRewards
       boostedAt
@@ -353,15 +364,19 @@ For example:
       confidenceThreshold
       competition {
         id
+        admin
         endTime
         contract
         suggestionsEndTime
         createdAt
+        numberOfWinningSuggestions
         numberOfVotesPerVoters
         numberOfWinners
         rewardSplit
         snapshotBlock
         startTime
+        totalSuggestions
+        totalVotes
         votingStartTime
 
       }
@@ -369,13 +384,16 @@ For example:
         id
         beneficiary
         ethReward
+        ethRewardLeft
         externalToken
         externalTokenReward
-        externalToken
+        externalTokenRewardLeft
         nativeTokenReward
+        nativeTokenRewardLeft
         periods
         periodLength
         reputationReward
+        reputationChangeLeft
         alreadyRedeemedReputationPeriods
         alreadyRedeemedExternalTokenPeriods
         alreadyRedeemedNativeTokenPeriods
@@ -459,4 +477,4 @@ For example:
       winningOutcome
     }`
 
-*Defined in [proposal.ts:112](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L112)*
+*Defined in [src/proposal.ts:114](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L114)*

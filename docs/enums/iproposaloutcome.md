@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IProposalOutcome](iproposaloutcome.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IProposalOutcome](iproposaloutcome.md)
 
 # Enumeration: IProposalOutcome
 
@@ -16,7 +16,7 @@
 
 • **Fail**:
 
-*Defined in [proposal.ts:40](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L40)*
+*Defined in [src/proposal.ts:42](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L42)*
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **None**:
 
-*Defined in [proposal.ts:38](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L38)*
+*Defined in [src/proposal.ts:40](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L40)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **Pass**:
 
-*Defined in [proposal.ts:39](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L39)*
+*Defined in [src/proposal.ts:41](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L41)*

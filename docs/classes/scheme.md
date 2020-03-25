@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [Scheme](scheme.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Scheme](scheme.md)
 
 # Class: Scheme
 
@@ -30,14 +30,13 @@ A Scheme represents a scheme instance that is registered at a DAO
 ### Methods
 
 * [createProposal](scheme.md#createproposal)
-* [createProposalErrorHandler](scheme.md#createproposalerrorhandler)
-* [createProposalTransaction](scheme.md#createproposaltransaction)
-* [createProposalTransactionMap](scheme.md#createproposaltransactionmap)
+* [createProposalErrorHandler](scheme.md#protected-createproposalerrorhandler)
+* [createProposalTransaction](scheme.md#protected-createproposaltransaction)
+* [createProposalTransactionMap](scheme.md#protected-createproposaltransactionmap)
 * [fetchStaticState](scheme.md#fetchstaticstate)
 * [proposals](scheme.md#proposals)
 * [setStaticState](scheme.md#setstaticstate)
 * [state](scheme.md#state)
-* [x](scheme.md#x)
 * [itemMap](scheme.md#static-itemmap)
 * [search](scheme.md#static-search)
 
@@ -53,7 +52,7 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 *Overrides [SchemeBase](schemebase.md).[constructor](schemebase.md#constructor)*
 
-*Defined in [scheme.ts:259](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L259)*
+*Defined in [src/scheme.ts:264](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L264)*
 
 **Parameters:**
 
@@ -72,7 +71,7 @@ Name | Type |
 
 *Overrides [SchemeBase](schemebase.md).[ReputationFromToken](schemebase.md#reputationfromtoken)*
 
-*Defined in [scheme.ts:259](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L259)*
+*Defined in [src/scheme.ts:264](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L264)*
 
 ___
 
@@ -82,7 +81,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[context](schemebase.md#context)*
 
-*Defined in [scheme.ts:261](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L261)*
+*Defined in [src/scheme.ts:266](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L266)*
 
 ___
 
@@ -92,7 +91,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[id](schemebase.md#id)*
 
-*Defined in [scheme.ts:257](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L257)*
+*Defined in [src/scheme.ts:262](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L262)*
 
 ___
 
@@ -102,7 +101,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[staticState](schemebase.md#staticstate)*
 
-*Defined in [scheme.ts:258](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L258)*
+*Defined in [src/scheme.ts:263](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L263)*
 
 ## Methods
 
@@ -112,7 +111,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposal](schemebase.md#createproposal)*
 
-*Defined in [scheme.ts:323](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L323)*
+*Defined in [src/scheme.ts:344](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L344)*
 
 create a new proposal in this Scheme
 
@@ -128,74 +127,51 @@ a Proposal instance
 
 ___
 
-###  createProposalErrorHandler
+### `Protected` createProposalErrorHandler
 
-▸ **createProposalErrorHandler**(`options?`: any): *function*
+▸ **createProposalErrorHandler**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *[transactionErrorHandler](../globals.md#transactionerrorhandler)*
 
-*Inherited from [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#createproposalerrorhandler)*
+*Overrides [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#protected-abstract-createproposalerrorhandler)*
 
-*Defined in [schemes/base.ts:296](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L296)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`options?` | any |
-
-**Returns:** *function*
-
-▸ (`err`: Error): *Error | Promise‹Error›*
+*Defined in [src/scheme.ts:333](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L333)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`err` | Error |
+`options` | [IProposalCreateOptions](../globals.md#iproposalcreateoptions) |
+
+**Returns:** *[transactionErrorHandler](../globals.md#transactionerrorhandler)*
 
 ___
 
-###  createProposalTransaction
+### `Protected` createProposalTransaction
 
-▸ **createProposalTransaction**(`options`: any): *function*
+▸ **createProposalTransaction**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *Promise‹[ITransaction](../interfaces/itransaction.md)›*
 
-*Inherited from [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#createproposaltransaction)*
+*Overrides [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#protected-abstract-createproposaltransaction)*
 
-*Defined in [schemes/base.ts:288](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L288)*
-
-create a new proposal in this scheme
-TODO: move this to the schemes - we should call proposal.scheme.createProposal
+*Defined in [src/scheme.ts:323](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L323)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`options` | any |
+`options` | [IProposalCreateOptions](../globals.md#iproposalcreateoptions) |
 
-**Returns:** *function*
-
-a Proposal instance
-
-▸ (): *Promise‹any›*
+**Returns:** *Promise‹[ITransaction](../interfaces/itransaction.md)›*
 
 ___
 
-###  createProposalTransactionMap
+### `Protected` createProposalTransactionMap
 
-▸ **createProposalTransactionMap**(): *function*
+▸ **createProposalTransactionMap**(): *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
-*Inherited from [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#createproposaltransactionmap)*
+*Overrides [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#protected-abstract-createproposaltransactionmap)*
 
-*Defined in [schemes/base.ts:292](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L292)*
+*Defined in [src/scheme.ts:329](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L329)*
 
-**Returns:** *function*
-
-▸ (`receipt`: any): *any*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`receipt` | any |
+**Returns:** *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
 ___
 
@@ -205,7 +181,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[fetchStaticState](schemebase.md#fetchstaticstate)*
 
-*Defined in [scheme.ts:284](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L284)*
+*Defined in [src/scheme.ts:289](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L289)*
 
 fetch the static state from the subgraph
 
@@ -221,7 +197,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[proposals](schemebase.md#proposals)*
 
-*Defined in [scheme.ts:390](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L390)*
+*Defined in [src/scheme.ts:419](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L419)*
 
 **Parameters:**
 
@@ -240,7 +216,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[setStaticState](schemebase.md#setstaticstate)*
 
-*Defined in [scheme.ts:273](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L273)*
+*Defined in [src/scheme.ts:278](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L278)*
 
 **Parameters:**
 
@@ -258,7 +234,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[state](schemebase.md#abstract-state)*
 
-*Defined in [scheme.ts:305](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L305)*
+*Defined in [src/scheme.ts:310](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L310)*
 
 **Parameters:**
 
@@ -270,23 +246,11 @@ Name | Type | Default |
 
 ___
 
-###  x
-
-▸ **x**(): *void*
-
-*Inherited from [SchemeBase](schemebase.md).[x](schemebase.md#x)*
-
-*Defined in [schemes/base.ts:319](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L319)*
-
-**Returns:** *void*
-
-___
-
 ### `Static` itemMap
 
 ▸ **itemMap**(`item`: any, `arc`: [Arc](arc.md)): *ISchemeState | null*
 
-*Defined in [scheme.ts:188](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L188)*
+*Defined in [src/scheme.ts:193](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L193)*
 
 map an apollo query result to ISchemeState
 
@@ -307,9 +271,9 @@ ___
 
 ### `Static` search
 
-▸ **search**(`context`: [Arc](arc.md), `options`: ISchemeQueryOptions, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹Array‹[Scheme](scheme.md) | [CompetitionScheme](competitionscheme.md)››*
+▸ **search**(`context`: [Arc](arc.md), `options`: ISchemeQueryOptions, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹Array‹[SchemeBase](schemebase.md)››*
 
-*Defined in [scheme.ts:116](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L116)*
+*Defined in [src/scheme.ts:121](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L121)*
 
 Scheme.search(context, options) searches for scheme entities
 
@@ -321,7 +285,7 @@ Name | Type | Default | Description |
 `options` | ISchemeQueryOptions |  {} | the query options, cf. ISchemeQueryOptions |
 `apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} | - |
 
-**Returns:** *Observable‹Array‹[Scheme](scheme.md) | [CompetitionScheme](competitionscheme.md)››*
+**Returns:** *Observable‹Array‹[SchemeBase](schemebase.md)››*
 
 an observable of Scheme objects
 
@@ -333,11 +297,11 @@ an observable of Scheme objects
 
 *Inherited from [SchemeBase](schemebase.md).[fragments](schemebase.md#static-fragments)*
 
-*Defined in [schemes/base.ts:106](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L106)*
+*Defined in [src/schemes/base.ts:112](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L112)*
 
 ###  SchemeFields
 
-• **SchemeFields**: *any* =  gql`
+• **SchemeFields**: *DocumentNode* =  gql`
     fragment SchemeFields on ControllerScheme {
       id
       address
@@ -466,4 +430,4 @@ an observable of Scheme objects
       version
     }`
 
-*Defined in [schemes/base.ts:107](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L107)*
+*Defined in [src/schemes/base.ts:113](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L113)*

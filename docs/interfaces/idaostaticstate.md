@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IDAOStaticState](idaostaticstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IDAOStaticState](idaostaticstate.md)
 
 # Interface: IDAOStaticState
 
@@ -27,7 +27,7 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [dao.ts:21](https://github.com/daostack/client/blob/1bc237e/src/dao.ts#L21)*
+*Defined in [src/dao.ts:22](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L22)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Defined in [dao.ts:20](https://github.com/daostack/client/blob/1bc237e/src/dao.ts#L20)*
+*Defined in [src/dao.ts:21](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L21)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [dao.ts:22](https://github.com/daostack/client/blob/1bc237e/src/dao.ts#L22)*
+*Defined in [src/dao.ts:23](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L23)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **register**: *"na" | "proposed" | "registered" | "unRegistered"*
 
-*Defined in [dao.ts:23](https://github.com/daostack/client/blob/1bc237e/src/dao.ts#L23)*
+*Defined in [src/dao.ts:24](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L24)*
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **reputation**: *[Reputation](../classes/reputation.md)*
 
-*Defined in [dao.ts:24](https://github.com/daostack/client/blob/1bc237e/src/dao.ts#L24)*
+*Defined in [src/dao.ts:25](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L25)*
 
 ___
 
@@ -67,7 +67,7 @@ ___
 
 • **token**: *[Token](../classes/token.md)*
 
-*Defined in [dao.ts:25](https://github.com/daostack/client/blob/1bc237e/src/dao.ts#L25)*
+*Defined in [src/dao.ts:26](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L26)*
 
 ___
 
@@ -75,7 +75,7 @@ ___
 
 • **tokenName**: *string*
 
-*Defined in [dao.ts:26](https://github.com/daostack/client/blob/1bc237e/src/dao.ts#L26)*
+*Defined in [src/dao.ts:27](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L27)*
 
 ___
 
@@ -83,4 +83,4 @@ ___
 
 • **tokenSymbol**: *string*
 
-*Defined in [dao.ts:27](https://github.com/daostack/client/blob/1bc237e/src/dao.ts#L27)*
+*Defined in [src/dao.ts:28](https://github.com/dorgtech/client/blob/74940d1/src/dao.ts#L28)*

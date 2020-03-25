@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ProposalQuerySortOptions](proposalquerysortoptions.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ProposalQuerySortOptions](proposalquerysortoptions.md)
 
 # Enumeration: ProposalQuerySortOptions
 
@@ -15,7 +15,7 @@
 
 • **preBoostedAt**: = "preBoostedAt"
 
-*Defined in [proposal.ts:843](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L843)*
+*Defined in [src/proposal.ts:945](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L945)*
 
 ___
 
@@ -23,4 +23,4 @@ ___
 
 • **resolvesAt**: = "resolvesAt"
 
-*Defined in [proposal.ts:842](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L842)*
+*Defined in [src/proposal.ts:944](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L944)*

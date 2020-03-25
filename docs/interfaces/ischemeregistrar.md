@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ISchemeRegistrar](ischemeregistrar.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ISchemeRegistrar](ischemeregistrar.md)
 
 # Interface: ISchemeRegistrar
 
@@ -25,7 +25,7 @@
 
 • **decision**: *number*
 
-*Defined in [schemes/schemeRegistrar.ts:11](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L11)*
+*Defined in [src/schemes/schemeRegistrar.ts:16](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L16)*
 
 ___
 
@@ -33,7 +33,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [schemes/schemeRegistrar.ts:6](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L6)*
+*Defined in [src/schemes/schemeRegistrar.ts:11](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L11)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **schemeRegistered**: *boolean*
 
-*Defined in [schemes/schemeRegistrar.ts:12](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L12)*
+*Defined in [src/schemes/schemeRegistrar.ts:17](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L17)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **schemeRemoved**: *boolean*
 
-*Defined in [schemes/schemeRegistrar.ts:13](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L13)*
+*Defined in [src/schemes/schemeRegistrar.ts:18](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L18)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **schemeToRegister**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/schemeRegistrar.ts:7](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L7)*
+*Defined in [src/schemes/schemeRegistrar.ts:12](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L12)*
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **schemeToRegisterParamsHash**: *string*
 
-*Defined in [schemes/schemeRegistrar.ts:8](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L8)*
+*Defined in [src/schemes/schemeRegistrar.ts:13](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L13)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **schemeToRegisterPermission**: *string*
 
-*Defined in [schemes/schemeRegistrar.ts:9](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L9)*
+*Defined in [src/schemes/schemeRegistrar.ts:14](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L14)*
 
 ___
 
@@ -81,4 +81,4 @@ ___
 
 • **schemeToRemove**: *string*
 
-*Defined in [schemes/schemeRegistrar.ts:10](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L10)*
+*Defined in [src/schemes/schemeRegistrar.ts:15](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L15)*

@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IProposalBaseCreateOptions](iproposalbasecreateoptions.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IProposalBaseCreateOptions](iproposalbasecreateoptions.md)
 
 # Interface: IProposalBaseCreateOptions
 
@@ -6,9 +6,17 @@
 
 * **IProposalBaseCreateOptions**
 
-  ↳ [IProposalCreateOptionsCompetition](iproposalcreateoptionscompetition.md)
+  ↳ [IProposalCreateOptionsComp](iproposalcreateoptionscomp.md)
 
-  ↳ [IProposalCreateOptionsContributionRewardExt](iproposalcreateoptionscontributionrewardext.md)
+  ↳ [IProposalCreateOptionsCR](iproposalcreateoptionscr.md)
+
+  ↳ [IProposalCreateOptionsCRExt](iproposalcreateoptionscrext.md)
+
+  ↳ [IProposalCreateOptionsGS](iproposalcreateoptionsgs.md)
+
+  ↳ [IProposalCreateOptionsGS](iproposalcreateoptionsgs.md)
+
+  ↳ [IProposalCreateOptionsSR](iproposalcreateoptionssr.md)
 
 ## Index
 
@@ -29,7 +37,7 @@
 
 • **dao**: *[Address](../globals.md#address)*
 
-*Defined in [proposal.ts:871](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L871)*
+*Defined in [src/proposal.ts:973](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L973)*
 
 ___
 
@@ -37,7 +45,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [proposal.ts:872](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L872)*
+*Defined in [src/proposal.ts:974](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L974)*
 
 ___
 
@@ -45,15 +53,15 @@ ___
 
 • **descriptionHash**? : *undefined | string*
 
-*Defined in [proposal.ts:873](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L873)*
+*Defined in [src/proposal.ts:975](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L975)*
 
 ___
 
 ### `Optional` proposalType
 
-• **proposalType**? : *undefined | string*
+• **proposalType**? : *[IProposalType](../globals.md#const-iproposaltype) | "competition"*
 
-*Defined in [proposal.ts:879](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L879)*
+*Defined in [src/proposal.ts:980](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L980)*
 
 ___
 
@@ -61,7 +69,7 @@ ___
 
 • **scheme**? : *[Address](../globals.md#address)*
 
-*Defined in [proposal.ts:876](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L876)*
+*Defined in [src/proposal.ts:978](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L978)*
 
 ___
 
@@ -69,7 +77,7 @@ ___
 
 • **tags**? : *string[]*
 
-*Defined in [proposal.ts:875](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L875)*
+*Defined in [src/proposal.ts:977](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L977)*
 
 ___
 
@@ -77,7 +85,7 @@ ___
 
 • **title**? : *undefined | string*
 
-*Defined in [proposal.ts:874](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L874)*
+*Defined in [src/proposal.ts:976](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L976)*
 
 ___
 
@@ -85,4 +93,4 @@ ___
 
 • **url**? : *undefined | string*
 
-*Defined in [proposal.ts:877](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L877)*
+*Defined in [src/proposal.ts:979](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L979)*

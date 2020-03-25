@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ITransactionUpdate](itransactionupdate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ITransactionUpdate](itransactionupdate.md)
 
 # Interface: ITransactionUpdate <**T**>
 
@@ -28,7 +28,7 @@ A transaction update is a snapshot of the state of a transaction at a particular
 
 • **confirmations**? : *undefined | number*
 
-*Defined in [operation.ts:23](https://github.com/daostack/client/blob/1bc237e/src/operation.ts#L23)*
+*Defined in [src/operation.ts:45](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L45)*
 
  number of confirmations
 
@@ -36,20 +36,19 @@ ___
 
 ### `Optional` receipt
 
-• **receipt**? : *undefined | object*
+• **receipt**? : *ITransactionReceipt*
 
-*Defined in [operation.ts:19](https://github.com/daostack/client/blob/1bc237e/src/operation.ts#L19)*
+*Defined in [src/operation.ts:41](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L41)*
 
 ___
 
 ### `Optional` result
 
-• **result**? : *[T](undefined)*
+• **result**? : *T*
 
-*Defined in [operation.ts:28](https://github.com/daostack/client/blob/1bc237e/src/operation.ts#L28)*
+*Defined in [src/operation.ts:49](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L49)*
 
 Parsed return value from the method call
-or contract address in the case of contract creation tx.
 
 ___
 
@@ -57,7 +56,7 @@ ___
 
 • **state**: *[ITransactionState](../enums/itransactionstate.md)*
 
-*Defined in [operation.ts:17](https://github.com/daostack/client/blob/1bc237e/src/operation.ts#L17)*
+*Defined in [src/operation.ts:39](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L39)*
 
 ___
 
@@ -65,4 +64,4 @@ ___
 
 • **transactionHash**? : *undefined | string*
 
-*Defined in [operation.ts:18](https://github.com/daostack/client/blob/1bc237e/src/operation.ts#L18)*
+*Defined in [src/operation.ts:40](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L40)*

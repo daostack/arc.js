@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IStateful](istateful.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IStateful](istateful.md)
 
 # Interface: IStateful <**T**>
 
@@ -13,6 +13,8 @@
 ## Implemented by
 
 * [CompetitionScheme](../classes/competitionscheme.md)
+* [CompetitionSuggestion](../classes/competitionsuggestion.md)
+* [CompetitionVote](../classes/competitionvote.md)
 * [DAO](../classes/dao.md)
 * [Event](../classes/event.md)
 * [Member](../classes/member.md)
@@ -39,7 +41,7 @@
 
 • **state**: *function*
 
-*Defined in [types.ts:11](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L11)*
+*Defined in [src/types.ts:12](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L12)*
 
 #### Type declaration:
 

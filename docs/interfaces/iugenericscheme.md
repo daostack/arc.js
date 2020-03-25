@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IUGenericScheme](iugenericscheme.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IUGenericScheme](iugenericscheme.md)
 
 # Interface: IUGenericScheme
 
@@ -22,7 +22,7 @@
 
 • **callData**: *string*
 
-*Defined in [schemes/uGenericScheme.ts:14](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L14)*
+*Defined in [src/schemes/uGenericScheme.ts:19](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L19)*
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • **contractToCall**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/uGenericScheme.ts:13](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L13)*
+*Defined in [src/schemes/uGenericScheme.ts:18](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L18)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **executed**: *boolean*
 
-*Defined in [schemes/uGenericScheme.ts:15](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L15)*
+*Defined in [src/schemes/uGenericScheme.ts:20](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L20)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [schemes/uGenericScheme.ts:12](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L12)*
+*Defined in [src/schemes/uGenericScheme.ts:17](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L17)*
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 • **returnValue**: *string*
 
-*Defined in [schemes/uGenericScheme.ts:16](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L16)*
+*Defined in [src/schemes/uGenericScheme.ts:21](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L21)*

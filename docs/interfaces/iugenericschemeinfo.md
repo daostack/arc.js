@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IUGenericSchemeInfo](iugenericschemeinfo.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IUGenericSchemeInfo](iugenericschemeinfo.md)
 
 # Interface: IUGenericSchemeInfo
 
@@ -20,7 +20,7 @@
 
 • **contractToCall**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/uGenericScheme.ts:7](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L7)*
+*Defined in [src/schemes/uGenericScheme.ts:12](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L12)*
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [schemes/uGenericScheme.ts:6](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L6)*
+*Defined in [src/schemes/uGenericScheme.ts:11](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L11)*
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/uGenericScheme.ts:8](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L8)*
+*Defined in [src/schemes/uGenericScheme.ts:13](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L13)*

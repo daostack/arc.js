@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IProposalStaticState](iproposalstaticstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IProposalStaticState](iproposalstaticstate.md)
 
 # Interface: IProposalStaticState
 
@@ -23,7 +23,7 @@
 
 • **dao**: *[DAO](../classes/dao.md)*
 
-*Defined in [proposal.ts:63](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L63)*
+*Defined in [src/proposal.ts:65](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L65)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [proposal.ts:62](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L62)*
+*Defined in [src/proposal.ts:64](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L64)*
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 • **scheme**: *ISchemeState*
 
-*Defined in [proposal.ts:64](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L64)*
+*Defined in [src/proposal.ts:66](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L66)*
 
 ___
 
@@ -47,4 +47,4 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [proposal.ts:65](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L65)*
+*Defined in [src/proposal.ts:67](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L67)*

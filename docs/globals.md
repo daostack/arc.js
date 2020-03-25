@@ -1,6 +1,6 @@
-[@daostack/client](README.md) › [Globals](globals.md)
+[@daostack/client - v0.2.64](README.md) › [Globals](globals.md)
 
-# @daostack/client
+# @daostack/client - v0.2.64
 
 ## Index
 
@@ -22,6 +22,7 @@
 * [DAO](classes/dao.md)
 * [Event](classes/event.md)
 * [GraphNodeObserver](classes/graphnodeobserver.md)
+* [IPFSClient](classes/ipfsclient.md)
 * [Member](classes/member.md)
 * [Proposal](classes/proposal.md)
 * [Queue](classes/queue.md)
@@ -69,8 +70,8 @@
 * [IOperationObservable](interfaces/ioperationobservable.md)
 * [IProposalBaseCreateOptions](interfaces/iproposalbasecreateoptions.md)
 * [IProposalCreateOptionsCR](interfaces/iproposalcreateoptionscr.md)
-* [IProposalCreateOptionsCompetition](interfaces/iproposalcreateoptionscompetition.md)
-* [IProposalCreateOptionsContributionRewardExt](interfaces/iproposalcreateoptionscontributionrewardext.md)
+* [IProposalCreateOptionsCRExt](interfaces/iproposalcreateoptionscrext.md)
+* [IProposalCreateOptionsComp](interfaces/iproposalcreateoptionscomp.md)
 * [IProposalCreateOptionsGS](interfaces/iproposalcreateoptionsgs.md)
 * [IProposalCreateOptionsSR](interfaces/iproposalcreateoptionssr.md)
 * [IProposalQueryOptions](interfaces/iproposalqueryoptions.md)
@@ -98,6 +99,7 @@
 * [ITagStaticState](interfaces/itagstaticstate.md)
 * [ITokenQueryOptions](interfaces/itokenqueryoptions.md)
 * [ITokenState](interfaces/itokenstate.md)
+* [ITransaction](interfaces/itransaction.md)
 * [ITransactionUpdate](interfaces/itransactionupdate.md)
 * [IUGenericScheme](interfaces/iugenericscheme.md)
 * [IUGenericSchemeInfo](interfaces/iugenericschemeinfo.md)
@@ -109,42 +111,43 @@
 
 * [Address](globals.md#address)
 * [Date](globals.md#date)
-* [EthereumEvent](globals.md#ethereumevent)
 * [Hash](globals.md#hash)
 * [IPFSProvider](globals.md#ipfsprovider)
 * [IProposalCreateOptions](globals.md#iproposalcreateoptions)
 * [IProposalType](globals.md#iproposaltype)
 * [Operation](globals.md#operation)
 * [Web3Provider](globals.md#web3provider)
-* [Web3Receipt](globals.md#web3receipt)
-* [web3receipt](globals.md#web3receipt)
+* [transactionErrorHandler](globals.md#transactionerrorhandler)
+* [transactionResultHandler](globals.md#transactionresulthandler)
 
 ### Variables
 
 * [ABI_DIR](globals.md#const-abi_dir)
+* [CONTRIBUTION_REWARD_DUMMY_VERSION](globals.md#const-contribution_reward_dummy_version)
 * [DAOTOKEN_CONTRACT_VERSION](globals.md#const-daotoken_contract_version)
-* [IPFSClient](globals.md#const-ipfsclient)
-* [LATEST_ARC_VERSION](globals.md#const-latest_arc_version)
+* [FormData](globals.md#const-formdata)
 * [NULL_ADDRESS](globals.md#const-null_address)
-* [REDEEMER_CONTRACT_VERSION](globals.md#const-redeemer_contract_version)
+* [REDEEMER_CONTRACT_VERSIONS](globals.md#const-redeemer_contract_versions)
 * [REPUTATION_CONTRACT_VERSION](globals.md#const-reputation_contract_version)
-* [Web3](globals.md#const-web3)
+* [fetch](globals.md#const-fetch)
 
 ### Functions
 
+* [checkAddress](globals.md#const-checkaddress)
 * [checkWebsocket](globals.md#checkwebsocket)
 * [concat](globals.md#concat)
 * [createApolloClient](globals.md#createapolloclient)
 * [createGraphQlQuery](globals.md#creategraphqlquery)
 * [createGraphQlWhereQuery](globals.md#creategraphqlwherequery)
-* [createProposal](globals.md#createproposal)
-* [createTransaction](globals.md#createtransaction)
+* [createProposalTransaction](globals.md#createproposaltransaction)
+* [createProposalTransactionMap](globals.md#createproposaltransactionmap)
 * [createTransactionMap](globals.md#createtransactionmap)
 * [dateToSecondsSinceEpoch](globals.md#datetosecondssinceepoch)
 * [eventId](globals.md#eventid)
 * [fromWei](globals.md#fromwei)
 * [getBlockTime](globals.md#getblocktime)
 * [getCompetitionContract](globals.md#getcompetitioncontract)
+* [getEventArgs](globals.md#geteventargs)
 * [hasCompetitionContract](globals.md#hascompetitioncontract)
 * [hexStringToUint8Array](globals.md#hexstringtouint8array)
 * [isAddress](globals.md#isaddress)
@@ -153,6 +156,7 @@
 * [realMathToNumber](globals.md#realmathtonumber)
 * [secondSinceEpochToDate](globals.md#secondsinceepochtodate)
 * [sendTransaction](globals.md#sendtransaction)
+* [stringToUint8Array](globals.md#stringtouint8array)
 * [toIOperationObservable](globals.md#toioperationobservable)
 * [toWei](globals.md#towei)
 * [zenToRxjsObservable](globals.md#zentorxjsobservable)
@@ -167,7 +171,7 @@
 
 Ƭ **Address**: *string*
 
-*Defined in [types.ts:4](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L4)*
+*Defined in [src/types.ts:5](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L5)*
 
 ___
 
@@ -175,15 +179,7 @@ ___
 
 Ƭ **Date**: *number*
 
-*Defined in [types.ts:5](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L5)*
-
-___
-
-###  EthereumEvent
-
-Ƭ **EthereumEvent**: *any*
-
-*Defined in [utils.ts:59](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L59)*
+*Defined in [src/types.ts:6](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L6)*
 
 ___
 
@@ -191,23 +187,23 @@ ___
 
 Ƭ **Hash**: *string*
 
-*Defined in [types.ts:6](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L6)*
+*Defined in [src/types.ts:7](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L7)*
 
 ___
 
 ###  IPFSProvider
 
-Ƭ **IPFSProvider**: *string | object*
+Ƭ **IPFSProvider**: *string*
 
-*Defined in [types.ts:22](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L22)*
+*Defined in [src/types.ts:9](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L9)*
 
 ___
 
 ###  IProposalCreateOptions
 
-Ƭ **IProposalCreateOptions**: *[IProposalBaseCreateOptions](interfaces/iproposalbasecreateoptions.md) & [IProposalCreateOptionsGS](interfaces/iproposalcreateoptionsgs.md) | [IProposalBaseCreateOptions](interfaces/iproposalbasecreateoptions.md) & [IProposalCreateOptionsSR](interfaces/iproposalcreateoptionssr.md) | [IProposalBaseCreateOptions](interfaces/iproposalbasecreateoptions.md) & [IProposalCreateOptionsCR](interfaces/iproposalcreateoptionscr.md) | [IProposalCreateOptionsContributionRewardExt](interfaces/iproposalcreateoptionscontributionrewardext.md) | [IProposalCreateOptionsCompetition](interfaces/iproposalcreateoptionscompetition.md)*
+Ƭ **IProposalCreateOptions**: *[IProposalCreateOptionsGS](interfaces/iproposalcreateoptionsgs.md) | [IProposalCreateOptionsSR](interfaces/iproposalcreateoptionssr.md) | [IProposalCreateOptionsCR](interfaces/iproposalcreateoptionscr.md) | [IProposalCreateOptionsCRExt](interfaces/iproposalcreateoptionscrext.md) | [IProposalCreateOptionsComp](interfaces/iproposalcreateoptionscomp.md)*
 
-*Defined in [proposal.ts:882](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L882)*
+*Defined in [src/proposal.ts:983](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L983)*
 
 ___
 
@@ -215,7 +211,7 @@ ___
 
 Ƭ **IProposalType**: *[ContributionReward](globals.md#contributionreward) | [GenericScheme](globals.md#genericscheme) | [SchemeRegistrarAdd](globals.md#schemeregistraradd) | [SchemeRegistrarEdit](globals.md#schemeregistraredit) | [SchemeRegistrarRemove](globals.md#schemeregistrarremove)*
 
-*Defined in [proposal.ts:31](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L31)*
+*Defined in [src/proposal.ts:33](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L33)*
 
 ___
 
@@ -223,31 +219,53 @@ ___
 
 Ƭ **Operation**: *[IOperationObservable](interfaces/ioperationobservable.md)‹[ITransactionUpdate](interfaces/itransactionupdate.md)‹T››*
 
-*Defined in [operation.ts:38](https://github.com/daostack/client/blob/1bc237e/src/operation.ts#L38)*
+*Defined in [src/operation.ts:69](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L69)*
 
 ___
 
 ###  Web3Provider
 
-Ƭ **Web3Provider**: *string | object*
+Ƭ **Web3Provider**: *string | AsyncSendable*
 
-*Defined in [types.ts:8](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L8)*
-
-___
-
-###  Web3Receipt
-
-Ƭ **Web3Receipt**: *any*
-
-*Defined in [types.ts:7](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L7)*
+*Defined in [src/types.ts:8](https://github.com/dorgtech/client/blob/74940d1/src/types.ts#L8)*
 
 ___
 
-###  web3receipt
+###  transactionErrorHandler
 
-Ƭ **web3receipt**: *object*
+Ƭ **transactionErrorHandler**: *function*
 
-*Defined in [operation.ts:40](https://github.com/daostack/client/blob/1bc237e/src/operation.ts#L40)*
+*Defined in [src/operation.ts:52](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L52)*
+
+#### Type declaration:
+
+▸ (`error`: Error, `transaction`: [ITransaction](interfaces/itransaction.md), `options?`: undefined | object): *Promise‹Error› | Error*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`error` | Error |
+`transaction` | [ITransaction](interfaces/itransaction.md) |
+`options?` | undefined &#124; object |
+
+___
+
+###  transactionResultHandler
+
+Ƭ **transactionResultHandler**: *function*
+
+*Defined in [src/operation.ts:58](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L58)*
+
+#### Type declaration:
+
+▸ (`receipt`: ITransactionReceipt): *T | Promise‹T› | undefined*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`receipt` | ITransactionReceipt |
 
 ## Variables
 
@@ -255,7 +273,15 @@ ___
 
 • **ABI_DIR**: *"./abis"* = "./abis"
 
-*Defined in [settings.ts:8](https://github.com/daostack/client/blob/1bc237e/src/settings.ts#L8)*
+*Defined in [src/settings.ts:14](https://github.com/dorgtech/client/blob/74940d1/src/settings.ts#L14)*
+
+___
+
+### `Const` CONTRIBUTION_REWARD_DUMMY_VERSION
+
+• **CONTRIBUTION_REWARD_DUMMY_VERSION**: *"0.0.1-rc.19"* = "0.0.1-rc.19"
+
+*Defined in [src/settings.ts:11](https://github.com/dorgtech/client/blob/74940d1/src/settings.ts#L11)*
 
 ___
 
@@ -263,23 +289,15 @@ ___
 
 • **DAOTOKEN_CONTRACT_VERSION**: *"0.0.1-rc.19"* = "0.0.1-rc.19"
 
-*Defined in [settings.ts:5](https://github.com/daostack/client/blob/1bc237e/src/settings.ts#L5)*
+*Defined in [src/settings.ts:9](https://github.com/dorgtech/client/blob/74940d1/src/settings.ts#L9)*
 
 ___
 
-### `Const` IPFSClient
+### `Const` FormData
 
-• **IPFSClient**: *any* =  require('ipfs-http-client')
+• **FormData**: *any* =  require('form-data')
 
-*Defined in [arc.ts:18](https://github.com/daostack/client/blob/1bc237e/src/arc.ts#L18)*
-
-___
-
-### `Const` LATEST_ARC_VERSION
-
-• **LATEST_ARC_VERSION**: *"0.0.1-rc.19"* = "0.0.1-rc.19"
-
-*Defined in [settings.ts:6](https://github.com/daostack/client/blob/1bc237e/src/settings.ts#L6)*
+*Defined in [src/ipfsClient.ts:1](https://github.com/dorgtech/client/blob/74940d1/src/ipfsClient.ts#L1)*
 
 ___
 
@@ -287,15 +305,18 @@ ___
 
 • **NULL_ADDRESS**: *"0x0000000000000000000000000000000000000000"* = "0x0000000000000000000000000000000000000000"
 
-*Defined in [utils.ts:97](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L97)*
+*Defined in [src/utils.ts:128](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L128)*
 
 ___
 
-### `Const` REDEEMER_CONTRACT_VERSION
+### `Const` REDEEMER_CONTRACT_VERSIONS
 
-• **REDEEMER_CONTRACT_VERSION**: *"0.0.1-rc.36"* = "0.0.1-rc.36"
+• **REDEEMER_CONTRACT_VERSIONS**: *string[]* =  [
+    '0.0.1-rc.37',
+    '0.0.1-rc.36'
+]
 
-*Defined in [settings.ts:2](https://github.com/daostack/client/blob/1bc237e/src/settings.ts#L2)*
+*Defined in [src/settings.ts:3](https://github.com/dorgtech/client/blob/74940d1/src/settings.ts#L3)*
 
 ___
 
@@ -303,27 +324,39 @@ ___
 
 • **REPUTATION_CONTRACT_VERSION**: *"0.0.1-rc.19"* = "0.0.1-rc.19"
 
-*Defined in [settings.ts:4](https://github.com/daostack/client/blob/1bc237e/src/settings.ts#L4)*
+*Defined in [src/settings.ts:8](https://github.com/dorgtech/client/blob/74940d1/src/settings.ts#L8)*
 
 ___
 
-### `Const` Web3
+### `Const` fetch
 
-• **Web3**: *any* =  require('web3')
+• **fetch**: *any* =  require('isomorphic-fetch')
 
-*Defined in [utils.ts:5](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L5)*
-
-*Defined in [schemes/competition.ts:20](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L20)*
-
-*Defined in [arc.ts:19](https://github.com/daostack/client/blob/1bc237e/src/arc.ts#L19)*
+*Defined in [src/ipfsClient.ts:2](https://github.com/dorgtech/client/blob/74940d1/src/ipfsClient.ts#L2)*
 
 ## Functions
+
+### `Const` checkAddress
+
+▸ **checkAddress**(`address`: string): *boolean*
+
+*Defined in [src/utils.ts:10](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L10)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`address` | string |
+
+**Returns:** *boolean*
+
+___
 
 ###  checkWebsocket
 
 ▸ **checkWebsocket**(`options`: object): *void*
 
-*Defined in [utils.ts:16](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L16)*
+*Defined in [src/utils.ts:36](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L36)*
 
 **Parameters:**
 
@@ -341,7 +374,7 @@ ___
 
 ▸ **concat**(`a`: Uint8Array, `b`: Uint8Array): *Uint8Array*
 
-*Defined in [utils.ts:47](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L47)*
+*Defined in [src/utils.ts:76](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L76)*
 
 **Parameters:**
 
@@ -358,7 +391,7 @@ ___
 
 ▸ **createApolloClient**(`options`: object): *ApolloClient‹NormalizedCacheObject›*
 
-*Defined in [graphnode.ts:26](https://github.com/daostack/client/blob/1bc237e/src/graphnode.ts#L26)*
+*Defined in [src/graphnode.ts:27](https://github.com/dorgtech/client/blob/74940d1/src/graphnode.ts#L27)*
 
 **Parameters:**
 
@@ -366,9 +399,11 @@ ___
 
 Name | Type |
 ------ | ------ |
+`errHandler?` | undefined &#124; function |
 `graphqlHttpProvider` | string |
-`graphqlPrefetchHook?` | any |
 `graphqlWsProvider` | string |
+`prefetchHook?` | undefined &#124; function |
+`retryLink?` | any |
 
 **Returns:** *ApolloClient‹NormalizedCacheObject›*
 
@@ -378,7 +413,7 @@ ___
 
 ▸ **createGraphQlQuery**(`options`: [ICommonQueryOptions](interfaces/icommonqueryoptions.md), `where`: string): *string*
 
-*Defined in [utils.ts:109](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L109)*
+*Defined in [src/utils.ts:140](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L140)*
 
 creates a string to be plugsging into a graphql query
 
@@ -402,7 +437,7 @@ ___
 
 ▸ **createGraphQlWhereQuery**(`where?`: undefined | object): *string*
 
-*Defined in [utils.ts:139](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L139)*
+*Defined in [src/utils.ts:170](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L170)*
 
 **Parameters:**
 
@@ -414,35 +449,39 @@ Name | Type |
 
 ___
 
-###  createProposal
+###  createProposalTransaction
 
-▸ **createProposal**(`options`: any, `context`: [Arc](classes/arc.md)): *(Anonymous function)*
+▸ **createProposalTransaction**(`options`: [IProposalCreateOptionsCR](interfaces/iproposalcreateoptionscr.md), `context`: [Arc](classes/arc.md)): *Promise‹[ITransaction](interfaces/itransaction.md)›*
 
-*Defined in [schemes/contributionReward.ts:37](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L37)*
-
-**Parameters:**
-
-Name | Type | Description |
------- | ------ | ------ |
-`options` | any | - |
-`context` | [Arc](classes/arc.md) |   |
-
-**Returns:** *(Anonymous function)*
-
-___
-
-###  createTransaction
-
-▸ **createTransaction**(`options`: any, `context`: [Arc](classes/arc.md)): *(Anonymous function)*
-
-*Defined in [schemes/genericScheme.ts:28](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L28)*
+*Defined in [src/schemes/contributionReward.ts:46](https://github.com/dorgtech/client/blob/74940d1/src/schemes/contributionReward.ts#L46)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`options` | any |
+`options` | [IProposalCreateOptionsCR](interfaces/iproposalcreateoptionscr.md) |
 `context` | [Arc](classes/arc.md) |
+
+**Returns:** *Promise‹[ITransaction](interfaces/itransaction.md)›*
+
+___
+
+###  createProposalTransactionMap
+
+▸ **createProposalTransactionMap**(`options`: [IProposalCreateOptionsCR](interfaces/iproposalcreateoptionscr.md), `context`: [Arc](classes/arc.md)): *(Anonymous function)*
+
+*Defined in [src/schemes/contributionReward.ts:73](https://github.com/dorgtech/client/blob/74940d1/src/schemes/contributionReward.ts#L73)*
+
+map the transaction receipt of the createTransaction call to a nice result
+map the transaction receipt of the createTransaction call to a nice result
+map the transaction receipt of the createTransaction call to a nice result
+
+**Parameters:**
+
+Name | Type | Description |
+------ | ------ | ------ |
+`options` | [IProposalCreateOptionsCR](interfaces/iproposalcreateoptionscr.md) | the options passed to the createProposal call |
+`context` | [Arc](classes/arc.md) | an Arc instance |
 
 **Returns:** *(Anonymous function)*
 
@@ -450,22 +489,18 @@ ___
 
 ###  createTransactionMap
 
-▸ **createTransactionMap**(`options`: any, `context`: [Arc](classes/arc.md)): *map*
+▸ **createTransactionMap**(`options`: [IProposalCreateOptionsSR](interfaces/iproposalcreateoptionssr.md), `context`: [Arc](classes/arc.md)): *(Anonymous function)*
 
-*Defined in [schemes/contributionReward.ts:61](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L61)*
-
-map the transaction receipt of the createTransaction call to a nice result
-map the transaction receipt of the createTransaction call to a nice result
-map the transaction receipt of the createTransaction call to a nice result
+*Defined in [src/schemes/schemeRegistrar.ts:85](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L85)*
 
 **Parameters:**
 
-Name | Type | Description |
------- | ------ | ------ |
-`options` | any | the options passed to the createProposal call |
-`context` | [Arc](classes/arc.md) | an Arc instance |
+Name | Type |
+------ | ------ |
+`options` | [IProposalCreateOptionsSR](interfaces/iproposalcreateoptionssr.md) |
+`context` | [Arc](classes/arc.md) |
 
-**Returns:** *map*
+**Returns:** *(Anonymous function)*
 
 ___
 
@@ -473,7 +508,7 @@ ___
 
 ▸ **dateToSecondsSinceEpoch**(`date`: Date): *number*
 
-*Defined in [utils.ts:164](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L164)*
+*Defined in [src/utils.ts:195](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L195)*
 
 **Parameters:**
 
@@ -487,15 +522,15 @@ ___
 
 ###  eventId
 
-▸ **eventId**(`event`: [EthereumEvent](globals.md#ethereumevent)): *string*
+▸ **eventId**(`event`: ITransactionEvent): *string*
 
-*Defined in [utils.ts:61](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L61)*
+*Defined in [src/utils.ts:88](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L88)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`event` | [EthereumEvent](globals.md#ethereumevent) |
+`event` | ITransactionEvent |
 
 **Returns:** *string*
 
@@ -505,7 +540,7 @@ ___
 
 ▸ **fromWei**(`amount`: BN): *string*
 
-*Defined in [utils.ts:8](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L8)*
+*Defined in [src/utils.ts:26](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L26)*
 
 **Parameters:**
 
@@ -519,11 +554,11 @@ ___
 
 ###  getBlockTime
 
-▸ **getBlockTime**(`web3`: any): *Promise‹Date›*
+▸ **getBlockTime**(`web3`: JsonRpcProvider): *Promise‹Date›*
 
-*Defined in [utils.ts:191](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L191)*
+*Defined in [src/utils.ts:222](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L222)*
 
-get the latest block time, or the current time, whichver is later
+get the latest block time, or the current time, whichever is later
 
 **`export`** 
 
@@ -531,7 +566,7 @@ get the latest block time, or the current time, whichver is later
 
 Name | Type |
 ------ | ------ |
-`web3` | any |
+`web3` | JsonRpcProvider |
 
 **Returns:** *Promise‹Date›*
 
@@ -539,9 +574,9 @@ ___
 
 ###  getCompetitionContract
 
-▸ **getCompetitionContract**(`schemeState`: [ISchemeState](interfaces/ischemestate.md), `arc`: [Arc](classes/arc.md)): *any*
+▸ **getCompetitionContract**(`schemeState`: [ISchemeState](interfaces/ischemestate.md), `arc`: [Arc](classes/arc.md)): *Contract‹›*
 
-*Defined in [schemes/competition.ts:780](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L780)*
+*Defined in [src/schemes/competition.ts:882](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L882)*
 
 If this scheme is a ContributionREwardExt scheme and if
 its rewarder is Competition contract, return that contract
@@ -553,9 +588,27 @@ Name | Type |
 `schemeState` | [ISchemeState](interfaces/ischemestate.md) |
 `arc` | [Arc](classes/arc.md) |
 
-**Returns:** *any*
+**Returns:** *Contract‹›*
 
 A Web3 contract instance
+
+___
+
+###  getEventArgs
+
+▸ **getEventArgs**(`receipt`: ITransactionReceipt, `eventName`: string, `codeScope`: string): *any[]*
+
+*Defined in [src/operation.ts:234](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L234)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`receipt` | ITransactionReceipt |
+`eventName` | string |
+`codeScope` | string |
+
+**Returns:** *any[]*
 
 ___
 
@@ -563,7 +616,7 @@ ___
 
 ▸ **hasCompetitionContract**(`schemeState`: [ISchemeState](interfaces/ischemestate.md), `arc`: [Arc](classes/arc.md)): *boolean*
 
-*Defined in [schemes/competition.ts:808](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L808)*
+*Defined in [src/schemes/competition.ts:914](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L914)*
 
 **Parameters:**
 
@@ -582,7 +635,7 @@ ___
 
 ▸ **hexStringToUint8Array**(`hexString`: string): *Uint8Array‹›*
 
-*Defined in [utils.ts:38](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L38)*
+*Defined in [src/utils.ts:58](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L58)*
 
 **Parameters:**
 
@@ -598,7 +651,7 @@ ___
 
 ▸ **isAddress**(`address`: [Address](globals.md#address)): *void*
 
-*Defined in [utils.ts:66](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L66)*
+*Defined in [src/utils.ts:97](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L97)*
 
 **Parameters:**
 
@@ -614,7 +667,7 @@ ___
 
 ▸ **isCompetitionScheme**(`arc`: [Arc](classes/arc.md), `item`: any): *boolean*
 
-*Defined in [schemes/competition.ts:796](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L796)*
+*Defined in [src/schemes/competition.ts:898](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L898)*
 
 **Parameters:**
 
@@ -631,7 +684,7 @@ ___
 
 ▸ **mapGenesisProtocolParams**(`params`: [IGenesisProtocolParams](interfaces/igenesisprotocolparams.md)): *object*
 
-*Defined in [genesisProtocol.ts:19](https://github.com/daostack/client/blob/1bc237e/src/genesisProtocol.ts#L19)*
+*Defined in [src/genesisProtocol.ts:19](https://github.com/dorgtech/client/blob/74940d1/src/genesisProtocol.ts#L19)*
 
 **Parameters:**
 
@@ -671,7 +724,7 @@ ___
 
 ▸ **realMathToNumber**(`t`: BN): *number*
 
-*Defined in [utils.ts:91](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L91)*
+*Defined in [src/utils.ts:122](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L122)*
 
 convert the number representation of RealMath.sol representations to real real numbers
 
@@ -691,7 +744,7 @@ ___
 
 ▸ **secondSinceEpochToDate**(`seconds`: number): *Date*
 
-*Defined in [utils.ts:172](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L172)*
+*Defined in [src/utils.ts:203](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L203)*
 
 **Parameters:**
 
@@ -705,13 +758,30 @@ ___
 
 ###  sendTransaction
 
-▸ **sendTransaction**<**T**>(`context`: [Arc](classes/arc.md), `transaction`: any, `mapReceipt`: function, `errorHandler?`: undefined | function): *[Operation](globals.md#operation)‹T›*
+▸ **sendTransaction**<**T**>(`context`: [Arc](classes/arc.md), `tx`: [ITransaction](interfaces/itransaction.md), `mapReceipt`: [transactionResultHandler](globals.md#transactionresulthandler)‹T›, `errorHandler`: [transactionErrorHandler](globals.md#transactionerrorhandler)): *[Operation](globals.md#operation)‹T›*
 
-*Defined in [operation.ts:74](https://github.com/daostack/client/blob/1bc237e/src/operation.ts#L74)*
+*Defined in [src/operation.ts:94](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L94)*
 
-**`export`** 
+ * send a transaction to the ethereumblockchain, and return a observable of ITransactionUpdatessend
+for example:
+ ```sendTransaction(.....).subscribe((txUpdate) => {
+   if (txUpdate.state === 'sent' ) { notify("your transaction has been sent, waitin'for it to be mnied") }
+   if (txUpdate.state === 'mined'} {
+     notify("your transaction has been mined! It was confirmed ${txUpdate.confirmations} times"}
+     // and we also ahve the txUpdate.receipt and the txUpdate.result to do stuff with
+   }
+ })```
 
-**`template`** T
+@export
+@template T
+@param {Arc} context An instance of Arc
+@param {Transaction} transaction A Web3 transaction object to send
+@param {TransactionResultHandler<T>} mapReceipt A function that takes the receipt of
+ the transaction and returns an object
+@param {TransactionErrorHandler} [errorHandler]
+ A function that takes an error, and either returns or throws a more informative Error
+ if errorHander is not provided, a default error handler will throw any errors thrown by calling `transaction.call()`
+@returns {Operation<T>}
 
 **Type parameters:**
 
@@ -719,30 +789,30 @@ ___
 
 **Parameters:**
 
-▪ **context**: *[Arc](classes/arc.md)*
+Name | Type |
+------ | ------ |
+`context` | [Arc](classes/arc.md) |
+`tx` | [ITransaction](interfaces/itransaction.md) |
+`mapReceipt` | [transactionResultHandler](globals.md#transactionresulthandler)‹T› |
+`errorHandler` | [transactionErrorHandler](globals.md#transactionerrorhandler) |
 
-An instance of Arc
+**Returns:** *[Operation](globals.md#operation)‹T›*
 
-▪ **transaction**: *any*
+___
 
-A Web3 transaction object to send
+###  stringToUint8Array
 
-▪ **mapReceipt**: *function*
+▸ **stringToUint8Array**(`str`: string): *Uint8Array‹›*
 
-A function that takes the receipt of
- the transaction and returns an object
-
-▸ (`receipt`: [web3receipt](globals.md#web3receipt)): *T | Promise‹T›*
+*Defined in [src/utils.ts:66](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L66)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`receipt` | [web3receipt](globals.md#web3receipt) |
+`str` | string |
 
-▪`Optional`  **errorHandler**: *undefined | function*
-
-**Returns:** *[Operation](globals.md#operation)‹T›*
+**Returns:** *Uint8Array‹›*
 
 ___
 
@@ -750,7 +820,7 @@ ___
 
 ▸ **toIOperationObservable**<**T**>(`observable`: Observable‹T›): *[IOperationObservable](interfaces/ioperationobservable.md)‹T›*
 
-*Defined in [operation.ts:211](https://github.com/daostack/client/blob/1bc237e/src/operation.ts#L211)*
+*Defined in [src/operation.ts:225](https://github.com/dorgtech/client/blob/74940d1/src/operation.ts#L225)*
 
 **Type parameters:**
 
@@ -770,7 +840,7 @@ ___
 
 ▸ **toWei**(`amount`: string | number): *BN*
 
-*Defined in [utils.ts:12](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L12)*
+*Defined in [src/utils.ts:31](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L31)*
 
 **Parameters:**
 
@@ -786,7 +856,7 @@ ___
 
 ▸ **zenToRxjsObservable**(`zenObservable`: ZenObservable‹any›): *any*
 
-*Defined in [utils.ts:80](https://github.com/daostack/client/blob/1bc237e/src/utils.ts#L80)*
+*Defined in [src/utils.ts:111](https://github.com/dorgtech/client/blob/74940d1/src/utils.ts#L111)*
 
 convert a ZenObservable to an rxjs.Observable
 
@@ -806,48 +876,48 @@ an Observable instance
 
 ### ▪ **IProposalType**: *object*
 
-*Defined in [schemes/contributionReward.ts:33](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L33)*
+*Defined in [src/schemes/contributionReward.ts:42](https://github.com/dorgtech/client/blob/74940d1/src/schemes/contributionReward.ts#L42)*
 
-*Defined in [schemes/contributionRewardExt.ts:32](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionRewardExt.ts#L32)*
+*Defined in [src/schemes/contributionRewardExt.ts:38](https://github.com/dorgtech/client/blob/74940d1/src/schemes/contributionRewardExt.ts#L38)*
 
-*Defined in [schemes/genericScheme.ts:24](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L24)*
+*Defined in [src/schemes/genericScheme.ts:29](https://github.com/dorgtech/client/blob/74940d1/src/schemes/genericScheme.ts#L29)*
 
-*Defined in [schemes/schemeRegistrar.ts:22](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L22)*
+*Defined in [src/schemes/schemeRegistrar.ts:27](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L27)*
 
-*Defined in [schemes/uGenericScheme.ts:23](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L23)*
+*Defined in [src/schemes/uGenericScheme.ts:29](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L29)*
 
-*Defined in [proposal.ts:25](https://github.com/daostack/client/blob/1bc237e/src/proposal.ts#L25)*
+*Defined in [src/proposal.ts:27](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L27)*
 
 ###  ContributionReward
 
 • **ContributionReward**: = "ContributionRewardExt"
 
-*Defined in [schemes/contributionReward.ts:34](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionReward.ts#L34)*
+*Defined in [src/schemes/contributionReward.ts:43](https://github.com/dorgtech/client/blob/74940d1/src/schemes/contributionReward.ts#L43)*
 
-*Defined in [schemes/contributionRewardExt.ts:33](https://github.com/daostack/client/blob/1bc237e/src/schemes/contributionRewardExt.ts#L33)*
+*Defined in [src/schemes/contributionRewardExt.ts:39](https://github.com/dorgtech/client/blob/74940d1/src/schemes/contributionRewardExt.ts#L39)*
 
 ###  GenericScheme
 
 • **GenericScheme**: = "UGenericScheme"
 
-*Defined in [schemes/genericScheme.ts:25](https://github.com/daostack/client/blob/1bc237e/src/schemes/genericScheme.ts#L25)*
+*Defined in [src/schemes/genericScheme.ts:30](https://github.com/dorgtech/client/blob/74940d1/src/schemes/genericScheme.ts#L30)*
 
-*Defined in [schemes/uGenericScheme.ts:24](https://github.com/daostack/client/blob/1bc237e/src/schemes/uGenericScheme.ts#L24)*
+*Defined in [src/schemes/uGenericScheme.ts:30](https://github.com/dorgtech/client/blob/74940d1/src/schemes/uGenericScheme.ts#L30)*
 
 ###  SchemeRegistrarAdd
 
 • **SchemeRegistrarAdd**: = "SchemeRegistrarAdd"
 
-*Defined in [schemes/schemeRegistrar.ts:23](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L23)*
+*Defined in [src/schemes/schemeRegistrar.ts:28](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L28)*
 
 ###  SchemeRegistrarEdit
 
 • **SchemeRegistrarEdit**: = "SchemeRegistrarEdit"
 
-*Defined in [schemes/schemeRegistrar.ts:24](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L24)*
+*Defined in [src/schemes/schemeRegistrar.ts:29](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L29)*
 
 ###  SchemeRegistrarRemove
 
 • **SchemeRegistrarRemove**: = "SchemeRegistrarRemove"
 
-*Defined in [schemes/schemeRegistrar.ts:25](https://github.com/daostack/client/blob/1bc237e/src/schemes/schemeRegistrar.ts#L25)*
+*Defined in [src/schemes/schemeRegistrar.ts:30](https://github.com/dorgtech/client/blob/74940d1/src/schemes/schemeRegistrar.ts#L30)*

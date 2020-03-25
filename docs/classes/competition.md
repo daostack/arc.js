@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [Competition](competition.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Competition](competition.md)
 
 # Class: Competition
 
@@ -23,6 +23,7 @@
 * [redeemSuggestion](competition.md#redeemsuggestion)
 * [suggestions](competition.md#suggestions)
 * [voteSuggestion](competition.md#votesuggestion)
+* [votes](competition.md#votes)
 * [search](competition.md#static-search)
 
 ## Constructors
@@ -31,7 +32,7 @@
 
 \+ **new Competition**(`id`: string, `context`: [Arc](arc.md)): *[Competition](competition.md)*
 
-*Defined in [schemes/competition.ts:419](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L419)*
+*Defined in [src/schemes/competition.ts:424](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L424)*
 
 **Parameters:**
 
@@ -48,7 +49,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [schemes/competition.ts:419](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L419)*
+*Defined in [src/schemes/competition.ts:424](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L424)*
 
 ___
 
@@ -56,15 +57,15 @@ ___
 
 • **id**: *string*
 
-*Defined in [schemes/competition.ts:418](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L418)*
+*Defined in [src/schemes/competition.ts:423](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L423)*
 
 ## Methods
 
 ###  createSuggestion
 
-▸ **createSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹any›*
+▸ **createSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹[CompetitionSuggestion](competitionsuggestion.md)›*
 
-*Defined in [schemes/competition.ts:427](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L427)*
+*Defined in [src/schemes/competition.ts:432](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L432)*
 
 **Parameters:**
 
@@ -72,27 +73,27 @@ ___
 
 Name | Type |
 ------ | ------ |
+`beneficiary?` | [Address](../globals.md#address) |
 `description` | string |
 `tags?` | string[] |
 `title` | string |
 `url?` | undefined &#124; string |
 
-**Returns:** *[Operation](../globals.md#operation)‹any›*
+**Returns:** *[Operation](../globals.md#operation)‹[CompetitionSuggestion](competitionsuggestion.md)›*
 
 ___
 
 ###  redeemSuggestion
 
-▸ **redeemSuggestion**(`suggestionId`: number, `beneficiary`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹boolean›*
+▸ **redeemSuggestion**(`suggestionId`: number): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [schemes/competition.ts:488](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L488)*
+*Defined in [src/schemes/competition.ts:503](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L503)*
 
 **Parameters:**
 
-Name | Type | Default |
------- | ------ | ------ |
-`suggestionId` | number | - |
-`beneficiary` | [Address](../globals.md#address) |  NULL_ADDRESS |
+Name | Type |
+------ | ------ |
+`suggestionId` | number |
 
 **Returns:** *[Operation](../globals.md#operation)‹boolean›*
 
@@ -102,7 +103,7 @@ ___
 
 ▸ **suggestions**(`options`: [ICompetitionSuggestionQueryOptions](../interfaces/icompetitionsuggestionqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[CompetitionSuggestion](competitionsuggestion.md)[]›*
 
-*Defined in [schemes/competition.ts:500](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L500)*
+*Defined in [src/schemes/competition.ts:515](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L515)*
 
 **Parameters:**
 
@@ -119,7 +120,7 @@ ___
 
 ▸ **voteSuggestion**(`suggestionId`: number): *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-*Defined in [schemes/competition.ts:477](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L477)*
+*Defined in [src/schemes/competition.ts:488](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L488)*
 
 **Parameters:**
 
@@ -131,11 +132,28 @@ Name | Type |
 
 ___
 
+###  votes
+
+▸ **votes**(`options`: [IVoteQueryOptions](../interfaces/ivotequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[CompetitionVote](competitionvote.md)[]›*
+
+*Defined in [src/schemes/competition.ts:524](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L524)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`options` | [IVoteQueryOptions](../interfaces/ivotequeryoptions.md) |  {} |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Observable‹[CompetitionVote](competitionvote.md)[]›*
+
+___
+
 ### `Static` search
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Competition](competition.md)[]›*
 
-*Defined in [schemes/competition.ts:408](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L408)*
+*Defined in [src/schemes/competition.ts:413](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L413)*
 
 **Parameters:**
 

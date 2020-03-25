@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [CompetitionScheme](competitionscheme.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [CompetitionScheme](competitionscheme.md)
 
 # Class: CompetitionScheme
 
@@ -29,9 +29,9 @@
 
 * [competitions](competitionscheme.md#competitions)
 * [createProposal](competitionscheme.md#createproposal)
-* [createProposalErrorHandler](competitionscheme.md#createproposalerrorhandler)
-* [createProposalTransaction](competitionscheme.md#createproposaltransaction)
-* [createProposalTransactionMap](competitionscheme.md#createproposaltransactionmap)
+* [createProposalErrorHandler](competitionscheme.md#protected-createproposalerrorhandler)
+* [createProposalTransaction](competitionscheme.md#protected-createproposaltransaction)
+* [createProposalTransactionMap](competitionscheme.md#protected-createproposaltransactionmap)
 * [fetchStaticState](competitionscheme.md#fetchstaticstate)
 * [getCompetitionContract](competitionscheme.md#getcompetitioncontract)
 * [proposals](competitionscheme.md#proposals)
@@ -39,7 +39,6 @@
 * [setStaticState](competitionscheme.md#setstaticstate)
 * [state](competitionscheme.md#state)
 * [voteSuggestion](competitionscheme.md#votesuggestion)
-* [x](competitionscheme.md#x)
 
 ### Object literals
 
@@ -53,7 +52,7 @@
 
 *Inherited from [SchemeBase](schemebase.md).[constructor](schemebase.md#constructor)*
 
-*Defined in [schemes/base.ts:239](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L239)*
+*Defined in [src/schemes/base.ts:245](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L245)*
 
 **Parameters:**
 
@@ -72,7 +71,7 @@ Name | Type |
 
 *Inherited from [SchemeBase](schemebase.md).[ReputationFromToken](schemebase.md#reputationfromtoken)*
 
-*Defined in [schemes/base.ts:239](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L239)*
+*Defined in [src/schemes/base.ts:245](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L245)*
 
 ___
 
@@ -82,7 +81,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[context](schemebase.md#context)*
 
-*Defined in [schemes/base.ts:241](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L241)*
+*Defined in [src/schemes/base.ts:247](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L247)*
 
 ___
 
@@ -92,7 +91,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[id](schemebase.md#id)*
 
-*Defined in [schemes/base.ts:237](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L237)*
+*Defined in [src/schemes/base.ts:243](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L243)*
 
 ___
 
@@ -102,7 +101,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[staticState](schemebase.md#staticstate)*
 
-*Defined in [schemes/base.ts:238](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L238)*
+*Defined in [src/schemes/base.ts:244](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L244)*
 
 ## Methods
 
@@ -110,7 +109,7 @@ ___
 
 ▸ **competitions**(`options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Competition](competition.md)[]›*
 
-*Defined in [schemes/competition.ts:167](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L167)*
+*Defined in [src/schemes/competition.ts:187](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L187)*
 
 Return a list of competitions in this scheme.
 
@@ -127,11 +126,11 @@ ___
 
 ###  createProposal
 
-▸ **createProposal**(`options`: [IProposalCreateOptionsCompetition](../interfaces/iproposalcreateoptionscompetition.md)): *[Operation](../globals.md#operation)‹[Proposal](proposal.md)›*
+▸ **createProposal**(`options`: [IProposalCreateOptionsComp](../interfaces/iproposalcreateoptionscomp.md)): *[Operation](../globals.md#operation)‹[Proposal](proposal.md)›*
 
 *Overrides [SchemeBase](schemebase.md).[createProposal](schemebase.md#createproposal)*
 
-*Defined in [schemes/competition.ts:277](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L277)*
+*Defined in [src/schemes/competition.ts:289](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L289)*
 
 create a proposal for starting a Competition
 
@@ -141,65 +140,57 @@ create a proposal for starting a Competition
 
 Name | Type |
 ------ | ------ |
-`options` | [IProposalCreateOptionsCompetition](../interfaces/iproposalcreateoptionscompetition.md) |
+`options` | [IProposalCreateOptionsComp](../interfaces/iproposalcreateoptionscomp.md) |
 
 **Returns:** *[Operation](../globals.md#operation)‹[Proposal](proposal.md)›*
 
 ___
 
-###  createProposalErrorHandler
+### `Protected` createProposalErrorHandler
 
-▸ **createProposalErrorHandler**(`options`: any): *function*
+▸ **createProposalErrorHandler**(`options`: [IProposalCreateOptionsComp](../interfaces/iproposalcreateoptionscomp.md)): *[transactionErrorHandler](../globals.md#transactionerrorhandler)*
 
-*Overrides [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#createproposalerrorhandler)*
+*Overrides [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#protected-abstract-createproposalerrorhandler)*
 
-*Defined in [schemes/competition.ts:253](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L253)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`options` | any |
-
-**Returns:** *function*
-
-▸ (`err`: Error): *Error | Promise‹Error›*
+*Defined in [src/schemes/competition.ts:270](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L270)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`err` | Error |
+`options` | [IProposalCreateOptionsComp](../interfaces/iproposalcreateoptionscomp.md) |
+
+**Returns:** *[transactionErrorHandler](../globals.md#transactionerrorhandler)*
 
 ___
 
-###  createProposalTransaction
+### `Protected` createProposalTransaction
 
-▸ **createProposalTransaction**(`options`: [IProposalCreateOptionsCompetition](../interfaces/iproposalcreateoptionscompetition.md)): *(Anonymous function)*
+▸ **createProposalTransaction**(`options`: [IProposalCreateOptionsComp](../interfaces/iproposalcreateoptionscomp.md)): *Promise‹[ITransaction](../interfaces/itransaction.md)›*
 
-*Overrides [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#createproposaltransaction)*
+*Overrides [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#protected-abstract-createproposaltransaction)*
 
-*Defined in [schemes/competition.ts:187](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L187)*
+*Defined in [src/schemes/competition.ts:201](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L201)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`options` | [IProposalCreateOptionsCompetition](../interfaces/iproposalcreateoptionscompetition.md) |
+`options` | [IProposalCreateOptionsComp](../interfaces/iproposalcreateoptionscomp.md) |
 
-**Returns:** *(Anonymous function)*
+**Returns:** *Promise‹[ITransaction](../interfaces/itransaction.md)›*
 
 ___
 
-###  createProposalTransactionMap
+### `Protected` createProposalTransactionMap
 
-▸ **createProposalTransactionMap**(): *txMap*
+▸ **createProposalTransactionMap**(): *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
-*Overrides [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#createproposaltransactionmap)*
+*Overrides [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#protected-abstract-createproposaltransactionmap)*
 
-*Defined in [schemes/competition.ts:244](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L244)*
+*Defined in [src/schemes/competition.ts:262](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L262)*
 
-**Returns:** *txMap*
+**Returns:** *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
 ___
 
@@ -209,7 +200,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[fetchStaticState](schemebase.md#fetchstaticstate)*
 
-*Defined in [schemes/base.ts:256](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L256)*
+*Defined in [src/schemes/base.ts:262](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L262)*
 
 fetch the static state from the subgraph
 
@@ -221,11 +212,11 @@ ___
 
 ###  getCompetitionContract
 
-▸ **getCompetitionContract**(): *Promise‹any›*
+▸ **getCompetitionContract**(): *Promise‹Contract‹››*
 
-*Defined in [schemes/competition.ts:281](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L281)*
+*Defined in [src/schemes/competition.ts:293](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L293)*
 
-**Returns:** *Promise‹any›*
+**Returns:** *Promise‹Contract‹››*
 
 ___
 
@@ -235,7 +226,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[proposals](schemebase.md#proposals)*
 
-*Defined in [schemes/base.ts:467](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L467)*
+*Defined in [src/schemes/base.ts:327](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L327)*
 
 **Parameters:**
 
@@ -252,7 +243,7 @@ ___
 
 ▸ **redeemSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [schemes/competition.ts:347](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L347)*
+*Defined in [src/schemes/competition.ts:371](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L371)*
 
 **Parameters:**
 
@@ -260,7 +251,6 @@ ___
 
 Name | Type |
 ------ | ------ |
-`beneficiary` | [Address](../globals.md#address) |
 `suggestionId` | number |
 
 **Returns:** *[Operation](../globals.md#operation)‹boolean›*
@@ -273,7 +263,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[setStaticState](schemebase.md#setstaticstate)*
 
-*Defined in [schemes/base.ts:279](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L279)*
+*Defined in [src/schemes/base.ts:285](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L285)*
 
 **Parameters:**
 
@@ -291,7 +281,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[state](schemebase.md#abstract-state)*
 
-*Defined in [schemes/competition.ts:82](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L82)*
+*Defined in [src/schemes/competition.ts:102](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L102)*
 
 **Parameters:**
 
@@ -307,7 +297,7 @@ ___
 
 ▸ **voteSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-*Defined in [schemes/competition.ts:296](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L296)*
+*Defined in [src/schemes/competition.ts:308](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L308)*
 
 Vote for the suggestion that is, in the current scheme, identified by  suggestionId
 
@@ -323,18 +313,6 @@ Name | Type |
 
 **Returns:** *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-___
-
-###  x
-
-▸ **x**(): *void*
-
-*Inherited from [SchemeBase](schemebase.md).[x](schemebase.md#x)*
-
-*Defined in [schemes/base.ts:319](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L319)*
-
-**Returns:** *void*
-
 ## Object literals
 
 ### `Static` fragments
@@ -343,11 +321,11 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[fragments](schemebase.md#static-fragments)*
 
-*Defined in [schemes/base.ts:106](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L106)*
+*Defined in [src/schemes/base.ts:112](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L112)*
 
 ###  SchemeFields
 
-• **SchemeFields**: *any* =  gql`
+• **SchemeFields**: *DocumentNode* =  gql`
     fragment SchemeFields on ControllerScheme {
       id
       address
@@ -476,4 +454,4 @@ ___
       version
     }`
 
-*Defined in [schemes/base.ts:107](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L107)*
+*Defined in [src/schemes/base.ts:113](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L113)*

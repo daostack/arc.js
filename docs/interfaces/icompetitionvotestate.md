@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ICompetitionVoteState](icompetitionvotestate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ICompetitionVoteState](icompetitionvotestate.md)
 
 # Interface: ICompetitionVoteState
 
@@ -12,7 +12,9 @@
 
 * [createdAt](icompetitionvotestate.md#optional-createdat)
 * [id](icompetitionvotestate.md#optional-id)
+* [proposal](icompetitionvotestate.md#proposal)
 * [reputation](icompetitionvotestate.md#reputation)
+* [suggestion](icompetitionvotestate.md#suggestion)
 * [voter](icompetitionvotestate.md#voter)
 
 ## Properties
@@ -21,7 +23,7 @@
 
 • **createdAt**? : *[Date](../globals.md#date)*
 
-*Defined in [schemes/competition.ts:77](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L77)*
+*Defined in [src/schemes/competition.ts:97](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L97)*
 
 ___
 
@@ -29,7 +31,15 @@ ___
 
 • **id**? : *undefined | string*
 
-*Defined in [schemes/competition.ts:73](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L73)*
+*Defined in [src/schemes/competition.ts:93](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L93)*
+
+___
+
+###  proposal
+
+• **proposal**: *string*
+
+*Defined in [src/schemes/competition.ts:94](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L94)*
 
 ___
 
@@ -37,7 +47,15 @@ ___
 
 • **reputation**: *BN*
 
-*Defined in [schemes/competition.ts:78](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L78)*
+*Defined in [src/schemes/competition.ts:98](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L98)*
+
+___
+
+###  suggestion
+
+• **suggestion**: *string*
+
+*Defined in [src/schemes/competition.ts:95](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L95)*
 
 ___
 
@@ -45,4 +63,4 @@ ___
 
 • **voter**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/competition.ts:76](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L76)*
+*Defined in [src/schemes/competition.ts:96](https://github.com/dorgtech/client/blob/74940d1/src/schemes/competition.ts#L96)*

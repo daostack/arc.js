@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IContributionRewardParams](icontributionrewardparams.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IContributionRewardParams](icontributionrewardparams.md)
 
 # Interface: IContributionRewardParams
 
@@ -19,9 +19,9 @@
 
 • **voteParams**: *[IGenesisProtocolParams](igenesisprotocolparams.md)*
 
-*Defined in [schemes/base.ts:58](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L58)*
+*Defined in [src/schemes/base.ts:64](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L64)*
 
-*Defined in [scheme.ts:61](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L61)*
+*Defined in [src/scheme.ts:66](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L66)*
 
 ___
 
@@ -29,6 +29,6 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/base.ts:57](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L57)*
+*Defined in [src/schemes/base.ts:63](https://github.com/dorgtech/client/blob/74940d1/src/schemes/base.ts#L63)*
 
-*Defined in [scheme.ts:60](https://github.com/daostack/client/blob/1bc237e/src/scheme.ts#L60)*
+*Defined in [src/scheme.ts:65](https://github.com/dorgtech/client/blob/74940d1/src/scheme.ts#L65)*
