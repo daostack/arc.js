@@ -24,7 +24,7 @@
 
 ### Methods
 
-* [claimRewards](proposal.md#claimrewards)
+* [redeemRewards](proposal.md#redeemRewards)
 * [execute](proposal.md#execute)
 * [executeBoosted](proposal.md#executeboosted)
 * [fetchStaticState](proposal.md#fetchstaticstate)
@@ -88,13 +88,13 @@ ___
 
 ## Methods
 
-###  claimRewards
+###  redeemRewards
 
-▸ **claimRewards**(`beneficiary?`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹boolean›*
+▸ **redeemRewards**(`beneficiary?`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹boolean›*
 
 *Defined in [src/proposal.ts:813](https://github.com/dorgtech/client/blob/74940d1/src/proposal.ts#L813)*
 
-[claimRewards description] Execute the proposal and distribute the rewards
+[redeemRewards description] Execute the proposal and distribute the rewards
 to the beneficiary.
 This uses the Redeemer.sol helper contract
 
