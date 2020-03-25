@@ -6,7 +6,7 @@ import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { IObservable } from './graphnode'
-import { ITransaction, ITransactionReceipt, Operation, toIOperationObservable, getEventAndArgs } from './operation'
+import { getEventAndArgs, ITransaction, ITransactionReceipt, Operation, toIOperationObservable } from './operation'
 import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
 import { ISchemeState, Scheme } from './scheme'
@@ -20,7 +20,7 @@ import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import {
   createGraphQlQuery, eventId, isAddress, NULL_ADDRESS, realMathToNumber,
-  secondSinceEpochToDate,
+  secondSinceEpochToDate
 } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 

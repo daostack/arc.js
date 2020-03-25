@@ -175,7 +175,7 @@ export class Vote implements IStateful<IVoteState> {
       if (item === null) {
         throw Error(`Could not find a Vote with id ${this.id}`)
       }
-  
+
       let outcome: IProposalOutcome = IProposalOutcome.Pass
       if (item.outcome === 'Pass') {
         outcome = IProposalOutcome.Pass
@@ -184,7 +184,7 @@ export class Vote implements IStateful<IVoteState> {
       } else {
         throw new Error(`Unexpected value for proposalVote.outcome: ${item.outcome}`)
       }
-  
+
       return {
         amount: new BN(item.reputation || 0),
         createdAt: item.createdAt,

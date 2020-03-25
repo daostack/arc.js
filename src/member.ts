@@ -102,6 +102,14 @@ export class Member implements IStateful<IMemberState> {
       }
   }
 
+  public static calculateId(opts: { contract: Address, address: Address}): string {
+    const seed = concat(
+      hexStringToUint8Array(opts.contract.toLowerCase()),
+      hexStringToUint8Array(opts.address.toLowerCase())
+    )
+    return utils.keccak256(seed)
+  }
+
   public id: string|undefined
   public coreState: IMemberState|undefined
 
@@ -123,14 +131,6 @@ export class Member implements IStateful<IMemberState> {
     const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
     this.setState(state)
     return state
-  }
-
-  public static calculateId(opts: { contract: Address, address: Address}): string {
-    const seed = concat(
-      hexStringToUint8Array(opts.contract.toLowerCase()),
-      hexStringToUint8Array(opts.address.toLowerCase())
-    )
-    return utils.keccak256(seed)
   }
 
   public setState(opts: IMemberState) {
