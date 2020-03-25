@@ -1,11 +1,14 @@
 import { first } from 'rxjs/operators'
-import { DAO } from '../src//dao'
+import { DAO } from '../src/dao'
 import { Arc } from '../src/arc'
 import {
   IProposalStage,
   IProposalState,
   Proposal
-  } from '../src/proposal'
+} from '../src/proposal'
+import {
+  Scheme
+} from '../src/scheme'
 import { IGenericScheme} from '../src/schemes/genericScheme'
 import { createAProposal, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION,
   newArc, voteToPassProposal, waitUntilTrue } from './utils'
@@ -36,7 +39,7 @@ describe('Proposal', () => {
     testAddresses = getTestAddresses(arc)
     // dao = await getTestDAO()
     const ugenericSchemes = await arc.schemes({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
-    const ugenericScheme = ugenericSchemes[0]
+    const ugenericScheme = ugenericSchemes[0] as Scheme
     const ugenericSchemeState = await ugenericScheme.state().pipe(first()).toPromise()
     dao  = new DAO(ugenericSchemeState.dao, arc)
     const states: IProposalState[] = []

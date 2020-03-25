@@ -8,10 +8,18 @@ export { IApolloQueryOptions } from './graphnode'
 import { Event, IEventQueryOptions } from './event'
 import { IPFSClient } from './ipfsClient'
 import { Logger } from './logger'
-import { Operation, sendTransaction, transactionErrorHandler, web3receipt } from './operation'
+import {
+  Operation,
+  ITransaction,
+  ITransactionReceipt,
+  transactionErrorHandler,
+  transactionResultHandler,
+  sendTransaction
+} from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
 import { IRewardQueryOptions, Reward } from './reward'
 import { ISchemeQueryOptions, Scheme } from './scheme'
+import { SchemeBase } from './schemes/base'
 import { ABI_DIR } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { ITagQueryOptions, Tag } from './tag'
@@ -20,7 +28,7 @@ import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
 import { JsonRpcProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
-import { Contract } from 'ethers'
+import { Contract, Signer } from 'ethers'
 
 /**
  * The Arc class holds all configuration.
@@ -35,7 +43,7 @@ export class Arc extends GraphNodeObserver {
 
   public pendingOperations: Observable<Array<Operation<any>>> = of()
 
-  public ipfs: any
+  public ipfs: IPFSClient | undefined = undefined
   public web3: JsonRpcProvider | undefined = undefined
 
   /**
@@ -156,7 +164,7 @@ export class Arc extends GraphNodeObserver {
   public schemes(
     options: ISchemeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Scheme[]> {
+  ): Observable<(Scheme|SchemeBase)[]> {
     return Scheme.search(this, options, apolloQueryOptions)
   }
 
@@ -242,7 +250,7 @@ export class Arc extends GraphNodeObserver {
 
     this.observedAccounts[owner].observable = observable
     return observable
-      .pipe(map((item: any) => new BN(item)))
+      .pipe(map((item: BN) => item))
   }
 
   /**
@@ -275,7 +283,7 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-  public getABI(address?: Address, abiName?: string, version?: string) {
+  public getABI(address?: Address, abiName?: string, version?: string): any[] {
     if (address && !abiName || !version) {
       const contractInfo = this.getContractInfo(address as Address)
       abiName = contractInfo.name
@@ -307,7 +315,7 @@ export class Arc extends GraphNodeObserver {
    * @param  [version] (optional) Arc version of contract (https://www.npmjs.com/package/@daostack/arc)
    * @return   a web3 contract instance
    */
-  public getContract(address: Address, abi?: any): Contract {
+  public getContract(address: Address, abi?: any[]): Contract {
     if (!abi) {
       abi = this.getABI(address)
     }
@@ -338,10 +346,10 @@ export class Arc extends GraphNodeObserver {
     // this complex logic is to get the correct account both from the Web3 as well as from the Metamaask provider
     // This polls for changes. But polling is Evil!
     // cf. https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
-    return Observable.create((observer: any) => {
+    return Observable.create((observer: Observer<Address>) => {
       const interval = 1000 /// poll once a second
-      let account: any
-      let prevAccount: any
+      let account: Address
+      let prevAccount: Address
       const web3 = this.web3
 
       if (this.defaultAccount) {
@@ -374,6 +382,19 @@ export class Arc extends GraphNodeObserver {
     this.defaultAccount = address
   }
 
+  public getSigner(): Observable<Signer> {
+    return Observable.create((observer: Observer<Signer>) => {
+      const subscription = this.getAccount().subscribe((address) => {
+        if (!this.web3) throw new Error('Web3 provider not set')
+        observer.next(
+          this.web3.getSigner(address)
+        )
+      })
+
+      return () => subscription.unsubscribe()
+    })
+  }
+
   public approveForStaking(spender: Address, amount: BN) {
     return this.GENToken().approveForStaking(spender, amount)
   }
@@ -395,10 +416,12 @@ export class Arc extends GraphNodeObserver {
    * @param  errorHandler [description]
    * @return  An observable of
    */
-  public sendTransaction<T>(
-    transaction: any,
-    mapToObject: (receipt: web3receipt) => T,
-    errorHandler?: transactionErrorHandler
+  public sendTransaction<T = undefined>(
+    transaction: ITransaction,
+    mapToObject: transactionResultHandler<T> = (receipt: ITransactionReceipt) => undefined,
+    errorHandler: transactionErrorHandler = async (err: Error) => {
+      throw err
+    }
   ): Operation<T> {
     return sendTransaction(this, transaction, mapToObject, errorHandler)
   }
@@ -423,14 +446,10 @@ export class Arc extends GraphNodeObserver {
       }
     }
     Logger.debug('Saving data on IPFS...')
-    let descriptionHash: string = ''
-    try {
-      descriptionHash = await this.ipfs.addString(JSON.stringify(ipfsDataToSave))
-      // pin the file
-      await this.ipfs.pinHash(descriptionHash)
-    } catch (error) {
-      throw error
-    }
+    if (!this.ipfs) throw Error('IPFS provider not set')
+    let descriptionHash = await this.ipfs.addString(JSON.stringify(ipfsDataToSave))
+    // pin the file
+    await this.ipfs.pinHash(descriptionHash)
     Logger.debug(`Data saved successfully as ${descriptionHash}`)
     return descriptionHash
   }

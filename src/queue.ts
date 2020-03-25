@@ -40,8 +40,8 @@ export class Queue implements IStateful<IQueueState> {
     context: Arc,
     options: IQueueQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-): Observable<Queue[]> {
-    if (!options.where) { options.where = {}}
+  ): Observable<Queue[]> {
+    if (!options.where) { options.where = {} }
     let where = ''
     for (const key of Object.keys(options.where)) {
       if (options[key] === undefined) {
@@ -76,6 +76,7 @@ export class Queue implements IStateful<IQueueState> {
         }
       }
     `
+
     const itemMap = (item: any): Queue|null => {
       // we must filter explictly by name as the subgraph does not return the name
 
@@ -98,7 +99,6 @@ export class Queue implements IStateful<IQueueState> {
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IQueueState> {
-    //
     const query = gql`query QueueState
       {
         gpqueue (id: "${this.id}") {
@@ -131,6 +131,7 @@ export class Queue implements IStateful<IQueueState> {
         votingMachine: item.votingMachine
       }
     }
-    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IQueueState>
+
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IQueueState>
   }
 }

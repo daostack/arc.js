@@ -1,7 +1,7 @@
 import BN = require('bn.js')
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { IContractInfo, IProposalCreateOptions, Proposal } from '../src'
+import { IContractInfo, Proposal } from '../src'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IProposalOutcome } from '../src/proposal'
@@ -160,7 +160,7 @@ export async function createAProposal(
     ...options
   }
 
-  const response = await (dao as DAO).createProposal(options as IProposalCreateOptions).send()
+  const response = await (dao as DAO).createProposal(options).send()
   const proposal = response.result as Proposal
   // wait for the proposal to be indexed
   let indexed = false

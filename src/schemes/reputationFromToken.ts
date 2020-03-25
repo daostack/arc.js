@@ -2,17 +2,18 @@ import { from } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
 
 import {
+  ITransaction,
   Operation,
   toIOperationObservable
 } from '../operation'
 
 import { Address } from '../types'
 
-import { Scheme } from '../scheme'
+import { SchemeBase } from '../schemes/base'
 
 export class ReputationFromTokenScheme {
 
-  constructor(public scheme: Scheme) {
+  constructor(public scheme: SchemeBase) {
 
   }
 
@@ -22,52 +23,38 @@ export class ReputationFromTokenScheme {
     return result
   }
 
-  public redeem(beneficiary: Address, agreementHash?: string): Operation<any> {
-    const mapReceipt = (receipt: any) => {
-      return receipt
+  public redeem(beneficiary: Address, agreementHash?: string): Operation<undefined> {
+
+    const createTransaction = async (): Promise<ITransaction> => {
+      const contract = await this.getContract()
+      const contractInfo = this.scheme.context.getContractInfo(contract.address)
+      const contractVersion = contractInfo.version
+      const versionNumber = Number(contractVersion.split('rc.')[1])
+      if (versionNumber <= 32) {
+        return {
+          contract,
+          method: 'redeem',
+          args: [ beneficiary ]
+        }
+      } else {
+        if (!agreementHash) {
+          throw Error(`For ReputationForToken version > rc.32, an "agreementHash" argument must be provided`)
+        }
+        return {
+          contract,
+          method: 'redeem',
+          args: [ beneficiary, agreementHash ]
+        }
+      }
     }
 
-    const observable = from(this.getContract())
-      .pipe(
-      concatMap((contract) => {
-        let transaction: any
-        const contractInfo = this.scheme.context.getContractInfo(contract.address)
-        const contractVersion = contractInfo.version
-        const versionNumber = Number(contractVersion.split('rc.')[1])
-        if (versionNumber <= 32) {
-          transaction = contract.redeem(
-            beneficiary
-          )
-        } else {
-          if (!agreementHash) {
-            throw Error(`For ReputationForToken version > rc.32, an "agreementHash" argument must be provided`)
-          }
-          transaction = contract.redeem(
-            beneficiary,
-            agreementHash
-          )
-
-        }
-
-        const errorHandler = async (error: Error) => {
-          try {
-            await transaction
-          } catch (err) {
-            throw err
-          }
-          return error
-        }
-
-        return this.scheme.context.sendTransaction(transaction, mapReceipt, errorHandler)
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.scheme.context.sendTransaction(transaction)
       })
     )
-    return toIOperationObservable(observable)
-  }
 
-  public async redemptionAmount(beneficiary: Address): Promise<number> {
-    const contract = await this.getContract()
-    const amount = await contract.redeem(beneficiary)
-    return amount
+    return toIOperationObservable(observable)
   }
 
   public async getContract() {

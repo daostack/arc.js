@@ -14,14 +14,14 @@ export { Scheme, ISchemeState, ISchemeStaticState, ISchemeQueryOptions } from '.
 export { ReputationFromTokenScheme } from './schemes/reputationFromToken'
 export { IContributionReward} from './schemes/contributionReward'
 export { hasCompetitionContract, isCompetitionScheme,
-    IProposalCreateOptionsCompetition,
+    IProposalCreateOptionsComp,
     ICompetitionSuggestionQueryOptions,
     ICompetitionVoteQueryOptions,
     Competition,
     CompetitionScheme,
     CompetitionSuggestion, CompetitionVote,
     ICompetitionProposalState, ICompetitionVoteState, ICompetitionSuggestionState } from './schemes/competition'
-export  { IContributionRewardExt, IProposalCreateOptionsContributionRewardExt } from './schemes/contributionRewardExt'
+export  { IContributionRewardExt, IProposalCreateOptionsCRExt } from './schemes/contributionRewardExt'
 export { IGenericScheme } from './schemes/genericScheme'
 export { IUGenericScheme } from './schemes/uGenericScheme'
 export { ISchemeRegistrar } from './schemes/schemeRegistrar'

@@ -115,7 +115,8 @@ describe('Create a ContributionReward proposal', () => {
     // get the data
     // TODO - do the round trip test to see if subgraph properly indexs the fields
     // (depends on https://github.com/daostack/subgraph/issues/42)
-    const savedData = await arc.ipfs.cat(proposalState.descriptionHash) // + proposalState.descriptionHash)
+    if (!arc.ipfs) throw Error('IPFS provider not set')
+    const savedData = await arc.ipfs.cat(proposalState.descriptionHash as string) // + proposalState.descriptionHash)
     expect(savedData).toEqual({
       description: options.description,
       title: options.title,
@@ -142,7 +143,7 @@ describe('Create a ContributionReward proposal', () => {
     }
 
     await expect(anotherDAO.createProposal(options).send()).rejects.toThrowError(
-      /no ipfsProvider set/i
+      /No ipfsProvider set/i
     )
   })
 })

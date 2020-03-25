@@ -4,7 +4,7 @@ import { Observable, Observer } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAOTOKEN_CONTRACT_VERSION } from './settings'
-import { Address, Hash, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
+import { Address, Hash, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { BigNumber } from 'ethers/utils'
 
@@ -214,23 +214,26 @@ export class Token implements IStateful<ITokenState> {
   }
 
   public mint(beneficiary: Address, amount: BN) {
-    const contract = this.contract()
-    const transaction = contract.mint(beneficiary, amount.toString())
-    const mapReceipt = (receipt: Web3Receipt) => receipt
-    return this.context.sendTransaction(transaction, mapReceipt)
+    return this.context.sendTransaction({
+      contract: this.contract(),
+      method: 'mint',
+      args: [ beneficiary, amount.toString() ]
+    })
   }
 
   public transfer(beneficiary: Address, amount: BN) {
-    const contract = this.contract()
-    const transaction = contract.transfer(beneficiary, amount.toString())
-    const mapReceipt = (receipt: Web3Receipt) => receipt
-    return this.context.sendTransaction(transaction, mapReceipt)
+    return this.context.sendTransaction({
+      contract: this.contract(),
+      method: 'transfer',
+      args: [ beneficiary, amount.toString() ]
+    })
   }
 
   public approveForStaking(spender: Address, amount: BN) {
-    const stakingToken = this.contract()
-    const transaction = stakingToken.approve(spender, amount.toString())
-    const mapReceipt = (receipt: Web3Receipt) => receipt
-    return this.context.sendTransaction(transaction, mapReceipt)
+    return this.context.sendTransaction({
+      contract: this.contract(),
+      method: 'approve',
+      args: [ spender, amount.toString() ]
+    })
   }
 }

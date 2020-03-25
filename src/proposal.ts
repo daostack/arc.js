@@ -6,11 +6,11 @@ import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { IObservable } from './graphnode'
-import { Operation, toIOperationObservable } from './operation'
+import { Operation, toIOperationObservable, ITransaction, ITransactionReceipt, getEventArgs } from './operation'
 import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
 import { ISchemeState, Scheme } from './scheme'
-import { ICompetitionProposalState, IProposalCreateOptionsCompetition } from './schemes/competition'
+import { ICompetitionProposalState, IProposalCreateOptionsComp } from './schemes/competition'
 import * as ContributionReward from './schemes/contributionReward'
 import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
@@ -389,7 +389,6 @@ export class Proposal implements IStateful<IProposalState> {
       }
       ${Proposal.fragments.ProposalFields}
       ${Scheme.fragments.SchemeFields}
-
     `
 
     const itemMap = (item: any): IProposalState | null => {
@@ -647,50 +646,57 @@ export class Proposal implements IStateful<IProposalState> {
    */
   public vote(outcome: IProposalOutcome, amount: number = 0): Operation<Vote | null> {
 
-    const mapReceipt = (receipt: any) => {
-      const foundEventValues = receipt.events.find((event: any) => event.event === 'VoteProposal')
-      if (!foundEventValues) {
+    const mapReceipt = (receipt: ITransactionReceipt) => {
+      let args
+      try {
+        args = getEventArgs(receipt, 'VoteProposal', 'Proposal.vote')
+      } catch (e) {
         // no vote was cast
         return null
       }
 
       return new Vote({
-        amount: foundEventValues.args._reputation, // amount
+        amount: args[3], // _reputation
         // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
         createdAt: 0, // createdAt -
         outcome,
         proposal: this.id, // proposalID
-        voter: foundEventValues.args._voter
+        voter: args[2] // _vote
       }, this.context)
     }
 
-    const observable = from(this.votingMachine()).pipe(
-      concatMap((votingMachine) => {
-        const voteMethod = votingMachine.vote(
-          this.id,  // proposalId
-          outcome, // a value between 0 to and the proposal number of choices.
-          amount.toString(), // amount of reputation to vote with . if _amount == 0 it will use all voter reputation.
-          NULL_ADDRESS
-        )
+    const errorHandler = async (error: Error) => {
+      const proposal = this
+      const votingMachine = await this.votingMachine()
+      const proposalDataFromVotingMachine = await votingMachine.proposals(proposal.id)
 
-        const errorHandler = async (error: Error) => {
-          const proposal = this
-          const proposalDataFromVotingMachine = await votingMachine.proposals(proposal.id)
-          if (proposalDataFromVotingMachine.proposer === NULL_ADDRESS) {
-            return Error(`Error in vote(): unknown proposal with id ${proposal.id}`)
-          }
+      if (proposalDataFromVotingMachine.proposer === NULL_ADDRESS) {
+        return Error(`Error in vote(): unknown proposal with id ${proposal.id}`)
+      }
 
-          if (proposalDataFromVotingMachine.state === '2') {
-            const msg = `Error in vote(): proposal ${proposal.id} already executed`
-            return Error(msg)
-          }
-          // call the method, so we collect any errors from the EVM
-          await voteMethod
-          // if everything seems fine, just return the oroginal error
-          return error
-        }
+      if (proposalDataFromVotingMachine.state === '2') {
+        const msg = `Error in vote(): proposal ${proposal.id} already executed`
+        return Error(msg)
+      }
 
-        return this.context.sendTransaction(voteMethod, mapReceipt, errorHandler)
+      // if everything seems fine, just return the original error
+      return error
+    }
+
+    const createTransaction = async (): Promise<ITransaction> => ({
+      contract: await this.votingMachine(),
+      method: 'vote',
+      args: [
+        this.id,  // proposalId
+        outcome, // a value between 0 to and the proposal number of choices.
+        amount.toString(), // amount of reputation to vote with . if _amount == 0 it will use all voter reputation.
+        NULL_ADDRESS
+      ]
+    })
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
       })
     )
 
@@ -714,79 +720,77 @@ export class Proposal implements IStateful<IProposalState> {
    * @return  An observable that can be sent, or subscribed to
    */
   public stake(outcome: IProposalOutcome, amount: BN): Operation<Stake> {
-    const observable = from(this.votingMachine()).pipe(
-      concatMap((votingMachine) => {
 
-        const map = (receipt: any) => { // map extracts Stake instance from receipt
+    const mapReceipt = (receipt: ITransactionReceipt) => {
 
-          const foundEventValues = receipt.events.find((event: any) => event.event === 'Stake')
+      const args = getEventArgs(receipt, 'Stake', 'Proposal.stake')
 
-          if (!foundEventValues) {
-            // for some reason, a transaction was mined but no error was raised before
-            throw new Error(`Error staking: no "Stake" event was found - ${Object.keys(receipt.events)}`)
-          }
-          return new Stake({
-            amount: foundEventValues.args._reputation, // amount
-            // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
-            createdAt: undefined,
-            outcome,
-            proposal: this.id, // proposalID
-            staker: foundEventValues.args._staker
-          }, this.context)
-        }
+      return new Stake({
+        amount: args[3], // _amount
+        // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
+        createdAt: undefined,
+        outcome,
+        proposal: this.id, // proposalID
+        staker: args[2] // _staker
+      }, this.context)
+    }
 
-        const errorHandler = async (error: Error) => {
-          const proposal = this
-          const proposalState = await (await this.votingMachine()).proposals(proposal.id)
-          const stakingToken = this.stakingToken()
-          if (proposalState.proposer === NULL_ADDRESS) {
-            return new Error(`Unknown proposal with id ${proposal.id}`)
-          }
-          // staker has sufficient balance
-          const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
-          const balance = new BN(await stakingToken.contract().balanceOf(defaultAccount))
-          const amountBN = new BN(amount)
-          if (balance.lt(amountBN)) {
-            const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}
-              (balance is ${balance.toString()})`
-            return new Error(msg)
-          }
+    const errorHandler = async (error: Error) => {
+      const proposal = this
+      const votingMachine = await this.votingMachine()
+      const proposalState = await votingMachine.proposals(proposal.id)
+      const stakingToken = this.stakingToken()
+      if (proposalState.proposer === NULL_ADDRESS) {
+        return new Error(`Unknown proposal with id ${proposal.id}`)
+      }
+      // staker has sufficient balance
+      const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
+      const balance = new BN(await stakingToken.contract().balanceOf(defaultAccount))
+      const amountBN = new BN(amount)
+      if (balance.lt(amountBN)) {
+        const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}
+          (balance is ${balance.toString()})`
+        return new Error(msg)
+      }
 
-          // staker has approved the token spend
-          const allowance = new BN(await stakingToken.contract().allowance(
-            defaultAccount, votingMachine.address
-          ))
-          if (allowance.lt(amountBN)) {
-            return new Error(
-              `Staker has insufficient allowance to stake ${amount.toString()}
-                (allowance for ${votingMachine.address} is ${allowance.toString()})`
-            )
-          }
-
-          // call the stake function and bubble up any solidity errors
-          if (this.context.web3)
-            await this.context.web3.call(stakeMethod)
-          if (!!error.message.match(/event was found/)) {
-            if (proposalState.state === IProposalStage.Boosted) {
-              return new Error(`Staking failed because the proposal is boosted`)
-            }
-          }
-          // if we have found no known error, we return the original error
-
-          return error
-        }
-
-        const stakeMethod = votingMachine.stake(
-          this.id,  // proposalId
-          outcome, // a value between 0 to and the proposal number of choices.
-          amount.toString() // the amount of tokens to stake
+      // staker has approved the token spend
+      const allowance = new BN(await stakingToken.contract().allowance(
+        defaultAccount, votingMachine.address
+      ))
+      if (allowance.lt(amountBN)) {
+        return new Error(
+          `Staker has insufficient allowance to stake ${amount.toString()}
+            (allowance for ${votingMachine.address} is ${allowance.toString()})`
         )
-        return this.context.sendTransaction(stakeMethod, map, errorHandler)
+      }
+
+      if (!!error.message.match(/event was found/)) {
+        if (proposalState.state === IProposalStage.Boosted) {
+          return new Error(`Staking failed because the proposal is boosted`)
+        }
+      }
+
+      // if we have found no known error, we return the original error
+      return error
+    }
+
+    const createTransaction = async (): Promise<ITransaction> => ({
+      contract: await this.votingMachine(),
+      method: 'stake',
+      args: [
+        this.id,  // proposalId
+        outcome, // a value between 0 to and the proposal number of choices.
+        amount.toString() // the amount of tokens to stake
+      ]
+    })
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
       })
     )
 
     return toIOperationObservable(observable)
-
   }
 
   public rewards(
@@ -808,113 +812,129 @@ export class Proposal implements IStateful<IProposalState> {
    */
   public claimRewards(beneficiary?: Address): Operation<boolean> {
 
-    if (!beneficiary) {
-      beneficiary = NULL_ADDRESS
-    }
-    const observable = this.state().pipe(
-      first(),
-      concatMap((state) => {
-        let schemeAddress: Address | null
-        if (state.contributionReward) {
-          schemeAddress = state.scheme.address
-        } else {
-          // if this is not a contributionreard scheme, we can use any scheme address as
-          // a dummy placeholder, and the redeem function will still work
-          schemeAddress = this.context.getContractInfoByName(
-            'ContributionReward', CONTRIBUTION_REWARD_DUMMY_VERSION).address
+    const mapReceipt = (receipt: ITransactionReceipt) => true
 
-        }
-        let transaction
-        if (state.scheme.name === 'ContributionRewardExt') {
-          transaction = this.redeemerContract().redeemFromCRExt(
-            schemeAddress, // contributionreward address
-            state.votingMachine, // genesisProtocol address
-            this.id,
-            beneficiary
-          )
-        } else {
-          transaction = this.redeemerContract().redeem(
-            schemeAddress, // contributionreward address
-            state.votingMachine, // genesisProtocol address
-            this.id,
-            state.dao.id,
-            beneficiary
-          )
-        }
-        return this.context.sendTransaction(transaction, () => true)
+    const createTransaction = async (): Promise<ITransaction> => {
+      if (!beneficiary) {
+        beneficiary = NULL_ADDRESS
+      }
+
+      const state = await this.state().pipe(first()).toPromise()
+      let schemeAddress: Address | null
+
+      if (state.contributionReward) {
+        schemeAddress = state.scheme.address
+      } else {
+        // if this is not a contributionreard scheme, we can use any scheme address as
+        // a dummy placeholder, and the redeem function will still work
+        schemeAddress = this.context.getContractInfoByName(
+          'ContributionReward', CONTRIBUTION_REWARD_DUMMY_VERSION).address
+      }
+
+      let method
+      let args
+      if (state.scheme.name === 'ContributionRewardExt') {
+        method = 'redeemFromCRExt'
+        args = [
+          schemeAddress, // contributionreward address
+          state.votingMachine, // genesisProtocol address
+          this.id,
+          beneficiary
+        ]
+      } else {
+        method = 'redeem'
+        args = [
+          schemeAddress, // contributionreward address
+          state.votingMachine, // genesisProtocol address
+          this.id,
+          state.dao.id,
+          beneficiary
+        ]
+      }
+
+      return {
+        contract: this.redeemerContract(),
+        method,
+        args
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt)
       })
     )
+
     return toIOperationObservable(observable)
   }
 
   /**
-   * calll the 'execute()' function on the votingMachine.
+   * call the 'execute()' function on the votingMachine.
    * the main purpose of this function is to set the stage of the proposals
    * this call may (or may not) "execute" the proposal itself (i.e. do what the proposal proposes)
    * @return an Operation that, when sucessful, will contain the receipt of the transaction
    */
-  public execute(): Operation<any> {
-    const observable = from(this.votingMachine()).pipe(
-      concatMap((votingMachine) => {
-        const transaction = votingMachine.execute(this.id)
-        const map = (receipt: any) => {
-          if (Object.keys(receipt.events).length === 0) {
-            // this does not mean that anything failed
-            return receipt
-          } else {
-            return receipt
-          }
-        }
-        const errorHandler = async (err: Error) => {
-          const proposalDataFromVotingMachine = await votingMachine.proposals(this.id)
+  public execute(): Operation<undefined> {
 
-          if (proposalDataFromVotingMachine.callbacks === NULL_ADDRESS) {
-            const msg = `Error in proposal.execute(): A proposal with id ${this.id} does not exist`
-            return Error(msg)
-          } else if (proposalDataFromVotingMachine.state === '2') {
-            const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
-            return Error(msg)
-          }
+    const mapReceipt = (receipt: ITransactionReceipt) => undefined
 
-          if (this.context.web3)
-            await this.context.web3.call(transaction)
+    const errorHandler = async (err: Error) => {
+      const votingMachine = await this.votingMachine()
+      const proposalDataFromVotingMachine = await votingMachine.proposals(this.id)
 
-          return err
-        }
-        return this.context.sendTransaction(transaction, map, errorHandler)
+      if (proposalDataFromVotingMachine.callbacks === NULL_ADDRESS) {
+        const msg = `Error in proposal.execute(): A proposal with id ${this.id} does not exist`
+        return Error(msg)
+      } else if (proposalDataFromVotingMachine.state === '2') {
+        const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
+        return Error(msg)
+      }
+
+      return err
+    }
+
+    const createTransaction = async (): Promise<ITransaction> => ({
+      contract: await this.votingMachine(),
+      method: 'execute',
+      args: [ this.id ]
+    })
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
       })
     )
+
     return toIOperationObservable(observable)
   }
 
-  public executeBoosted(): Operation<any> {
-    const observable = from(this.votingMachine()).pipe(
-      concatMap((votingMachine) => {
-        const transaction = votingMachine.executeBoosted(this.id)
-        console.log(votingMachine.address)
-        const map = (receipt: any) => {
-          if (Object.keys(receipt.events).length === 0) {
-            // this does not mean that anything failed
-            return receipt
-          } else {
-            return receipt
-          }
-        }
-        const errorHandler = async (err: Error) => {
-          const proposalDataFromVotingMachine = await votingMachine.proposals(this.id)
+  public executeBoosted(): Operation<undefined> {
+    const mapReceipt = (receipt: ITransactionReceipt) => undefined
 
-          if (proposalDataFromVotingMachine.callbacks === NULL_ADDRESS) {
-            const msg = `Error in proposal.executeBoosted(): A proposal with id ${this.id} does not exist`
-            return Error(msg)
-          }
-          console.log('accling...')
-          if (this.context.web3)
-            await this.context.web3.call(transaction)
-          return err
-        }
-        return this.context.sendTransaction(transaction, map, errorHandler)
+    const errorHandler = async (err: Error) => {
+      const votingMachine = await this.votingMachine()
+      const proposalDataFromVotingMachine = await votingMachine.proposals(this.id)
+
+      if (proposalDataFromVotingMachine.callbacks === NULL_ADDRESS) {
+        const msg = `Error in proposal.executeBoosted(): A proposal with id ${this.id} does not exist`
+        return Error(msg)
+      }
+
+      return err
+    }
+
+    const createTransaction = async (): Promise<ITransaction> => ({
+      contract: await this.votingMachine(),
+      method: 'executeBoosted',
+      args: [ this.id ]
+    })
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
       })
     )
+
     return toIOperationObservable(observable)
   }
 
@@ -957,14 +977,13 @@ export interface IProposalBaseCreateOptions {
   tags?: string[]
   scheme?: Address
   url?: string
-  // proposalType?: 'competition' // if the scheme allows for different proposals...
-  proposalType?: string
+  proposalType?: IProposalType | 'competition'
 }
 
 export type IProposalCreateOptions = (
-  (IProposalBaseCreateOptions & GenericScheme.IProposalCreateOptionsGS) |
-  (IProposalBaseCreateOptions & SchemeRegistrar.IProposalCreateOptionsSR) |
-  (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR) |
-  (ContributionRewardExt.IProposalCreateOptionsContributionRewardExt) |
-  (IProposalCreateOptionsCompetition)
+  GenericScheme.IProposalCreateOptionsGS |
+  SchemeRegistrar.IProposalCreateOptionsSR |
+  ContributionReward.IProposalCreateOptionsCR |
+  ContributionRewardExt.IProposalCreateOptionsCRExt |
+  IProposalCreateOptionsComp
 )

@@ -15,6 +15,7 @@ import { Token } from './token'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
+import { SchemeBase } from './schemes/base'
 
 export interface IDAOStaticState {
   id: Address,
@@ -229,13 +230,13 @@ export class DAO implements IStateful<IDAOState> {
   public schemes(
     options: ISchemeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Scheme[]> {
+  ): Observable<SchemeBase[]> {
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
     return Scheme.search(this.context, options, apolloQueryOptions)
   }
 
-  public async scheme(options: ISchemeQueryOptions): Promise<Scheme> {
+  public async scheme(options: ISchemeQueryOptions): Promise<SchemeBase> {
     const schemes = await this.schemes(options).pipe(first()).toPromise()
     if (schemes.length === 1) {
       return schemes[0]
@@ -243,11 +244,12 @@ export class DAO implements IStateful<IDAOState> {
       throw Error('Could not find a unique scheme satisfying these options')
     }
   }
+
   public members(
     options: IMemberQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Member[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) { options.where = {} }
     options.where.dao = this.id
     return Member.search(this.context, options, apolloQueryOptions)
   }
@@ -280,6 +282,7 @@ export class DAO implements IStateful<IDAOState> {
         dao: options.dao
       }}
     )
+
     const observable = schemesQuery.pipe(
       first(),
       concatMap((schemes) => {
@@ -290,6 +293,7 @@ export class DAO implements IStateful<IDAOState> {
         }
       }
     ))
+
     return toIOperationObservable(observable)
   }
 

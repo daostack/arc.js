@@ -2,8 +2,10 @@ import { Observable as ZenObservable } from 'apollo-link'
 import * as WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
 import { Address, ICommonQueryOptions } from './types'
+import { ITransactionEvent } from './operation'
 import BN = require('bn.js')
-import { utils, providers } from 'ethers'
+import { utils } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
 
 const checkAddress = (address: string) => {
   try {
@@ -61,6 +63,15 @@ export function hexStringToUint8Array(hexString: string) {
   return new Uint8Array(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
 }
 
+export function stringToUint8Array(str: string) {
+  const arrayBuffer = new ArrayBuffer(str.length * 1)
+  const newUint = new Uint8Array(arrayBuffer)
+  newUint.forEach((_, i) => {
+    newUint[i] = str.charCodeAt(i);
+  })
+  return newUint
+}
+
 // function lifted and adapted from @daostack/subgraph/src/utils to generate unique ids
 export function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
 
@@ -74,10 +85,12 @@ export function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
   return out
 }
 
-type EthereumEvent = any
-
-export function eventId(event: EthereumEvent): string {
-  const hash = utils.keccak256(concat(event.transactionHash, event.logIndex as Uint8Array))
+export function eventId(event: ITransactionEvent): string {
+  if (!event.transactionHash || !event.logIndex) throw new Error('Event must have both transactionHash and logIndex')
+  const hash = utils.keccak256(concat(
+    stringToUint8Array(event.transactionHash),
+    stringToUint8Array(event.logIndex.toString())
+  ))
   return hash
 }
 
@@ -200,17 +213,13 @@ export function secondSinceEpochToDate(seconds: number): Date {
 }
 
 /**
- * get the latest block time, or the current time, whichver is later
+ * get the latest block time, or the current time, whichever is later
  *
  * @export
  * @param {*} web3
  * @returns
  */
-export async function getBlockTime(web3: any) {
-
-  //TODO: not instantiating web3 JSONRpcProvider here
-
-  web3 = new providers.JsonRpcProvider("http://localhost:8545")
+export async function getBlockTime(web3: JsonRpcProvider) {
   const block = await web3.getBlock('latest')
   const blockTime = new Date(block.timestamp * 1000)
   const now = new Date()

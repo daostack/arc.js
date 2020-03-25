@@ -89,7 +89,7 @@ export class Event implements IStateful<IEventState> {
   public id: string
   public staticState: IEventStaticState | undefined
 
-constructor(public idOrOpts: string | IEventStaticState, public context: Arc) {
+  constructor(public idOrOpts: string | IEventStaticState, public context: Arc) {
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts

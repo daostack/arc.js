@@ -1,13 +1,26 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
-import { Observable } from 'rxjs'
+import { Observable, from } from 'rxjs'
 import { concatMap, first, map } from 'rxjs/operators'
 import { Arc } from '../arc'
 import { DAO } from '../dao'
 import { mapGenesisProtocolParams } from '../genesisProtocol'
 import { IApolloQueryOptions } from '../graphnode'
-import { Operation, toIOperationObservable } from '../operation'
-import { IProposalBaseCreateOptions, IProposalQueryOptions, IProposalState, Proposal } from '../proposal'
+import {
+  Operation,
+  toIOperationObservable,
+  ITransaction,
+  ITransactionReceipt,
+  transactionErrorHandler,
+  transactionResultHandler,
+  getEventArgs
+} from '../operation'
+import {
+  IProposalBaseCreateOptions,
+  IProposalQueryOptions,
+  IProposalState,
+  Proposal
+} from '../proposal'
 import { Address, ICommonQueryOptions, IStateful } from '../types'
 import {
   concat,
@@ -38,7 +51,7 @@ export interface ICompetitionProposalState {
   numberOfWinningSuggestions: number
 }
 
-export interface IProposalCreateOptionsCompetition extends IProposalBaseCreateOptions {
+export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   // beneficiary: Address
   endTime: Date,
   reputationReward?: BN
@@ -175,12 +188,6 @@ export class CompetitionScheme extends SchemeBase {
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Competition[]> {
-    // TODO: This function will error if the current scheme is not a competiion scheme
-    // const staticState = await this.fetchStaticState()
-    // if (staticState.name !== `ContributionRewardExt`) {
-    //   // TODO: we should also check if the calling
-    //   throw Error(`This scheme is not a competition scheme - so no competitions can be found`)
-    // }
     if (!options.where) { options.where = {} }
     options.where = { ...options.where, competition_not: null }
     return Competition.search(this.context, options, apolloQueryOptions)
@@ -191,14 +198,13 @@ export class CompetitionScheme extends SchemeBase {
    * @param options
    * @param context
    */
-  public createProposalTransaction(options: IProposalCreateOptionsCompetition) {
-    // we assume this function is called with the correct scheme options..
-    return async () => {
+  protected async createProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
       const context = this.context
       const schemeState = await this.state().pipe(first()).toPromise()
       if (!schemeState) {
         throw Error(`No scheme was found with this id: ${this.id}`)
       }
+
       const contract = getCompetitionContract(schemeState, this.context)
 
       // check sanity -- is the competition contract actually c
@@ -226,7 +232,7 @@ export class CompetitionScheme extends SchemeBase {
       // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
 
       const competitionParams = [
-        options.startTime && dateToSecondsSinceEpoch(options.startTime) || '0',
+        (options.startTime && dateToSecondsSinceEpoch(options.startTime)) || 0,
         dateToSecondsSinceEpoch(options.votingStartTime) || 0,
         dateToSecondsSinceEpoch(options.endTime) || 0,
         options.numberOfVotesPerVoter.toString() || 0,
@@ -234,46 +240,42 @@ export class CompetitionScheme extends SchemeBase {
       ]
       const proposerIsAdmin = !!options.proposerIsAdmin
 
-      const transaction = contract.proposeCompetition(
-        options.descriptionHash || '',
-        options.reputationReward && options.reputationReward.toString() || 0,
-        [
-          options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-          options.ethReward && options.ethReward.toString() || 0,
-          options.externalTokenReward && options.externalTokenReward.toString() || 0
-        ],
-        options.externalTokenAddress || NULL_ADDRESS,
-        options.rewardSplit,
-        competitionParams,
-        proposerIsAdmin
-      )
-      return transaction
-    }
-  }
-  public createProposalTransactionMap() {
-    const eventName = 'NewCompetitionProposal'
-    const txMap = (receipt: any) => {
-      const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
-      return new Proposal(proposalId, this.context)
-    }
-    return txMap
+      return {
+        contract,
+        method: 'proposeCompetition',
+        args: [
+          options.descriptionHash || '',
+          options.reputationReward && options.reputationReward.toString() || 0,
+          [
+            options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
+            options.ethReward && options.ethReward.toString() || 0,
+            options.externalTokenReward && options.externalTokenReward.toString() || 0
+          ],
+          options.externalTokenAddress || NULL_ADDRESS,
+          options.rewardSplit,
+          competitionParams,
+          proposerIsAdmin
+        ]
+      }
   }
 
-  public createProposalErrorHandler(options: any): (err: Error) => Error | Promise<Error> {
+  protected createProposalTransactionMap(): transactionResultHandler<Proposal> {
+    return (receipt: ITransactionReceipt) => {
+      const args = getEventArgs(receipt, 'NewCompetitionProposal', 'Competition.createProposal')
+      const proposalId = args[0]
+      return new Proposal(proposalId, this.context)
+    }
+  }
+
+  protected createProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
     return async (err) => {
-      const tx = await this.createProposalTransaction(options)()
-      try {
-        if (this.context.web3)
-          await this.context.web3.call(tx)
-      } catch (err) {
-        if (err.message.match(/startTime should be greater than proposing time/ig)) {
-          return Error(`${err.message} - startTime is ${options.startTime}, current block time is ${await getBlockTime(this.context.web3)}`)
-        } else {
-          return err
-        }
+      if (err.message.match(/startTime should be greater than proposing time/ig)) {
+        if (!this.context.web3) throw Error('Web3 provider not set')
+        return Error(`${err.message} - startTime is ${options.startTime}, current block time is ${await getBlockTime(this.context.web3)}`)
+      } else {
+        const msg = `Error creating proposal: ${err.message}`
+        return Error(msg)
       }
-      const msg = `Error creating proposal: ${err.message}`
-      return Error(msg)
     }
   }
 
@@ -284,7 +286,7 @@ export class CompetitionScheme extends SchemeBase {
    * @returns {Operation<Proposal>}
    * @memberof CompetitionScheme
    */
-  public createProposal(options: IProposalCreateOptionsCompetition): Operation<Proposal> {
+  public createProposal(options: IProposalCreateOptionsComp): Operation<Proposal> {
     return SchemeBase.prototype.createProposal.call(this, options)
   }
 
@@ -306,41 +308,30 @@ export class CompetitionScheme extends SchemeBase {
   public voteSuggestion(options: {
     suggestionId: number // this is the suggestion COUNTER
   }): Operation<CompetitionVote> {
-    const createTransaction = async () => {
-      const contract = await this.getCompetitionContract()
-      const transaction = contract.vote(options.suggestionId)
-      return transaction
+
+    const mapReceipt = (receipt: ITransactionReceipt) => {
+      const [
+        proposal,
+        suggestionId,
+        voter,
+        reputation
+      ] = getEventArgs(receipt, 'NewVote', 'Competition.voteSuggestion')
+
+      const suggestion = CompetitionSuggestion.calculateId({
+        scheme: this.id,
+        suggestionId
+      })
+
+      return new CompetitionVote({
+        proposal,
+        reputation,
+        suggestion,
+        voter
+      }, this.context)
     }
 
-    const mapReceipt = (receipt: any) => {
-      if (Object.keys(receipt.events).length === 0) {
-        // this does not mean that anything failed
-        return receipt
-      } else {
-        const eventName = 'NewVote'
-        // emit NewVote(proposalId, _suggestionId, msg.sender, reputation);
-
-        const foundEventValues = receipt.events.find((event: any) => event.event === eventName).args
-
-        const suggestionId = foundEventValues._suggestionId
-        const voter = foundEventValues._voter
-        const reputation = foundEventValues._reputation
-        const proposal = foundEventValues._proposalId
-        const suggestion = CompetitionSuggestion.calculateId({
-          scheme: this.id,
-          suggestionId
-        })
-        return new CompetitionVote({
-          proposal,
-          reputation,
-          suggestion,
-          voter
-        }, this.context)
-      }
-    }
     const errorHandler = async (err: Error) => {
-      const schemeState = await this.state().pipe(first()).toPromise()
-      const contract = getCompetitionContract(schemeState, this.context)
+      const contract = await this.getCompetitionContract()
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
@@ -356,60 +347,67 @@ export class CompetitionScheme extends SchemeBase {
       if (reputationOfUser.isZero()) {
         throw Error(`Cannot vote because the user ${sender} does not have any reputation in the DAO at ${dao.id}`)
       }
-      // get any solidity-defined errors
-      const tx = await createTransaction()
-      if (this.context.web3)
-          await this.context.web3.call(tx)
       return err
     }
-    const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
+
+    const createTransaction = async (): Promise<ITransaction> => {
+      const contract = await this.getCompetitionContract()
+      return {
+        contract,
+        method: 'vote',
+        args: [ options.suggestionId ]
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
+      })
+    )
+
     return toIOperationObservable(observable)
   }
 
   public redeemSuggestion(options: {
     suggestionId: number // this is the suggestion COUNTER
   }): Operation<boolean> {
-    const createTransaction = async () => {
-      const schemeState = await this.state().pipe(first()).toPromise()
-      const contract = getCompetitionContract(schemeState, this.context)
-      const transaction = contract.redeem(options.suggestionId)
-      return transaction
-    }
 
-    const mapReceipt = (receipt: any) => {
-      if (Object.keys(receipt.events).length === 0) {
-        return receipt
+    const mapReceipt = (receipt: ITransactionReceipt) => {
+      if (!receipt.events || receipt.events.length === 0) {
+        throw Error('Competition.redeemSuggestion: missing events in receipt')
       } else {
         return true
       }
     }
+
     const errorHandler = async (err: Error) => {
-      const schemeState = await this.state().pipe(first()).toPromise()
-      const contract = getCompetitionContract(schemeState, this.context)
+      const contract = await this.getCompetitionContract()
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
         throw Error(`A suggestion with suggestionId ${options.suggestionId} does not exist`)
       }
-      const tx = await createTransaction()
-      try {
-        // call the transaction to get the solidity-defined errors
-        if (this.context.web3)
-          await this.context.web3.call(tx)
-      } catch (err) {
-        throw err
-      }
       return err
     }
-    const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
+
+    const createTransaction = async (): Promise<ITransaction> => {
+      const contract = await this.getCompetitionContract()
+      return {
+        contract,
+        method: 'redeem',
+        args: [ options.suggestionId ]
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
+      })
+    )
+
     return toIOperationObservable(observable)
   }
-
 }
-
-// export function createProposalErrorHandler(err: Error) {
-//   return err
-// }
 
 export class Competition { // extends Proposal {
   public static search(
@@ -437,47 +435,53 @@ export class Competition { // extends Proposal {
     beneficiary?: Address,
     tags?: string[],
     url?: string
+  }): Operation<CompetitionSuggestion> {
 
-  }): Operation<any> {
-    let schemeState: ISchemeState
-    const createTransaction = async () => {
+    const getSchemeState = async (): Promise<ISchemeState> => {
       const proposalState = await (new Proposal(this.id, this.context)).state().pipe(first()).toPromise()
-      if (!options.beneficiary) {
-        options.beneficiary = await this.context.getAccount().pipe(first()).toPromise()
-      }
-      schemeState = await (new CompetitionScheme(proposalState.scheme.id, this.context))
+      return await (new CompetitionScheme(proposalState.scheme.id, this.context))
         .state().pipe(first()).toPromise()
-      const contract = getCompetitionContract(schemeState, this.context)
-      const descriptionHash = await this.context.saveIPFSData(options)
-      const transaction = contract.suggest(this.id, descriptionHash, options.beneficiary)
-      return transaction
     }
 
-    const mapReceipt = (receipt: any) => {
-      if (Object.keys(receipt.events).length === 0) {
-        // this does not mean that anything failed
-        return receipt
-      } else {
-        const eventName = 'NewSuggestion'
-        const suggestionId = receipt.events.find((event: any) => event.event === eventName).args._suggestionId
-        return new CompetitionSuggestion({ scheme: (schemeState as ISchemeState).id, suggestionId }, this.context)
-      }
+    const mapReceipt = async (receipt: ITransactionReceipt) => {
+      const args = getEventArgs(receipt, 'NewSuggestion', 'Competition.createSuggestion')
+      const suggestionId = args[1]
+      return new CompetitionSuggestion({
+        scheme: (await getSchemeState()).id,
+        suggestionId
+      }, this.context)
     }
-    const errorHandler = async (err: Error, transaction: any, opts?: any) => {
-      // we got an error
-      const contract = getCompetitionContract(schemeState, this.context)
 
-      //TODO: .call(opts)?
-
-      const proposal = await contract.proposals(this.id).call(opts)
+    const errorHandler = async (err: Error) => {
+      const contract = getCompetitionContract(await getSchemeState(), this.context)
+      const proposal = await contract.proposals(this.id)
       if (!proposal) {
         throw Error(`A proposal with id ${this.id} does not exist`)
       }
-      const tx = await createTransaction()
-      await tx.call(opts)
       throw err
     }
-    const observable = this.context.sendTransaction(createTransaction, mapReceipt, errorHandler)
+
+    const createTransaction = async (): Promise<ITransaction> => {
+      if (!options.beneficiary) {
+        options.beneficiary = await this.context.getAccount().pipe(first()).toPromise()
+      }
+      const contract = getCompetitionContract(await getSchemeState(), this.context)
+      const descriptionHash = await this.context.saveIPFSData(options)
+      return {
+        contract,
+        method: 'suggest',
+        args: [ this.id, descriptionHash, options.beneficiary ]
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(
+          transaction, mapReceipt, errorHandler
+        )
+      })
+    )
+
     return toIOperationObservable(observable)
   }
 
@@ -495,6 +499,7 @@ export class Competition { // extends Proposal {
     )
     return toIOperationObservable(observable)
   }
+
   public redeemSuggestion(suggestionId: number): Operation<boolean> {
     const proposal = new Proposal(this.id, this.context)
     const observable = proposal.state().pipe(
@@ -748,6 +753,7 @@ export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionSt
     return toIOperationObservable(observable)
   }
 }
+
 export interface ICompetitionVoteQueryOptions extends ICommonQueryOptions {
   where?: {
     id?: string
@@ -823,6 +829,7 @@ export class CompetitionVote implements IStateful<ICompetitionVoteState> {
       ) as Observable<CompetitionVote[]>
     }
   }
+
   public static itemMap(item: any) {
 
     return {

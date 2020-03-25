@@ -8,6 +8,7 @@ import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddres
   toWei, voteToPassProposal, waitUntilTrue } from './utils'
 import { BigNumber } from 'ethers/utils'
 import { Contract, ethers } from 'ethers'
+import { Scheme } from '../src'
 
 jest.setTimeout(60000)
 
@@ -153,7 +154,7 @@ describe('Claim rewards', () => {
     testAddresses = getTestAddresses(arc)
     // dao = await getTestDAO()
     const ugenericSchemes = await arc.schemes({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
-    const ugenericScheme = ugenericSchemes[0]
+    const ugenericScheme = ugenericSchemes[0] as Scheme
     const ugenericSchemeState = await ugenericScheme.state().pipe(first()).toPromise()
     dao  = new DAO(ugenericSchemeState.dao, arc)
 

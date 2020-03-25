@@ -1,6 +1,11 @@
 import { Arc } from '../arc'
-import { Proposal } from '../proposal'
+import { Proposal, IProposalBaseCreateOptions } from '../proposal'
 import { Address } from '../types'
+import {
+  ITransaction,
+  ITransactionReceipt,
+  getEventArgs
+} from '../operation'
 
 export interface IUGenericSchemeInfo {
   id: string
@@ -16,32 +21,37 @@ export interface IUGenericScheme {
   returnValue: string
 }
 
-export interface IProposalCreateOptionsGS {
+export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   callData?: string
   value?: number
 }
+
 export enum IProposalType {
   GenericScheme = 'UGenericScheme'
 }
 
-export function createTransaction(options: any, context: Arc) {
-  if (!options.callData) {
+export async function createProposalTransaction(options: IProposalCreateOptionsGS, context: Arc): Promise<ITransaction> {
+  if (options.callData === undefined) {
     throw new Error(`Missing argument "callData" for UGenericScheme in Proposal.create()`)
   }
   if (options.value === undefined) {
     throw new Error(`Missing argument "value" for UGenericScheme in Proposal.create()`)
   }
-  return async () => {
-    options.descriptionHash = await context.saveIPFSData(options)
+  if (options.scheme === undefined) {
+    throw new Error(`Missing argument "scheme" for GenericScheme in Proposal.create()`)
+  }
 
-    const genericScheme = context.getContract(options.scheme)
-    const transaction = genericScheme.proposeCall(
+  options.descriptionHash = await context.saveIPFSData(options)
+
+  return {
+    contract: context.getContract(options.scheme),
+    method: 'proposeCall',
+    args: [
       options.dao,
       options.callData,
       options.value,
       options.descriptionHash
-    )
-    return transaction
+    ]
   }
 }
 
@@ -51,11 +61,10 @@ export function createTransaction(options: any, context: Arc) {
  * @param  context an Arc instance
  * @return         [description]
  */
-export function createTransactionMap(options: any, context: Arc) {
-  const eventName = 'NewCallProposal'
-  const map = async (receipt: any) => {
-    const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
+export function createProposalTransactionMap(options: IProposalCreateOptionsGS, context: Arc) {
+  return async (receipt: ITransactionReceipt) => {
+    const args = getEventArgs(receipt, 'NewCallProposal', 'UGenericScheme.createProposal')
+    const proposalId = args[1]
     return new Proposal(proposalId, context)
   }
-  return map
 }

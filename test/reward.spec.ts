@@ -1,7 +1,6 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { Proposal } from '../src/proposal'
 import { IRewardStaticState, Reward } from '../src/reward'
 import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei } from './utils'
 import { getAddress } from 'ethers/utils'
@@ -40,7 +39,7 @@ describe('Reward', () => {
       nativeTokenReward: toWei('1'),
       scheme: testAddresses.base.ContributionReward
     }).send()
-    const proposal = state.result as Proposal
+    const proposal = state.result
 
     expect(proposal).toBeDefined()
 

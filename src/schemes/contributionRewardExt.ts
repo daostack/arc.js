@@ -3,6 +3,7 @@ import { Arc } from '../arc'
 import { IProposalBaseCreateOptions, Proposal } from '../proposal'
 import { Address } from '../types'
 import { NULL_ADDRESS } from '../utils'
+import { ITransaction, ITransactionReceipt, getEventArgs } from '../operation'
 
 // // this interface is not used - it is conflated with IContributionReward
 export interface IContributionRewardExt {
@@ -24,7 +25,7 @@ export interface IContributionRewardExt {
   externalTokenRewardLeft: BN
 }
 
-export interface IProposalCreateOptionsContributionRewardExt extends IProposalBaseCreateOptions {
+export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions {
   beneficiary: Address
   nativeTokenReward?: BN
   reputationReward?: BN
@@ -38,39 +39,39 @@ export enum IProposalType {
   ContributionReward = 'ContributionRewardExt' // propose a contributionReward
 }
 
-/**
- *
- * @param options
- * @param context
- */
-export function createProposal(options: any, context: Arc) {
-  const contract = context.getContract(options.scheme)
+export async function createProposalTransaction(options: IProposalCreateOptionsCRExt, context: Arc): Promise<ITransaction> {
   if (!options.proposer) {
     options.proposer = NULL_ADDRESS
   }
-  return async () => {
-    options.descriptionHash = await context.saveIPFSData(options)
-    const transaction = contract.proposeContributionReward(
-        options.descriptionHash || '',
-        options.reputationReward && options.reputationReward.toString() || 0,
-        [
-          options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-          options.ethReward && options.ethReward.toString() || 0,
-          options.externalTokenReward && options.externalTokenReward.toString() || 0
-        ],
-        options.externalTokenAddress || NULL_ADDRESS,
-        options.beneficiary,
-        options.proposer
-    )
-    return transaction
+
+  options.descriptionHash = await context.saveIPFSData(options)
+
+  if (options.scheme === undefined) {
+    throw new Error(`Missing argument "scheme" for ContributionRewardExt in Proposal.create()`)
+  }
+
+  return {
+    contract: context.getContract(options.scheme),
+    method: 'proposeContributionReward',
+    args: [
+      options.descriptionHash || '',
+      options.reputationReward && options.reputationReward.toString() || 0,
+      [
+        options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
+        options.ethReward && options.ethReward.toString() || 0,
+        options.externalTokenReward && options.externalTokenReward.toString() || 0
+      ],
+      options.externalTokenAddress || NULL_ADDRESS,
+      options.beneficiary,
+      options.proposer
+    ]
   }
 }
 
-export function createTransactionMap(options: any, context: Arc) {
-  const eventName = 'NewContributionProposal'
-  const map = (receipt: any) => {
-    const proposalId = receipt.events.find((event: any) => event.event === eventName).args._proposalId
+export function createProposalTransactionMap(options: IProposalCreateOptionsCRExt, context: Arc) {
+  return (receipt: ITransactionReceipt) => {
+    const args = getEventArgs(receipt, 'NewContributionProposal', 'ContributionRewardExt.createProposal')
+    const proposalId = args[1]
     return new Proposal(proposalId, context)
   }
-  return map
 }

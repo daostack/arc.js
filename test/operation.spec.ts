@@ -2,7 +2,7 @@ import { ITransactionState, ITransactionUpdate } from '../src/operation'
 import { Proposal } from '../src/proposal'
 import { getTestAddresses, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
 
-jest.setTimeout(60000)
+jest.setTimeout(20000)
 
 describe('Operation', () => {
 
@@ -22,7 +22,7 @@ describe('Operation', () => {
     // collect the first 4 results of the observable in a a listOfUpdates array
     const listOfUpdates: Array<ITransactionUpdate<Proposal>> = []
     dao.createProposal(options).subscribe(
-      (next: ITransactionUpdate<Proposal>) => { listOfUpdates.push(next) }
+      (next: ITransactionUpdate<Proposal>) => listOfUpdates.push(next)
     )
 
     // wait for the transaction to be mined
@@ -47,17 +47,17 @@ describe('Operation', () => {
       state: ITransactionState.Sent
     })
     expect(listOfUpdates[2]).toMatchObject({
-      confirmations: 0,
+      confirmations: 1,
       state: ITransactionState.Mined
     })
     expect(listOfUpdates[2].result).toBeDefined()
     expect(listOfUpdates[2].receipt).toBeDefined()
     expect(listOfUpdates[2].transactionHash).toBeDefined()
 
-    expect( listOfUpdates[2].result ).toBeInstanceOf(Proposal)
+    expect(listOfUpdates[2].result ).toBeInstanceOf(Proposal)
 
+    expect(listOfUpdates[3].confirmations).toEqual(4)
     expect(listOfUpdates[3]).toMatchObject({
-      confirmations: 1,
       state: ITransactionState.Mined
     })
 
@@ -67,19 +67,18 @@ describe('Operation', () => {
     const splitLines = (str: any) => str.split(/\r?\n/)
     const stringify = (obj: any) => splitLines(JSON.stringify(obj, null, 2))
 
-    // Remove the confirmations prop
+    // Remove the confirmations
     const recipt4 = listOfUpdates[4].receipt as any
     const recipt2 = listOfUpdates[2].receipt as any
     delete recipt4.confirmations
     delete recipt2.confirmations
 
-    expect(stringify(recipt4))
-      .toEqual(stringify(recipt2))
+    expect(stringify(listOfUpdates[4].receipt))
+      .toEqual(stringify(listOfUpdates[2].receipt))
 
-    expect(listOfUpdates[4].confirmations).toEqual(2)
+    expect(listOfUpdates[4].confirmations).toEqual(5)
     expect(listOfUpdates[4].state).toEqual(ITransactionState.Mined)
     expect(listOfUpdates[4].transactionHash)
       .toEqual(listOfUpdates[2].transactionHash)
-
   })
 })

@@ -2,6 +2,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { IProposalStage } from '../src/proposal'
 import { ISchemeState, Scheme } from '../src/scheme'
+import { SchemeBase } from '../src/schemes/base'
 import { firstResult, getTestAddresses, getTestDAO,  ITestAddresses, newArc } from './utils'
 
 jest.setTimeout(20000)
@@ -29,7 +30,7 @@ describe('Scheme', () => {
 
   it('Schemes are searchable', async () => {
     const dao = await getTestDAO()
-    let result: Scheme[]
+    let result: SchemeBase[]
     result = await Scheme.search(arc, {where: {dao: dao.id, name_not: null}})
         .pipe(first()).toPromise()
 

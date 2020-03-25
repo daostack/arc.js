@@ -27,7 +27,7 @@ describe('Vote on a ContributionReward', () => {
   it('works and gets indexed', async () => {
     const proposal = await createAProposal()
     const voteResponse = await proposal.vote(IProposalOutcome.Pass).send()
-    const voteState0 = await voteResponse.result.fetchStaticState()
+    const voteState0 = await (voteResponse.result as Vote).fetchStaticState()
     expect(voteState0).toMatchObject({
       outcome : IProposalOutcome.Pass
     })

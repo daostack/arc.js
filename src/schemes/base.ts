@@ -4,7 +4,13 @@ import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from '../arc'
 // import { DAO } from './dao'
 import { IGenesisProtocolParams } from '../genesisProtocol'
-import { Operation, toIOperationObservable } from '../operation'
+import {
+  Operation,
+  toIOperationObservable,
+  ITransaction,
+  transactionErrorHandler,
+  transactionResultHandler
+} from '../operation'
 import {
   IProposalCreateOptions,
   IProposalQueryOptions, Proposal } from '../proposal'
@@ -279,43 +285,44 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
   public setStaticState(opts: ISchemeStaticState) {
     this.staticState = opts
   }
+
   /**
    * create a new proposal in this scheme
    * TODO: move this to the schemes - we should call proposal.scheme.createProposal
    * @param  options [description ]
    * @return a Proposal instance
    */
-  public createProposalTransaction(options: any): () => Promise<any> {
-    return async () => null
-  }
+  protected abstract async createProposalTransaction(
+    options: IProposalCreateOptions
+  ): Promise<ITransaction>
 
-  public createProposalTransactionMap(): (receipt: any) => any {
+  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
 
-    return (receipt) => receipt.result
-  }
-  public createProposalErrorHandler(options?: any): ((err: Error) => Error|Promise<Error>)|undefined {
-    return undefined
-    // return (err) => err
-  }
+  protected abstract createProposalErrorHandler(
+    options: IProposalCreateOptions
+  ): transactionErrorHandler
 
   public createProposal(options: IProposalCreateOptions): Operation<Proposal>  {
     const observable = Observable.create(async (observer: any) => {
-      // let msg: string
-      const context = this.context
-
-      const createTransaction  = this.createProposalTransaction(options)
-      const map = this.createProposalTransactionMap()
-      const errHandler = this.createProposalErrorHandler(options)
-      const sendTransactionObservable = context.sendTransaction(createTransaction, map, errHandler)
-      const sub = sendTransactionObservable.subscribe(observer)
-
-      return () => sub.unsubscribe()
+      try {
+        const createTransaction = await this.createProposalTransaction(options)
+        const map = this.createProposalTransactionMap()
+        const errHandler = this.createProposalErrorHandler(options)
+        const sendTransactionObservable = this.context.sendTransaction(
+          createTransaction, map, errHandler
+        )
+        const sub = sendTransactionObservable.subscribe(observer)
+        return () => sub.unsubscribe()
+      } catch (e) {
+        observer.error(e)
+        return
+      }
     })
 
     return toIOperationObservable(observable)
   }
 
-  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable < ISchemeState >
+  public abstract state(apolloQueryOptions?: IApolloQueryOptions): Observable < ISchemeState >
 
   public proposals(
     options: IProposalQueryOptions = {},

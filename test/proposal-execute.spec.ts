@@ -45,7 +45,7 @@ describe('Proposal execute()', () => {
     const proposalStates: IProposalState[] = []
     const lastState = () => proposalStates[proposalStates.length - 1]
 
-    const proposal = (await dao.createProposal(options).send()).result
+    const proposal = (await dao.createProposal(options).send()).result as Proposal
 
     proposal.state().subscribe(
       (next: IProposalState) => {

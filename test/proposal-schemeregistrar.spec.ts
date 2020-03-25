@@ -35,7 +35,7 @@ describe('Proposal', () => {
       permissions: '0x0000001f',
       scheme: getTestAddresses(arc).base.SchemeRegistrar,
       schemeToRegister,
-      type: IProposalType.SchemeRegistrarAdd
+      proposalType: IProposalType.SchemeRegistrarAdd
     })
     proposalToAdd.state().subscribe((pState: IProposalState) => {
       proposalToAddStates.push(pState)
@@ -86,7 +86,7 @@ describe('Proposal', () => {
       permissions: '0x0000001f',
       scheme: getTestAddresses(arc).base.SchemeRegistrar,
       schemeToRegister: schemeToRegister.toLowerCase(),
-      type: IProposalType.SchemeRegistrarEdit
+      proposalType: IProposalType.SchemeRegistrarEdit
     })
     const proposalToEditStates: IProposalState[]  = []
     proposalToEdit.state().subscribe((pState: IProposalState) => {
@@ -112,7 +112,7 @@ describe('Proposal', () => {
     const proposalToRemove = await createAProposal(dao, {
       scheme: getTestAddresses(arc).base.SchemeRegistrar,
       schemeToRegister,
-      type: IProposalType.SchemeRegistrarRemove
+      proposalType: IProposalType.SchemeRegistrarRemove
     })
     expect(proposalToRemove).toBeInstanceOf(Proposal)
 

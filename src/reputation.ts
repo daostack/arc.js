@@ -5,8 +5,9 @@ import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { REPUTATION_CONTRACT_VERSION } from './settings'
-import { Address, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
+import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
+import { Operation, ITransactionReceipt } from './operation'
 
 export interface IReputationState {
   address: Address
@@ -122,23 +123,26 @@ export class Reputation implements IStateful<IReputationState> {
     return this.context.getContract(this.address, abi)
   }
 
-  public mint(beneficiary: Address, amount: BN) {
-    const contract = this.contract()
-    const transaction = contract.mint(beneficiary, amount.toString())
-    const mapReceipt = (receipt: Web3Receipt) => receipt
+  public mint(beneficiary: Address, amount: BN): Operation<undefined> {
+    const mapReceipt = (receipt: ITransactionReceipt) => undefined
 
-    const errHandler = async (err: Error) => {
+    const errorHandler = async (err: Error) => {
+      const contract = this.contract()
       const sender = await contract.signer.getAddress()
       const owner = await contract.owner()
       if (owner.toLowerCase() !== sender.toLowerCase()) {
         return Error(`Minting failed: sender ${sender} is not the owner of the contract at ${contract._address}` +
           `(which is ${owner})`)
       }
-      if (this.context.web3)
-          await this.context.web3.call(transaction)
       return err
     }
-    return this.context.sendTransaction(transaction, mapReceipt, errHandler)
-  }
 
+    const transaction = {
+      contract: this.contract(),
+      method: 'mint',
+      args: [ beneficiary, amount.toString() ]
+    }
+
+    return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
+  }
 }
