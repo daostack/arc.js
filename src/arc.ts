@@ -99,9 +99,9 @@ export class Arc extends GraphNodeObserver {
       this.ipfs = new IPFSClient(this.ipfsProvider)
     }
 
-    // by default, we subscribe to queries
+    // by default, we do not subscribe to queries
     if (options.graphqlSubscribeToQueries === undefined) {
-      options.graphqlSubscribeToQueries = true
+      options.graphqlSubscribeToQueries = false
     }
   }
 
