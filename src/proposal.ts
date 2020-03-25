@@ -802,7 +802,7 @@ export class Proposal implements IStateful<IProposalState> {
         beneficiary = NULL_ADDRESS
       }
 
-      const state = await this.fetchState()
+      const state = this.coreState ? this.coreState : await this.fetchState()
       let schemeAddress: Address | null
 
       if (state.contributionReward) {

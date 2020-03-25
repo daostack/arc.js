@@ -439,7 +439,6 @@ describe('Competition Proposal', () => {
       (state) => competitionState = state
     )
     await waitUntilTrue(() => !!competitionState)
-    sub.unsubscribe()
     // redeem the proposal
     await proposal.redeemRewards().send()
     // wait for indexing to be done
@@ -452,6 +451,7 @@ describe('Competition Proposal', () => {
       nativeTokenRewardLeft: new BN(0),
       reputationChangeLeft: reputationReward
     })
+    sub.unsubscribe()
   })
 
   it('Vote state works', async () => {
