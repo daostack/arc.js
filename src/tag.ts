@@ -152,9 +152,8 @@ export class Tag implements IStateful<ITagState> {
   }
 
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ITagState> {
-    const state = await this.state({subscribe: false}).pipe(first()).toPromise()
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
     this.setState(state)
     return state
   }
-
 }

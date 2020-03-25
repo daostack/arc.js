@@ -75,7 +75,7 @@ describe('apolloClient caching checks', () => {
     proposals = proposals.filter((p) => p.coreState.votes.length > 1)
     const proposal = proposals[0]
     // @ts-ignore
-    const vote = new Vote(proposals[0].coreState.votes[0], arc)
+    const vote = new Vote(arc, proposals[0].coreState.votes[0])
     const voteState = await vote.fetchState()
     const voterAddress = voteState.voter
     const proposalState = await proposal.fetchState()

@@ -31,7 +31,7 @@ describe('Stake', () => {
   })
 
   it('Stakes are searchable', async () => {
-    let result: any
+    let result: Stake[]
     const proposal = await createAProposal()
     const stakes: any[] = []
 

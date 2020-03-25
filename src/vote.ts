@@ -8,7 +8,7 @@ import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IVoteState {
-  id?: string
+  id: string
   voter: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome
@@ -175,16 +175,27 @@ export class Vote implements IStateful<IVoteState> {
       if (item === null) {
         throw Error(`Could not find a Vote with id ${this.id}`)
       }
+  
+      let outcome: IProposalOutcome = IProposalOutcome.Pass
+      if (item.outcome === 'Pass') {
+        outcome = IProposalOutcome.Pass
+      } else if (item.outcome === 'Fail') {
+        outcome = IProposalOutcome.Fail
+      } else {
+        throw new Error(`Unexpected value for proposalVote.outcome: ${item.outcome}`)
+      }
+  
       return {
-        amount: item.reputation,
+        amount: new BN(item.reputation || 0),
         createdAt: item.createdAt,
         dao: item.dao.id,
         id: item.id,
-        outcome: item.outcome,
+        outcome,
         proposal: item.proposal.id,
         voter: item.voter
       }
     }
+
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
@@ -193,12 +204,8 @@ export class Vote implements IStateful<IVoteState> {
   }
 
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IVoteState> {
-    if (!!this.coreState) {
-      return this.coreState
-    } else {
-      const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-      this.setState(state)
-      return state
-    }
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
 }

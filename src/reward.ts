@@ -205,9 +205,8 @@ export class Reward implements IStateful<IRewardState> {
   }
 
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IRewardState> {
-    const state = await this.state({ subscribe: false }).pipe(first()).toPromise()
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
     this.setState(state)
     return state
   }
-
 }

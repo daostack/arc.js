@@ -129,13 +129,8 @@ export class Event implements IStateful<IEventState> {
   }
 
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise < IEventState > {
-    if (!!this.coreState) {
-      return this.coreState
-    } else {
-      const state = await this.state({ subscribe: false }).pipe(first()).toPromise()
-      this.setState(state)
-      return state
-    }
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
-
 }

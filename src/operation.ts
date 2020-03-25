@@ -235,7 +235,7 @@ export function toIOperationObservable<T>(observable: Observable<T>): IOperation
   return observable
 }
 
-export function getEventArgs(receipt: ITransactionReceipt, eventName: string, codeScope: string): any[] {
+export function getEvent(receipt: ITransactionReceipt, eventName: string, codeScope: string): ITransactionEvent {
   if (!receipt.events || receipt.events.length === 0) {
     throw Error(`${codeScope}: missing events in receipt`)
   }
@@ -244,9 +244,27 @@ export function getEventArgs(receipt: ITransactionReceipt, eventName: string, co
     (e: ITransactionEvent) => e.event === eventName
   )
 
-  if (!event || !event.args) {
+  if (!event) {
     throw Error(`${codeScope}: missing ${eventName} event`)
   }
 
-  return event.args
+  return event
+}
+
+export function getEventArgs(receipt: ITransactionReceipt, eventName: string, codeScope: string): any[] {
+  return getEventAndArgs(receipt, eventName, codeScope)[1]
+}
+
+export function getEventAndArgs(
+  receipt: ITransactionReceipt,
+  eventName: string,
+  codeScope: string
+): [ITransactionEvent, any[]] {
+  const event = getEvent(receipt, eventName, codeScope)
+
+  if (!event.args) {
+    throw Error(`${codeScope}: missing ${eventName} event args`)
+  }
+
+  return [event, event.args]
 }

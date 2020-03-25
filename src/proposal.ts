@@ -6,7 +6,7 @@ import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { IObservable } from './graphnode'
-import { getEventArgs, ITransaction, ITransactionReceipt, Operation, toIOperationObservable } from './operation'
+import { ITransaction, ITransactionReceipt, Operation, toIOperationObservable, getEventAndArgs } from './operation'
 import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
 import { ISchemeState, Scheme } from './scheme'
@@ -19,8 +19,8 @@ import { CONTRIBUTION_REWARD_DUMMY_VERSION, REDEEMER_CONTRACT_VERSIONS } from '.
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import {
-  createGraphQlQuery, isAddress, NULL_ADDRESS, realMathToNumber,
-  secondSinceEpochToDate
+  createGraphQlQuery, eventId, isAddress, NULL_ADDRESS, realMathToNumber,
+  secondSinceEpochToDate,
 } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
@@ -350,10 +350,7 @@ export class Proposal implements IStateful<IProposalState> {
   }
 
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IProposalState> {
-    const state = await this.state({ subscribe: false }).pipe(first()).toPromise()
-    if (state === null) {
-      throw Error(`No proposal with id ${this.id} was found in the subgraph`)
-    }
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
     this.setState(state)
     return state
   }
@@ -633,22 +630,21 @@ export class Proposal implements IStateful<IProposalState> {
   public vote(outcome: IProposalOutcome, amount: number = 0): Operation<Vote | null> {
 
     const mapReceipt = (receipt: ITransactionReceipt) => {
-      let args
       try {
-        args = getEventArgs(receipt, 'VoteProposal', 'Proposal.vote')
+        const [event, args] = getEventAndArgs(receipt, 'VoteProposal', 'Proposal.vote')
+        return new Vote(this.context, {
+          id: eventId(event),
+          amount: args[3], // _reputation
+          // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
+          createdAt: 0, // createdAt -
+          outcome,
+          proposal: this.id, // proposalID
+          voter: args[2] // _vote
+        })
       } catch (e) {
         // no vote was cast
         return null
       }
-
-      return new Vote(this.context, {
-        amount: args[3], // _reputation
-        // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
-        createdAt: 0, // createdAt -
-        outcome,
-        proposal: this.id, // proposalID
-        voter: args[2] // _vote
-      })
     }
 
     const errorHandler = async (error: Error) => {
@@ -709,9 +705,10 @@ export class Proposal implements IStateful<IProposalState> {
 
     const mapReceipt = (receipt: ITransactionReceipt) => {
 
-      const args = getEventArgs(receipt, 'Stake', 'Proposal.stake')
+      const [event, args] = getEventAndArgs(receipt, 'Stake', 'Proposal.stake')
 
       return new Stake(this.context, {
+        id: eventId(event),
         amount: args[3], // _amount
         // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
         createdAt: undefined,

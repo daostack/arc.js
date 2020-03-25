@@ -255,10 +255,7 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
    * @return the statatic state
    */
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise < ISchemeState > {
-    const state = await this.state({ subscribe: false}).pipe(first()).toPromise()
-    if (state === null) {
-      throw Error(`No scheme with id ${this.id} was found in the subgraph`)
-    }
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
     if (state.name ===  'ReputationFromToken') {
       this.ReputationFromToken = new ReputationFromTokenScheme(this)
     }

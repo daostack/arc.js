@@ -157,7 +157,7 @@ describe('Proposal', () => {
   })
 
   it('state should be available before the data is indexed', async () => {
-    const options   = {
+    const options = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       ethReward: toWei('300'),
       externalTokenAddress: undefined,

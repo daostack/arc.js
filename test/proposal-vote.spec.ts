@@ -22,12 +22,12 @@ describe('Vote on a ContributionReward', () => {
     dao = await getTestDAO()
     const { executedProposalId} = addresses.test
     executedProposal = await dao.proposal(executedProposalId)
-    })
+  })
 
   it('works and gets indexed', async () => {
     const proposal = await createAProposal()
     const voteResponse = await proposal.vote(IProposalOutcome.Pass).send()
-    const voteState0 = await voteResponse.result.fetchState()
+    const voteState0 = (voteResponse.result as Vote).coreState
     expect(voteState0).toMatchObject({
       outcome : IProposalOutcome.Pass
     })

@@ -66,10 +66,12 @@ export class Reputation implements IStateful<IReputationState> {
   }
 
   public address: Address
+
   constructor(public context: Arc, public id: Address) {
     isAddress(id)
     this.address = id
   }
+
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IReputationState> {
     const query = gql`query ReputationState
     {
@@ -94,7 +96,9 @@ export class Reputation implements IStateful<IReputationState> {
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IReputationState>
   }
 
-  public fetchState = async () => await this.state({subscribe: false}).pipe(first()).toPromise()
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IReputationState> {
+    return await this.state(apolloQueryOptions).pipe(first()).toPromise()
+  }
 
   public reputationOf(address: Address): Observable<BN> {
     isAddress(address)

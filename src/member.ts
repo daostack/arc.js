@@ -125,7 +125,7 @@ export class Member implements IStateful<IMemberState> {
     return state
   }
 
-  public calculateId(opts: { contract: Address, address: Address}): string {
+  public static calculateId(opts: { contract: Address, address: Address}): string {
     const seed = concat(
       hexStringToUint8Array(opts.contract.toLowerCase()),
       hexStringToUint8Array(opts.address.toLowerCase())
@@ -136,7 +136,7 @@ export class Member implements IStateful<IMemberState> {
   public setState(opts: IMemberState) {
     isAddress(opts.address)
     if (!opts.id && opts.contract && opts.address) {
-      opts.id = this.calculateId({ contract: opts.contract, address: opts.address})
+      opts.id = Member.calculateId({ contract: opts.contract, address: opts.address})
     }
     this.id = opts.id
     this.coreState = {
@@ -167,19 +167,15 @@ export class Member implements IStateful<IMemberState> {
         query,
         (r: any) => {
           if (r === null || r === undefined || r.id === undefined) {
-            // we return a dummy object with 0 reputation
-            const state = this.coreState as IMemberState
-            if (state) {
-              return  {
-                address: state.address,
-                dao: state.dao,
-                reputation: new BN(0)
-              }
-            } else {
-              throw Error(`No member with id ${this.id} was found`)
-            }
+            throw Error(`No member with id ${this.id} was found`)
           }
-          return { id: r.id, address: r.address, dao: r.dao.id, contract: r.contract, reputation: new BN(r.balance)}
+          return {
+            id: r.id,
+            address: r.address,
+            dao: r.dao.id,
+            contract: r.contract,
+            reputation: new BN(r.balance)
+          }
         },
         apolloQueryOptions
       )

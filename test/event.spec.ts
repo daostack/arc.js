@@ -99,7 +99,7 @@ describe('Event', () => {
     expect(eventFromId.coreState).not.toBeTruthy()
     await eventFromId.fetchState()
     expect(eventFromId.coreState).toBeTruthy()
-    const  eventFromState = new Event(arc, event.coreState)
+    const  eventFromState = new Event(arc, event.coreState as IEventState)
     expect(eventFromState.coreState).toBeTruthy()
   })
 
