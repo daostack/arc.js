@@ -4,12 +4,12 @@ import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import {
-  Operation,
-  toIOperationObservable,
   ITransaction,
   ITransactionUpdate,
-  transactionResultHandler,
-  transactionErrorHandler
+  Operation,
+  toIOperationObservable,
+  transactionErrorHandler,
+  transactionResultHandler
 } from './operation'
 import { IProposalCreateOptions, IProposalQueryOptions, Proposal } from './proposal'
 import { SchemeBase } from './schemes/base'
@@ -122,7 +122,7 @@ export class Scheme extends SchemeBase  {
     context: Arc,
     options: ISchemeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Array<SchemeBase>> {
+  ): Observable<SchemeBase[]> {
     let query
     if (apolloQueryOptions.fetchAllData === true) {
       query = gql`query SchemeSearchAllData {
@@ -320,22 +320,6 @@ export class Scheme extends SchemeBase  {
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
   }
 
-  protected async createProposalTransaction(
-    options: IProposalCreateOptions
-  ): Promise<ITransaction> {
-    throw Error('this should never be called')
-  }
-
-  protected createProposalTransactionMap(): transactionResultHandler<Proposal> {
-    throw Error('this should never be called')
-  }
-
-  protected createProposalErrorHandler(
-    options: IProposalCreateOptions
-  ): transactionErrorHandler {
-    throw Error('this should never be called')
-  }
-
   /**
    * create a new proposal in this Scheme
    * @param  options [description ]
@@ -423,5 +407,21 @@ export class Scheme extends SchemeBase  {
     if (!options.where) { options.where = {}}
     options.where.scheme = this.id
     return Proposal.search(this.context, options, apolloQueryOptions)
+  }
+
+  protected async createProposalTransaction(
+    options: IProposalCreateOptions
+  ): Promise<ITransaction> {
+    throw Error('this should never be called')
+  }
+
+  protected createProposalTransactionMap(): transactionResultHandler<Proposal> {
+    throw Error('this should never be called')
+  }
+
+  protected createProposalErrorHandler(
+    options: IProposalCreateOptions
+  ): transactionErrorHandler {
+    throw Error('this should never be called')
   }
 }

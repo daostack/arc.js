@@ -1,11 +1,11 @@
 import { Observable as ZenObservable } from 'apollo-link'
-import * as WebSocket from 'isomorphic-ws'
-import { Observable, Observer } from 'rxjs'
-import { Address, ICommonQueryOptions } from './types'
-import { ITransactionEvent } from './operation'
 import BN = require('bn.js')
 import { utils } from 'ethers'
 import { JsonRpcProvider } from 'ethers/providers'
+import * as WebSocket from 'isomorphic-ws'
+import { Observable, Observer } from 'rxjs'
+import { ITransactionEvent } from './operation'
+import { Address, ICommonQueryOptions } from './types'
 
 const checkAddress = (address: string) => {
   try {
@@ -15,7 +15,9 @@ const checkAddress = (address: string) => {
     }
 
     const result = utils.getAddress(address)
-    if(!result) throw new Error("Invalid address")
+    if (!result) {
+      throw new Error('Invalid address')
+    }
 
     return true
   } catch (error) {
@@ -67,7 +69,7 @@ export function stringToUint8Array(str: string) {
   const arrayBuffer = new ArrayBuffer(str.length * 1)
   const newUint = new Uint8Array(arrayBuffer)
   newUint.forEach((_, i) => {
-    newUint[i] = str.charCodeAt(i);
+    newUint[i] = str.charCodeAt(i)
   })
   return newUint
 }
@@ -86,7 +88,9 @@ export function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
 }
 
 export function eventId(event: ITransactionEvent): string {
-  if (!event.transactionHash || !event.logIndex) throw new Error('Event must have both transactionHash and logIndex')
+  if (!event.transactionHash || !event.logIndex) {
+    throw new Error('Event must have both transactionHash and logIndex')
+  }
   const hash = utils.keccak256(concat(
     stringToUint8Array(event.transactionHash),
     stringToUint8Array(event.logIndex.toString())

@@ -6,7 +6,7 @@ import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { IObservable } from './graphnode'
-import { Operation, toIOperationObservable, ITransaction, ITransactionReceipt, getEventArgs } from './operation'
+import { getEventArgs, ITransaction, ITransactionReceipt, Operation, toIOperationObservable } from './operation'
 import { IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
 import { ISchemeState, Scheme } from './scheme'
@@ -654,7 +654,6 @@ export class Proposal implements IStateful<IProposalState> {
         // no vote was cast
         return null
       }
-
 
       return new Vote(this.context, {
         amount: args[3], // _reputation

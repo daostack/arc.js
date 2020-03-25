@@ -1,19 +1,20 @@
 import BN = require('bn.js')
+import { utils } from 'ethers'
 import gql from 'graphql-tag'
-import { Observable, from } from 'rxjs'
+import { from, Observable } from 'rxjs'
 import { concatMap, first, map } from 'rxjs/operators'
 import { Arc } from '../arc'
 import { DAO } from '../dao'
 import { mapGenesisProtocolParams } from '../genesisProtocol'
 import { IApolloQueryOptions } from '../graphnode'
 import {
-  Operation,
-  toIOperationObservable,
+  getEventArgs,
   ITransaction,
   ITransactionReceipt,
+  Operation,
+  toIOperationObservable,
   transactionErrorHandler,
-  transactionResultHandler,
-  getEventArgs
+  transactionResultHandler
 } from '../operation'
 import {
   IProposalBaseCreateOptions,
@@ -31,7 +32,6 @@ import {
 } from '../utils'
 import { IVoteQueryOptions } from '../vote'
 import { ISchemeState, SchemeBase } from './base'
-import { utils } from 'ethers'
 
 export interface ICompetitionProposalState {
   id: string
@@ -194,92 +194,6 @@ export class CompetitionScheme extends SchemeBase {
   }
 
   /**
-   *
-   * @param options
-   * @param context
-   */
-  protected async createProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
-      const context = this.context
-      const schemeState = await this.state().pipe(first()).toPromise()
-      if (!schemeState) {
-        throw Error(`No scheme was found with this id: ${this.id}`)
-      }
-
-      const contract = getCompetitionContract(this.context, schemeState)
-
-      // check sanity -- is the competition contract actually c
-      const contributionRewardExtAddress = await contract.contributionRewardExt()
-      if (contributionRewardExtAddress.toLowerCase() !== schemeState.address) {
-        throw Error(`This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${schemeState.address}`)
-      }
-
-      options.descriptionHash = await context.saveIPFSData(options)
-      if (!options.rewardSplit) {
-        throw Error(`Rewardsplit was not given..`)
-      } else {
-        if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
-          throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b)})`)
-        }
-      }
-      // * @param _rewardSplit an array of precentages which specify how to split the rewards
-      // *         between the winning suggestions
-      // * @param _competitionParams competition parameters :
-      // *         _competitionParams[0] - competition startTime
-      // *         _competitionParams[1] - _votingStartTime competition voting start time
-      // *         _competitionParams[2] - _endTime competition end time
-      // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
-      // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
-      // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
-
-      const competitionParams = [
-        (options.startTime && dateToSecondsSinceEpoch(options.startTime)) || 0,
-        dateToSecondsSinceEpoch(options.votingStartTime) || 0,
-        dateToSecondsSinceEpoch(options.endTime) || 0,
-        options.numberOfVotesPerVoter.toString() || 0,
-        dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
-      ]
-      const proposerIsAdmin = !!options.proposerIsAdmin
-
-      return {
-        contract,
-        method: 'proposeCompetition',
-        args: [
-          options.descriptionHash || '',
-          options.reputationReward && options.reputationReward.toString() || 0,
-          [
-            options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-            options.ethReward && options.ethReward.toString() || 0,
-            options.externalTokenReward && options.externalTokenReward.toString() || 0
-          ],
-          options.externalTokenAddress || NULL_ADDRESS,
-          options.rewardSplit,
-          competitionParams,
-          proposerIsAdmin
-        ]
-      }
-  }
-
-  protected createProposalTransactionMap(): transactionResultHandler<Proposal> {
-    return (receipt: ITransactionReceipt) => {
-      const args = getEventArgs(receipt, 'NewCompetitionProposal', 'Competition.createProposal')
-      const proposalId = args[0]
-      return new Proposal(this.context, proposalId)
-    }
-  }
-
-  protected createProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
-    return async (err) => {
-      if (err.message.match(/startTime should be greater than proposing time/ig)) {
-        if (!this.context.web3) throw Error('Web3 provider not set')
-        return Error(`${err.message} - startTime is ${options.startTime}, current block time is ${await getBlockTime(this.context.web3)}`)
-      } else {
-        const msg = `Error creating proposal: ${err.message}`
-        return Error(msg)
-      }
-    }
-  }
-
-  /**
    * create a proposal for starting a Competition
    *
    * @param {IProposalCreateOptionsCompetition} options
@@ -406,6 +320,94 @@ export class CompetitionScheme extends SchemeBase {
     )
 
     return toIOperationObservable(observable)
+  }
+
+  /**
+   *
+   * @param options
+   * @param context
+   */
+  protected async createProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
+      const context = this.context
+      const schemeState = await this.state().pipe(first()).toPromise()
+      if (!schemeState) {
+        throw Error(`No scheme was found with this id: ${this.id}`)
+      }
+
+      const contract = getCompetitionContract(this.context, schemeState)
+
+      // check sanity -- is the competition contract actually c
+      const contributionRewardExtAddress = await contract.contributionRewardExt()
+      if (contributionRewardExtAddress.toLowerCase() !== schemeState.address) {
+        throw Error(`This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${schemeState.address}`)
+      }
+
+      options.descriptionHash = await context.saveIPFSData(options)
+      if (!options.rewardSplit) {
+        throw Error(`Rewardsplit was not given..`)
+      } else {
+        if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
+          throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b)})`)
+        }
+      }
+      // * @param _rewardSplit an array of precentages which specify how to split the rewards
+      // *         between the winning suggestions
+      // * @param _competitionParams competition parameters :
+      // *         _competitionParams[0] - competition startTime
+      // *         _competitionParams[1] - _votingStartTime competition voting start time
+      // *         _competitionParams[2] - _endTime competition end time
+      // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
+      // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
+      // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
+
+      const competitionParams = [
+        (options.startTime && dateToSecondsSinceEpoch(options.startTime)) || 0,
+        dateToSecondsSinceEpoch(options.votingStartTime) || 0,
+        dateToSecondsSinceEpoch(options.endTime) || 0,
+        options.numberOfVotesPerVoter.toString() || 0,
+        dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
+      ]
+      const proposerIsAdmin = !!options.proposerIsAdmin
+
+      return {
+        contract,
+        method: 'proposeCompetition',
+        args: [
+          options.descriptionHash || '',
+          options.reputationReward && options.reputationReward.toString() || 0,
+          [
+            options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
+            options.ethReward && options.ethReward.toString() || 0,
+            options.externalTokenReward && options.externalTokenReward.toString() || 0
+          ],
+          options.externalTokenAddress || NULL_ADDRESS,
+          options.rewardSplit,
+          competitionParams,
+          proposerIsAdmin
+        ]
+      }
+  }
+
+  protected createProposalTransactionMap(): transactionResultHandler<Proposal> {
+    return (receipt: ITransactionReceipt) => {
+      const args = getEventArgs(receipt, 'NewCompetitionProposal', 'Competition.createProposal')
+      const proposalId = args[0]
+      return new Proposal(this.context, proposalId)
+    }
+  }
+
+  protected createProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
+    return async (err) => {
+      if (err.message.match(/startTime should be greater than proposing time/ig)) {
+        if (!this.context.web3) {
+          throw Error('Web3 provider not set')
+        }
+        return Error(`${err.message} - startTime is ${options.startTime}, current block time is ${await getBlockTime(this.context.web3)}`)
+      } else {
+        const msg = `Error creating proposal: ${err.message}`
+        return Error(msg)
+      }
+    }
   }
 }
 

@@ -83,7 +83,7 @@ export class Queue implements IStateful<IQueueState> {
       return new Queue(
         context,
         item.id,
-        new DAO(context, item.dao.id),
+        new DAO(context, item.dao.id)
       )
     }
 
@@ -93,7 +93,7 @@ export class Queue implements IStateful<IQueueState> {
   constructor(
     public context: Arc,
     public id: string,
-    public dao: DAO,
+    public dao: DAO
   ) {
     this.context = context
   }

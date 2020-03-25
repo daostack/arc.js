@@ -9,6 +9,7 @@
       "no-var-requires": false,
       "semicolon": [true, "never"],
       "quotemark": [true, "single"],
-      "trailing-comma": [true, {"multiline": "never", "singleline": "never"}]
+      "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
+      "object-literal-sort-keys": false
   }
 }

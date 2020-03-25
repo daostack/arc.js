@@ -10,12 +10,12 @@ import { IProposalCreateOptions, IProposalQueryOptions, Proposal } from './propo
 import { Reputation } from './reputation'
 import { IRewardQueryOptions, Reward } from './reward'
 import { ISchemeQueryOptions, Scheme } from './scheme'
+import { SchemeBase } from './schemes/base'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Token } from './token'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
-import { SchemeBase } from './schemes/base'
 
 export interface IDAOStaticState {
   id: Address,

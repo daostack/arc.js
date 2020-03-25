@@ -1,13 +1,13 @@
 import BN = require('bn.js')
 import { Arc } from '../arc'
-import { Proposal, IProposalBaseCreateOptions } from '../proposal'
+import {
+  getEventArgs,
+  ITransaction,
+  ITransactionReceipt
+} from '../operation'
+import { IProposalBaseCreateOptions, Proposal } from '../proposal'
 import { Address } from '../types'
 import { NULL_ADDRESS } from '../utils'
-import {
-  ITransaction,
-  ITransactionReceipt,
-  getEventArgs
-} from '../operation'
 
 export interface IContributionReward {
   beneficiary: Address
@@ -43,7 +43,10 @@ export enum IProposalType {
   ContributionReward = 'ContributionReward' // propose a contributionReward
 }
 
-export async function createProposalTransaction(context: Arc, options: IProposalCreateOptionsCR): Promise<ITransaction> {
+export async function createProposalTransaction(
+  context: Arc,
+  options: IProposalCreateOptionsCR
+): Promise<ITransaction> {
   options.descriptionHash = await context.saveIPFSData(options)
 
   if (options.scheme === undefined) {

@@ -4,10 +4,10 @@ import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
+import { ITransactionReceipt, Operation } from './operation'
 import { REPUTATION_CONTRACT_VERSION } from './settings'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
-import { Operation, ITransactionReceipt } from './operation'
 
 export interface IReputationState {
   address: Address

@@ -1,4 +1,5 @@
 import BN = require('bn.js')
+import { utils } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { first, map } from 'rxjs/operators'
@@ -11,7 +12,6 @@ import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { concat, createGraphQlQuery, hexStringToUint8Array, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
-import { utils } from 'ethers'
 
 export interface IMemberStaticState {
   id?: string,

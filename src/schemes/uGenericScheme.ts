@@ -1,11 +1,11 @@
 import { Arc } from '../arc'
-import { Proposal, IProposalBaseCreateOptions } from '../proposal'
-import { Address } from '../types'
 import {
+  getEventArgs,
   ITransaction,
-  ITransactionReceipt,
-  getEventArgs
+  ITransactionReceipt
 } from '../operation'
+import { IProposalBaseCreateOptions, Proposal } from '../proposal'
+import { Address } from '../types'
 
 export interface IUGenericSchemeInfo {
   id: string
@@ -30,7 +30,10 @@ export enum IProposalType {
   GenericScheme = 'UGenericScheme'
 }
 
-export async function createProposalTransaction(context: Arc, options: IProposalCreateOptionsGS): Promise<ITransaction> {
+export async function createProposalTransaction(
+  context: Arc,
+  options: IProposalCreateOptionsGS
+): Promise<ITransaction> {
   if (options.callData === undefined) {
     throw new Error(`Missing argument "callData" for UGenericScheme in Proposal.create()`)
   }

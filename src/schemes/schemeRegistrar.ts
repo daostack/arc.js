@@ -1,11 +1,11 @@
 import { Arc } from '../arc'
-import { Proposal, IProposalBaseCreateOptions } from '../proposal'
-import { Address } from '../types'
 import {
+  getEventArgs,
   ITransaction,
-  ITransactionReceipt,
-  getEventArgs
+  ITransactionReceipt
 } from '../operation'
+import { IProposalBaseCreateOptions, Proposal } from '../proposal'
+import { Address } from '../types'
 
 export interface ISchemeRegistrar {
   id: string
@@ -30,7 +30,10 @@ export enum IProposalType {
   SchemeRegistrarRemove = 'SchemeRegistrarRemove' // propose to remove a registered scheme
 }
 
-export async function createProposalTransaction(context: Arc, options: IProposalCreateOptionsSR): Promise<ITransaction> {
+export async function createProposalTransaction(
+  context: Arc,
+  options: IProposalCreateOptionsSR
+): Promise<ITransaction> {
   let msg: string
   switch (options.proposalType) {
     case IProposalType.SchemeRegistrarAdd:

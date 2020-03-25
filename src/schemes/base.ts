@@ -5,9 +5,9 @@ import { Arc, IApolloQueryOptions } from '../arc'
 // import { DAO } from './dao'
 import { IGenesisProtocolParams } from '../genesisProtocol'
 import {
+  ITransaction,
   Operation,
   toIOperationObservable,
-  ITransaction,
   transactionErrorHandler,
   transactionResultHandler
 } from '../operation'
@@ -286,22 +286,6 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
     this.staticState = opts
   }
 
-  /**
-   * create a new proposal in this scheme
-   * TODO: move this to the schemes - we should call proposal.scheme.createProposal
-   * @param  options [description ]
-   * @return a Proposal instance
-   */
-  protected abstract async createProposalTransaction(
-    options: IProposalCreateOptions
-  ): Promise<ITransaction>
-
-  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
-
-  protected abstract createProposalErrorHandler(
-    options: IProposalCreateOptions
-  ): transactionErrorHandler
-
   public createProposal(options: IProposalCreateOptions): Operation<Proposal>  {
     const observable = Observable.create(async (observer: any) => {
       try {
@@ -333,4 +317,19 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
     return Proposal.search(this.context, options, apolloQueryOptions)
   }
 
+  /**
+   * create a new proposal in this scheme
+   * TODO: move this to the schemes - we should call proposal.scheme.createProposal
+   * @param  options [description ]
+   * @return a Proposal instance
+   */
+  protected abstract async createProposalTransaction(
+    options: IProposalCreateOptions
+  ): Promise<ITransaction>
+
+  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
+
+  protected abstract createProposalErrorHandler(
+    options: IProposalCreateOptions
+  ): transactionErrorHandler
 }

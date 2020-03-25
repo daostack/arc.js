@@ -1,4 +1,7 @@
 import BN = require('bn.js')
+import { Contract, Signer } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
+import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
 import { map } from 'rxjs/operators'
@@ -9,12 +12,12 @@ import { Event, IEventQueryOptions } from './event'
 import { IPFSClient } from './ipfsClient'
 import { Logger } from './logger'
 import {
-  Operation,
   ITransaction,
   ITransactionReceipt,
+  Operation,
+  sendTransaction,
   transactionErrorHandler,
-  transactionResultHandler,
-  sendTransaction
+  transactionResultHandler
 } from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
 import { IRewardQueryOptions, Reward } from './reward'
@@ -26,9 +29,6 @@ import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
-import { JsonRpcProvider } from 'ethers/providers'
-import { BigNumber } from 'ethers/utils'
-import { Contract, Signer } from 'ethers'
 
 /**
  * The Arc class holds all configuration.
@@ -164,7 +164,7 @@ export class Arc extends GraphNodeObserver {
   public schemes(
     options: ISchemeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<(Scheme|SchemeBase)[]> {
+  ): Observable<SchemeBase[]> {
     return Scheme.search(this, options, apolloQueryOptions)
   }
 
@@ -215,20 +215,22 @@ export class Arc extends GraphNodeObserver {
       this.observedAccounts[owner].observer = observer
 
       // get the current balance and return it
-      if (!this.web3) throw new Error('Web3 provider not defined')
+      if (!this.web3) {
+        throw new Error('Web3 provider not defined')
+      }
 
       this.web3.getBalance(owner)
         .then((currentBalance: BigNumber) => {
           const balance = currentBalance.toString()
-          const accInfo = this.observedAccounts[owner];
-          (accInfo.observer as Observer<BN>).next(new BN(balance))
+          const obs = this.observedAccounts[owner].observer as Observer<BN>
+          obs.next(new BN(balance))
           this.observedAccounts[owner].lastBalance = balance
         })
         .catch((err: Error) => observer.error(err))
 
       // called whenever the account balance changes
       const onBalanceChange = (balance: BigNumber) => {
-        const accInfo = this.observedAccounts[owner];
+        const accInfo = this.observedAccounts[owner]
         if (accInfo && balance.toString() !== accInfo.lastBalance) {
           (accInfo.observer as Observer<BN>).next(new BN(balance.toString()))
           accInfo.lastBalance = balance.toString()
@@ -385,7 +387,9 @@ export class Arc extends GraphNodeObserver {
   public getSigner(): Observable<Signer> {
     return Observable.create((observer: Observer<Signer>) => {
       const subscription = this.getAccount().subscribe((address) => {
-        if (!this.web3) throw new Error('Web3 provider not set')
+        if (!this.web3) {
+          throw new Error('Web3 provider not set')
+        }
         observer.next(
           this.web3.getSigner(address)
         )
@@ -446,8 +450,10 @@ export class Arc extends GraphNodeObserver {
       }
     }
     Logger.debug('Saving data on IPFS...')
-    if (!this.ipfs) throw Error('IPFS provider not set')
-    let descriptionHash = await this.ipfs.addString(JSON.stringify(ipfsDataToSave))
+    if (!this.ipfs) {
+      throw Error('IPFS provider not set')
+    }
+    const descriptionHash = await this.ipfs.addString(JSON.stringify(ipfsDataToSave))
     // pin the file
     await this.ipfs.pinHash(descriptionHash)
     Logger.debug(`Data saved successfully as ${descriptionHash}`)

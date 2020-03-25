@@ -1,9 +1,9 @@
 import BN = require('bn.js')
 import { Arc } from '../arc'
+import {  getEventArgs, ITransaction, ITransactionReceipt } from '../operation'
 import { IProposalBaseCreateOptions, Proposal } from '../proposal'
 import { Address } from '../types'
 import { NULL_ADDRESS } from '../utils'
-import { ITransaction, ITransactionReceipt, getEventArgs } from '../operation'
 
 // // this interface is not used - it is conflated with IContributionReward
 export interface IContributionRewardExt {
@@ -39,7 +39,10 @@ export enum IProposalType {
   ContributionReward = 'ContributionRewardExt' // propose a contributionReward
 }
 
-export async function createProposalTransaction(context: Arc, options: IProposalCreateOptionsCRExt): Promise<ITransaction> {
+export async function createProposalTransaction(
+  context: Arc,
+  options: IProposalCreateOptionsCRExt
+): Promise<ITransaction> {
   if (!options.proposer) {
     options.proposer = NULL_ADDRESS
   }

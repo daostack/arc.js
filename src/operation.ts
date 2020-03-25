@@ -1,13 +1,13 @@
-import { Observable, Observer } from 'rxjs'
-import { first, take } from 'rxjs/operators'
-import { Arc } from './arc'
-import { Logger } from './logger'
-import { TransactionResponse } from 'ethers/providers'
 import {
   Contract,
   ContractReceipt as ITransactionReceipt,
   Event as ITransactionEvent
 } from 'ethers/contract'
+import { TransactionResponse } from 'ethers/providers'
+import { Observable, Observer } from 'rxjs'
+import { first, take } from 'rxjs/operators'
+import { Arc } from './arc'
+import { Logger } from './logger'
 
 export interface ITransaction {
   contract: Contract
@@ -99,7 +99,7 @@ export function sendTransaction<T>(
 ): Operation<T> {
 
   const observable = Observable.create(async (observer: Observer<ITransactionUpdate<T>>) => {
-    const catchHandler = async (error: Error, tx: ITransaction, from?: string) => {
+    const catchHandler = async (error: Error, transaction: ITransaction, from?: string) => {
       try {
         error = await errorHandler(error, tx, { from })
       } catch (err) {
@@ -109,13 +109,13 @@ export function sendTransaction<T>(
     }
 
     // Get the current account
-    const from = await context.getSigner().pipe(first()).toPromise()
+    const signer = await context.getSigner().pipe(first()).toPromise()
 
     // Construct a new contract with the current signer
     const contract = new Contract(
       tx.contract.address,
       tx.contract.interface,
-      from
+      signer
     )
 
     let gasLimit: number
@@ -126,7 +126,7 @@ export function sendTransaction<T>(
       try {
         gasLimit = (await contract.estimate[tx.method](...tx.args)).toNumber()
       } catch (error) {
-        await catchHandler(error, tx, await from.getAddress())
+        await catchHandler(error, tx, await signer.getAddress())
         return
       }
     }
@@ -147,11 +147,13 @@ export function sendTransaction<T>(
     try {
       response = await contract[tx.method](...tx.args, overrides)
     } catch (error) {
-      await catchHandler(error, tx, await from.getAddress())
+      await catchHandler(error, tx, await signer.getAddress())
       return
     }
 
-    if (!response.hash) throw Error('Transaction hash is undefined')
+    if (!response.hash) {
+      throw Error('Transaction hash is undefined')
+    }
     hash = response.hash
 
     Logger.debug('Sending transaction..')
@@ -185,19 +187,21 @@ export function sendTransaction<T>(
      * we may have incorrectly counted the "receipt" event as a confirmation.
      */
 
-    if (!context.web3) throw new Error('Web3 provider not set')
+    if (!context.web3) {
+      throw new Error('Web3 provider not set')
+    }
     const web3 = context.web3
 
     // Subscribe to new blocks, and look for new confirmations on our transaction
     const onNewBlock = async (blockNumber: number) => {
-      const receipt = await web3.getTransactionReceipt(response.hash as string)
+      const { confirmations: latestConfirmations } = await web3.getTransactionReceipt(response.hash as string)
 
-      if (!receipt.confirmations || confirmations >= receipt.confirmations) {
+      if (!latestConfirmations || confirmations >= latestConfirmations) {
         // Wait for a new block, as there are no new confirmations
         return
       } else {
         // We've received new confirmations!
-        confirmations = receipt.confirmations
+        confirmations = latestConfirmations
       }
 
       // Update the observer
@@ -237,7 +241,7 @@ export function getEventArgs(receipt: ITransactionReceipt, eventName: string, co
   }
 
   const event = receipt.events.find(
-    (event: ITransactionEvent) => event.event === eventName
+    (e: ITransactionEvent) => e.event === eventName
   )
 
   if (!event || !event.args) {
