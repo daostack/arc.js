@@ -97,7 +97,7 @@ export class Vote implements IStateful<IVoteState> {
       } else {
         throw new Error(`Unexpected value for proposalVote.outcome: ${r.outcome}`)
       }
-      return new Vote({
+      return new Vote(context, {
         amount: new BN(r.reputation || 0),
         createdAt: r.createdAt,
         dao: r.dao.id,
@@ -105,7 +105,7 @@ export class Vote implements IStateful<IVoteState> {
         outcome,
         proposal: r.proposal.id,
         voter: r.voter
-      }, context)
+      })
     }
 
     // if we are searching for votes of a specific proposal (a common case), we
@@ -156,7 +156,7 @@ export class Vote implements IStateful<IVoteState> {
   public id: string|undefined
   public staticState: IVoteStaticState|undefined
 
-  constructor(idOrOpts: string|IVoteStaticState, public context: Arc) {
+  constructor(public context: Arc, idOrOpts: string|IVoteStaticState) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {

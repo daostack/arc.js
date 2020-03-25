@@ -81,9 +81,9 @@ export class Queue implements IStateful<IQueueState> {
       // we must filter explictly by name as the subgraph does not return the name
 
       return new Queue(
+        context,
         item.id,
-        new DAO(item.dao.id, context),
-        context
+        new DAO(context, item.dao.id),
       )
     }
 
@@ -91,9 +91,9 @@ export class Queue implements IStateful<IQueueState> {
   }
 
   constructor(
+    public context: Arc,
     public id: string,
     public dao: DAO,
-    public context: Arc
   ) {
     this.context = context
   }
@@ -121,7 +121,7 @@ export class Queue implements IStateful<IQueueState> {
         throw Error(`No gpQueue with id ${this.id} was found`)
       }
       const threshold = realMathToNumber(new BN(item.threshold))
-      const scheme = Scheme.itemMap(item.scheme, this.context) as ISchemeState
+      const scheme = Scheme.itemMap(this.context, item.scheme) as ISchemeState
       return {
         dao: item.dao.id,
         id: item.id,

@@ -19,14 +19,14 @@ describe('vote', () => {
   })
 
   it('Vote is instantiable', () => {
-    const vote = new Vote({
+    const vote = new Vote(arc, {
       amount: toWei('100'),
       createdAt: 0,
       id: '0x1234id',
       outcome: IProposalOutcome.Fail,
       proposal: '0x12445proposalId',
       voter: '0x124votes'
-    }, arc)
+    })
     expect(vote).toBeInstanceOf(Vote)
   })
 

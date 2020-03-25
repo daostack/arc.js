@@ -97,7 +97,7 @@ export class Reward implements IStateful<IRewardState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    const itemMap = (item: any) => new Reward({
+    const itemMap = (item: any) => new Reward(context, {
       beneficiary: item.beneficiary,
       createdAt: item.createdAt,
       daoBountyForStaker: new BN(item.daoBountyForStaker),
@@ -107,7 +107,7 @@ export class Reward implements IStateful<IRewardState> {
       reputationForVoter: new BN(item.reputationForVoter),
       tokenAddress: item.tokenAddress,
       tokensForStaker: new BN(item.tokensForStaker)
-    }, context)
+    })
 
     let query
     if (proposalId) {
@@ -154,7 +154,7 @@ export class Reward implements IStateful<IRewardState> {
   public id: string
   public staticState: IRewardStaticState|undefined
 
-  constructor(public idOrOpts: string|IRewardStaticState, public context: Arc) {
+  constructor(public context: Arc, public idOrOpts: string|IRewardStaticState) {
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts

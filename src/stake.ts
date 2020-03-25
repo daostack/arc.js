@@ -93,14 +93,14 @@ export class Stake implements IStateful<IStakeState> {
       } else {
         throw new Error(`Unexpected value for proposalStakes.outcome: ${r.outcome}`)
       }
-      return new Stake({
+      return new Stake(context, {
         amount: new BN(r.amount || 0),
         createdAt: r.createdAt,
         id: r.id,
         outcome,
         proposal: r.proposal.id,
         staker: r.staker
-      }, context)
+      })
     }
 
     if (proposalId && !options.where.id) {
@@ -149,8 +149,8 @@ export class Stake implements IStateful<IStakeState> {
   public staticState: IStakeStaticState|undefined
 
   constructor(
-      idOrOpts: string|IStakeStaticState,
-      public context: Arc
+      public context: Arc,
+      idOrOpts: string|IStakeStaticState
   ) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts

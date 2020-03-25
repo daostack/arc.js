@@ -80,14 +80,14 @@ export class Token implements IStateful<ITokenState> {
 
     return context.getObservableList(
       query,
-      (r: any) => new Token(r.id, context),
+      (r: any) => new Token(context, r.id),
       apolloQueryOptions
     ) as Observable<Token[]>
   }
 
   public address: string
 
-  constructor(public id: Address, public context: Arc) {
+  constructor(public context: Arc, public id: Address) {
     if (!id) {
       throw Error(`No address provided - cannot create Token instance`)
     }

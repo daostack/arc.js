@@ -31,9 +31,9 @@ describe('Member', () => {
   })
 
   it('Member is instantiable', () => {
-    const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
+    const member = new Member(arc, { address: defaultAccount, dao: dao.id, contract: daoState.reputation.address})
     expect(member).toBeInstanceOf(Member)
-    const memberFromId = new Member('0xsomeId', arc)
+    const memberFromId = new Member(arc, '0xsomeId')
     expect(memberFromId).toBeInstanceOf(Member)
   })
 
@@ -49,17 +49,17 @@ describe('Member', () => {
     const members = await Member.search(arc, {where: { dao: dao.id}}).pipe(first()).toPromise()
     const member = members[0]
     const memberState = await member.state().pipe(first()).toPromise()
-    const newMember = new Member({dao: memberState.dao, address: memberState.address}, arc)
+    const newMember = new Member(arc, {dao: memberState.dao, address: memberState.address})
     const newMemberState = await newMember.state().pipe(first()).toPromise()
     expect(memberState).toEqual(newMemberState)
   })
 
   it('Member state works if address has no reputation', async () => {
-    const member = new Member({
+    const member = new Member(arc, {
       address: '0xe3016a92b6c728f5a55fe45029804de60148c689',
       contract: daoState.reputation.address,
       dao: dao.id
-    }, arc)
+    })
     const memberState = await member.state().pipe(first()).toPromise()
     expect(Number(memberState.reputation)).toEqual(0)
     expect(memberState.address).toEqual('0xe3016a92b6c728f5a55fe45029804de60148c689')
@@ -67,11 +67,11 @@ describe('Member', () => {
   })
 
   it('Member state works for a non-existent member, using cache-only', async () => {
-    const member = new Member({
+    const member = new Member(arc, {
       address: '0xe3016a92b6c728f5a55fe45029804de601481234',
       contract: daoState.reputation.address,
       dao: dao.id
-    }, arc)
+    })
     const memberState = await member.state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
     expect(Number(memberState.reputation)).toEqual(0)
     expect(memberState.address).toEqual('0xe3016a92b6c728f5a55fe45029804de601481234')
@@ -80,7 +80,7 @@ describe('Member', () => {
 
 
   it('Member proposals() works', async () => {
-    const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
+    const member = new Member(arc, { address: defaultAccount, dao: dao.id, contract: daoState.reputation.address})
     let proposals: Proposal[] = []
     member.proposals().subscribe((next: Proposal[]) => proposals = next)
     // wait until the proposal has been indexed
@@ -93,7 +93,7 @@ describe('Member', () => {
   it('Member stakes() works', async () => {
     if (!arc.web3) throw new Error('Web3 provider not set')
     const stakerAccount = await arc.web3.getSigner(0).getAddress()
-    const member = new Member({ address: stakerAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
+    const member = new Member(arc, { address: stakerAccount, dao: dao.id, contract: daoState.reputation.address})
     const proposal = await createAProposal()
     const stakingToken =  await proposal.stakingToken()
     // mint tokens with defaultAccount
@@ -121,7 +121,7 @@ describe('Member', () => {
   })
 
   it('Member votes() works', async () => {
-    const member = new Member({ address: defaultAccount, dao: dao.id, contract: daoState.reputation.address}, arc)
+    const member = new Member(arc, { address: defaultAccount, dao: dao.id, contract: daoState.reputation.address})
     const proposal = await createAProposal()
     const votes: Vote[][] = []
     member.votes().subscribe((next: Vote[]) => votes.push(next))

@@ -30,7 +30,7 @@ export enum IProposalType {
   SchemeRegistrarRemove = 'SchemeRegistrarRemove' // propose to remove a registered scheme
 }
 
-export async function createProposalTransaction(options: IProposalCreateOptionsSR, context: Arc): Promise<ITransaction> {
+export async function createProposalTransaction(context: Arc, options: IProposalCreateOptionsSR): Promise<ITransaction> {
   let msg: string
   switch (options.proposalType) {
     case IProposalType.SchemeRegistrarAdd:
@@ -82,7 +82,7 @@ export async function createProposalTransaction(options: IProposalCreateOptionsS
   throw Error('For a schemeregistrar proposal, you must specifcy proposal.proposalType')
 }
 
-export function createTransactionMap(options: IProposalCreateOptionsSR, context: Arc) {
+export function createTransactionMap(context: Arc, options: IProposalCreateOptionsSR) {
   return (receipt: ITransactionReceipt) => {
     let eventName: string
     switch (options.proposalType) {
@@ -98,6 +98,6 @@ export function createTransactionMap(options: IProposalCreateOptionsSR, context:
     }
     const args = getEventArgs(receipt, eventName, 'SchemeRegistrar.createProposal')
     const proposalId = args[1]
-    return new Proposal(proposalId, context)
+    return new Proposal(context, proposalId)
   }
 }

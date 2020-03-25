@@ -39,7 +39,7 @@ export enum IProposalType {
   ContributionReward = 'ContributionRewardExt' // propose a contributionReward
 }
 
-export async function createProposalTransaction(options: IProposalCreateOptionsCRExt, context: Arc): Promise<ITransaction> {
+export async function createProposalTransaction(context: Arc, options: IProposalCreateOptionsCRExt): Promise<ITransaction> {
   if (!options.proposer) {
     options.proposer = NULL_ADDRESS
   }
@@ -68,10 +68,10 @@ export async function createProposalTransaction(options: IProposalCreateOptionsC
   }
 }
 
-export function createProposalTransactionMap(options: IProposalCreateOptionsCRExt, context: Arc) {
+export function createProposalTransactionMap(context: Arc, options: IProposalCreateOptionsCRExt) {
   return (receipt: ITransactionReceipt) => {
     const args = getEventArgs(receipt, 'NewContributionProposal', 'ContributionRewardExt.createProposal')
     const proposalId = args[1]
-    return new Proposal(proposalId, context)
+    return new Proposal(context, proposalId)
   }
 }

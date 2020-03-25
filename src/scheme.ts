@@ -153,23 +153,23 @@ export class Scheme extends SchemeBase  {
     const itemMap = (item: any): SchemeBase|null => {
       if (!options.where) { options.where = {}}
       if (isCompetitionScheme(context, item)) {
-        return new Competition.CompetitionScheme({
+        return new Competition.CompetitionScheme(context, {
           address: item.address,
           dao: item.dao.id,
           id: item.id,
           name: item.name,
           paramsHash: item.paramsHash,
           version: item.version
-        }, context)
+        })
       } else {
-        const scheme = new Scheme({
+        const scheme = new Scheme(context, {
           address: item.address,
           dao: item.dao.id,
           id: item.id,
           name: item.name,
           paramsHash: item.paramsHash,
           version: item.version
-        }, context)
+        })
         return scheme
       }
     }
@@ -190,7 +190,7 @@ export class Scheme extends SchemeBase  {
    * @returns {(ISchemeState|null)}
    * @memberof Scheme
    */
-  public static itemMap(item: any, arc: Arc): ISchemeState|null {
+  public static itemMap(arc: Arc, item: any): ISchemeState|null {
     if (!item) {
       return null
     }
@@ -263,8 +263,8 @@ export class Scheme extends SchemeBase  {
   public staticState: ISchemeStaticState | null = null
   public ReputationFromToken: ReputationFromTokenScheme | null = null
 
-  constructor(idOrOpts: Address | ISchemeStaticState, public context: Arc) {
-    super(idOrOpts, context)
+  constructor(public context: Arc, idOrOpts: Address | ISchemeStaticState) {
+    super(context, idOrOpts)
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts as string
@@ -316,7 +316,7 @@ export class Scheme extends SchemeBase  {
       }
       ${SchemeBase.fragments.SchemeFields}
     `
-    const itemMap = (item: any) => Scheme.itemMap(item, this.context)
+    const itemMap = (item: any) => Scheme.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeState>
   }
 
@@ -353,8 +353,8 @@ export class Scheme extends SchemeBase  {
         switch (state.name) {
           case 'ContributionReward': {
             const opts = options as ContributionReward.IProposalCreateOptionsCR
-            transaction = await ContributionReward.createProposalTransaction(opts, this.context)
-            map = ContributionReward.createProposalTransactionMap(opts, this.context)
+            transaction = await ContributionReward.createProposalTransaction(this.context, opts)
+            map = ContributionReward.createProposalTransactionMap(this.context, opts)
             break
           }
           case 'ContributionRewardExt': {
@@ -362,20 +362,20 @@ export class Scheme extends SchemeBase  {
             // For now, we explicitly pass this in the options, but in reality (once 36-4 is released) we
             // should be able to sniff this: if the rewarder of the scheme is a Contribution.sol instance....
             if (options.proposalType === 'competition') {
-              const competitionScheme = new CompetitionScheme(this.id, this.context)
+              const competitionScheme = new CompetitionScheme(this.context, this.id)
               const opts = options as Competition.IProposalCreateOptionsComp
               return await competitionScheme.createProposal(opts)
             } else {
               const opts = options as ContributionRewardExt.IProposalCreateOptionsCRExt
-              transaction = await ContributionRewardExt.createProposalTransaction(opts, this.context)
-              map = ContributionRewardExt.createProposalTransactionMap(opts, this.context)
+              transaction = await ContributionRewardExt.createProposalTransaction(this.context, opts)
+              map = ContributionRewardExt.createProposalTransactionMap(this.context, opts)
             }
             break
           }
           case 'UGenericScheme': {
             const opts = options as UGenericScheme.IProposalCreateOptionsGS
-            transaction = await UGenericScheme.createProposalTransaction(opts, this.context)
-            map = UGenericScheme.createProposalTransactionMap(options, this.context)
+            transaction = await UGenericScheme.createProposalTransaction(this.context, opts)
+            map = UGenericScheme.createProposalTransactionMap(this.context, opts)
             break
           }
           case 'GenericScheme': {
@@ -383,20 +383,20 @@ export class Scheme extends SchemeBase  {
             if (versionNumber < 23) {
               // the pre-24 " GenericScheme" contracts have beeen renamed to UGenericScheme
               const opts = options as UGenericScheme.IProposalCreateOptionsGS
-              transaction = await UGenericScheme.createProposalTransaction(opts, this.context)
-              map = UGenericScheme.createProposalTransactionMap(opts, this.context)
+              transaction = await UGenericScheme.createProposalTransaction(this.context, opts)
+              map = UGenericScheme.createProposalTransactionMap(this.context, opts)
               break
             } else {
               const opts = options as GenericScheme.IProposalCreateOptionsGS
-              transaction = await GenericScheme.createProposalTransaction(opts, this.context)
-              map = GenericScheme.createProposalTransactionMap(opts, this.context)
+              transaction = await GenericScheme.createProposalTransaction(this.context, opts)
+              map = GenericScheme.createProposalTransactionMap(this.context, opts)
               break
             }
           }
           case 'SchemeRegistrar': {
             const opts = options as SchemeRegistrar.IProposalCreateOptionsSR
-            transaction = await SchemeRegistrar.createProposalTransaction(opts, this.context)
-            map = SchemeRegistrar.createTransactionMap(options, this.context)
+            transaction = await SchemeRegistrar.createProposalTransaction(this.context, opts)
+            map = SchemeRegistrar.createTransactionMap(this.context, opts)
             break
           }
           default:

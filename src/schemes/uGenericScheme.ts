@@ -30,7 +30,7 @@ export enum IProposalType {
   GenericScheme = 'UGenericScheme'
 }
 
-export async function createProposalTransaction(options: IProposalCreateOptionsGS, context: Arc): Promise<ITransaction> {
+export async function createProposalTransaction(context: Arc, options: IProposalCreateOptionsGS): Promise<ITransaction> {
   if (options.callData === undefined) {
     throw new Error(`Missing argument "callData" for UGenericScheme in Proposal.create()`)
   }
@@ -57,14 +57,14 @@ export async function createProposalTransaction(options: IProposalCreateOptionsG
 
 /**
  * map the transaction receipt of the createTransaction call to a nice result
- * @param  options  the options passed to the createProposal call
  * @param  context an Arc instance
+ * @param  options  the options passed to the createProposal call
  * @return         [description]
  */
-export function createProposalTransactionMap(options: IProposalCreateOptionsGS, context: Arc) {
+export function createProposalTransactionMap(context: Arc, options: IProposalCreateOptionsGS) {
   return async (receipt: ITransactionReceipt) => {
     const args = getEventArgs(receipt, 'NewCallProposal', 'UGenericScheme.createProposal')
     const proposalId = args[1]
-    return new Proposal(proposalId, context)
+    return new Proposal(context, proposalId)
   }
 }

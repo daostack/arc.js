@@ -22,8 +22,8 @@ describe('Scheme', () => {
 
   it('Scheme is instantiable', () => {
     const scheme = new Scheme(
-      '0x1234id', // id
-      arc
+      arc,
+      '0x1234id' // id
     )
     expect(scheme).toBeInstanceOf(Scheme)
   })

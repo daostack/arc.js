@@ -305,7 +305,7 @@ export class Proposal implements IStateful<IProposalState> {
       `
       return context.getObservableList(
         query,
-        (r: any) => new Proposal(r, context),
+        (r: any) => new Proposal(context, r),
         apolloQueryOptions
       ) as IObservable<Proposal[]>
     } else {
@@ -326,7 +326,7 @@ export class Proposal implements IStateful<IProposalState> {
       `
       return context.getObservableList(
         query,
-        (r: any) => new Proposal(r.id, context),
+        (r: any) => new Proposal(context, r.id),
         apolloQueryOptions
       ) as IObservable<Proposal[]>
     }
@@ -336,8 +336,8 @@ export class Proposal implements IStateful<IProposalState> {
   public id: string
   public staticState: IProposalStaticState | undefined
   constructor(
-    idOrOpts: string | IProposalStaticState,
-    context: Arc
+    context: Arc,
+    idOrOpts: string | IProposalStaticState
   ) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
@@ -535,7 +535,7 @@ export class Proposal implements IStateful<IProposalState> {
       const scheme = item.scheme
       const gpQueue = item.gpQueue
 
-      const schemeState = Scheme.itemMap(scheme, this.context) as ISchemeState
+      const schemeState = Scheme.itemMap(this.context, scheme) as ISchemeState
       const queueState: IQueueState = {
         dao: item.dao.id,
         id: gpQueue.id,
@@ -553,7 +553,7 @@ export class Proposal implements IStateful<IProposalState> {
         confidenceThreshold: Number(item.confidenceThreshold),
         contributionReward,
         createdAt: Number(item.createdAt),
-        dao: new DAO(item.dao.id, this.context),
+        dao: new DAO(this.context, item.dao.id),
         description: item.description,
         descriptionHash: item.descriptionHash,
         downStakeNeededToQueue,
@@ -655,14 +655,15 @@ export class Proposal implements IStateful<IProposalState> {
         return null
       }
 
-      return new Vote({
+
+      return new Vote(this.context, {
         amount: args[3], // _reputation
         // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
         createdAt: 0, // createdAt -
         outcome,
         proposal: this.id, // proposalID
         voter: args[2] // _vote
-      }, this.context)
+      })
     }
 
     const errorHandler = async (error: Error) => {
@@ -725,14 +726,14 @@ export class Proposal implements IStateful<IProposalState> {
 
       const args = getEventArgs(receipt, 'Stake', 'Proposal.stake')
 
-      return new Stake({
+      return new Stake(this.context, {
         amount: args[3], // _amount
         // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
         createdAt: undefined,
         outcome,
         proposal: this.id, // proposalID
         staker: args[2] // _staker
-      }, this.context)
+      })
     }
 
     const errorHandler = async (error: Error) => {

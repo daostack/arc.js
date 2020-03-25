@@ -34,7 +34,7 @@ describe('ContributionReward Ext', () => {
 
     const contributionRewardExt = contributionRewardExts[0] as Scheme
     const contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
-    const dao = new DAO(contributionRewardExtState.dao, arc)
+    const dao = new DAO(arc, contributionRewardExtState.dao)
 
     const tx = await dao.createProposal({
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',

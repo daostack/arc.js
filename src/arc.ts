@@ -141,7 +141,7 @@ export class Arc extends GraphNodeObserver {
    */
   public dao(address: Address): DAO {
     isAddress(address)
-    return new DAO(address, this)
+    return new DAO(this, address)
   }
 
   /**
@@ -158,7 +158,7 @@ export class Arc extends GraphNodeObserver {
   }
 
   public scheme(id: string): Scheme {
-    return new Scheme(id, this)
+    return new Scheme(this, id)
   }
 
   public schemes(
@@ -169,7 +169,7 @@ export class Arc extends GraphNodeObserver {
   }
 
   public proposal(id: string): Proposal {
-    return new Proposal(id, this)
+    return new Proposal(this, id)
   }
 
   public proposals(
@@ -333,7 +333,7 @@ export class Arc extends GraphNodeObserver {
     if (this.contractInfos) {
       for (const contractInfo of this.contractInfos) {
         if (contractInfo.name === 'GEN') {
-          return new Token(contractInfo.address, this)
+          return new Token(this, contractInfo.address)
         }
       }
       throw Error(`Cannot find address of GEN Token - did you call setContractInfos?`)

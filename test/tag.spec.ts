@@ -20,15 +20,15 @@ describe('Tag', () => {
   })
 
   it('Tag is instantiable', () => {
-    const tag = new Tag('0x1234id', arc)
+    const tag = new Tag(arc, '0x1234id')
     expect(tag).toBeInstanceOf(Tag)
-    const tag2 = new Tag({ id: '0x1234id', numberOfProposals: 2}, arc)
+    const tag2 = new Tag(arc, { id: '0x1234id', numberOfProposals: 2})
     expect(tag2).toBeInstanceOf(Tag)
   })
 
   it('Tags are saved on a proposal', async () => {
     const proposal = await createAProposal(dao, { tags })
-    const proposalState = await (new Proposal(proposal.id, arc)).state().pipe(first()).toPromise()
+    const proposalState = await (new Proposal(arc, proposal.id)).state().pipe(first()).toPromise()
     expect(proposalState.tags).toEqual(tags)
   })
 

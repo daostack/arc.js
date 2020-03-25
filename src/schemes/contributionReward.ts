@@ -43,7 +43,7 @@ export enum IProposalType {
   ContributionReward = 'ContributionReward' // propose a contributionReward
 }
 
-export async function createProposalTransaction(options: IProposalCreateOptionsCR, context: Arc): Promise<ITransaction> {
+export async function createProposalTransaction(context: Arc, options: IProposalCreateOptionsCR): Promise<ITransaction> {
   options.descriptionHash = await context.saveIPFSData(options)
 
   if (options.scheme === undefined) {
@@ -70,10 +70,10 @@ export async function createProposalTransaction(options: IProposalCreateOptionsC
   }
 }
 
-export function createProposalTransactionMap(options: IProposalCreateOptionsCR, context: Arc) {
+export function createProposalTransactionMap(context: Arc, options: IProposalCreateOptionsCR) {
   return (receipt: ITransactionReceipt) => {
     const args = getEventArgs(receipt, 'NewContributionProposal', 'ContributionReward.createProposal')
     const proposalId = args[1]
-    return new Proposal(proposalId, context)
+    return new Proposal(context, proposalId)
   }
 }

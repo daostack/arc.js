@@ -172,7 +172,7 @@ export async function createAProposal(
 export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
   const addresses = getTestAddresses(arc, version)
-  const token = new Reputation(addresses.test.organs.DemoReputation, arc)
+  const token = new Reputation(arc, addresses.test.organs.DemoReputation)
   if (!arc.web3) throw new Error('Web3 provider not set')
   const accounts = await arc.web3.listAccounts()
   await token.mint(accounts[1], new BN('99')).send()

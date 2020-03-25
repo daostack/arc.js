@@ -66,7 +66,7 @@ export class Member implements IStateful<IMemberState> {
   ): Observable<Member[]> {
     if (!options.where) { options.where = {}}
     if (options.where.id) {
-      return new Member(options.where.id, context).state().pipe(map((r: any) => [r]))
+      return new Member(context, options.where.id).state().pipe(map((r: any) => [r]))
     } else {
       let where = ''
       for (const key of Object.keys(options.where)) {
@@ -95,7 +95,7 @@ export class Member implements IStateful<IMemberState> {
 
       return context.getObservableList(
           query,
-          (r: any) => new Member({ id: r.id, address: r.address, dao: r.dao.id, contract: r.contract}, context),
+          (r: any) => new Member(context, { id: r.id, address: r.address, dao: r.dao.id, contract: r.contract}),
           apolloQueryOptions
         )
       }
@@ -109,7 +109,7 @@ export class Member implements IStateful<IMemberState> {
    * @param daoAdress addresssof the DAO this member is a member of
    * @param context an instance of Arc
    */
-  constructor(idOrOpts: string|IMemberStaticState, public context: Arc) {
+  constructor(public context: Arc, idOrOpts: string|IMemberStaticState) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts as string
     } else {
@@ -230,7 +230,7 @@ export class Member implements IStateful<IMemberState> {
 
   public async dao(): Promise < DAO > {
     const staticState = await this.fetchStaticState()
-    return new DAO(staticState.dao as Address, this.context)
+    return new DAO(this.context, staticState.dao as Address)
   }
 
   public rewards(): Observable < Reward[] > {
