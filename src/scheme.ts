@@ -17,7 +17,7 @@ import * as UGenericScheme from './schemes/uGenericScheme'
 import { Address } from './types'
 import { createGraphQlQuery } from './utils'
 
-export { ISchemeQueryOptions, ISchemeState, ISchemeStaticState } from './schemes/base';
+export { ISchemeQueryOptions, ISchemeState, ISchemeStaticState } from './schemes/base'
 
 /**
  * A Scheme represents a scheme instance that is registered at a DAO
