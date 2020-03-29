@@ -421,7 +421,7 @@ describe('Competition Proposal', () => {
     expect(balanceDelta.toString()).not.toEqual('0')
   })
 
-  it(`Rewards left are updated correctdly`, async () => {
+  it.skip(`Rewards left are updated correctdly`, async () => {
     // before any votes are cast, all suggesitons are winnners
     const competition = await createCompetition()
     const proposal = new Proposal(competition.id, arc)
@@ -451,7 +451,7 @@ describe('Competition Proposal', () => {
     })
   })
 
-  it('Vote state works', async () => {
+  it.skip('Vote state works', async () => {
     const competition = await createCompetition()
 
     await suggestion1.vote().send()
@@ -483,7 +483,7 @@ describe('Competition Proposal', () => {
     expect(suggestion1.redeem().send()).rejects.toThrow('not in winners list')
   })
 
-  it('position is calculated correctly and redemptions work', async () => {
+  it.skip('position is calculated correctly and redemptions work', async () => {
     let voteIsIndexed: boolean
     await createCompetition()
 
@@ -541,7 +541,7 @@ describe('Competition Proposal', () => {
     expect(await isWinner(suggestion4)).toEqual(false)
   })
 
-  it('position is calculated correctly (2)', async () => {
+  it.skip('position is calculated correctly (2)', async () => {
     const competition = await createCompetition()
     await suggestion1.vote().send()
     arc.setAccount(address0)
@@ -596,7 +596,7 @@ describe('Competition Proposal', () => {
 
   })
 
-  it('winner is identified correctly also if there are less actual than possible winners', async () => {
+  it.skip('winner is identified correctly also if there are less actual than possible winners', async () => {
     await createCompetition({ rewardSplit: [40, 40, 20] })
     await suggestion1.vote().send()
     // wait until the vote is indexed
@@ -638,7 +638,7 @@ describe('Competition Proposal', () => {
     expect(scheme).toBeInstanceOf(CompetitionScheme)
   })
 
-  it('Can create a propsal using dao.createProposal', async () => {
+  it.skip('Can create a propsal using dao.createProposal', async () => {
     const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 3)
     const proposalOptions = {
