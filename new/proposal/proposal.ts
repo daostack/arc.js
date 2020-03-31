@@ -6,6 +6,7 @@ import { IApolloQueryOptions, Address, ICommonQueryOptions } from '../types'
 import { Plugin } from '../plugins/plugin'
 import { IGenesisProtocolParams } from '../genesisProtocol'
 import { ProposalPlugin } from '../plugins/proposalPlugin'
+import { Arc } from '../arc'
 
 type IProposalType = "ContributionReward" | "GenericScheme" | "SchemeRegistrar"
 
@@ -74,6 +75,21 @@ export interface IProposalState {
 }
 
 export abstract class Proposal extends Entity<IProposalState> {
+
+  constructor(
+    context: Arc,
+    idOrOpts: string | IProposalState
+  ) {
+    super()
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts)
+    }
+    this.context = context
+  }
+
   public static fragments = {
     ProposalFields: gql`fragment ProposalFields on Proposal {
       id

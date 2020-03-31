@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { Operation, toIOperationObservable, ITransaction, transactionErrorHandler, transactionResultHandler } from "../operation";
 import { Plugin } from './plugin'
 
-export abstract class ProposalPlugin<TProposal, TProposalOptions, TPlugin, TPluginParams> extends Plugin<TPluginParams> {
+export abstract class ProposalPlugin<TProposal, TProposalOptions, TPluginParams> extends Plugin<TPluginParams> {
 
   public createProposal(options: TProposalOptions): Operation<TProposal>  {
     const observable = Observable.create(async (observer: any) => {
@@ -30,14 +30,18 @@ export abstract class ProposalPlugin<TProposal, TProposalOptions, TPlugin, TPlug
     options: TProposalOptions
   ): Promise<ITransaction>
 
-  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal<TPlugin>>
+  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
 
   protected abstract createProposalErrorHandler(
     options: TProposalOptions
   ): transactionErrorHandler
 
-  public abstract proposals(
-    options: IProposalQueryOptions,
-    apolloQueryOptions: IApolloQueryOptions
-  ): Observable <Proposal<TPlugin>[]>
+  public proposals(
+    options: IProposalQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable < Proposal[] > {
+    if (!options.where) { options.where = {}}
+    options.where.scheme = this.id
+    return Proposal.search(this.context, options, apolloQueryOptions)
+  }
 }

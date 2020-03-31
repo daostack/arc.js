@@ -12,13 +12,13 @@ export interface IPluginState<TPluginParams> {
   paramsHash: string
   version: string
   canDelegateCall: boolean
-  canRegisterPlugins: boolean
   canUpgradeController: boolean
   canManageGlobalConstraints: boolean
+  canRegisterSchemes: boolean
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
-  pluginParams?: TPluginParams
+  schemeParams?: TPluginParams
 }
 
 export abstract class Plugin<TPluginParams> extends Entity<IPluginState<TPluginParams>> {
