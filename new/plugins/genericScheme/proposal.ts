@@ -1,12 +1,14 @@
-import { Proposal, IProposalState, IProposalStage, IProposalOutcome } from "../../proposal/proposal";
+import { Proposal, IProposalState, IProposalStage, IProposalOutcome, IExecutionState } from "../../proposal/proposal";
 import { realMathToNumber } from "../../utils";
 import BN from 'bn.js'
+import { GenericScheme, IGenericScheme } from "./plugin";
+import { mapGenesisProtocolParams } from "../../genesisProtocol";
 
-interface IGenericSchemeProposalState extends IProposalState {
-
+interface IGenericSchemeProposalState extends IProposalState<GenericScheme> { 
+  genericScheme: IGenericScheme
 }
 
-export class GenericSchemeProposal extends Proposal {
+export class GenericSchemeProposal extends Proposal<GenericScheme> {
   itemMap (item: any): IGenericSchemeProposalState | null {
     if (item === null || item === undefined) {
       // no proposal was found - we return null
@@ -14,7 +16,7 @@ export class GenericSchemeProposal extends Proposal {
       return null
     }
 
-    const result = {
+    const genericScheme = {
       callData: item.genericScheme.callData,
       contractToCall: item.genericScheme.contractToCall,
       executed: item.genericScheme.executed,
@@ -54,7 +56,7 @@ export class GenericSchemeProposal extends Proposal {
     const scheme = item.scheme
     const gpQueue = item.gpQueue
 
-    const schemeState = Scheme.itemMap(this.context, scheme) as ISchemeState
+    const schemeState = GenericScheme.itemMap(this.context, scheme)
     const queueState: IQueueState = {
       dao: item.dao.id,
       id: gpQueue.id,
@@ -83,13 +85,18 @@ export class GenericSchemeProposal extends Proposal {
       organizationId: item.organizationId,
       paramsHash: item.paramsHash,
       preBoostedAt: Number(item.preBoostedAt),
-      proposal: this,
+      proposal: {
+        id: this.id,
+        entity: this
+      },
       proposer: item.proposer,
       queue: queueState,
       quietEndingPeriodBeganAt: Number(item.quietEndingPeriodBeganAt),
       resolvedAt: item.resolvedAt !== undefined ? Number(item.resolvedAt) : 0,
-      scheme: schemeState,
-      schemeRegistrar,
+      scheme: {
+        id: schemeState.id,
+        entity: new GenericScheme(this.context, schemeState)
+      },
       stage,
       stakesAgainst,
       stakesFor,
@@ -97,7 +104,6 @@ export class GenericSchemeProposal extends Proposal {
       title: item.title,
       totalRepWhenCreated: new BN(item.totalRepWhenCreated),
       totalRepWhenExecuted: new BN(item.totalRepWhenExecuted),
-      type,
       upstakeNeededToPreBoost,
       url: item.url,
       voteOnBehalf: item.voteOnBehalf,

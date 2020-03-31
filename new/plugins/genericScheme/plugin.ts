@@ -19,12 +19,20 @@ interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   value?: number
 }
 
-export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IProposalCreateOptionsGS, IGenericSchemeParams> {
-
+export interface IGenericScheme {
+  id: string
   contractToCall: Address
   callData: string
   executed: boolean
   returnValue: string
+}
+
+export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IProposalCreateOptionsGS, IGenericSchemeParams> implements IGenericScheme {
+
+  contractToCall: Address
+  returnValue: string
+  callData: string
+  executed: boolean
 
   protected async createProposalTransaction(options: IProposalCreateOptionsGS): Promise<ITransaction> {
     if (options.callData === undefined) {

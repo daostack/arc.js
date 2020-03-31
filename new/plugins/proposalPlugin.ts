@@ -30,7 +30,7 @@ export abstract class ProposalPlugin<TProposal, TProposalOptions, TPluginParams>
     options: TProposalOptions
   ): Promise<ITransaction>
 
-  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
+  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal<ProposalPlugin<TProposal, TProposalOptions, TPluginParams>>>
 
   protected abstract createProposalErrorHandler(
     options: TProposalOptions
@@ -39,7 +39,7 @@ export abstract class ProposalPlugin<TProposal, TProposalOptions, TPluginParams>
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable < Proposal[] > {
+  ): Observable <Proposal<ProposalPlugin<TProposal, TProposalOptions, TPluginParams>>[]> {
     if (!options.where) { options.where = {}}
     options.where.scheme = this.id
     return Proposal.search(this.context, options, apolloQueryOptions)

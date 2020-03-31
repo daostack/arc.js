@@ -34,12 +34,13 @@ export enum IExecutionState {
   BoostedBarCrossed
 }
 
-export interface IProposalState {
+export interface IProposalState<TProposalPlugin> {
   id: string
   dao: IEntityRef<DAO>
   votingMachine: Address
   accountsWithUnclaimedRewards: Address[],
   boostedAt: Number
+  scheme: IEntityRef<TProposalPlugin>
   confidenceThreshold: number
   closingAt: Number
   createdAt: Number
@@ -53,7 +54,7 @@ export interface IProposalState {
   organizationId: string
   paramsHash: string
   preBoostedAt: Number
-  proposal: IEntityRef<Proposal>
+  proposal: IEntityRef<Proposal<TProposalPlugin>>
   proposer: Address
   queue: IQueueState
   quietEndingPeriodBeganAt: Number
@@ -74,11 +75,11 @@ export interface IProposalState {
   winningOutcome: IProposalOutcome
 }
 
-export abstract class Proposal extends Entity<IProposalState> {
+export abstract class Proposal<TProposalPlugin> extends Entity<IProposalState<TProposalPlugin>> {
 
   constructor(
     context: Arc,
-    idOrOpts: string | IProposalState
+    idOrOpts: string | IProposalState<TProposalPlugin>
   ) {
     super()
     if (typeof idOrOpts === 'string') {
@@ -213,7 +214,7 @@ export abstract class Proposal extends Entity<IProposalState> {
     }`
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IProposalState<TProposalPlugin>> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {
@@ -229,11 +230,11 @@ export abstract class Proposal extends Entity<IProposalState> {
       ${Proposal.fragments.ProposalFields}
       ${Plugin.fragments.SchemeFields}
     `
-    const result = this.context.getObservableObject(query, this.itemMap, apolloQueryOptions) as Observable<IProposalState>
+    const result = this.context.getObservableObject(query, this.itemMap, apolloQueryOptions) as Observable<IProposalState<TProposalPlugin>>
     return result
   }
 
-  protected abstract itemMap(item: any): IProposalState | null
+  protected abstract itemMap(item: any): IProposalState<TProposalPlugin> | null
 
   public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {
     if (!options.where) { options.where = {} }
