@@ -1,5 +1,10 @@
 import { Arc } from '../arc'
-import { Proposal } from '../proposal'
+import {
+  getEventArgs,
+  ITransaction,
+  ITransactionReceipt
+} from '../operation'
+import { IProposalBaseCreateOptions, Proposal } from '../proposal'
 import { Address } from '../types'
 
 export interface ISchemeRegistrar {
@@ -13,7 +18,7 @@ export interface ISchemeRegistrar {
   schemeRemoved: boolean
 }
 
-export interface IProposalCreateOptionsSR {
+export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
   parametersHash?: string
   permissions?: string
   schemeToRegister?: Address
@@ -25,71 +30,77 @@ export enum IProposalType {
   SchemeRegistrarRemove = 'SchemeRegistrarRemove' // propose to remove a registered scheme
 }
 
-export function createTransaction(options: any, context: Arc): () => any {
+export async function createProposalTransaction(
+  context: Arc,
+  options: IProposalCreateOptionsSR
+): Promise<ITransaction> {
   let msg: string
-  switch (options.type) {
+  switch (options.proposalType) {
     case IProposalType.SchemeRegistrarAdd:
     case IProposalType.SchemeRegistrarEdit:
-     if (!options.scheme) {
+      if (options.scheme === undefined) {
         msg = `Missing argument "scheme" for SchemeRegistrar in Proposal.create()`
         throw Error(msg)
       }
-     if (!options.parametersHash) {
+      if (options.parametersHash === undefined) {
         msg = `Missing argument "parametersHash" for SchemeRegistrar in Proposal.create()`
         throw Error(msg)
       }
-     if (!options.permissions) {
+      if (options.permissions === undefined) {
         msg = `Missing argument "permissions" for SchemeRegistrar in Proposal.create()`
         throw Error(msg)
       }
-     return async () => {
-        const schemeRegistrar = context.getContract(options.scheme)
-        options.descriptionHash = await context.saveIPFSData(options)
 
-        const transaction = schemeRegistrar.methods.proposeScheme(
+      options.descriptionHash = await context.saveIPFSData(options)
+
+      return {
+        contract: context.getContract(options.scheme),
+        method: 'proposeScheme',
+        args: [
           options.dao,
           options.schemeToRegister,
           options.parametersHash,
           options.permissions,
           options.descriptionHash
-        )
-        return transaction
+        ]
       }
-    case 'SchemeRegistrarRemove':
-     if (!options.scheme) {
+    case IProposalType.SchemeRegistrarRemove:
+      if (options.scheme === undefined) {
         msg = `Missing argument "scheme" for SchemeRegistrar`
         throw Error(msg)
-     }
-     return async () => {
-        const schemeRegistrar = context.getContract(options.scheme)
-        options.descriptionHash = await context.saveIPFSData(options)
-        const transaction = schemeRegistrar.methods.proposeToRemoveScheme(
+      }
+
+      options.descriptionHash = await context.saveIPFSData(options)
+
+      return {
+        contract: context.getContract(options.scheme),
+        method: 'proposeToRemoveScheme',
+        args: [
           options.dao,
           options.schemeToRegister,
           options.descriptionHash
-        )
-        return transaction
+        ]
       }
   }
-  throw Error('For a schemeregistrar proposal, you must specifcy proposal.type')
+  throw Error('For a schemeregistrar proposal, you must specifcy proposal.proposalType')
 }
 
-export function createTransactionMap(options: any, context: Arc) {
-  let eventName: string
-  switch (options.type) {
-    case IProposalType.SchemeRegistrarAdd:
-    case IProposalType.SchemeRegistrarEdit:
-       eventName = 'NewSchemeProposal'
-       break
-    case 'SchemeRegistrarRemove':
-       eventName = 'RemoveSchemeProposal'
+export function createTransactionMap(context: Arc, options: IProposalCreateOptionsSR) {
+  return (receipt: ITransactionReceipt) => {
+    let eventName: string
+    switch (options.proposalType) {
+      case IProposalType.SchemeRegistrarAdd:
+      case IProposalType.SchemeRegistrarEdit:
+        eventName = 'NewSchemeProposal'
+        break
+      case IProposalType.SchemeRegistrarRemove:
+        eventName = 'RemoveSchemeProposal'
+        break
+      default:
+        throw Error(`SchemeRegistrar.createProposal: Unknown proposal type ${options.proposalType}`)
+    }
+    const args = getEventArgs(receipt, eventName, 'SchemeRegistrar.createProposal')
+    const proposalId = args[1]
+    return new Proposal(context, proposalId)
   }
-  const map = (receipt: any) => {
-    const proposalId = receipt.events[eventName].returnValues._proposalId
-    // const votingMachineAddress = receipt.events[eventName].returnValues._intVoteInterface
-    return new Proposal(proposalId,
-      // options.dao as string, options.scheme, votingMachineAddress,
-      context)
-  }
-  return map
 }

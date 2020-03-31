@@ -4,7 +4,13 @@ import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from '../arc'
 // import { DAO } from './dao'
 import { IGenesisProtocolParams } from '../genesisProtocol'
-import { Operation, toIOperationObservable } from '../operation'
+import {
+  ITransaction,
+  Operation,
+  toIOperationObservable,
+  transactionErrorHandler,
+  transactionResultHandler
+} from '../operation'
 import {
   IProposalCreateOptions,
   IProposalQueryOptions, Proposal } from '../proposal'
@@ -16,22 +22,17 @@ import { ReputationFromTokenScheme } from './reputationFromToken'
 // import * as SchemeRegistrar from './schemeRegistrar'
 // import * as UGenericScheme from './uGenericScheme'
 
-export interface ISchemeStaticState {
+export interface ISchemeState {
   id: string
   address: Address
   dao: Address
   name: string
   paramsHash: string
   version: string
-}
-
-export interface ISchemeState extends ISchemeStaticState {
   canDelegateCall: boolean
   canRegisterSchemes: boolean
   canUpgradeController: boolean
   canManageGlobalConstraints: boolean
-  dao: Address
-  paramsHash: string
   contributionRewardParams?: IContributionRewardParams
   contributionRewardExtParams?: IContributionRewardExtParams
   genericSchemeParams?: IGenericSchemeParams
@@ -235,17 +236,17 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
   }
 
   public id: Address
-  public staticState: ISchemeStaticState | null = null
+  public coreState: ISchemeState | null = null
   public ReputationFromToken: ReputationFromTokenScheme | null = null
 
-  constructor(idOrOpts: Address | ISchemeStaticState, public context: Arc) {
+  constructor(public context: Arc, idOrOpts: Address | ISchemeState) {
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts as string
       this.id = this.id.toLowerCase()
     } else {
-      this.setStaticState(idOrOpts)
-      this.id = (this.staticState as ISchemeStaticState).id
+      this.setState(idOrOpts)
+      this.id = (this.coreState as ISchemeState).id
     }
   }
 
@@ -253,69 +254,40 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
    * fetch the static state from the subgraph
    * @return the statatic state
    */
-  public async fetchStaticState(): Promise < ISchemeStaticState > {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state = await this.state({ subscribe: false}).pipe(first()).toPromise()
-      if (state === null) {
-        throw Error(`No scheme with id ${this.id} was found in the subgraph`)
-      }
-      this.staticState = {
-        address: state.address,
-        dao: state.dao,
-        id: this.id,
-        name: state.name,
-        paramsHash: state.paramsHash,
-        version: state.version
-      }
-      if (this.staticState.name ===  'ReputationFromToken') {
-        this.ReputationFromToken = new ReputationFromTokenScheme(this)
-      }
-      return state
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise < ISchemeState > {
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    if (state.name ===  'ReputationFromToken') {
+      this.ReputationFromToken = new ReputationFromTokenScheme(this)
     }
+    this.setState(state)
+    return state
   }
 
-  public setStaticState(opts: ISchemeStaticState) {
-    this.staticState = opts
-  }
-  /**
-   * create a new proposal in this scheme
-   * TODO: move this to the schemes - we should call proposal.scheme.createProposal
-   * @param  options [description ]
-   * @return a Proposal instance
-   */
-  public createProposalTransaction(options: any): () => Promise<any> {
-    return async () => null
-  }
-
-  public createProposalTransactionMap(): (receipt: any) => any {
-
-    return (receipt) => receipt.result
-  }
-  public createProposalErrorHandler(options?: any): ((err: Error) => Error|Promise<Error>)|undefined {
-    return undefined
-    // return (err) => err
+  public setState(opts: ISchemeState) {
+    this.coreState = opts
   }
 
   public createProposal(options: IProposalCreateOptions): Operation<Proposal>  {
     const observable = Observable.create(async (observer: any) => {
-      // let msg: string
-      const context = this.context
-
-      const createTransaction  = this.createProposalTransaction(options)
-      const map = this.createProposalTransactionMap()
-      const errHandler = this.createProposalErrorHandler(options)
-      const sendTransactionObservable = context.sendTransaction(createTransaction, map, errHandler)
-      const sub = sendTransactionObservable.subscribe(observer)
-
-      return () => sub.unsubscribe()
+      try {
+        const createTransaction = await this.createProposalTransaction(options)
+        const map = this.createProposalTransactionMap()
+        const errHandler = this.createProposalErrorHandler(options)
+        const sendTransactionObservable = this.context.sendTransaction(
+          createTransaction, map, errHandler
+        )
+        const sub = sendTransactionObservable.subscribe(observer)
+        return () => sub.unsubscribe()
+      } catch (e) {
+        observer.error(e)
+        return
+      }
     })
 
     return toIOperationObservable(observable)
   }
 
-  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable < ISchemeState >
+  public abstract state(apolloQueryOptions?: IApolloQueryOptions): Observable < ISchemeState >
 
   public proposals(
     options: IProposalQueryOptions = {},
@@ -326,4 +298,19 @@ export abstract class SchemeBase implements IStateful<ISchemeState> {
     return Proposal.search(this.context, options, apolloQueryOptions)
   }
 
+  /**
+   * create a new proposal in this scheme
+   * TODO: move this to the schemes - we should call proposal.scheme.createProposal
+   * @param  options [description ]
+   * @return a Proposal instance
+   */
+  protected abstract async createProposalTransaction(
+    options: IProposalCreateOptions
+  ): Promise<ITransaction>
+
+  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
+
+  protected abstract createProposalErrorHandler(
+    options: IProposalCreateOptions
+  ): transactionErrorHandler
 }

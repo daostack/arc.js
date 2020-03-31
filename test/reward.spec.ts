@@ -1,9 +1,9 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { Proposal } from '../src/proposal'
-import { IRewardStaticState, Reward } from '../src/reward'
+import {  Reward, IRewardState } from '../src/reward'
 import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei } from './utils'
+import { getAddress } from 'ethers/utils'
 
 /**
  * Reward test
@@ -22,7 +22,7 @@ describe('Reward', () => {
 
   it('Reward is instantiable', () => {
     const id = 'some-id'
-    const reward = new Reward(id, arc)
+    const reward = new Reward(arc, id)
     expect(reward).toBeInstanceOf(Reward)
   })
 
@@ -39,7 +39,7 @@ describe('Reward', () => {
       nativeTokenReward: toWei('1'),
       scheme: testAddresses.base.ContributionReward
     }).send()
-    const proposal = state.result as Proposal
+    const proposal = state.result
 
     expect(proposal).toBeDefined()
 
@@ -53,7 +53,7 @@ describe('Reward', () => {
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(0)
 
-    result = await Reward.search(arc, { where: {beneficiary: arc.web3.utils.toChecksumAddress(beneficiary)}})
+    result = await Reward.search(arc, { where: {beneficiary: getAddress(beneficiary)}})
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(0)
 
@@ -63,7 +63,7 @@ describe('Reward', () => {
 
     // get the reward state
     const reward = result[0]
-    const rewardState = await reward.state().pipe(first()).toPromise()
+    const rewardState = await reward.fetchState()
     expect(rewardState.id).toEqual(reward.id)
   })
 
@@ -80,16 +80,16 @@ describe('Reward', () => {
     expect(Number(ls3[0].id)).toBeGreaterThanOrEqual(Number(ls3[1].id))
   })
 
-  it('fetchStaticState works as expected', async () => {
+  it('fetchState works as expected', async () => {
     const rewards = await Reward.search(arc).pipe(first()).toPromise()
     const reward = rewards[0]
     // staticState should be set on search
-    expect(reward.staticState).toBeTruthy()
-    const rewardFromId = new Reward(reward.id, arc)
-    expect(rewardFromId.staticState).not.toBeTruthy()
-    await rewardFromId.fetchStaticState()
-    expect(rewardFromId.staticState).toBeTruthy()
-    const  rewardFromStaticState = new Reward(reward.staticState as IRewardStaticState, arc)
-    expect(rewardFromStaticState.staticState).toBeTruthy()
+    expect(reward.coreState).toBeTruthy()
+    const rewardFromId = new Reward(arc, reward.id)
+    expect(rewardFromId.coreState).not.toBeTruthy()
+    await rewardFromId.fetchState()
+    expect(rewardFromId.coreState).toBeTruthy()
+    const  rewardFromStaticState = new Reward(arc, reward.coreState as IRewardState)
+    expect(rewardFromStaticState.coreState).toBeTruthy()
   })
 })

@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IAllowance](iallowance.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IAllowance](iallowance.md)
 
 # Interface: IAllowance
 
@@ -21,7 +21,7 @@
 
 • **amount**: *BN*
 
-*Defined in [token.ts:41](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L41)*
+*Defined in [src/token.ts:42](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L42)*
 
 ___
 
@@ -29,7 +29,7 @@ ___
 
 • **owner**: *[Address](../globals.md#address)*
 
-*Defined in [token.ts:39](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L39)*
+*Defined in [src/token.ts:40](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L40)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **spender**: *[Address](../globals.md#address)*
 
-*Defined in [token.ts:40](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L40)*
+*Defined in [src/token.ts:41](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L41)*
 
 ___
 
@@ -45,4 +45,4 @@ ___
 
 • **token**: *[Address](../globals.md#address)*
 
-*Defined in [token.ts:38](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L38)*
+*Defined in [src/token.ts:39](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L39)*

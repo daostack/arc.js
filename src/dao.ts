@@ -10,13 +10,14 @@ import { IProposalCreateOptions, IProposalQueryOptions, Proposal } from './propo
 import { Reputation } from './reputation'
 import { IRewardQueryOptions, Reward } from './reward'
 import { ISchemeQueryOptions, Scheme } from './scheme'
+import { SchemeBase } from './schemes/base'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Token } from './token'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
-export interface IDAOStaticState {
+export interface IDAOState {
   id: Address,
   address: Address, // address of the avatar
   name: string,
@@ -25,13 +26,10 @@ export interface IDAOStaticState {
   token: Token,
   tokenName: string,
   tokenSymbol: string
-}
-
-export interface IDAOState extends IDAOStaticState {
   memberCount: number,
   reputationTotalSupply: BN,
   tokenTotalSupply: BN,
-  dao: DAO,
+  dao?: DAO,
   numberOfQueuedProposals: number,
   numberOfPreBoostedProposals: number,
   numberOfBoostedProposals: number
@@ -112,20 +110,26 @@ export class DAO implements IStateful<IDAOState> {
       query,
       (r: any) => {
         if (apolloQueryOptions.fetchAllData) {
-          const reputation = new Reputation(r.nativeReputation.id, context)
-          const token = new Token(r.nativeToken.id, context)
-          return new DAO({
+          const reputation = new Reputation(context, r.nativeReputation.id)
+          const token = new Token(context, r.nativeToken.id)
+          return new DAO(context, {
             address: r.id,
             id: r.id,
+            memberCount: Number(r.reputationHoldersCount),
             name: r.name,
+            numberOfBoostedProposals: Number(r.numberOfBoostedProposals),
+            numberOfPreBoostedProposals: Number(r.numberOfPreBoostedProposals),
+            numberOfQueuedProposals: Number(r.numberOfQueuedProposals),
             register: r.register,
             reputation,
+            reputationTotalSupply: new BN(r.nativeReputation.totalSupply),
             token,
-            tokenName: r.tokenName,
-            tokenSymbol: r.tokenSymbol
-          }, context)
+            tokenName: r.nativeToken.name,
+            tokenSymbol: r.nativeToken.symbol,
+            tokenTotalSupply: r.nativeToken.totalSupply
+          })
         } else {
-          return new DAO(r.id, context)
+          return new DAO(context, r.id)
         }
       },
       apolloQueryOptions
@@ -133,39 +137,25 @@ export class DAO implements IStateful<IDAOState> {
   }
 
   public id: Address
-  public staticState: IDAOStaticState|undefined
+  public coreState: IDAOState|undefined
 
-  constructor(idOrOpts: Address|IDAOStaticState, public context: Arc) {
+  constructor(public context: Arc, idOrOpts: Address|IDAOState) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts.toLowerCase()
     } else {
       this.id = idOrOpts.address
-      this.setStaticState(idOrOpts)
+      this.setState(idOrOpts)
     }
   }
 
-  public setStaticState(opts: IDAOStaticState) {
-    this.staticState = opts
+  public setState(opts: IDAOState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<IDAOStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state =  await this.state().pipe(first()).toPromise()
-      const staticState = {
-        address: state.address,
-        id: state.id,
-        name: state.name,
-        register: state.register,
-        reputation: state.reputation,
-        token: state.token,
-        tokenName: state.tokenName,
-        tokenSymbol: state.tokenSymbol
-      }
-      this.setStaticState(staticState)
-      return staticState
-    }
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IDAOState> {
+    const state =  await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
 
   /**
@@ -185,19 +175,9 @@ export class DAO implements IStateful<IDAOState> {
       if (item === null) {
         throw Error(`Could not find a DAO with id ${this.id}`)
       }
-      const reputation = new Reputation(item.nativeReputation.id, this.context)
-      const token = new Token(item.nativeToken.id, this.context)
-      this.setStaticState({
-        address: item.id,
-        id: item.id,
-        name: item.name,
-        register: item.register,
-        reputation,
-        token,
-        tokenName: item.nativeToken.name,
-        tokenSymbol: item.nativeToken.symbol
-      })
-      return {
+      const reputation = new Reputation(this.context, item.nativeReputation.id)
+      const token = new Token(this.context, item.nativeToken.id)
+      const state = {
         address: item.id,
         dao: this,
         id: item.id,
@@ -214,6 +194,8 @@ export class DAO implements IStateful<IDAOState> {
         tokenSymbol: item.nativeToken.symbol,
         tokenTotalSupply: item.nativeToken.totalSupply
       }
+      this.setState(state)
+      return state
     }
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
@@ -229,13 +211,13 @@ export class DAO implements IStateful<IDAOState> {
   public schemes(
     options: ISchemeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Scheme[]> {
+  ): Observable<SchemeBase[]> {
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
     return Scheme.search(this.context, options, apolloQueryOptions)
   }
 
-  public async scheme(options: ISchemeQueryOptions): Promise<Scheme> {
+  public async scheme(options: ISchemeQueryOptions): Promise<SchemeBase> {
     const schemes = await this.schemes(options).pipe(first()).toPromise()
     if (schemes.length === 1) {
       return schemes[0]
@@ -243,22 +225,27 @@ export class DAO implements IStateful<IDAOState> {
       throw Error('Could not find a unique scheme satisfying these options')
     }
   }
+
   public members(
     options: IMemberQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Member[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) { options.where = {} }
     options.where.dao = this.id
     return Member.search(this.context, options, apolloQueryOptions)
   }
 
   public member(address: Address): Member {
-    if (this.staticState) {
+    if (this.coreState) {
       // construct member with the reputationcontract address, if this is known
       // so it can make use of the apollo cache
-      return new Member({ address, contract: this.staticState.reputation.address}, this.context)
+      return new Member(this.context, {
+        address,
+        contract: this.coreState.reputation.address,
+        reputation: this.coreState.reputationTotalSupply
+      })
     } else {
-      return new Member({ address, dao: this.id}, this.context)
+      return new Member(this.context, { address, dao: this.id, reputation: new BN(0)})
     }
   }
 
@@ -280,6 +267,7 @@ export class DAO implements IStateful<IDAOState> {
         dao: options.dao
       }}
     )
+
     const observable = schemesQuery.pipe(
       first(),
       concatMap((schemes) => {
@@ -290,6 +278,7 @@ export class DAO implements IStateful<IDAOState> {
         }
       }
     ))
+
     return toIOperationObservable(observable)
   }
 
@@ -305,7 +294,7 @@ export class DAO implements IStateful<IDAOState> {
   }
 
   public proposal(proposalId: string ): Proposal {
-    return new Proposal(proposalId, this.context)
+    return new Proposal(this.context, proposalId)
   }
 
   public rewards(

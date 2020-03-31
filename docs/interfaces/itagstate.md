@@ -1,12 +1,10 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ITagState](itagstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ITagState](itagstate.md)
 
 # Interface: ITagState
 
 ## Hierarchy
 
-* [ITagStaticState](itagstaticstate.md)
-
-  ↳ **ITagState**
+* **ITagState**
 
 ## Index
 
@@ -14,7 +12,7 @@
 
 * [id](itagstate.md#id)
 * [numberOfProposals](itagstate.md#numberofproposals)
-* [proposals](itagstate.md#proposals)
+* [proposals](itagstate.md#optional-proposals)
 
 ## Properties
 
@@ -22,9 +20,7 @@
 
 • **id**: *string*
 
-*Overrides [ITagStaticState](itagstaticstate.md).[id](itagstaticstate.md#id)*
-
-*Defined in [tag.ts:15](https://github.com/daostack/client/blob/1bc237e/src/tag.ts#L15)*
+*Defined in [src/tag.ts:10](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L10)*
 
 ___
 
@@ -32,14 +28,12 @@ ___
 
 • **numberOfProposals**: *number*
 
-*Inherited from [ITagStaticState](itagstaticstate.md).[numberOfProposals](itagstaticstate.md#numberofproposals)*
-
-*Defined in [tag.ts:11](https://github.com/daostack/client/blob/1bc237e/src/tag.ts#L11)*
+*Defined in [src/tag.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L11)*
 
 ___
 
-###  proposals
+### `Optional` proposals
 
-• **proposals**: *[Proposal](../classes/proposal.md)[]*
+• **proposals**? : *[Proposal](../classes/proposal.md)[]*
 
-*Defined in [tag.ts:16](https://github.com/daostack/client/blob/1bc237e/src/tag.ts#L16)*
+*Defined in [src/tag.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L12)*

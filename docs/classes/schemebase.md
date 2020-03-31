@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [SchemeBase](schemebase.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [SchemeBase](schemebase.md)
 
 # Class: SchemeBase
 
@@ -26,20 +26,19 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 * [ReputationFromToken](schemebase.md#reputationfromtoken)
 * [context](schemebase.md#context)
+* [coreState](schemebase.md#corestate)
 * [id](schemebase.md#id)
-* [staticState](schemebase.md#staticstate)
 
 ### Methods
 
 * [createProposal](schemebase.md#createproposal)
-* [createProposalErrorHandler](schemebase.md#createproposalerrorhandler)
-* [createProposalTransaction](schemebase.md#createproposaltransaction)
-* [createProposalTransactionMap](schemebase.md#createproposaltransactionmap)
-* [fetchStaticState](schemebase.md#fetchstaticstate)
+* [createProposalErrorHandler](schemebase.md#protected-abstract-createproposalerrorhandler)
+* [createProposalTransaction](schemebase.md#protected-abstract-createproposaltransaction)
+* [createProposalTransactionMap](schemebase.md#protected-abstract-createproposaltransactionmap)
+* [fetchState](schemebase.md#fetchstate)
 * [proposals](schemebase.md#proposals)
-* [setStaticState](schemebase.md#setstaticstate)
+* [setState](schemebase.md#setstate)
 * [state](schemebase.md#abstract-state)
-* [x](schemebase.md#x)
 
 ### Object literals
 
@@ -49,16 +48,16 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 ###  constructor
 
-\+ **new SchemeBase**(`idOrOpts`: [Address](../globals.md#address) | [ISchemeStaticState](../interfaces/ischemestaticstate.md), `context`: [Arc](arc.md)): *[SchemeBase](schemebase.md)*
+\+ **new SchemeBase**(`context`: [Arc](arc.md), `idOrOpts`: [Address](../globals.md#address) | [ISchemeState](../interfaces/ischemestate.md)): *[SchemeBase](schemebase.md)*
 
-*Defined in [schemes/base.ts:239](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L239)*
+*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | [Address](../globals.md#address) &#124; [ISchemeStaticState](../interfaces/ischemestaticstate.md) |
 `context` | [Arc](arc.md) |
+`idOrOpts` | [Address](../globals.md#address) &#124; [ISchemeState](../interfaces/ischemestate.md) |
 
 **Returns:** *[SchemeBase](schemebase.md)*
 
@@ -68,7 +67,7 @@ Name | Type |
 
 • **ReputationFromToken**: *[ReputationFromTokenScheme](reputationfromtokenscheme.md) | null* =  null
 
-*Defined in [schemes/base.ts:239](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L239)*
+*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
 
 ___
 
@@ -76,7 +75,15 @@ ___
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [schemes/base.ts:241](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L241)*
+*Defined in [src/schemes/base.ts:242](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L242)*
+
+___
+
+###  coreState
+
+• **coreState**: *[ISchemeState](../interfaces/ischemestate.md) | null* =  null
+
+*Defined in [src/schemes/base.ts:239](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L239)*
 
 ___
 
@@ -84,15 +91,7 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/base.ts:237](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L237)*
-
-___
-
-###  staticState
-
-• **staticState**: *[ISchemeStaticState](../interfaces/ischemestaticstate.md) | null* =  null
-
-*Defined in [schemes/base.ts:238](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L238)*
+*Defined in [src/schemes/base.ts:238](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L238)*
 
 ## Methods
 
@@ -100,7 +99,7 @@ ___
 
 ▸ **createProposal**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *[Operation](../globals.md#operation)‹[Proposal](proposal.md)›*
 
-*Defined in [schemes/base.ts:300](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L300)*
+*Defined in [src/schemes/base.ts:273](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L273)*
 
 **Parameters:**
 
@@ -112,35 +111,27 @@ Name | Type |
 
 ___
 
-###  createProposalErrorHandler
+### `Protected` `Abstract` createProposalErrorHandler
 
-▸ **createProposalErrorHandler**(`options?`: any): *function*
+▸ **createProposalErrorHandler**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *[transactionErrorHandler](../globals.md#transactionerrorhandler)*
 
-*Defined in [schemes/base.ts:296](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L296)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`options?` | any |
-
-**Returns:** *function*
-
-▸ (`err`: Error): *Error | Promise‹Error›*
+*Defined in [src/schemes/base.ts:316](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L316)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`err` | Error |
+`options` | [IProposalCreateOptions](../globals.md#iproposalcreateoptions) |
+
+**Returns:** *[transactionErrorHandler](../globals.md#transactionerrorhandler)*
 
 ___
 
-###  createProposalTransaction
+### `Protected` `Abstract` createProposalTransaction
 
-▸ **createProposalTransaction**(`options`: any): *function*
+▸ **createProposalTransaction**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *Promise‹[ITransaction](../interfaces/itransaction.md)›*
 
-*Defined in [schemes/base.ts:288](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L288)*
+*Defined in [src/schemes/base.ts:310](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L310)*
 
 create a new proposal in this scheme
 TODO: move this to the schemes - we should call proposal.scheme.createProposal
@@ -149,43 +140,39 @@ TODO: move this to the schemes - we should call proposal.scheme.createProposal
 
 Name | Type |
 ------ | ------ |
-`options` | any |
+`options` | [IProposalCreateOptions](../globals.md#iproposalcreateoptions) |
 
-**Returns:** *function*
+**Returns:** *Promise‹[ITransaction](../interfaces/itransaction.md)›*
 
 a Proposal instance
 
-▸ (): *Promise‹any›*
+___
+
+### `Protected` `Abstract` createProposalTransactionMap
+
+▸ **createProposalTransactionMap**(): *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
+
+*Defined in [src/schemes/base.ts:314](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L314)*
+
+**Returns:** *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
 ___
 
-###  createProposalTransactionMap
+###  fetchState
 
-▸ **createProposalTransactionMap**(): *function*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ISchemeState](../interfaces/ischemestate.md)›*
 
-*Defined in [schemes/base.ts:292](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L292)*
-
-**Returns:** *function*
-
-▸ (`receipt`: any): *any*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`receipt` | any |
-
-___
-
-###  fetchStaticState
-
-▸ **fetchStaticState**(): *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
-
-*Defined in [schemes/base.ts:256](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L256)*
+*Defined in [src/schemes/base.ts:257](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L257)*
 
 fetch the static state from the subgraph
 
-**Returns:** *Promise‹[ISchemeStaticState](../interfaces/ischemestaticstate.md)›*
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[ISchemeState](../interfaces/ischemestate.md)›*
 
 the statatic state
 
@@ -195,7 +182,7 @@ ___
 
 ▸ **proposals**(`options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Proposal](proposal.md)[]›*
 
-*Defined in [schemes/base.ts:467](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L467)*
+*Defined in [src/schemes/base.ts:295](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L295)*
 
 **Parameters:**
 
@@ -208,17 +195,17 @@ Name | Type | Default |
 
 ___
 
-###  setStaticState
+###  setState
 
-▸ **setStaticState**(`opts`: [ISchemeStaticState](../interfaces/ischemestaticstate.md)): *void*
+▸ **setState**(`opts`: [ISchemeState](../interfaces/ischemestate.md)): *void*
 
-*Defined in [schemes/base.ts:279](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L279)*
+*Defined in [src/schemes/base.ts:269](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L269)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opts` | [ISchemeStaticState](../interfaces/ischemestaticstate.md) |
+`opts` | [ISchemeState](../interfaces/ischemestate.md) |
 
 **Returns:** *void*
 
@@ -226,27 +213,17 @@ ___
 
 ### `Abstract` state
 
-▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ISchemeState](../interfaces/ischemestate.md)›*
+▸ **state**(`apolloQueryOptions?`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ISchemeState](../interfaces/ischemestate.md)›*
 
-*Defined in [schemes/base.ts:317](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L317)*
+*Defined in [src/schemes/base.ts:293](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L293)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |
+`apolloQueryOptions?` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |
 
 **Returns:** *Observable‹[ISchemeState](../interfaces/ischemestate.md)›*
-
-___
-
-###  x
-
-▸ **x**(): *void*
-
-*Defined in [schemes/base.ts:319](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L319)*
-
-**Returns:** *void*
 
 ## Object literals
 
@@ -254,11 +231,11 @@ ___
 
 ### ▪ **fragments**: *object*
 
-*Defined in [schemes/base.ts:106](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L106)*
+*Defined in [src/schemes/base.ts:107](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L107)*
 
 ###  SchemeFields
 
-• **SchemeFields**: *any* =  gql`
+• **SchemeFields**: *DocumentNode* =  gql`
     fragment SchemeFields on ControllerScheme {
       id
       address
@@ -387,4 +364,4 @@ ___
       version
     }`
 
-*Defined in [schemes/base.ts:107](https://github.com/daostack/client/blob/1bc237e/src/schemes/base.ts#L107)*
+*Defined in [src/schemes/base.ts:108](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L108)*

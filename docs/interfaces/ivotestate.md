@@ -1,12 +1,10 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IVoteState](ivotestate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IVoteState](ivotestate.md)
 
 # Interface: IVoteState
 
 ## Hierarchy
 
-* [IVoteStaticState](ivotestaticstate.md)
-
-  ↳ **IVoteState**
+* **IVoteState**
 
 ## Index
 
@@ -15,7 +13,7 @@
 * [amount](ivotestate.md#amount)
 * [createdAt](ivotestate.md#createdat)
 * [dao](ivotestate.md#optional-dao)
-* [id](ivotestate.md#id)
+* [id](ivotestate.md#optional-id)
 * [outcome](ivotestate.md#outcome)
 * [proposal](ivotestate.md#proposal)
 * [voter](ivotestate.md#voter)
@@ -26,9 +24,7 @@
 
 • **amount**: *BN*
 
-*Inherited from [IVoteStaticState](ivotestaticstate.md).[amount](ivotestaticstate.md#amount)*
-
-*Defined in [vote.ts:15](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L15)*
+*Defined in [src/vote.ts:15](https://github.com/dorgtech/client/blob/19b4373/src/vote.ts#L15)*
 
 ___
 
@@ -36,9 +32,7 @@ ___
 
 • **createdAt**: *[Date](../globals.md#date) | undefined*
 
-*Inherited from [IVoteStaticState](ivotestaticstate.md).[createdAt](ivotestaticstate.md#createdat)*
-
-*Defined in [vote.ts:13](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L13)*
+*Defined in [src/vote.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/vote.ts#L13)*
 
 ___
 
@@ -46,19 +40,15 @@ ___
 
 • **dao**? : *[Address](../globals.md#address)*
 
-*Inherited from [IVoteStaticState](ivotestaticstate.md).[dao](ivotestaticstate.md#optional-dao)*
-
-*Defined in [vote.ts:17](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L17)*
+*Defined in [src/vote.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/vote.ts#L17)*
 
 ___
 
-###  id
+### `Optional` id
 
-• **id**: *string*
+• **id**? : *undefined | string*
 
-*Overrides [IVoteStaticState](ivotestaticstate.md).[id](ivotestaticstate.md#optional-id)*
-
-*Defined in [vote.ts:21](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L21)*
+*Defined in [src/vote.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/vote.ts#L11)*
 
 ___
 
@@ -66,9 +56,7 @@ ___
 
 • **outcome**: *[IProposalOutcome](../enums/iproposaloutcome.md)*
 
-*Inherited from [IVoteStaticState](ivotestaticstate.md).[outcome](ivotestaticstate.md#outcome)*
-
-*Defined in [vote.ts:14](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L14)*
+*Defined in [src/vote.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/vote.ts#L14)*
 
 ___
 
@@ -76,9 +64,7 @@ ___
 
 • **proposal**: *string*
 
-*Inherited from [IVoteStaticState](ivotestaticstate.md).[proposal](ivotestaticstate.md#proposal)*
-
-*Defined in [vote.ts:16](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L16)*
+*Defined in [src/vote.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/vote.ts#L16)*
 
 ___
 
@@ -86,6 +72,4 @@ ___
 
 • **voter**: *[Address](../globals.md#address)*
 
-*Inherited from [IVoteStaticState](ivotestaticstate.md).[voter](ivotestaticstate.md#voter)*
-
-*Defined in [vote.ts:12](https://github.com/daostack/client/blob/1bc237e/src/vote.ts#L12)*
+*Defined in [src/vote.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/vote.ts#L12)*

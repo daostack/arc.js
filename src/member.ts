@@ -1,6 +1,7 @@
 import BN = require('bn.js')
+import { utils } from 'ethers'
 import gql from 'graphql-tag'
-import { Observable } from 'rxjs'
+import { Observable, Observer } from 'rxjs'
 import { first, map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
@@ -9,21 +10,14 @@ import { IProposalQueryOptions, Proposal } from './proposal'
 import { Reward } from './reward'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions, IStateful } from './types'
-import { concat, createGraphQlQuery, hexStringToUint8Array,
-  isAddress
-  // stringToUint8Array
- } from './utils'
+import { concat, createGraphQlQuery, hexStringToUint8Array, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 
-export interface IMemberStaticState {
-  id?: string,
+export interface IMemberState {
   address: Address,
-  contract?: Address,
   dao?: Address
-}
-export interface IMemberState extends IMemberStaticState {
-  contract: Address
-  id: string
+  contract?: Address
+  id?: string
   reputation: BN
 }
 
@@ -38,7 +32,6 @@ export interface IMemberQueryOptions extends ICommonQueryOptions {
 /**
  * Represents an account that holds reputaion in a specific DAO
  */
-
 export class Member implements IStateful<IMemberState> {
 
   public static fragments = {
@@ -68,7 +61,7 @@ export class Member implements IStateful<IMemberState> {
   ): Observable<Member[]> {
     if (!options.where) { options.where = {}}
     if (options.where.id) {
-      return new Member(options.where.id, context).state().pipe(map((r: any) => [r]))
+      return new Member(context, options.where.id).state().pipe(map((r: any) => [r]))
     } else {
       let where = ''
       for (const key of Object.keys(options.where)) {
@@ -97,70 +90,71 @@ export class Member implements IStateful<IMemberState> {
 
       return context.getObservableList(
           query,
-          (r: any) => new Member({ id: r.id, address: r.address, dao: r.dao.id, contract: r.contract}, context),
+          (r: any) => {
+            return new Member(context, {
+              address: r.address,
+              contract: r.contract,
+              reputation: new BN(r.balance)
+            })
+          },
           apolloQueryOptions
         )
       }
   }
 
+  public static calculateId(opts: { contract: Address, address: Address}): string {
+    const seed = concat(
+      hexStringToUint8Array(opts.contract.toLowerCase()),
+      hexStringToUint8Array(opts.address.toLowerCase())
+    )
+    return utils.keccak256(seed)
+  }
+
   public id: string|undefined
-  public staticState: IMemberStaticState|undefined
+  public coreState: IMemberState|undefined
 
   /**
    * @param address addresssof the member
    * @param daoAdress addresssof the DAO this member is a member of
    * @param context an instance of Arc
    */
-  constructor(idOrOpts: string|IMemberStaticState, public context: Arc) {
+  constructor(public context: Arc, idOrOpts: string|IMemberState) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts as string
     } else {
-      const opts: IMemberStaticState = idOrOpts as IMemberStaticState
-      this.setStaticState(opts)
+      const opts: IMemberState = idOrOpts
+      this.setState(opts)
     }
   }
 
-  public async fetchStaticState(): Promise<IMemberStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state = await this.state().pipe(first()).toPromise()
-      return this.setStaticState({
-        address: state.address,
-        contract: state.contract,
-        dao: state.dao,
-        id: state.id
-      })
-    }
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IMemberState> {
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
-  public calculateId(opts: { contract: Address, address: Address}): string {
-    const seed = concat(
-      hexStringToUint8Array(opts.contract.toLowerCase()),
-      hexStringToUint8Array(opts.address.toLowerCase())
-    )
-    return this.context.web3.utils.keccak256(seed)
-  }
-  public setStaticState(opts: IMemberStaticState) {
+
+  public setState(opts: IMemberState) {
     isAddress(opts.address)
     if (!opts.id && opts.contract && opts.address) {
-      opts.id = this.calculateId({ contract: opts.contract, address: opts.address})
+      opts.id = Member.calculateId({ contract: opts.contract, address: opts.address})
     }
     this.id = opts.id
-    this.staticState = {
+    this.coreState = {
       address: opts.address.toLowerCase(),
       contract: opts.contract && opts.contract.toLowerCase(),
       dao: opts.dao && opts.dao.toLowerCase(),
-      id: opts.id
+      id: opts.id,
+      reputation: opts.reputation
     }
-    return this.staticState
+    return this.coreState
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IMemberState> {
     let query: any
     if (this.id) {
       query = gql`query ReputionHolderStateFromId {
-          # contract: ${this.staticState && this.staticState.contract}
-          # address: ${this.staticState && this.staticState.address}
+          # contract: ${this.coreState && this.coreState.contract}
+          # address: ${this.coreState && this.coreState.address}
           reputationHolder (
               id: "${this.id}"
           ) {
@@ -173,29 +167,25 @@ export class Member implements IStateful<IMemberState> {
         query,
         (r: any) => {
           if (r === null || r === undefined || r.id === undefined) {
-            // we return a dummy object with 0 reputation
-            const staticState = this.staticState as IMemberStaticState
-            if (staticState) {
-              return  {
-                address: staticState.address,
-                dao: staticState.dao,
-                reputation: new BN(0)
-              }
-            } else {
-              throw Error(`No member with id ${this.id} was found`)
-            }
+            throw Error(`No member with id ${this.id} was found`)
           }
-          return { id: r.id, address: r.address, dao: r.dao.id, contract: r.contract, reputation: new BN(r.balance)}
+          return {
+            id: r.id,
+            address: r.address,
+            dao: r.dao.id,
+            contract: r.contract,
+            reputation: new BN(r.balance)
+          }
         },
         apolloQueryOptions
       )
     } else {
-      const staticState = this.staticState as IMemberStaticState
+      const state = this.coreState as IMemberState
       query = gql`query ReputationHolderStateFromDAOAndAddress {
           reputationHolders (
             where: {
-              address: "${staticState.address}"
-              dao: "${staticState.dao}"
+              address: "${state.address}"
+              dao: "${state.dao}"
             }
           ) {
             ...ReputationHolderFields
@@ -208,10 +198,10 @@ export class Member implements IStateful<IMemberState> {
 
     const itemMap = (items: any) => {
       if (items.length === 0) {
-        const staticState = this.staticState as IMemberStaticState
+        const state = this.coreState as IMemberState
         return  {
-          address: staticState.address,
-          dao: staticState.dao,
+          address: state.address,
+          dao: state.dao,
           reputation: new BN(0)
         }
       } else {
@@ -229,8 +219,8 @@ export class Member implements IStateful<IMemberState> {
   }
 
   public async dao(): Promise < DAO > {
-    const staticState = await this.fetchStaticState()
-    return new DAO(staticState.dao as Address, this.context)
+    const state = await this.fetchState()
+    return new DAO(this.context, state.dao as Address)
   }
 
   public rewards(): Observable < Reward[] > {
@@ -241,8 +231,8 @@ export class Member implements IStateful<IMemberState> {
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable < Proposal[] > {
-    const observable = Observable.create(async (observer: any) => {
-      const state = await this.fetchStaticState()
+    const observable = Observable.create(async (observer: Observer<Proposal[]>) => {
+      const state = await this.fetchState()
       if (!options.where) { options.where = {} }
       options.where.proposer = state.address
       options.where.dao = state.dao
@@ -254,12 +244,12 @@ export class Member implements IStateful<IMemberState> {
   }
 
   public stakes(options: IStakeQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Stake[]> {
-    const observable = Observable.create(async (observer: any) => {
-      const state = await this.fetchStaticState()
+    const observable = Observable.create(async (observer: Observer<Stake[]>) => {
+      const state = await this.fetchState()
       if (!options.where) { options.where = {} }
       options.where.staker = state.address
       options.where.dao = state.dao
-      const sub = Stake.search(this.context, options, apolloQueryOptions) .subscribe(observer)
+      const sub = Stake.search(this.context, options, apolloQueryOptions).subscribe(observer)
       return () => sub.unsubscribe()
     })
 
@@ -267,8 +257,8 @@ export class Member implements IStateful<IMemberState> {
   }
 
   public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable < Vote[] > {
-    const observable = Observable.create(async (observer: any) => {
-      const state = await this.fetchStaticState()
+    const observable = Observable.create(async (observer: Observer<Vote[]>) => {
+      const state = await this.fetchState()
       if (!options.where) { options.where = {} }
       options.where.voter = state.address
       options.where.dao = state.dao

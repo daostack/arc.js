@@ -1,9 +1,9 @@
 import { ApolloClient } from 'apollo-client'
 import gql from 'graphql-tag'
-import { Observable, Observer } from 'rxjs'
 import { Arc } from '../src/arc'
 import { createApolloClient } from '../src/graphnode'
 import { getContractAddressesFromMigration, graphqlHttpProvider, graphqlWsProvider, mintSomeReputation, waitUntilTrue } from './utils'
+import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 
 function getClient() {
   const apolloClient = createApolloClient({
@@ -18,7 +18,7 @@ jest.setTimeout(20000)
  * Token test
  */
 describe('apolloClient', () => {
-  let client: any
+  let client: ApolloClient<NormalizedCacheObject>
 
   it('can be instantiated', () => {
     client = getClient()
@@ -52,26 +52,23 @@ describe('apolloClient', () => {
         }
       }
     `
-    // client.subcribe returns a zenObservable
-    const zenObservable = await client.subscribe({ query, fetchPolicy: 'no-cache' })
-    // cast it to an rxjs observable
-    const observable = Observable.create((observer: Observer<any>) =>
-      zenObservable.subscribe(observer)
-    )
 
     const returnedData: object[] = []
     let cntr: number = 0
 
-    const subscription = observable.subscribe(
-      (eventData: any) => {
-        // Do something on receipt of the event
-        cntr += 1
-        returnedData.push(eventData.data)
-      },
-      (err: any) => {
-        throw err
-      }
-    )
+    // client.subscribe returns a zenObservable
+    const subscription = client.subscribe({ query, fetchPolicy: 'no-cache' })
+      .subscribe(
+        (eventData: any) => {
+          // Do something on receipt of the event
+          cntr += 1
+          returnedData.push(eventData.data)
+        },
+        (err: any) => {
+          throw err
+        }
+      )
+
     await mintSomeReputation()
     await mintSomeReputation()
 
@@ -89,7 +86,7 @@ describe('apolloClient', () => {
       graphqlHttpProvider,
       graphqlWsProvider,
       ipfsProvider: '',
-      web3Provider: 'ws://127.0.0.1:8545'
+      web3Provider: 'http://127.0.0.1:8545'
     })
     const query = gql`{
         reputationMints {
@@ -128,7 +125,7 @@ describe('apolloClient', () => {
       graphqlHttpProvider,
       graphqlWsProvider,
       ipfsProvider: '',
-      web3Provider: 'ws://127.0.0.1:8545'
+      web3Provider: 'http://127.0.0.1:8545'
     })
     const query = gql`{
         reputationMints {

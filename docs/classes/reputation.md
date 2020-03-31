@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [Reputation](reputation.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Reputation](reputation.md)
 
 # Class: Reputation
 
@@ -25,6 +25,7 @@
 ### Methods
 
 * [contract](reputation.md#contract)
+* [fetchState](reputation.md#fetchstate)
 * [mint](reputation.md#mint)
 * [reputationOf](reputation.md#reputationof)
 * [state](reputation.md#state)
@@ -34,16 +35,16 @@
 
 ###  constructor
 
-\+ **new Reputation**(`id`: [Address](../globals.md#address), `context`: [Arc](arc.md)): *[Reputation](reputation.md)*
+\+ **new Reputation**(`context`: [Arc](arc.md), `id`: [Address](../globals.md#address)): *[Reputation](reputation.md)*
 
-*Defined in [reputation.ts:67](https://github.com/daostack/client/blob/1bc237e/src/reputation.ts#L67)*
+*Defined in [src/reputation.ts:68](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L68)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`id` | [Address](../globals.md#address) |
 `context` | [Arc](arc.md) |
+`id` | [Address](../globals.md#address) |
 
 **Returns:** *[Reputation](reputation.md)*
 
@@ -53,7 +54,7 @@ Name | Type |
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [reputation.ts:67](https://github.com/daostack/client/blob/1bc237e/src/reputation.ts#L67)*
+*Defined in [src/reputation.ts:68](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L68)*
 
 ___
 
@@ -61,7 +62,7 @@ ___
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [reputation.ts:68](https://github.com/daostack/client/blob/1bc237e/src/reputation.ts#L68)*
+*Defined in [src/reputation.ts:69](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L69)*
 
 ___
 
@@ -69,25 +70,35 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Defined in [reputation.ts:68](https://github.com/daostack/client/blob/1bc237e/src/reputation.ts#L68)*
+*Defined in [src/reputation.ts:69](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L69)*
 
 ## Methods
 
 ###  contract
 
-▸ **contract**(): *any*
+▸ **contract**(): *Contract‹›*
 
-*Defined in [reputation.ts:120](https://github.com/daostack/client/blob/1bc237e/src/reputation.ts#L120)*
+*Defined in [src/reputation.ts:123](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L123)*
 
-**Returns:** *any*
+**Returns:** *Contract‹›*
+
+___
+
+###  fetchState
+
+▸ **fetchState**(): *Promise‹[IReputationState](../interfaces/ireputationstate.md)›*
+
+*Defined in [src/reputation.ts:97](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L97)*
+
+**Returns:** *Promise‹[IReputationState](../interfaces/ireputationstate.md)›*
 
 ___
 
 ###  mint
 
-▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹any››*
+▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[Operation](../globals.md#operation)‹undefined›*
 
-*Defined in [reputation.ts:125](https://github.com/daostack/client/blob/1bc237e/src/reputation.ts#L125)*
+*Defined in [src/reputation.ts:128](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L128)*
 
 **Parameters:**
 
@@ -96,7 +107,7 @@ Name | Type |
 `beneficiary` | [Address](../globals.md#address) |
 `amount` | BN |
 
-**Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹any››*
+**Returns:** *[Operation](../globals.md#operation)‹undefined›*
 
 ___
 
@@ -104,7 +115,7 @@ ___
 
 ▸ **reputationOf**(`address`: [Address](../globals.md#address)): *Observable‹BN›*
 
-*Defined in [reputation.ts:96](https://github.com/daostack/client/blob/1bc237e/src/reputation.ts#L96)*
+*Defined in [src/reputation.ts:99](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L99)*
 
 **Parameters:**
 
@@ -120,7 +131,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IReputationState](../interfaces/ireputationstate.md)›*
 
-*Defined in [reputation.ts:72](https://github.com/daostack/client/blob/1bc237e/src/reputation.ts#L72)*
+*Defined in [src/reputation.ts:73](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L73)*
 
 **Parameters:**
 
@@ -136,7 +147,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IReputationQueryOptions](../interfaces/ireputationqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Reputation](reputation.md)[]›*
 
-*Defined in [reputation.ts:31](https://github.com/daostack/client/blob/1bc237e/src/reputation.ts#L31)*
+*Defined in [src/reputation.ts:32](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L32)*
 
 Reputation.search(context, options) searches for reputation entities
 

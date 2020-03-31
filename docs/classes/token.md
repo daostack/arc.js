@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [Token](token.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Token](token.md)
 
 # Class: Token
 
@@ -28,6 +28,7 @@
 * [approveForStaking](token.md#approveforstaking)
 * [balanceOf](token.md#balanceof)
 * [contract](token.md#contract)
+* [fetchState](token.md#fetchstate)
 * [mint](token.md#mint)
 * [state](token.md#state)
 * [transfer](token.md#transfer)
@@ -37,16 +38,16 @@
 
 ###  constructor
 
-\+ **new Token**(`id`: [Address](../globals.md#address), `context`: [Arc](arc.md)): *[Token](token.md)*
+\+ **new Token**(`context`: [Arc](arc.md), `id`: [Address](../globals.md#address)): *[Token](token.md)*
 
-*Defined in [token.ts:87](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L87)*
+*Defined in [src/token.ts:88](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L88)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`id` | [Address](../globals.md#address) |
 `context` | [Arc](arc.md) |
+`id` | [Address](../globals.md#address) |
 
 **Returns:** *[Token](token.md)*
 
@@ -56,7 +57,7 @@ Name | Type |
 
 • **address**: *string*
 
-*Defined in [token.ts:87](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L87)*
+*Defined in [src/token.ts:88](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L88)*
 
 ___
 
@@ -64,7 +65,7 @@ ___
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [token.ts:89](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L89)*
+*Defined in [src/token.ts:90](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L90)*
 
 ___
 
@@ -72,7 +73,7 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Defined in [token.ts:89](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L89)*
+*Defined in [src/token.ts:90](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L90)*
 
 ## Methods
 
@@ -80,7 +81,7 @@ ___
 
 ▸ **allowance**(`owner`: [Address](../globals.md#address), `spender`: [Address](../globals.md#address)): *Observable‹BN›*
 
-*Defined in [token.ts:185](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L185)*
+*Defined in [src/token.ts:193](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L193)*
 
 **Parameters:**
 
@@ -95,9 +96,9 @@ ___
 
 ###  approveForStaking
 
-▸ **approveForStaking**(`spender`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹any››*
+▸ **approveForStaking**(`spender`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
-*Defined in [token.ts:226](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L226)*
+*Defined in [src/token.ts:236](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L236)*
 
 **Parameters:**
 
@@ -106,7 +107,7 @@ Name | Type |
 `spender` | [Address](../globals.md#address) |
 `amount` | BN |
 
-**Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹any››*
+**Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
 ___
 
@@ -114,7 +115,7 @@ ___
 
 ▸ **balanceOf**(`owner`: string): *Observable‹BN›*
 
-*Defined in [token.ts:133](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L133)*
+*Defined in [src/token.ts:138](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L138)*
 
 **Parameters:**
 
@@ -128,25 +129,35 @@ ___
 
 ###  contract
 
-▸ **contract**(`mode?`: undefined | "readonly"): *any*
+▸ **contract**(): *Contract‹›*
 
-*Defined in [token.ts:128](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L128)*
+*Defined in [src/token.ts:133](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L133)*
+
+**Returns:** *Contract‹›*
+
+___
+
+###  fetchState
+
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ITokenState](../interfaces/itokenstate.md)›*
+
+*Defined in [src/token.ts:98](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L98)*
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`mode?` | undefined &#124; "readonly" |
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
 
-**Returns:** *any*
+**Returns:** *Promise‹[ITokenState](../interfaces/itokenstate.md)›*
 
 ___
 
 ###  mint
 
-▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹any››*
+▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
-*Defined in [token.ts:212](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L212)*
+*Defined in [src/token.ts:220](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L220)*
 
 **Parameters:**
 
@@ -155,7 +166,7 @@ Name | Type |
 `beneficiary` | [Address](../globals.md#address) |
 `amount` | BN |
 
-**Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹any››*
+**Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
 ___
 
@@ -163,7 +174,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ITokenState](../interfaces/itokenstate.md)›*
 
-*Defined in [token.ts:97](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L97)*
+*Defined in [src/token.ts:102](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L102)*
 
 **Parameters:**
 
@@ -177,9 +188,9 @@ ___
 
 ###  transfer
 
-▸ **transfer**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹any››*
+▸ **transfer**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
-*Defined in [token.ts:219](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L219)*
+*Defined in [src/token.ts:228](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L228)*
 
 **Parameters:**
 
@@ -188,7 +199,7 @@ Name | Type |
 `beneficiary` | [Address](../globals.md#address) |
 `amount` | BN |
 
-**Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹any››*
+**Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
 ___
 
@@ -196,7 +207,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [ITokenQueryOptions](../interfaces/itokenqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Token](token.md)[]›*
 
-*Defined in [token.ts:52](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L52)*
+*Defined in [src/token.ts:53](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L53)*
 
 Token.search(context, options) searches for token entities
 

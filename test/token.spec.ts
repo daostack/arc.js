@@ -20,14 +20,14 @@ describe('Token', () => {
   })
 
   it('Token is instantiable', () => {
-    const token = new Token(address, arc)
+    const token = new Token(arc, address)
     expect(token).toBeInstanceOf(Token)
     expect(token.address).toBe(address)
   })
 
   it('get the token state', async () => {
-    const token = new Token(address, arc)
-    const state = await token.state().pipe(first()).toPromise()
+    const token = new Token(arc, address)
+    const state = await token.fetchState()
     expect(Object.keys(state)).toEqual(['address', 'name', 'owner', 'symbol', 'totalSupply'])
     const expected = {
        address: address.toLowerCase(),
@@ -38,27 +38,27 @@ describe('Token', () => {
 
   it('throws a reasonable error if the contract does not exist', async () => {
     expect.assertions(1)
-    const token = new Token('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1', arc)
+    const token = new Token(arc, '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
     await expect(token.state().toPromise()).rejects.toThrow(
       'Could not find a token contract with address 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
     )
   })
 
   it('throws a reasonable error if the constructor gets an invalid address', async () => {
-    await expect(() => new Token('0xinvalid', arc)).toThrow(
+    await expect(() => new Token(arc, '0xinvalid')).toThrow(
       'Not a valid address: 0xinvalid'
     )
   })
 
   it('get someones balance', async () => {
-    const token = new Token(address, arc)
+    const token = new Token(arc, address)
     const balanceOf = await token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
       .pipe(first()).toPromise()
-    expect(fromWei(balanceOf)).toEqual('1000')
+    expect(fromWei(balanceOf)).toEqual('1000.0')
   })
 
   it('mint some new tokens', async () => {
-    const token = new Token(addresses.test.organs.DemoDAOToken, arc)
+    const token = new Token(arc, addresses.test.organs.DemoDAOToken)
     const account = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
     // check if the currentAccount is the owner of the contract
     const balances: Array<BN> = []
@@ -93,7 +93,11 @@ describe('Token', () => {
     const lastAllowance = () => allowances[allowances.length - 1]
     const someAddress = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
 
-    token.allowance(arc.web3.eth.defaultAccount, someAddress).subscribe(
+    if(!arc.web3) throw new Error("Web3 provider not set")
+
+    const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+
+    token.allowance(defaultAccount, someAddress).subscribe(
       (next: any) => allowances.push(next)
     )
 
@@ -104,12 +108,10 @@ describe('Token', () => {
   })
 
   it('get balance of a non-existing token', async () => {
-    const token = new Token('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1', arc)
+    const token = new Token(arc, '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
     const promise = token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
       .pipe(first()).toPromise()
-    await expect(promise).rejects.toThrow(
-      'no contract'
-    )
+    await expect(promise).rejects.toThrow(new RegExp("^contract not deployed"))
   })
 
   it('paging and sorting works', async () => {

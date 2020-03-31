@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IQueueQueryOptions](iqueuequeryoptions.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IQueueQueryOptions](iqueuequeryoptions.md)
 
 # Interface: IQueueQueryOptions
 
@@ -26,7 +26,7 @@
 
 *Inherited from [ICommonQueryOptions](icommonqueryoptions.md).[first](icommonqueryoptions.md#optional-first)*
 
-*Defined in [types.ts:16](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L16)*
+*Defined in [src/types.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L17)*
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 *Inherited from [ICommonQueryOptions](icommonqueryoptions.md).[orderBy](icommonqueryoptions.md#optional-orderby)*
 
-*Defined in [types.ts:17](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L17)*
+*Defined in [src/types.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L18)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 *Inherited from [ICommonQueryOptions](icommonqueryoptions.md).[orderDirection](icommonqueryoptions.md#optional-orderdirection)*
 
-*Defined in [types.ts:18](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L18)*
+*Defined in [src/types.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L19)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 *Inherited from [ICommonQueryOptions](icommonqueryoptions.md).[skip](icommonqueryoptions.md#optional-skip)*
 
-*Defined in [types.ts:15](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L15)*
+*Defined in [src/types.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L16)*
 
 ___
 
@@ -66,4 +66,4 @@ ___
 
 *Overrides [ICommonQueryOptions](icommonqueryoptions.md).[where](icommonqueryoptions.md#optional-where)*
 
-*Defined in [queue.ts:23](https://github.com/daostack/client/blob/1bc237e/src/queue.ts#L23)*
+*Defined in [src/queue.ts:21](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L21)*

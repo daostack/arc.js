@@ -4,7 +4,8 @@ import {
   DAO,
   IProposalStage,
   IProposalState,
-  Proposal
+  Proposal,
+  Scheme
   } from '../src'
 import { newArc, toWei, voteToPassProposal, waitUntilTrue } from './utils'
 
@@ -31,9 +32,9 @@ describe('ContributionReward Ext', () => {
     const contributionRewardExts = await arc
       .schemes({where: {address: contributionRewardExtContract.address}}).pipe(first()).toPromise()
 
-    const contributionRewardExt = contributionRewardExts[0]
-    const contributionRewardExtState = await contributionRewardExt.state().pipe(first()).toPromise()
-    const dao = new DAO(contributionRewardExtState.dao, arc)
+    const contributionRewardExt = contributionRewardExts[0] as Scheme
+    const contributionRewardExtState = await contributionRewardExt.fetchState()
+    const dao = new DAO(arc, contributionRewardExtState.dao)
 
     const tx = await dao.createProposal({
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
@@ -46,8 +47,9 @@ describe('ContributionReward Ext', () => {
       scheme: contributionRewardExtState.address,
       value: 0
     }).send()
-    const proposal = tx.result
+    let proposal = tx.result
     expect(proposal).toBeInstanceOf(Proposal)
+    proposal = proposal as Proposal
 
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]

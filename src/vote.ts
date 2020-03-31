@@ -7,18 +7,14 @@ import { IProposalOutcome } from './proposal'
 import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
-export interface IVoteStaticState {
-  id?: string
+export interface IVoteState {
+  id: string
   voter: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount of reputation that was voted with
   proposal: string
   dao?: Address
-}
-
-export interface IVoteState extends IVoteStaticState {
-  id: string
 }
 
 export interface IVoteQueryOptions extends ICommonQueryOptions {
@@ -97,7 +93,7 @@ export class Vote implements IStateful<IVoteState> {
       } else {
         throw new Error(`Unexpected value for proposalVote.outcome: ${r.outcome}`)
       }
-      return new Vote({
+      return new Vote(context, {
         amount: new BN(r.reputation || 0),
         createdAt: r.createdAt,
         dao: r.dao.id,
@@ -105,7 +101,7 @@ export class Vote implements IStateful<IVoteState> {
         outcome,
         proposal: r.proposal.id,
         voter: r.voter
-      }, context)
+      })
     }
 
     // if we are searching for votes of a specific proposal (a common case), we
@@ -154,15 +150,15 @@ export class Vote implements IStateful<IVoteState> {
     }
   }
   public id: string|undefined
-  public staticState: IVoteStaticState|undefined
+  public coreState: IVoteState|undefined
 
-  constructor(idOrOpts: string|IVoteStaticState, public context: Arc) {
+  constructor(public context: Arc, idOrOpts: string|IVoteState) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
-      const opts = idOrOpts as IVoteStaticState
+      const opts = idOrOpts as IVoteState
       this.id = opts.id
-      this.setStaticState(opts)
+      this.setState(opts)
     }
   }
 
@@ -179,28 +175,37 @@ export class Vote implements IStateful<IVoteState> {
       if (item === null) {
         throw Error(`Could not find a Vote with id ${this.id}`)
       }
+
+      let outcome: IProposalOutcome = IProposalOutcome.Pass
+      if (item.outcome === 'Pass') {
+        outcome = IProposalOutcome.Pass
+      } else if (item.outcome === 'Fail') {
+        outcome = IProposalOutcome.Fail
+      } else {
+        throw new Error(`Unexpected value for proposalVote.outcome: ${item.outcome}`)
+      }
+
       return {
-        amount: item.reputation,
+        amount: new BN(item.reputation || 0),
         createdAt: item.createdAt,
         dao: item.dao.id,
         id: item.id,
-        outcome: item.outcome,
+        outcome,
         proposal: item.proposal.id,
         voter: item.voter
       }
     }
+
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
-  public setStaticState(opts: IVoteStaticState) {
-    this.staticState = opts
+  public setState(opts: IVoteState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<IVoteStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      return await this.state().pipe(first()).toPromise()
-    }
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IVoteState> {
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
 }

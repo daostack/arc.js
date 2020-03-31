@@ -7,17 +7,13 @@ import { IProposalOutcome} from './proposal'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
-export interface IStakeStaticState {
-  id?: string
+export interface IStakeState {
+  id: string
   staker: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount staked
   proposal: string
-}
-
-export interface IStakeState extends IStakeStaticState {
-  id: string
 }
 
 export interface IStakeQueryOptions extends ICommonQueryOptions {
@@ -93,14 +89,14 @@ export class Stake implements IStateful<IStakeState> {
       } else {
         throw new Error(`Unexpected value for proposalStakes.outcome: ${r.outcome}`)
       }
-      return new Stake({
+      return new Stake(context, {
         amount: new BN(r.amount || 0),
         createdAt: r.createdAt,
         id: r.id,
         outcome,
         proposal: r.proposal.id,
         staker: r.staker
-      }, context)
+      })
     }
 
     if (proposalId && !options.where.id) {
@@ -146,17 +142,17 @@ export class Stake implements IStateful<IStakeState> {
   }
 
   public id: string|undefined
-  public staticState: IStakeStaticState|undefined
+  public coreState: IStakeState|undefined
 
   constructor(
-      idOrOpts: string|IStakeStaticState,
-      public context: Arc
+    public context: Arc,
+    idOrOpts: string|IStakeState
   ) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
       this.id = idOrOpts.id
-      this.setStaticState(idOrOpts as IStakeStaticState)
+      this.setState(idOrOpts as IStakeState)
     }
   }
 
@@ -180,38 +176,37 @@ export class Stake implements IStateful<IStakeState> {
       if (item === null) {
         throw Error(`Could not find a Stake with id ${this.id}`)
       }
-      this.setStaticState({
+
+      let outcome: IProposalOutcome = IProposalOutcome.Pass
+      if (item.outcome === 'Pass') {
+        outcome = IProposalOutcome.Pass
+      } else if (item.outcome === 'Fail') {
+        outcome = IProposalOutcome.Fail
+      } else {
+        throw new Error(`Unexpected value for proposalStakes.outcome: ${item.outcome}`)
+      }
+
+      this.setState({
         amount: new BN(item.amount),
         createdAt: item.createdAt,
         id: item.id,
-        outcome: item.outcome,
+        outcome,
         proposal: item.proposal.id,
         staker: item.staker
       })
-      return {
-        amount: new BN(item.amount),
-        createdAt: item.createdAt,
-        id: item.id,
-        outcome: item.outcome,
-        proposal: item.proposal.id,
-        staker: item.staker
-      }
+
+      return this.coreState as IStakeState
     }
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
-  public setStaticState(opts: IStakeStaticState) {
-    this.staticState = opts
+  public setState(opts: IStakeState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<IStakeStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state = await this.state({subscribe: false}).pipe(first()).toPromise()
-      this.setStaticState(state)
-      return state
-    }
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IStakeState> {
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
-
 }

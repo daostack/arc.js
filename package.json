@@ -71,7 +71,6 @@
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/jest": "^24.0.15",
     "@types/node": "^10.14.13",
-    "@types/web3": "1.0.20",
     "@types/ws": "^6.0.1",
     "babel-eslint": "^10.0.2",
     "colors": "^1.3.2",
@@ -109,6 +108,7 @@
     "apollo-link-http": "^1.5.15",
     "apollo-link-retry": "^2.2.15",
     "apollo-link-ws": "^1.0.18",
+    "ethers": "^4.0.45",
     "form-data": "^3.0.0",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
@@ -117,7 +117,6 @@
     "js-logger": "^1.6.0",
     "rxjs": "6.4.0",
     "subscriptions-transport-ws": "^0.9.16",
-    "web3": "1.2.4",
     "ws": "^6.2.1"
   }
 }

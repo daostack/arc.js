@@ -3,6 +3,7 @@ import { Arc } from '../src/arc'
 import { IProposalOutcome} from '../src/proposal'
 import { Stake } from '../src/stake'
 import { createAProposal, newArc, toWei, waitUntilTrue } from './utils'
+import { getAddress } from 'ethers/utils'
 
 jest.setTimeout(60000)
 
@@ -18,26 +19,30 @@ describe('Stake', () => {
   })
 
   it('Stake is instantiable', () => {
-    const stake = new Stake({
+    const stake = new Stake(arc, {
       amount: toWei('300'),
       createdAt: new Date(),
       id: '0x1234id',
       outcome: IProposalOutcome.Fail,
       proposal: '0x12445proposalId',
       staker: '0x124staker'
-    }, arc)
+    })
     expect(stake).toBeInstanceOf(Stake)
   })
 
   it('Stakes are searchable', async () => {
-    let result: any
+    let result: Stake[]
     const proposal = await createAProposal()
     const stakes: any[] = []
 
     const stakeAmount = toWei('18')
-    await proposal.stakingToken().mint(arc.web3.eth.defaultAccount, stakeAmount).send()
+
+    if(!arc.web3) throw new Error("Web3 provider not set")
+    const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+
+    await proposal.stakingToken().mint(defaultAccount, stakeAmount).send()
     const votingMachine = await proposal.votingMachine()
-    await arc.approveForStaking(votingMachine.options.address, stakeAmount).send()
+    await arc.approveForStaking(votingMachine.address, stakeAmount).send()
 
     proposal.stakes().subscribe((next) => stakes.push(next))
     await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
@@ -53,7 +58,7 @@ describe('Stake', () => {
     result = await Stake.search(arc, {where:  {proposal: proposal.id}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
-    const state = await result[0].fetchStaticState()
+    const state = await result[0].fetchState()
     expect(state.outcome).toEqual(IProposalOutcome.Pass)
 
     result = await Stake
@@ -62,7 +67,7 @@ describe('Stake', () => {
     expect(result.length).toEqual(1)
 
     result = await Stake
-      .search(arc, {where:  {staker: arc.web3.utils.toChecksumAddress(state.staker), proposal: proposal.id}})
+      .search(arc, {where:  {staker: getAddress(state.staker), proposal: proposal.id}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
   })

@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [Reward](reward.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Reward](reward.md)
 
 # Class: Reward
 
@@ -19,14 +19,14 @@
 ### Properties
 
 * [context](reward.md#context)
+* [coreState](reward.md#corestate)
 * [id](reward.md#id)
 * [idOrOpts](reward.md#idoropts)
-* [staticState](reward.md#staticstate)
 
 ### Methods
 
-* [fetchStaticState](reward.md#fetchstaticstate)
-* [setStaticState](reward.md#setstaticstate)
+* [fetchState](reward.md#fetchstate)
+* [setState](reward.md#setstate)
 * [state](reward.md#state)
 * [search](reward.md#static-search)
 
@@ -38,16 +38,16 @@
 
 ###  constructor
 
-\+ **new Reward**(`idOrOpts`: string | [IRewardStaticState](../interfaces/irewardstaticstate.md), `context`: [Arc](arc.md)): *[Reward](reward.md)*
+\+ **new Reward**(`context`: [Arc](arc.md), `idOrOpts`: string | [IRewardState](../interfaces/irewardstate.md)): *[Reward](reward.md)*
 
-*Defined in [reward.ts:155](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L155)*
+*Defined in [src/reward.ts:156](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L156)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`idOrOpts` | string &#124; [IRewardStaticState](../interfaces/irewardstaticstate.md) |
 `context` | [Arc](arc.md) |
+`idOrOpts` | string &#124; [IRewardState](../interfaces/irewardstate.md) |
 
 **Returns:** *[Reward](reward.md)*
 
@@ -57,7 +57,15 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [reward.ts:157](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L157)*
+*Defined in [src/reward.ts:158](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L158)*
+
+___
+
+###  coreState
+
+• **coreState**: *[IRewardState](../interfaces/irewardstate.md) | undefined*
+
+*Defined in [src/reward.ts:156](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L156)*
 
 ___
 
@@ -65,47 +73,45 @@ ___
 
 • **id**: *string*
 
-*Defined in [reward.ts:154](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L154)*
+*Defined in [src/reward.ts:155](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L155)*
 
 ___
 
 ###  idOrOpts
 
-• **idOrOpts**: *string | [IRewardStaticState](../interfaces/irewardstaticstate.md)*
+• **idOrOpts**: *string | [IRewardState](../interfaces/irewardstate.md)*
 
-*Defined in [reward.ts:157](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L157)*
-
-___
-
-###  staticState
-
-• **staticState**: *[IRewardStaticState](../interfaces/irewardstaticstate.md) | undefined*
-
-*Defined in [reward.ts:155](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L155)*
+*Defined in [src/reward.ts:158](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L158)*
 
 ## Methods
 
-###  fetchStaticState
+###  fetchState
 
-▸ **fetchStaticState**(): *Promise‹[IRewardStaticState](../interfaces/irewardstaticstate.md)›*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IRewardState](../interfaces/irewardstate.md)›*
 
-*Defined in [reward.ts:215](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L215)*
+*Defined in [src/reward.ts:207](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L207)*
 
-**Returns:** *Promise‹[IRewardStaticState](../interfaces/irewardstaticstate.md)›*
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
+
+**Returns:** *Promise‹[IRewardState](../interfaces/irewardstate.md)›*
 
 ___
 
-###  setStaticState
+###  setState
 
-▸ **setStaticState**(`opts`: [IRewardStaticState](../interfaces/irewardstaticstate.md)): *void*
+▸ **setState**(`opts`: [IRewardState](../interfaces/irewardstate.md)): *void*
 
-*Defined in [reward.ts:211](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L211)*
+*Defined in [src/reward.ts:203](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L203)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opts` | [IRewardStaticState](../interfaces/irewardstaticstate.md) |
+`opts` | [IRewardState](../interfaces/irewardstate.md) |
 
 **Returns:** *void*
 
@@ -115,7 +121,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IRewardState](../interfaces/irewardstate.md)›*
 
-*Defined in [reward.ts:167](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L167)*
+*Defined in [src/reward.ts:168](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L168)*
 
 **Parameters:**
 
@@ -131,7 +137,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IRewardQueryOptions](../interfaces/irewardqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Reward](reward.md)[]›*
 
-*Defined in [reward.ts:71](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L71)*
+*Defined in [src/reward.ts:68](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L68)*
 
 Reward.search(context, options) searches for reward entities
 
@@ -153,11 +159,11 @@ an observable of Reward objects
 
 ### ▪ **fragments**: *object*
 
-*Defined in [reward.ts:42](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L42)*
+*Defined in [src/reward.ts:39](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L39)*
 
 ###  RewardFields
 
-• **RewardFields**: *any* =  gql`fragment RewardFields on GPReward {
+• **RewardFields**: *DocumentNode* =  gql`fragment RewardFields on GPReward {
       id
       createdAt
       dao {
@@ -178,4 +184,4 @@ an observable of Reward objects
       daoBountyForStakerRedeemedAt
     }`
 
-*Defined in [reward.ts:43](https://github.com/daostack/client/blob/1bc237e/src/reward.ts#L43)*
+*Defined in [src/reward.ts:40](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L40)*

@@ -5,7 +5,7 @@ import { Arc, IApolloQueryOptions } from './arc'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery } from './utils'
 
-export interface IEventStaticState {
+export interface IEventState {
   id: string
   dao: string
   proposal: string
@@ -13,10 +13,6 @@ export interface IEventStaticState {
   type: string
   data: {[key: string]: any}
   timestamp: string
-}
-
-export interface IEventState extends IEventStaticState {
-  id: string
 }
 
 export interface IEventQueryOptions extends ICommonQueryOptions {
@@ -59,7 +55,7 @@ export class Event implements IStateful<IEventState> {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Event[]> {
 
-    const itemMap = (item: any) => new Event({
+    const itemMap = (item: any) => new Event(context, {
       dao: item.dao.id,
       data: JSON.parse(item.data),
       id: item.id,
@@ -67,7 +63,7 @@ export class Event implements IStateful<IEventState> {
       timestamp: item.timestamp,
       type: item.type,
       user: item.user
-    }, context)
+    })
 
     let query
     query = gql`query EventSearch
@@ -87,15 +83,15 @@ export class Event implements IStateful<IEventState> {
   }
 
   public id: string
-  public staticState: IEventStaticState | undefined
+  public coreState: IEventState | undefined
 
-constructor(public idOrOpts: string | IEventStaticState, public context: Arc) {
+  constructor(public context: Arc, public idOrOpts: string | IEventState) {
     this.context = context
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
       this.id = idOrOpts.id
-      this.setStaticState(idOrOpts as IEventStaticState)
+      this.setState(idOrOpts)
     }
   }
 
@@ -112,7 +108,7 @@ constructor(public idOrOpts: string | IEventStaticState, public context: Arc) {
     `
 
     const itemMap = (item: any): IEventState => {
-      const staticState = {
+      const state = {
         dao: item.dao.id,
         data: JSON.parse(item.data),
         id: item.id,
@@ -121,25 +117,20 @@ constructor(public idOrOpts: string | IEventStaticState, public context: Arc) {
         type: item.type,
         user: item.user
       }
-      this.setStaticState(staticState)
-      return staticState
+      this.setState(state)
+      return state
     }
 
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
-  public setStaticState(opts: IEventStaticState) {
-    this.staticState = opts
+  public setState(opts: IEventState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise < IEventStaticState > {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state = await this.state({ subscribe: false }).pipe(first()).toPromise()
-      this.setStaticState(state)
-      return state
-    }
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise < IEventState > {
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
-
 }

@@ -9,6 +9,7 @@ import { Scheme } from '../src/scheme'
 import { ISchemeRegistrar } from '../src/schemes/schemeRegistrar'
 import { createAProposal, firstResult, getTestAddresses, getTestDAO,
   newArc, voteToPassProposal, waitUntilTrue } from './utils'
+import { Wallet } from 'ethers'
 
 jest.setTimeout(60000)
 
@@ -24,7 +25,7 @@ describe('Proposal', () => {
 
   it('Check proposal state is correct', async () => {
     const dao = await getTestDAO()
-    const schemeToRegister = arc.web3.eth.accounts.create().address.toLowerCase()
+    const schemeToRegister = Wallet.createRandom().address.toLowerCase()
     const proposalToAddStates: IProposalState[] = []
     const lastProposalToAddState = (): IProposalState => proposalToAddStates[proposalToAddStates.length - 1]
 
@@ -34,7 +35,7 @@ describe('Proposal', () => {
       permissions: '0x0000001f',
       scheme: getTestAddresses(arc).base.SchemeRegistrar,
       schemeToRegister,
-      type: IProposalType.SchemeRegistrarAdd
+      proposalType: IProposalType.SchemeRegistrarAdd
     })
     proposalToAdd.state().subscribe((pState: IProposalState) => {
       proposalToAddStates.push(pState)
@@ -72,7 +73,7 @@ describe('Proposal', () => {
     const registeredSchemesAddresses: string[] = []
     await Promise.all(
       registeredSchemes.map(async (x: Scheme) => {
-        const state = await x.fetchStaticState()
+        const state = await x.fetchState()
         registeredSchemesAddresses.push(state.address)
       })
     )
@@ -85,7 +86,7 @@ describe('Proposal', () => {
       permissions: '0x0000001f',
       scheme: getTestAddresses(arc).base.SchemeRegistrar,
       schemeToRegister: schemeToRegister.toLowerCase(),
-      type: IProposalType.SchemeRegistrarEdit
+      proposalType: IProposalType.SchemeRegistrarEdit
     })
     const proposalToEditStates: IProposalState[]  = []
     proposalToEdit.state().subscribe((pState: IProposalState) => {
@@ -111,7 +112,7 @@ describe('Proposal', () => {
     const proposalToRemove = await createAProposal(dao, {
       scheme: getTestAddresses(arc).base.SchemeRegistrar,
       schemeToRegister,
-      type: IProposalType.SchemeRegistrarRemove
+      proposalType: IProposalType.SchemeRegistrarRemove
     })
     expect(proposalToRemove).toBeInstanceOf(Proposal)
 

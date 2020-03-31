@@ -2,10 +2,11 @@ import { ApolloQueryResult } from 'apollo-client'
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { first, map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
+import { ITransactionReceipt, Operation } from './operation'
 import { REPUTATION_CONTRACT_VERSION } from './settings'
-import { Address, ICommonQueryOptions, IStateful, Web3Receipt } from './types'
+import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
 export interface IReputationState {
@@ -59,16 +60,18 @@ export class Reputation implements IStateful<IReputationState> {
 
     return context.getObservableList(
       query,
-      (r: any) => new Reputation(r.id, context),
+      (r: any) => new Reputation(context, r.id),
       apolloQueryOptions
     )
   }
 
   public address: Address
-  constructor(public id: Address, public context: Arc) {
+
+  constructor(public context: Arc, public id: Address) {
     isAddress(id)
     this.address = id
   }
+
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IReputationState> {
     const query = gql`query ReputationState
     {
@@ -91,6 +94,10 @@ export class Reputation implements IStateful<IReputationState> {
       }
     }
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IReputationState>
+  }
+
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IReputationState> {
+    return await this.state(apolloQueryOptions).pipe(first()).toPromise()
   }
 
   public reputationOf(address: Address): Observable<BN> {
@@ -122,21 +129,26 @@ export class Reputation implements IStateful<IReputationState> {
     return this.context.getContract(this.address, abi)
   }
 
-  public mint(beneficiary: Address, amount: BN) {
-    const contract = this.contract()
-    const transaction = contract.methods.mint(beneficiary, amount.toString())
-    const mapReceipt = (receipt: Web3Receipt) => receipt
-    const sender = this.context.web3.eth.accounts.wallet[0].address
-    const errHandler = async (err: Error) => {
-      const owner = await contract.methods.owner().call()
+  public mint(beneficiary: Address, amount: BN): Operation<undefined> {
+    const mapReceipt = (receipt: ITransactionReceipt) => undefined
+
+    const errorHandler = async (err: Error) => {
+      const contract = this.contract()
+      const sender = await contract.signer.getAddress()
+      const owner = await contract.owner()
       if (owner.toLowerCase() !== sender.toLowerCase()) {
         return Error(`Minting failed: sender ${sender} is not the owner of the contract at ${contract._address}` +
           `(which is ${owner})`)
       }
-      await transaction.call()
       return err
     }
-    return this.context.sendTransaction(transaction, mapReceipt, errHandler)
-  }
 
+    const transaction = {
+      contract: this.contract(),
+      method: 'mint',
+      args: [ beneficiary, amount.toString() ]
+    }
+
+    return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
+  }
 }

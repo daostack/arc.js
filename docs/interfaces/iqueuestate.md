@@ -1,12 +1,10 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IQueueState](iqueuestate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IQueueState](iqueuestate.md)
 
 # Interface: IQueueState
 
 ## Hierarchy
 
-* [IQueueStaticState](iqueuestaticstate.md)
-
-  ↳ **IQueueState**
+* **IQueueState**
 
 ## Index
 
@@ -25,9 +23,7 @@
 
 • **dao**: *[DAO](../classes/dao.md)*
 
-*Inherited from [IQueueStaticState](iqueuestaticstate.md).[dao](iqueuestaticstate.md#dao)*
-
-*Defined in [queue.ts:11](https://github.com/daostack/client/blob/1bc237e/src/queue.ts#L11)*
+*Defined in [src/queue.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L12)*
 
 ___
 
@@ -35,9 +31,7 @@ ___
 
 • **id**: *string*
 
-*Inherited from [IQueueStaticState](iqueuestaticstate.md).[id](iqueuestaticstate.md#id)*
-
-*Defined in [queue.ts:12](https://github.com/daostack/client/blob/1bc237e/src/queue.ts#L12)*
+*Defined in [src/queue.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L13)*
 
 ___
 
@@ -45,9 +39,7 @@ ___
 
 • **name**: *string*
 
-*Inherited from [IQueueStaticState](iqueuestaticstate.md).[name](iqueuestaticstate.md#name)*
-
-*Defined in [queue.ts:13](https://github.com/daostack/client/blob/1bc237e/src/queue.ts#L13)*
+*Defined in [src/queue.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L14)*
 
 ___
 
@@ -55,7 +47,7 @@ ___
 
 • **scheme**: *ISchemeState*
 
-*Defined in [queue.ts:17](https://github.com/daostack/client/blob/1bc237e/src/queue.ts#L17)*
+*Defined in [src/queue.ts:15](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L15)*
 
 ___
 
@@ -63,7 +55,7 @@ ___
 
 • **threshold**: *number*
 
-*Defined in [queue.ts:18](https://github.com/daostack/client/blob/1bc237e/src/queue.ts#L18)*
+*Defined in [src/queue.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L16)*
 
 ___
 
@@ -71,4 +63,4 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [queue.ts:19](https://github.com/daostack/client/blob/1bc237e/src/queue.ts#L19)*
+*Defined in [src/queue.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/queue.ts#L17)*

@@ -1,6 +1,9 @@
 import BN = require('bn.js')
+import { Contract, Signer } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
+import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
-import { Observable, Observer, of, Subscription } from 'rxjs'
+import { Observable, Observer, of } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { DAO, IDAOQueryOptions } from './dao'
 import { GraphNodeObserver, IApolloQueryOptions } from './graphnode'
@@ -8,17 +11,24 @@ export { IApolloQueryOptions } from './graphnode'
 import { Event, IEventQueryOptions } from './event'
 import { IPFSClient } from './ipfsClient'
 import { Logger } from './logger'
-import { Operation, sendTransaction, transactionErrorHandler, web3receipt } from './operation'
+import {
+  ITransaction,
+  ITransactionReceipt,
+  Operation,
+  sendTransaction,
+  transactionErrorHandler,
+  transactionResultHandler
+} from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
 import { IRewardQueryOptions, Reward } from './reward'
 import { ISchemeQueryOptions, Scheme } from './scheme'
+import { SchemeBase } from './schemes/base'
 import { ABI_DIR } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
-const Web3 = require('web3')
 
 /**
  * The Arc class holds all configuration.
@@ -27,24 +37,23 @@ const Web3 = require('web3')
  */
 export class Arc extends GraphNodeObserver {
   public web3Provider: Web3Provider = ''
-  public web3ProviderRead: Web3Provider = ''
   public ipfsProvider: IPFSProvider
+
+  public defaultAccount: string | undefined = undefined
 
   public pendingOperations: Observable<Array<Operation<any>>> = of()
 
-  public ipfs: any
-  public web3: typeof Web3
-  public web3Read: typeof Web3 // if provided, arc will read all data from this provider
+  public ipfs: IPFSClient | undefined = undefined
+  public web3: JsonRpcProvider | undefined = undefined
+
   /**
    * a mapping of contrct names to contract addresses
    */
   public contractInfos: IContractInfo[]
-  public contracts: {[key: string]: any} = {} // a cache for the contracts
-  public contractsR: {[key: string]: any} = {} // a cache for teh "read-only" contracts
 
   // accounts observed by ethBalance
-  public blockHeaderSubscription: Subscription|undefined = undefined
-  public observedAccounts: { [address: string]: {
+  public observedAccounts: {
+    [address: string]: {
       observable?: Observable<BN>
       observer?: Observer<BN>
       lastBalance?: string
@@ -59,7 +68,6 @@ export class Arc extends GraphNodeObserver {
     graphqlWsProvider?: string
     ipfsProvider?: IPFSProvider
     web3Provider?: string
-    web3ProviderRead?: string
     /** this function will be called before a query is sent to the graphql provider */
     graphqlPrefetchHook?: (query: any) => void
     /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
@@ -79,12 +87,7 @@ export class Arc extends GraphNodeObserver {
     this.ipfsProvider = options.ipfsProvider || ''
 
     if (options.web3Provider) {
-      this.web3 = new Web3(options.web3Provider)
-    }
-    if (options.web3ProviderRead) {
-      this.web3Read = new Web3(options.web3ProviderRead)
-    } else {
-      this.web3Read = this.web3
+      this.web3 = new JsonRpcProvider(options.web3Provider)
     }
 
     this.contractInfos = options.contractInfos || []
@@ -96,9 +99,9 @@ export class Arc extends GraphNodeObserver {
       this.ipfs = new IPFSClient(this.ipfsProvider)
     }
 
-    // by default, we subscribe to queries
+    // by default, we do not subscribe to queries
     if (options.graphqlSubscribeToQueries === undefined) {
-      options.graphqlSubscribeToQueries = true
+      options.graphqlSubscribeToQueries = false
     }
   }
 
@@ -108,9 +111,6 @@ export class Arc extends GraphNodeObserver {
    * @return
    */
   public async setContractInfos(contractInfos: IContractInfo[]) {
-    // reset the cache
-    this.contracts = {}
-    this.contractsR = {}
     this.contractInfos = contractInfos
   }
 
@@ -141,7 +141,7 @@ export class Arc extends GraphNodeObserver {
    */
   public dao(address: Address): DAO {
     isAddress(address)
-    return new DAO(address, this)
+    return new DAO(this, address)
   }
 
   /**
@@ -158,18 +158,18 @@ export class Arc extends GraphNodeObserver {
   }
 
   public scheme(id: string): Scheme {
-    return new Scheme(id, this)
+    return new Scheme(this, id)
   }
 
   public schemes(
     options: ISchemeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Scheme[]> {
+  ): Observable<SchemeBase[]> {
     return Scheme.search(this, options, apolloQueryOptions)
   }
 
   public proposal(id: string): Proposal {
-    return new Proposal(id, this)
+    return new Proposal(this, id)
   }
 
   public proposals(
@@ -204,74 +204,55 @@ export class Arc extends GraphNodeObserver {
     if (!this.observedAccounts[owner]) {
       this.observedAccounts[owner] = {
         subscriptionsCount: 1
-       }
+      }
     }
     if (this.observedAccounts[owner].observable) {
-        this.observedAccounts[owner].subscriptionsCount += 1
-        return this.observedAccounts[owner].observable as Observable<BN>
+      this.observedAccounts[owner].subscriptionsCount += 1
+      return this.observedAccounts[owner].observable as Observable<BN>
     }
 
     const observable = Observable.create((observer: Observer<BN>) => {
       this.observedAccounts[owner].observer = observer
 
       // get the current balance and return it
-      this.web3Read.eth.getBalance(owner)
-        .then((currentBalance: string) => {
-          const accInfo = this.observedAccounts[owner];
-          (accInfo.observer as Observer<BN>).next(new BN(currentBalance))
-          accInfo.lastBalance = currentBalance
+      if (!this.web3) {
+        throw new Error('Web3 provider not defined')
+      }
+
+      this.web3.getBalance(owner)
+        .then((currentBalance: BigNumber) => {
+          const balance = currentBalance.toString()
+          const obs = this.observedAccounts[owner].observer as Observer<BN>
+          obs.next(new BN(balance))
+          this.observedAccounts[owner].lastBalance = balance
         })
         .catch((err: Error) => observer.error(err))
 
-      // set up the blockheadersubscription if it does not exist yet
-      if (!this.blockHeaderSubscription) {
-        const subscribeToBlockHeaders = () =>   {
-          this.blockHeaderSubscription = this.web3Read.eth.subscribe('newBlockHeaders', async (err: Error) => {
-            Object.keys(this.observedAccounts).forEach(async (addr) => {
-              const accInfo = this.observedAccounts[addr]
-              if (err) {
-                (accInfo.observer as Observer<BN>).error(err)
-              } else {
-                try {
-                  const balance = await this.web3Read.eth.getBalance(addr)
-                  if (balance !== accInfo.lastBalance) {
-                    (accInfo.observer as Observer<BN>).next(new BN(balance))
-                    accInfo.lastBalance = balance
-                  }
-                } catch (err) {
-                  observer.error(err)
-                }
-              }
-            })
-          })
-        }
-        try {
-          subscribeToBlockHeaders()
-        } catch (err) {
-          if (err.message.match(/connection not open/g)) {
-            // we need to re-establish the connection and then resubscribe
-            this.web3.setProvider(this.web3Provider)
-            subscribeToBlockHeaders()
-          }
-          throw err
+      // called whenever the account balance changes
+      const onBalanceChange = (balance: BigNumber) => {
+        const accInfo = this.observedAccounts[owner]
+        if (accInfo && balance.toString() !== accInfo.lastBalance) {
+          (accInfo.observer as Observer<BN>).next(new BN(balance.toString()))
+          accInfo.lastBalance = balance.toString()
         }
       }
+      this.web3.on(owner, onBalanceChange)
+
       // unsubscribe
       return () => {
         this.observedAccounts[owner].subscriptionsCount -= 1
         if (this.observedAccounts[owner].subscriptionsCount <= 0) {
+          if (this.web3) {
+            this.web3.removeListener(owner, onBalanceChange)
+          }
           delete this.observedAccounts[owner]
-        }
-        if (Object.keys(this.observedAccounts).length === 0 && this.blockHeaderSubscription) {
-          this.blockHeaderSubscription.unsubscribe()
-          this.blockHeaderSubscription = undefined
         }
       }
     })
 
     this.observedAccounts[owner].observable = observable
     return observable
-      .pipe(map((item: any) => new BN(item)))
+      .pipe(map((item: BN) => item))
   }
 
   /**
@@ -294,17 +275,17 @@ export class Arc extends GraphNodeObserver {
 
   public getContractInfoByName(name: string, version: string) {
     for (const contractInfo of this.contractInfos) {
-        if (contractInfo.name === name && contractInfo.version === version) {
-          return contractInfo
-        }
+      if (contractInfo.name === name && contractInfo.version === version) {
+        return contractInfo
       }
+    }
     if (!this.contractInfos) {
       throw Error(`no contract info was found - did you call "arc.setContractInfos(...)"?`)
     }
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-  public getABI(address?: Address, abiName?: string, version?: string) {
+  public getABI(address?: Address, abiName?: string, version?: string): any[] {
     if (address && !abiName || !version) {
       const contractInfo = this.getContractInfo(address as Address)
       abiName = contractInfo.name
@@ -336,28 +317,14 @@ export class Arc extends GraphNodeObserver {
    * @param  [version] (optional) Arc version of contract (https://www.npmjs.com/package/@daostack/arc)
    * @return   a web3 contract instance
    */
-  public getContract(address: Address, abi?: any, mode?: 'readonly') {
-    // we use a contract "cache" because web3 contract instances add an event listener
-
-    const readonlyContract = (mode === 'readonly' && this.web3Read !== this.web3)
-    if (readonlyContract && this.contractsR[address]) {
-      return this.contractsR[address]
-    } else if (this.contracts[address]) {
-      return this.contracts[address]
-    } else {
-      if (!abi) {
-        abi = this.getABI(address)
-      }
-      let contract: any
-      if (readonlyContract) {
-        contract = new this.web3Read.eth.Contract(abi, address)
-        this.contractsR[address] = contract
-      } else {
-        contract = new this.web3.eth.Contract(abi, address)
-        this.contracts[address] = contract
-      }
-      return contract
+  public getContract(address: Address, abi?: any[]): Contract {
+    if (!abi) {
+      abi = this.getABI(address)
     }
+    if (!this.web3) {
+      throw new Error('Web3 provider not set')
+    }
+    return new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
   }
 
   /**
@@ -368,7 +335,7 @@ export class Arc extends GraphNodeObserver {
     if (this.contractInfos) {
       for (const contractInfo of this.contractInfos) {
         if (contractInfo.name === 'GEN') {
-          return new Token(contractInfo.address, this)
+          return new Token(this, contractInfo.address)
         }
       }
       throw Error(`Cannot find address of GEN Token - did you call setContractInfos?`)
@@ -381,38 +348,55 @@ export class Arc extends GraphNodeObserver {
     // this complex logic is to get the correct account both from the Web3 as well as from the Metamaask provider
     // This polls for changes. But polling is Evil!
     // cf. https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
-    return Observable.create((observer: any) => {
+    return Observable.create((observer: Observer<Address>) => {
       const interval = 1000 /// poll once a second
-      let account: any
-      let prevAccount: any
+      let account: Address
+      let prevAccount: Address
       const web3 = this.web3
-      if (web3.eth.accounts[0]) {
-        observer.next(web3.eth.accounts[0].address)
-        prevAccount = web3.eth.accounts[0].address
-      } else if (web3.eth.defaultAccount ) {
-        observer.next(web3.eth.defaultAccount)
-        prevAccount = web3.eth.defaultAccount
+
+      if (this.defaultAccount) {
+        observer.next(this.defaultAccount)
+        prevAccount = this.defaultAccount
       }
+
       const timeout = setInterval(() => {
-        web3.eth.getAccounts().then((accounts: any) => {
-          if (accounts) {
+        if (!web3) {
+          throw new Error('Web3 provider not set')
+        }
+
+        web3.listAccounts().then((accounts: string[]) => {
+          if (this.defaultAccount) {
+            account = this.defaultAccount
+          } else if (accounts) {
             account = accounts[0]
-          } else if (web3.eth.accounts) {
-            account = web3.eth.accounts[0].address
           }
           if (prevAccount !== account && account) {
-            web3.eth.defaultAccount = account
             observer.next(account)
             prevAccount = account
           }
         })
       }, interval)
-      return() => clearTimeout(timeout)
+      return () => clearTimeout(timeout)
     })
   }
 
   public setAccount(address: Address) {
-    this.web3.eth.defaultAccount = address
+    this.defaultAccount = address
+  }
+
+  public getSigner(): Observable<Signer> {
+    return Observable.create((observer: Observer<Signer>) => {
+      const subscription = this.getAccount().subscribe((address) => {
+        if (!this.web3) {
+          throw new Error('Web3 provider not set')
+        }
+        observer.next(
+          this.web3.getSigner(address)
+        )
+      })
+
+      return () => subscription.unsubscribe()
+    })
   }
 
   public approveForStaking(spender: Address, amount: BN) {
@@ -436,10 +420,12 @@ export class Arc extends GraphNodeObserver {
    * @param  errorHandler [description]
    * @return  An observable of
    */
-  public sendTransaction<T>(
-    transaction: any,
-    mapToObject: (receipt: web3receipt) => T,
-    errorHandler?: transactionErrorHandler
+  public sendTransaction<T = undefined>(
+    transaction: ITransaction,
+    mapToObject: transactionResultHandler<T> = (receipt: ITransactionReceipt) => undefined,
+    errorHandler: transactionErrorHandler = async (err: Error) => {
+      throw err
+    }
   ): Operation<T> {
     return sendTransaction(this, transaction, mapToObject, errorHandler)
   }
@@ -449,7 +435,7 @@ export class Arc extends GraphNodeObserver {
    * @param  options an Object to save. This object must have title, url and desction defined
    * @return  a Promise that resolves in the IPFS Hash where the file is saved
    */
-  public async saveIPFSData(options: { title?: string, url?: string, description?: string, tags?: string[]}):
+  public async saveIPFSData(options: { title?: string, url?: string, description?: string, tags?: string[] }):
     Promise<string> {
     let ipfsDataToSave: object = {}
     if (options.title || options.url || options.description || options.tags !== undefined) {
@@ -464,14 +450,12 @@ export class Arc extends GraphNodeObserver {
       }
     }
     Logger.debug('Saving data on IPFS...')
-    let descriptionHash: string = ''
-    try {
-      descriptionHash = await this.ipfs.addString(JSON.stringify(ipfsDataToSave))
-      // pin the file
-      await this.ipfs.pinHash(descriptionHash)
-    } catch (error) {
-      throw error
+    if (!this.ipfs) {
+      throw Error('IPFS provider not set')
     }
+    const descriptionHash = await this.ipfs.addString(JSON.stringify(ipfsDataToSave))
+    // pin the file
+    await this.ipfs.pinHash(descriptionHash)
     Logger.debug(`Data saved successfully as ${descriptionHash}`)
     return descriptionHash
   }

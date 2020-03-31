@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ICommonQueryOptions](icommonqueryoptions.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ICommonQueryOptions](icommonqueryoptions.md)
 
 # Interface: ICommonQueryOptions
 
@@ -14,6 +14,8 @@
 
   ↳ [ISchemeQueryOptions](ischemequeryoptions.md)
 
+  ↳ [IVoteQueryOptions](ivotequeryoptions.md)
+
   ↳ [ICompetitionSuggestionQueryOptions](icompetitionsuggestionqueryoptions.md)
 
   ↳ [ICompetitionVoteQueryOptions](icompetitionvotequeryoptions.md)
@@ -23,8 +25,6 @@
   ↳ [IRewardQueryOptions](irewardqueryoptions.md)
 
   ↳ [IStakeQueryOptions](istakequeryoptions.md)
-
-  ↳ [IVoteQueryOptions](ivotequeryoptions.md)
 
   ↳ [IProposalQueryOptions](iproposalqueryoptions.md)
 
@@ -56,7 +56,7 @@
 
 • **first**? : *undefined | number*
 
-*Defined in [types.ts:16](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L16)*
+*Defined in [src/types.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L17)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **orderBy**? : *undefined | string*
 
-*Defined in [types.ts:17](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L17)*
+*Defined in [src/types.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L18)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **orderDirection**? : *"asc" | "desc"*
 
-*Defined in [types.ts:18](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L18)*
+*Defined in [src/types.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L19)*
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **skip**? : *undefined | number*
 
-*Defined in [types.ts:15](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L15)*
+*Defined in [src/types.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L16)*
 
 ___
 
@@ -88,4 +88,4 @@ ___
 
 • **where**? : *any*
 
-*Defined in [types.ts:19](https://github.com/daostack/client/blob/1bc237e/src/types.ts#L19)*
+*Defined in [src/types.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L20)*

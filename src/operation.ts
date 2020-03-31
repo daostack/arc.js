@@ -1,8 +1,30 @@
+import {
+  Contract,
+  ContractReceipt as ITransactionReceipt,
+  Event as ITransactionEvent
+} from 'ethers/contract'
+import { TransactionResponse } from 'ethers/providers'
 import { Observable, Observer } from 'rxjs'
 import { first, take } from 'rxjs/operators'
 import { Arc } from './arc'
 import { Logger } from './logger'
-import { Web3Receipt } from './types'
+
+export interface ITransaction {
+  contract: Contract
+  method: string
+  args: any[]
+  opts?: {
+    gasLimit?: number
+    gasPrice?: number
+    value?: number
+    nonce?: number
+  }
+}
+
+export {
+  ITransactionReceipt,
+  ITransactionEvent
+}
 
 export enum ITransactionState {
   Sending,
@@ -16,31 +38,35 @@ export enum ITransactionState {
 export interface ITransactionUpdate<T> {
   state: ITransactionState
   transactionHash?: string
-  receipt?: object
+  receipt?: ITransactionReceipt
   /**
    *  number of confirmations
    */
   confirmations?: number
   /**
    * Parsed return value from the method call
-   * or contract address in the case of contract creation tx.
    */
   result?: T
 }
+
+export type transactionErrorHandler = (
+  error: Error,
+  transaction: ITransaction,
+  options?: { from?: string }
+) => Promise<Error> | Error
+
+export type transactionResultHandler<T> = (
+  receipt: ITransactionReceipt
+) => T | Promise<T> | undefined
 
 /**
  * An operation is a stream of transaction updates
  */
 export interface IOperationObservable<T> extends Observable<T> {
-  send: () => Promise<Web3Receipt>
+  send: () => Promise<T>
 }
 
 export type Operation<T> = IOperationObservable<ITransactionUpdate<T>>
-
-export type web3receipt = object
-
-export type transactionErrorHandler =  (
-  error: Error, transaction?: any, options?: { from?: string}) => Promise<Error> | Error
 
 /**
  *
@@ -57,67 +83,101 @@ export type transactionErrorHandler =  (
  * @export
  * @template T
  * @param {Arc} context An instance of Arc
- * @param {*} transaction A Web3 transaction object to send
- * @param {((receipt: web3receipt) => T | Promise<T>)} mapReceipt A function that takes the receipt of
+ * @param {Transaction} transaction A Web3 transaction object to send
+ * @param {TransactionResultHandler<T>} mapReceipt A function that takes the receipt of
  *  the transaction and returns an object
- * @param {((error: Error, transaction: any, options: { from?: string }) => Promise<Error> | Error)} [errorHandler]
+ * @param {TransactionErrorHandler} [errorHandler]
  *  A function that takes an error, and either returns or throws a more informative Error
  *  if errorHander is not provided, a default error handler will throw any errors thrown by calling `transaction.call()`
  * @returns {Operation<T>}
  */
 export function sendTransaction<T>(
   context: Arc,
-  transaction: any,
-  mapReceipt: (receipt: web3receipt) => T | Promise<T>,
-  errorHandler: transactionErrorHandler = async (err: Error, tx: any = transaction, options: { from?: string} = {}) => {
-      await tx.call(options)
-      throw err
-    }
+  tx: ITransaction,
+  mapReceipt: transactionResultHandler<T>,
+  errorHandler: transactionErrorHandler
 ): Operation<T> {
 
   const observable = Observable.create(async (observer: Observer<ITransactionUpdate<T>>) => {
-    let transactionHash: string
-    let result: any
-    let tx: any
-    if (typeof transaction === 'function') {
+    const catchHandler = async (error: Error, transaction: ITransaction, from?: string) => {
       try {
-        tx = await transaction()
-      } catch (err) {
-        observer.error(err)
-      }
-    } else {
-      tx = transaction
-    }
-
-    const from = await context.getAccount().pipe(first()).toPromise()
-
-    let gasEstimate: number = 0
-    try {
-      gasEstimate = await tx.estimateGas({ from })
-    } catch (error) {
-      try {
-        error = await errorHandler(error, transaction, {from})
+        error = await errorHandler(error, tx, { from })
       } catch (err) {
         error = err
       }
       observer.error(error)
-      return
     }
-    let gas: number
-    if (gasEstimate) {
-      gas = gasEstimate * 2
+
+    // Get the current account
+    const signer = await context.getSigner().pipe(first()).toPromise()
+
+    // Construct a new contract with the current signer
+    const contract = new Contract(
+      tx.contract.address,
+      tx.contract.interface,
+      signer
+    )
+
+    let gasLimit: number = 0
+
+    if (tx.opts?.gasLimit) {
+      gasLimit = tx.opts.gasLimit
     } else {
-      gas = 1000000
+      try {
+        gasLimit = (await contract.estimate[tx.method](...tx.args)).toNumber()
+      } catch (error) {
+        await catchHandler(error, tx, await signer.getAddress())
+      }
     }
-    gas = Math.min(1000000, gas)
-    // gas = new BN(1000000)
-    const options = {
-      from,
-      gas
+
+    const overrides = {
+      ...tx.opts,
+      gasLimit: gasLimit ? gasLimit : 1000000
     }
+
+    let response: TransactionResponse
+    let hash: string = ''
+    let result: T | undefined
+
     observer.next({
       state: ITransactionState.Sending
     })
+
+    try {
+      response = await contract[tx.method](...tx.args, overrides)
+    } catch (error) {
+      await catchHandler(error, tx, await signer.getAddress())
+      return
+    }
+
+    if (!response.hash) {
+      throw Error('Transaction hash is undefined')
+    }
+    hash = response.hash
+
+    Logger.debug('Sending transaction..')
+    observer.next({
+      state: ITransactionState.Sent,
+      transactionHash: hash
+    })
+
+    let confirmations = 1
+
+    // Get the mined transaction receipt
+    const receipt = await response.wait(confirmations)
+
+    // Map the results
+    result = await mapReceipt(receipt)
+
+    Logger.debug('transaction mined!')
+    observer.next({
+      confirmations,
+      receipt,
+      result,
+      state: ITransactionState.Mined,
+      transactionHash: hash
+    })
+
     /**
      * Keep our own count here because ganache and infura are not consistent in how they count the
      * confirmatipn events.  Sometimes a confirmation event can appear before the receipt event.
@@ -125,76 +185,43 @@ export function sendTransaction<T>(
      * A consequence of the latter is that when we hit 24 events, there may or may not have been 24 actual minings --
      * we may have incorrectly counted the "receipt" event as a confirmation.
      */
-    let confirmationCount = 0
-    tx.send(options)
-      .once('transactionHash', (hash: string) => {
-        Logger.debug('Sending transaction..')
-        transactionHash = hash
-        observer.next({
-          state: ITransactionState.Sent,
-          transactionHash
-        })
+
+    if (!context.web3) {
+      throw new Error('Web3 provider not set')
+    }
+    const web3 = context.web3
+
+    // Subscribe to new blocks, and look for new confirmations on our transaction
+    const onNewBlock = async (blockNumber: number) => {
+      const { confirmations: latestConfirmations } = await web3.getTransactionReceipt(response.hash as string)
+
+      if (!latestConfirmations || confirmations >= latestConfirmations) {
+        // Wait for a new block, as there are no new confirmations
+        return
+      } else {
+        // We've received new confirmations!
+        confirmations = latestConfirmations
+      }
+
+      // Update the observer
+      observer.next({
+        confirmations,
+        receipt: await response.wait(confirmations),
+        result,
+        state: ITransactionState.Mined,
+        transactionHash: hash
       })
-      .once('receipt', async (receipt: any) => {
-        try {
-          result = await mapReceipt(receipt)
-        } catch (error) {
-          try {
-            error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
-          } catch (err) {
-            error = err
-          }
-          observer.error(error)
-        }
-        if (confirmationCount === 0) {
-          Logger.debug(`transaction mined!`)
-        }
-        observer.next({
-          confirmations: confirmationCount++,
-          receipt,
-          result,
-          state: ITransactionState.Mined,
-          transactionHash
-        })
-      })
-      .on('confirmation', async (confNumber: number, receipt: any) => {
-        if (!result) {
-          try {
-            result = await mapReceipt(receipt)
-          } catch (error) {
-            try {
-              error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
-            } catch (err) {
-              error = err
-            }
-            observer.error(error)
-          }
-        }
-        if (confirmationCount === 0) {
-          Logger.debug(`transaction mined!`)
-        }
-        observer.next({
-          confirmations: confirmationCount++,
-          receipt,
-          result,
-          state: ITransactionState.Mined,
-          transactionHash
-        })
-        if (confirmationCount > 23) {
-          // the web3 observer will confirm up to 24 subscriptions, so we are done here
-          observer.complete()
-        }
-      })
-      .on('error', async (error: Error) => {
-        try {
-          error = await (errorHandler as (error: Error) => Promise<Error> | Error)(error)
-        } catch (err) {
-          error = err
-        }
-        observer.error(error)
-      })
-  }
-  )
+
+      // the web3 observer will confirm up to 24 subscriptions, so we are done here
+      if (confirmations > 23) {
+        web3.removeListener('block', onNewBlock)
+        observer.complete()
+      }
+    }
+
+    context.web3.on('block', onNewBlock)
+  })
+
   return toIOperationObservable(observable)
 }
 
@@ -205,4 +232,38 @@ export function toIOperationObservable<T>(observable: Observable<T>): IOperation
   observable.send = () => observable.pipe(take(3)).toPromise()
   // @ts-ignore
   return observable
+}
+
+export function getEvent(receipt: ITransactionReceipt, eventName: string, codeScope: string): ITransactionEvent {
+  if (!receipt.events || receipt.events.length === 0) {
+    throw Error(`${codeScope}: missing events in receipt`)
+  }
+
+  const event = receipt.events.find(
+    (e: ITransactionEvent) => e.event === eventName
+  )
+
+  if (!event) {
+    throw Error(`${codeScope}: missing ${eventName} event`)
+  }
+
+  return event
+}
+
+export function getEventArgs(receipt: ITransactionReceipt, eventName: string, codeScope: string): any[] {
+  return getEventAndArgs(receipt, eventName, codeScope)[1]
+}
+
+export function getEventAndArgs(
+  receipt: ITransactionReceipt,
+  eventName: string,
+  codeScope: string
+): [ITransactionEvent, any[]] {
+  const event = getEvent(receipt, eventName, codeScope)
+
+  if (!event.args) {
+    throw Error(`${codeScope}: missing ${eventName} event args`)
+  }
+
+  return [event, event.args]
 }

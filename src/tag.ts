@@ -6,14 +6,10 @@ import { Proposal } from './proposal'
 import { ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery } from './utils'
 
-export interface ITagStaticState {
+export interface ITagState {
   id: string
   numberOfProposals: number
-}
-
-export interface ITagState extends ITagStaticState {
-  id: string
-  proposals: Proposal[]
+  proposals?: Proposal[]
 }
 
 export interface ITagQueryOptions extends ICommonQueryOptions {
@@ -62,10 +58,11 @@ export class Tag implements IStateful<ITagState> {
 
     let query
     const itemMap = (r: any) => {
-      return new Tag({
+      return new Tag(context, {
         id: r.id,
-        numberOfProposals: Number(r.numberOfProposals)
-      }, context)
+        numberOfProposals: Number(r.numberOfProposals),
+        proposals: r.proposals.map((id: string) => new Proposal(context, id))
+      })
     }
 
     if (proposalId) {
@@ -110,17 +107,17 @@ export class Tag implements IStateful<ITagState> {
   }
 
   public id: string|undefined
-  public staticState: ITagStaticState|undefined
+  public coreState: ITagState|undefined
 
   constructor(
-      idOrOpts: string|ITagStaticState,
-      public context: Arc
+    public context: Arc,
+    idOrOpts: string|ITagState
   ) {
     if (typeof idOrOpts === 'string') {
       this.id = idOrOpts
     } else {
       this.id = idOrOpts.id
-      this.setStaticState(idOrOpts as ITagStaticState)
+      this.setState(idOrOpts)
     }
   }
 
@@ -138,31 +135,25 @@ export class Tag implements IStateful<ITagState> {
       if (item === null) {
         throw Error(`Could not find a Tag with id ${this.id}`)
       }
-      this.setStaticState({
-        id: item.id,
-        numberOfProposals: Number(item.numberOfProposals)
-      })
-      return {
+
+      const state = {
         id: item.id,
         numberOfProposals: Number(item.numberOfProposals),
-        proposals: item.proposals.map((id: string) => new Proposal(id, this.context))
+        proposals: item.proposals.map((id: string) => new Proposal(this.context, id))
       }
+      this.setState(state)
+      return state
     }
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
-  public setStaticState(opts: ITagStaticState) {
-    this.staticState = opts
+  public setState(opts: ITagState) {
+    this.coreState = opts
   }
 
-  public async fetchStaticState(): Promise<ITagStaticState> {
-    if (!!this.staticState) {
-      return this.staticState
-    } else {
-      const state = await this.state({subscribe: false}).pipe(first()).toPromise()
-      this.setStaticState(state)
-      return state
-    }
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ITagState> {
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    this.setState(state)
+    return state
   }
-
 }

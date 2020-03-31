@@ -1,19 +1,17 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
+import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { ISchemeState, Scheme } from './scheme'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
 
-export interface IQueueStaticState {
+export interface IQueueState {
   dao: DAO
   id: string
   name: string
-}
-
-export interface IQueueState extends IQueueStaticState {
   scheme: ISchemeState
   threshold: number
   votingMachine: Address
@@ -40,8 +38,8 @@ export class Queue implements IStateful<IQueueState> {
     context: Arc,
     options: IQueueQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-): Observable<Queue[]> {
-    if (!options.where) { options.where = {}}
+  ): Observable<Queue[]> {
+    if (!options.where) { options.where = {} }
     let where = ''
     for (const key of Object.keys(options.where)) {
       if (options[key] === undefined) {
@@ -76,13 +74,14 @@ export class Queue implements IStateful<IQueueState> {
         }
       }
     `
+
     const itemMap = (item: any): Queue|null => {
       // we must filter explictly by name as the subgraph does not return the name
 
       return new Queue(
+        context,
         item.id,
-        new DAO(item.dao.id, context),
-        context
+        new DAO(context, item.dao.id)
       )
     }
 
@@ -90,15 +89,18 @@ export class Queue implements IStateful<IQueueState> {
   }
 
   constructor(
+    public context: Arc,
     public id: string,
-    public dao: DAO,
-    public context: Arc
+    public dao: DAO
   ) {
     this.context = context
   }
 
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IQueueState> {
+    return await this.state(apolloQueryOptions).pipe(first()).toPromise()
+  }
+
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IQueueState> {
-    //
     const query = gql`query QueueState
       {
         gpqueue (id: "${this.id}") {
@@ -121,7 +123,7 @@ export class Queue implements IStateful<IQueueState> {
         throw Error(`No gpQueue with id ${this.id} was found`)
       }
       const threshold = realMathToNumber(new BN(item.threshold))
-      const scheme = Scheme.itemMap(item.scheme, this.context) as ISchemeState
+      const scheme = Scheme.itemMap(this.context, item.scheme) as ISchemeState
       return {
         dao: item.dao.id,
         id: item.id,
@@ -131,6 +133,7 @@ export class Queue implements IStateful<IQueueState> {
         votingMachine: item.votingMachine
       }
     }
-    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IQueueState>
+
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IQueueState>
   }
 }

@@ -23,7 +23,7 @@ describe('apolloClient caching checks', () => {
       graphqlHttpProvider,
       graphqlWsProvider,
       ipfsProvider: '',
-      web3Provider: 'ws://127.0.0.1:8545'
+      web3Provider: 'http://127.0.0.1:8545'
     })
   })
 
@@ -65,22 +65,21 @@ describe('apolloClient caching checks', () => {
     // we will still hit the server when getting the DAO state, because the previous query did not fetch all state data
     // so the next line with 'cache-only' will throw an Error
     expect(member.id).toBeTruthy()
-    // await new Member(member.id as string , arc).state().pipe(first()).toPromise()
-    await new Member(member.id as string , arc).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+    await new Member(arc, member.id as string).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
   })
 
   it('pre-fetching ProposalVotes works', async () => {
     // find a proposal in a scheme that has > 1 votes
     let proposals = await Proposal.search(arc, {}, { fetchAllData: true }).pipe(first()).toPromise()
     // @ts-ignore
-    proposals = proposals.filter((p) => p.staticState.votes.length > 1)
+    proposals = proposals.filter((p) => p.coreState.votes.length > 1)
     const proposal = proposals[0]
     // @ts-ignore
-    const vote = new Vote(proposals[0].staticState.votes[0], arc)
-    const voteState = await vote.state().pipe(first()).toPromise()
+    const vote = new Vote(arc, proposals[0].coreState.votes[0])
+    const voteState = await vote.fetchState()
     const voterAddress = voteState.voter
-    const proposalState = await proposal.state().pipe(first()).toPromise()
-    const scheme = new Scheme(proposalState.scheme.id, arc)
+    const proposalState = await proposal.fetchState()
+    const scheme = new Scheme(arc, proposalState.scheme.id)
 
     // now we have our objects, reset the cache
     await arc.apolloClient.cache.reset()
@@ -143,7 +142,7 @@ describe('apolloClient caching checks', () => {
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(1)
     const dao = daos[0]
-    expect(dao.staticState).toBeTruthy()
+    expect(dao.coreState).toBeTruthy()
 
     const members = await dao.members({}, {subscribe: false}).pipe(first()).toPromise()
     // we now should have sent a subscriptino for dao.members()

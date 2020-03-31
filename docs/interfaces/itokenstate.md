@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ITokenState](itokenstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ITokenState](itokenstate.md)
 
 # Interface: ITokenState
 
@@ -22,7 +22,7 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [token.ts:11](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L11)*
+*Defined in [src/token.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L12)*
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [token.ts:12](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L12)*
+*Defined in [src/token.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L13)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **owner**: *[Address](../globals.md#address)*
 
-*Defined in [token.ts:13](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L13)*
+*Defined in [src/token.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L14)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **symbol**: *string*
 
-*Defined in [token.ts:14](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L14)*
+*Defined in [src/token.ts:15](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L15)*
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 • **totalSupply**: *BN*
 
-*Defined in [token.ts:15](https://github.com/daostack/client/blob/1bc237e/src/token.ts#L15)*
+*Defined in [src/token.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L16)*

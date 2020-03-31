@@ -13,9 +13,10 @@ import {
   newArcWithoutEthereum,
   newArcWithoutGraphql,
   toWei,
-  waitUntilTrue,
-  web3Provider
+  waitUntilTrue
 } from './utils'
+
+import { BigNumber } from 'ethers/utils'
 
 jest.setTimeout(20000)
 
@@ -29,7 +30,7 @@ describe('Arc ', () => {
       graphqlHttpProvider: 'https://graphql.provider',
       graphqlWsProvider: 'https://graphql.provider',
       ipfsProvider: 'http://localhost:5001/api/v0',
-      web3Provider: 'wss://web3.provider'
+      web3Provider: 'http://web3.provider'
     })
     expect(arc).toBeInstanceOf(Arc)
   })
@@ -56,14 +57,18 @@ describe('Arc ', () => {
     const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
     const amount = toWei(1001)
     await arc.approveForStaking(spender, amount).send()
-    arc.allowance(arc.web3.eth.defaultAccount, spender).subscribe(
+
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+
+    arc.allowance(defaultAccount, spender).subscribe(
       (next: BN) => {
         allowances.push(next)
       }
     )
     const lastAllowance = () => allowances[allowances.length - 1]
     await waitUntilTrue(() => (allowances.length > 0))
-    expect(fromWei(lastAllowance())).toEqual('1001')
+    expect(fromWei(lastAllowance())).toEqual('1001.0')
   })
 
   it('arc.allowance() should work', async () => {
@@ -73,14 +78,19 @@ describe('Arc ', () => {
     const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
     const amount = toWei(1001)
     await arc.approveForStaking(spender, amount).send()
-    arc.allowance(arc.web3.eth.defaultAccount, spender).subscribe(
+
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+
+    arc.allowance(defaultAccount, spender).subscribe(
       (next: BN) => {
         allowances.push(next)
       }
     )
+
     const lastAllowance = () => allowances[allowances.length - 1]
     await waitUntilTrue(() => (allowances.length > 0))
-    expect(fromWei(lastAllowance())).toEqual('1001')
+    expect(fromWei(lastAllowance())).toEqual('1001.0')
   })
 
   it('arc.getAccount() works and is correct', async () => {
@@ -88,7 +98,11 @@ describe('Arc ', () => {
     const addressesObserved: Address[] = []
     arc.getAccount().subscribe((address) => addressesObserved.push(address))
     await waitUntilTrue(() => addressesObserved.length > 0)
-    expect(addressesObserved[0]).toEqual(arc.web3.eth.defaultAccount)
+
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+
+    expect(addressesObserved[0]).toEqual(defaultAccount)
   })
 
   it('arc.ethBalance() works with an account with 0 balance', async () => {
@@ -104,8 +118,11 @@ describe('Arc ', () => {
     const balances1: BN[] = []
     const balances2: BN[] = []
     const balances3: BN[] = []
-    const address1 = arc.web3.eth.accounts.wallet[1].address
-    const address2 = arc.web3.eth.accounts.wallet[2].address
+
+    if (!arc.web3) throw new Error('Web3 provider not set')
+
+    const address1 = await arc.web3.getSigner(1).getAddress()
+    const address2 = await arc.web3.getSigner(2).getAddress()
 
     const subscription1 = arc.ethBalance(address1).subscribe((balance) => {
       balances1.push(balance)
@@ -116,11 +133,13 @@ describe('Arc ', () => {
     //
     // send some ether to the test accounts
     async function sendEth(address: Address, amount: BN) {
-      await arc.web3.eth.sendTransaction({
-        gas: 4000000,
+
+      if (!arc.web3) throw new Error('Web3 provider not set')
+
+      await arc.web3.getSigner().sendTransaction({
         gasPrice: 100000000000,
         to: address,
-        value: amount
+        value: new BigNumber(amount.toString())
       })
 
     }
@@ -160,8 +179,6 @@ describe('Arc ', () => {
     await subscription3.unsubscribe()
     // check if we cleanup up completely
     expect(Object.keys(arc.observedAccounts).length).toEqual(0)
-    expect(arc.blockHeaderSubscription).toEqual(undefined)
-
   })
 
   it('arc.proposal() should work', async () => {
@@ -177,29 +194,10 @@ describe('Arc ', () => {
     expect(proposals.length).toBeGreaterThanOrEqual(6)
   })
 
-  it('separates reading and sending transactions correctly', async () => {
-    // these tests are a bit clumsy, because we have access to only a single node
-
-    // we now expect all read operations to fail, and all write operations to succeed
-    const arcWrite = await newArc({ web3ProviderRead: 'http://does.not.exist'})
-
-    expect(arcWrite.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
-      .rejects.toThrow()
-    expect(arcWrite.GENToken().balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
-      .rejects.toThrow()
-    expect(arcWrite.GENToken()
-      .allowance('0x90f8bf6a479f320ead074411a4b0e7944ea81111', '0x90f8bf6a479f320ead074411a4b0e7944ea81111')
-      .pipe(first()).toPromise())
-      .rejects.toThrow()
-    // we now expect all write operations to fail, and all read operations to succeed
-    const arcRead = await newArc({ web3Provider: 'http://doesnotexist.com', web3ProviderRead: web3Provider})
-    expect(await arcRead.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise())
-      .toEqual(new BN(0))
-  })
   it('arc.scheme() should work', async () => {
     const arc = await newArc()
     const schemeId = '0x124355'
-    const scheme = arc.scheme(schemeId)
+    const scheme = await arc.scheme(schemeId)
     expect(scheme).toBeInstanceOf(Scheme)
   })
 

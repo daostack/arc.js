@@ -1,5 +1,4 @@
 import BN = require('bn.js')
-import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IProposalOutcome, IProposalStage, IProposalState, Proposal } from '../src/proposal'
@@ -25,8 +24,11 @@ describe('Proposal execute()', () => {
   it('runs correctly through the stages', async () => {
 
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    const accounts = arc.web3.eth.accounts.wallet
-    const state = await executedProposal.fetchStaticState()
+    if (!arc.web3) {
+      throw new Error('Web3 provider not set')
+    }
+    const accounts = await arc.web3.listAccounts()
+    const state = await executedProposal.fetchState()
     const schemeAddress = state.scheme.address
 
     const options = {
@@ -44,7 +46,7 @@ describe('Proposal execute()', () => {
     const proposalStates: IProposalState[] = []
     const lastState = () => proposalStates[proposalStates.length - 1]
 
-    const proposal = (await dao.createProposal(options).send()).result
+    const proposal = (await dao.createProposal(options).send()).result as Proposal
 
     proposal.state().subscribe(
       (next: IProposalState) => {
@@ -69,10 +71,10 @@ describe('Proposal execute()', () => {
     proposalState = lastState()
     expect(proposalState.stage).toEqual(IProposalStage.Queued)
     expect(Number(fromWei(proposalState.votesFor))).toBeGreaterThan(0)
-    expect(fromWei(proposalState.votesAgainst)).toEqual('0')
+    expect(fromWei(proposalState.votesAgainst)).toEqual('0.0')
 
     const amountToStakeFor = toWei(10000)
-    await proposal.stakingToken().mint(accounts[0].address, amountToStakeFor).send()
+    await proposal.stakingToken().mint(accounts[0], amountToStakeFor).send()
     await proposal.stakingToken()
       .approveForStaking(proposalState.votingMachine, amountToStakeFor.add(new BN(1000))).send()
 
@@ -88,9 +90,9 @@ describe('Proposal execute()', () => {
 
     // TODO: find out why the state is not updated to Boosted akreadt at this point
     await advanceTime(60000 * 60) // 30 minutes
-    proposal.context.web3.eth.accounts.defaultAccount = accounts[2]
+    proposal.context.defaultAccount = accounts[2]
     await proposal.vote(IProposalOutcome.Pass).send()
-    proposal.context.web3.eth.accounts.defaultAccount = accounts[0]
+    proposal.context.defaultAccount = accounts[0]
 
     await waitUntilTrue(() => {
       return lastState().stage === IProposalStage.Boosted
@@ -101,20 +103,22 @@ describe('Proposal execute()', () => {
   it('throws a meaningful error if the proposal does not exist', async () => {
     // a non-existing proposal
     const proposal = new Proposal(
+      arc,
       '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
       // dao.address,
       // executedProposal.schemeAddress,
       // executedProposal.votingMachineAddress,
-      arc
     )
     await expect(proposal.execute().send()).rejects.toThrow(
-      /no proposal/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      /*/no proposal/i*/
     )
   })
 
   it('execute a proposal by voting only', async () => {
     // daoBalance
-    const daoState = await dao.state().pipe(first()).toPromise()
+    const daoState = await dao.fetchState()
     const repTotalSupply = daoState.reputationTotalSupply
     const proposalStates: IProposalState[] = []
     const lastState = () => proposalStates[proposalStates.length - 1]
@@ -139,7 +143,9 @@ describe('Proposal execute()', () => {
 
     /// with the last (winning) vote, the proposal is already executed
     await expect(proposal.execute().send()).rejects.toThrow(
-      /already executed/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      /*/already executed/i*/
     )
 
     // check the state

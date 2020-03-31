@@ -22,12 +22,12 @@ describe('Vote on a ContributionReward', () => {
     dao = await getTestDAO()
     const { executedProposalId} = addresses.test
     executedProposal = await dao.proposal(executedProposalId)
-    })
+  })
 
   it('works and gets indexed', async () => {
     const proposal = await createAProposal()
     const voteResponse = await proposal.vote(IProposalOutcome.Pass).send()
-    const voteState0 = await voteResponse.result.fetchStaticState()
+    const voteState0 = (voteResponse.result as Vote).coreState
     expect(voteState0).toMatchObject({
       outcome : IProposalOutcome.Pass
     })
@@ -44,7 +44,7 @@ describe('Vote on a ContributionReward', () => {
 
     expect(votes.length).toEqual(1)
     const vote = votes[0]
-    const voteState = await vote.fetchStaticState()
+    const voteState = await vote.fetchState()
     expect(voteState.proposal).toEqual(proposal.id)
     expect(voteState.outcome).toEqual(IProposalOutcome.Pass)
   })
@@ -74,46 +74,53 @@ describe('Vote on a ContributionReward', () => {
       const ls = lastVotes()
       return ls.length > 0
     })
-    const state = await lastVotes()[0].fetchStaticState()
+    const state = await lastVotes()[0].fetchState()
     expect(state.outcome).toEqual(IProposalOutcome.Pass)
   })
 
   it('throws a meaningful error if the proposal does not exist', async () => {
     // a non-existing proposal
     const proposal = new Proposal(
+      arc,
       '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
-      arc
     )
 
-    proposal.context.web3.eth.defaultAccount = arc.web3.eth.accounts.wallet[2].address
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    proposal.context.defaultAccount = await arc.web3.getSigner(2).getAddress()
     await expect(proposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
-      /No proposal/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      /*/No proposal/i*/
     )
   })
 
   it('throws a meaningful error if the proposal was already executed', async () => {
 
     await expect(executedProposal.execute().send()).rejects.toThrow(
-      /already executed/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      /*/already executed/i*/
     )
 
     await expect(executedProposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
-      /already executed/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      /*/already executed/i*/
     )
   })
 
   it('handles the case of voting without reputation nicely', async () => {
     // TODO: write this test!
     const proposal = await createAProposal()
-
-    const accounts = arc.web3.eth.accounts.wallet
-    const accountWithNoRep = accounts[6].address
+    if (!arc.web3) throw new Error('Web3 provider not set')
+    const accounts = await arc.web3.listAccounts()
+    const accountWithNoRep = accounts[6]
     const reputation = await firstResult(dao.nativeReputation())
     const balance = await firstResult(reputation.reputationOf(accountWithNoRep))
     expect(balance.toString()).toEqual('0')
     arc.setAccount(accountWithNoRep) // a fake address
     await proposal.vote(IProposalOutcome.Pass)
-    arc.setAccount(accounts[0].address)
+    arc.setAccount(accounts[0])
   })
 
 })

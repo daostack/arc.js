@@ -1,16 +1,38 @@
 import { Observable as ZenObservable } from 'apollo-link'
+import BN = require('bn.js')
+import { utils } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
 import * as WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
+import { ITransactionEvent } from './operation'
 import { Address, ICommonQueryOptions } from './types'
-const Web3 = require('web3')
-import BN = require('bn.js')
+
+const checkAddress = (address: string) => {
+  try {
+    // If the address is all upper-case, convert to lower case
+    if (address.indexOf('0X') > -1) {
+      address = address.toLowerCase()
+    }
+
+    const result = utils.getAddress(address)
+    if (!result) {
+      throw new Error('Invalid address')
+    }
+
+    return true
+  } catch (error) {
+    return false
+  }
+}
 
 export function fromWei(amount: BN): string {
-  return Web3.utils.fromWei(amount, 'ether')
+  const etherAmount = utils.formatEther(amount.toString())
+  return etherAmount.toString()
 }
 
 export function toWei(amount: string | number): BN {
-  return Web3.utils.toWei(amount.toString(), 'ether')
+  const weiAmount = utils.parseEther(amount.toString())
+  return new BN(weiAmount.toString())
 }
 
 export function checkWebsocket(options: { url: string }) {
@@ -43,6 +65,15 @@ export function hexStringToUint8Array(hexString: string) {
   return new Uint8Array(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
 }
 
+export function stringToUint8Array(str: string) {
+  const arrayBuffer = new ArrayBuffer(str.length * 1)
+  const newUint = new Uint8Array(arrayBuffer)
+  newUint.forEach((_, i) => {
+    newUint[i] = str.charCodeAt(i)
+  })
+  return newUint
+}
+
 // function lifted and adapted from @daostack/subgraph/src/utils to generate unique ids
 export function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
 
@@ -56,10 +87,14 @@ export function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
   return out
 }
 
-type EthereumEvent = any
-
-export function eventId(event: EthereumEvent): string {
-  const hash = Web3.utils.keccak256(concat(event.transactionHash, event.logIndex as Uint8Array))
+export function eventId(event: ITransactionEvent): string {
+  if (!event.transactionHash || !event.logIndex) {
+    throw new Error('Event must have both transactionHash and logIndex')
+  }
+  const hash = utils.keccak256(concat(
+    stringToUint8Array(event.transactionHash),
+    stringToUint8Array(event.logIndex.toString())
+  ))
   return hash
 }
 
@@ -67,7 +102,7 @@ export function isAddress(address: Address) {
   if (!address) {
     throw new Error(`Not a valid address: ${address}`)
   }
-  if (!Web3.utils.isAddress(address)) {
+  if (!checkAddress(address)) {
     throw new Error(`Not a valid address: ${address}`)
   }
 }
@@ -182,14 +217,14 @@ export function secondSinceEpochToDate(seconds: number): Date {
 }
 
 /**
- * get the latest block time, or the current time, whichver is later
+ * get the latest block time, or the current time, whichever is later
  *
  * @export
  * @param {*} web3
  * @returns
  */
-export async function getBlockTime(web3: any) {
-  const block = await web3.eth.getBlock('latest')
+export async function getBlockTime(web3: JsonRpcProvider) {
+  const block = await web3.getBlock('latest')
   const blockTime = new Date(block.timestamp * 1000)
   const now = new Date()
   now.setMilliseconds(0)

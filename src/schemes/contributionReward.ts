@@ -1,6 +1,11 @@
 import BN = require('bn.js')
 import { Arc } from '../arc'
-import { Proposal } from '../proposal'
+import {
+  getEventArgs,
+  ITransaction,
+  ITransactionReceipt
+} from '../operation'
+import { IProposalBaseCreateOptions, Proposal } from '../proposal'
 import { Address } from '../types'
 import { NULL_ADDRESS } from '../utils'
 
@@ -23,7 +28,7 @@ export interface IContributionReward {
   externalTokenRewardLeft: BN | null
 }
 
-export interface IProposalCreateOptionsCR {
+export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
   beneficiary: Address
   nativeTokenReward?: BN
   reputationReward?: BN
@@ -38,38 +43,40 @@ export enum IProposalType {
   ContributionReward = 'ContributionReward' // propose a contributionReward
 }
 
-export function createProposal(options: any, context: Arc) {
-  const contributionReward = context.getContract(options.scheme)
+export async function createProposalTransaction(
+  context: Arc,
+  options: IProposalCreateOptionsCR
+): Promise<ITransaction> {
+  options.descriptionHash = await context.saveIPFSData(options)
 
-  return async () => {
-    options.descriptionHash = await context.saveIPFSData(options)
-    const transaction = contributionReward.methods.proposeContributionReward(
-        options.dao,
-        options.descriptionHash || '',
-        options.reputationReward && options.reputationReward.toString() || 0,
-        [
-          options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-          options.ethReward && options.ethReward.toString() || 0,
-          options.externalTokenReward && options.externalTokenReward.toString() || 0,
-          options.periodLength || 0,
-          options.periods || 1
-        ],
-        options.externalTokenAddress || NULL_ADDRESS,
-        options.beneficiary
-    )
-    return transaction
+  if (options.scheme === undefined) {
+    throw new Error(`Missing argument "scheme" for ContributionReward in Proposal.create()`)
+  }
+
+  return {
+    contract: context.getContract(options.scheme),
+    method: 'proposeContributionReward',
+    args: [
+      options.dao,
+      options.descriptionHash || '',
+      options.reputationReward && options.reputationReward.toString() || 0,
+      [
+        options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
+        options.ethReward && options.ethReward.toString() || 0,
+        options.externalTokenReward && options.externalTokenReward.toString() || 0,
+        options.periodLength || 0,
+        options.periods || 1
+      ],
+      options.externalTokenAddress || NULL_ADDRESS,
+      options.beneficiary
+    ]
   }
 }
 
-// @ts-ignore
-export function createTransactionMap(options: any, context: Arc) {
-  const eventName = 'NewContributionProposal'
-  const map = (receipt: any) => {
-    const proposalId = receipt.events[eventName].returnValues._proposalId
-    // const votingMachineAddress = receipt.events[eventName].returnValues._intVoteInterface
-    return new Proposal(proposalId,
-      // options.dao as string, options.scheme, votingMachineAddress,
-      context)
+export function createProposalTransactionMap(context: Arc, options: IProposalCreateOptionsCR) {
+  return (receipt: ITransactionReceipt) => {
+    const args = getEventArgs(receipt, 'NewContributionProposal', 'ContributionReward.createProposal')
+    const proposalId = args[1]
+    return new Proposal(context, proposalId)
   }
-  return map
 }

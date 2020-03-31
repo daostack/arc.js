@@ -1,4 +1,4 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [ICompetitionSuggestionState](icompetitionsuggestionstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ICompetitionSuggestionState](icompetitionsuggestionstate.md)
 
 # Interface: ICompetitionSuggestionState
 
@@ -10,6 +10,7 @@
 
 ### Properties
 
+* [beneficiary](icompetitionsuggestionstate.md#beneficiary)
 * [createdAt](icompetitionsuggestionstate.md#createdat)
 * [description](icompetitionsuggestionstate.md#optional-description)
 * [descriptionHash](icompetitionsuggestionstate.md#descriptionhash)
@@ -28,11 +29,19 @@
 
 ## Properties
 
+###  beneficiary
+
+• **beneficiary**: *[Address](../globals.md#address)*
+
+*Defined in [src/schemes/competition.ts:81](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L81)*
+
+___
+
 ###  createdAt
 
 • **createdAt**: *Date*
 
-*Defined in [schemes/competition.ts:65](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L65)*
+*Defined in [src/schemes/competition.ts:85](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L85)*
 
 ___
 
@@ -40,7 +49,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [schemes/competition.ts:58](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L58)*
+*Defined in [src/schemes/competition.ts:77](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L77)*
 
 ___
 
@@ -48,7 +57,7 @@ ___
 
 • **descriptionHash**: *string*
 
-*Defined in [schemes/competition.ts:56](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L56)*
+*Defined in [src/schemes/competition.ts:75](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L75)*
 
 ___
 
@@ -56,7 +65,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [schemes/competition.ts:53](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L53)*
+*Defined in [src/schemes/competition.ts:72](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L72)*
 
 ___
 
@@ -64,7 +73,7 @@ ___
 
 • **isWinner**: *boolean*
 
-*Defined in [schemes/competition.ts:69](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L69)*
+*Defined in [src/schemes/competition.ts:89](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L89)*
 
 ___
 
@@ -72,7 +81,7 @@ ___
 
 • **positionInWinnerList**: *number | null*
 
-*Defined in [schemes/competition.ts:68](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L68)*
+*Defined in [src/schemes/competition.ts:88](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L88)*
 
 ___
 
@@ -80,7 +89,7 @@ ___
 
 • **proposal**: *string*
 
-*Defined in [schemes/competition.ts:55](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L55)*
+*Defined in [src/schemes/competition.ts:74](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L74)*
 
 ___
 
@@ -88,7 +97,7 @@ ___
 
 • **redeemedAt**: *Date | null*
 
-*Defined in [schemes/competition.ts:66](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L66)*
+*Defined in [src/schemes/competition.ts:86](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L86)*
 
 ___
 
@@ -96,7 +105,7 @@ ___
 
 • **rewardPercentage**: *number*
 
-*Defined in [schemes/competition.ts:67](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L67)*
+*Defined in [src/schemes/competition.ts:87](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L87)*
 
 ___
 
@@ -104,7 +113,7 @@ ___
 
 • **suggester**: *[Address](../globals.md#address)*
 
-*Defined in [schemes/competition.ts:61](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L61)*
+*Defined in [src/schemes/competition.ts:80](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L80)*
 
 ___
 
@@ -112,7 +121,7 @@ ___
 
 • **suggestionId**: *number*
 
-*Defined in [schemes/competition.ts:54](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L54)*
+*Defined in [src/schemes/competition.ts:73](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L73)*
 
 ___
 
@@ -120,7 +129,7 @@ ___
 
 • **tags**: *string[]*
 
-*Defined in [schemes/competition.ts:63](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L63)*
+*Defined in [src/schemes/competition.ts:83](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L83)*
 
 ___
 
@@ -128,7 +137,7 @@ ___
 
 • **title**? : *undefined | string*
 
-*Defined in [schemes/competition.ts:57](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L57)*
+*Defined in [src/schemes/competition.ts:76](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L76)*
 
 ___
 
@@ -136,7 +145,7 @@ ___
 
 • **totalVotes**: *BN*
 
-*Defined in [schemes/competition.ts:64](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L64)*
+*Defined in [src/schemes/competition.ts:84](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L84)*
 
 ___
 
@@ -144,4 +153,4 @@ ___
 
 • **url**? : *undefined | string*
 
-*Defined in [schemes/competition.ts:59](https://github.com/daostack/client/blob/1bc237e/src/schemes/competition.ts#L59)*
+*Defined in [src/schemes/competition.ts:78](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L78)*

@@ -1,21 +1,19 @@
-[@daostack/client](../README.md) › [Globals](../globals.md) › [IMemberState](imemberstate.md)
+[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IMemberState](imemberstate.md)
 
 # Interface: IMemberState
 
 ## Hierarchy
 
-* [IMemberStaticState](imemberstaticstate.md)
-
-  ↳ **IMemberState**
+* **IMemberState**
 
 ## Index
 
 ### Properties
 
 * [address](imemberstate.md#address)
-* [contract](imemberstate.md#contract)
+* [contract](imemberstate.md#optional-contract)
 * [dao](imemberstate.md#optional-dao)
-* [id](imemberstate.md#id)
+* [id](imemberstate.md#optional-id)
 * [reputation](imemberstate.md#reputation)
 
 ## Properties
@@ -24,19 +22,15 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Inherited from [IMemberStaticState](imemberstaticstate.md).[address](imemberstaticstate.md#address)*
-
-*Defined in [member.ts:20](https://github.com/daostack/client/blob/1bc237e/src/member.ts#L20)*
+*Defined in [src/member.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L17)*
 
 ___
 
-###  contract
+### `Optional` contract
 
-• **contract**: *[Address](../globals.md#address)*
+• **contract**? : *[Address](../globals.md#address)*
 
-*Overrides [IMemberStaticState](imemberstaticstate.md).[contract](imemberstaticstate.md#optional-contract)*
-
-*Defined in [member.ts:25](https://github.com/daostack/client/blob/1bc237e/src/member.ts#L25)*
+*Defined in [src/member.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L19)*
 
 ___
 
@@ -44,19 +38,15 @@ ___
 
 • **dao**? : *[Address](../globals.md#address)*
 
-*Inherited from [IMemberStaticState](imemberstaticstate.md).[dao](imemberstaticstate.md#optional-dao)*
-
-*Defined in [member.ts:22](https://github.com/daostack/client/blob/1bc237e/src/member.ts#L22)*
+*Defined in [src/member.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L18)*
 
 ___
 
-###  id
+### `Optional` id
 
-• **id**: *string*
+• **id**? : *undefined | string*
 
-*Overrides [IMemberStaticState](imemberstaticstate.md).[id](imemberstaticstate.md#optional-id)*
-
-*Defined in [member.ts:26](https://github.com/daostack/client/blob/1bc237e/src/member.ts#L26)*
+*Defined in [src/member.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L20)*
 
 ___
 
@@ -64,4 +54,4 @@ ___
 
 • **reputation**: *BN*
 
-*Defined in [member.ts:27](https://github.com/daostack/client/blob/1bc237e/src/member.ts#L27)*
+*Defined in [src/member.ts:21](https://github.com/dorgtech/client/blob/19b4373/src/member.ts#L21)*

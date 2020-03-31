@@ -10,6 +10,7 @@ import { fromWei,
   toWei,
   waitUntilTrue
 } from './utils'
+import { BigNumber } from 'ethers/utils'
 
 jest.setTimeout(20000)
 
@@ -25,7 +26,7 @@ describe('DAO', () => {
 
   it('is instantiable', () => {
     const address = '0x12345'
-    const dao = new DAO(address, arc)
+    const dao = new DAO(arc, address)
     expect(dao).toBeInstanceOf(DAO)
   })
 
@@ -47,9 +48,9 @@ describe('DAO', () => {
 
   it('should be possible to get the token balance of the DAO', async () => {
     const dao = await getTestDAO()
-    const { token } = await dao.state().pipe(first()).toPromise()
+    const { token } = await dao.fetchState()
     const balance = await token.balanceOf(dao.id).pipe(first()).toPromise()
-    expect(fromWei(balance)).toEqual('0')
+    expect(fromWei(balance)).toEqual('0.0')
   })
 
   it('should be possible to get the reputation balance of the DAO', () => {
@@ -67,7 +68,7 @@ describe('DAO', () => {
   it('get the dao state', async () => {
     const dao = await getTestDAO()
     expect(dao).toBeInstanceOf(DAO)
-    const state = await dao.state().pipe(first()).toPromise()
+    const state = await dao.fetchState()
     expect(Object.keys(state)).toEqual([
       'address',
       'dao',
@@ -92,7 +93,7 @@ describe('DAO', () => {
 
   it('throws a reasonable error if the contract does not exist', async () => {
     expect.assertions(1)
-    const dao = new DAO('0xfake', arc)
+    const dao = new DAO(arc, '0xfake')
     await expect(dao.state().toPromise()).rejects.toThrow(
       'Could not find a DAO with id 0xfake'
     )
@@ -100,7 +101,11 @@ describe('DAO', () => {
 
   it('dao.member() should work', async () => {
     const dao = await getTestDAO()
-    const member = await dao.member(arc.web3.eth.defaultAccount)
+
+    if(!arc.web3) throw new Error("Web3 provider not set")
+    const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+
+    const member = await dao.member(defaultAccount)
     expect(typeof member).toEqual(typeof [])
   })
 
@@ -110,7 +115,7 @@ describe('DAO', () => {
     expect(typeof members).toEqual(typeof [])
     expect(members.length).toBeGreaterThanOrEqual(6)
     const member = members[3]
-    const memberState = await member.state().pipe(first()).toPromise()
+    const memberState = await member.fetchState()
     expect(Number(fromWei(memberState.reputation))).toBeGreaterThan(0)
   })
 
@@ -129,7 +134,7 @@ describe('DAO', () => {
 
   it('dao numberOfProposals counts are correct', async () =>  {
     const dao = await getTestDAO()
-    const daoState = await dao.state().pipe(first()).toPromise()
+    const daoState = await dao.fetchState()
     const queuedProposals = await dao.proposals({ where: { stage: IProposalStage.Queued}, first: 1000})
       .pipe(first()).toPromise()
     expect(daoState.numberOfQueuedProposals).toEqual(queuedProposals.length)
@@ -167,7 +172,7 @@ describe('DAO', () => {
 
   })
 
-  it.skip('createProposal should work without a grapql connection', async () => {
+  it.skip('createProposal should work without a graphql connection', async () => {
     const arcWithoutGraphql = await newArcWithoutGraphql()
     const dao = await getTestDAO(arcWithoutGraphql)
     const options = {
@@ -197,12 +202,14 @@ describe('DAO', () => {
     const dao = await getTestDAO()
     const previousBalance = await dao.ethBalance().pipe(first()).toPromise()
 
-    await arc.web3.eth.sendTransaction({
-      from: arc.web3.eth.defaultAccount,
-      gas: 4000000,
+    if(!arc.web3) throw new Error("Web3 provider not set")
+    //const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+
+    await arc.web3.getSigner().sendTransaction({
+      gasLimit: 4000000,
       gasPrice: 100000000000,
       to: dao.id,
-      value: toWei('1')
+      value: new BigNumber(toWei('1').toString()).toHexString()
     })
     const newBalance = await dao.ethBalance().pipe(first()).toPromise()
 
