@@ -5,6 +5,7 @@ import { IEntityRef, Entity } from '../entity'
 import { IApolloQueryOptions, Address, ICommonQueryOptions } from '../types'
 import { Plugin } from '../plugins/plugin'
 import { IGenesisProtocolParams } from '../genesisProtocol'
+import { ProposalPlugin } from '../plugins/proposalPlugin'
 
 type IProposalType = "ContributionReward" | "GenericScheme" | "SchemeRegistrar"
 
@@ -32,10 +33,9 @@ export enum IExecutionState {
   BoostedBarCrossed
 }
 
-export interface IProposalState<TScheme> {
+export interface IProposalState {
   id: string
   dao: IEntityRef<DAO>
-  scheme: IEntityRef<TScheme>
   votingMachine: Address
   accountsWithUnclaimedRewards: Address[],
   boostedAt: Number
@@ -52,7 +52,7 @@ export interface IProposalState<TScheme> {
   organizationId: string
   paramsHash: string
   preBoostedAt: Number
-  proposal: IEntityRef<Proposal<TScheme>>
+  proposal: IEntityRef<Proposal>
   proposer: Address
   queue: IQueueState
   quietEndingPeriodBeganAt: Number
@@ -73,7 +73,7 @@ export interface IProposalState<TScheme> {
   winningOutcome: IProposalOutcome
 }
 
-export abstract class Proposal<TScheme> extends Entity<IProposalState<TScheme>> {
+export abstract class Proposal extends Entity<IProposalState> {
   public static fragments = {
     ProposalFields: gql`fragment ProposalFields on Proposal {
       id
@@ -197,7 +197,7 @@ export abstract class Proposal<TScheme> extends Entity<IProposalState<TScheme>> 
     }`
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IProposalState<TScheme>> {
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {
@@ -213,11 +213,11 @@ export abstract class Proposal<TScheme> extends Entity<IProposalState<TScheme>> 
       ${Proposal.fragments.ProposalFields}
       ${Plugin.fragments.SchemeFields}
     `
-    const result = this.context.getObservableObject(query, this.itemMap, apolloQueryOptions) as Observable<IProposalState<TScheme>>
+    const result = this.context.getObservableObject(query, this.itemMap, apolloQueryOptions) as Observable<IProposalState>
     return result
   }
 
-  protected abstract itemMap(item: any): IProposalState<TScheme> | null
+  protected abstract itemMap(item: any): IProposalState | null
 
   public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {
     if (!options.where) { options.where = {} }
