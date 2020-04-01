@@ -4,12 +4,12 @@ import { ProposalPlugin } from "../proposalPlugin";
 import { Arc } from "../arc";
 import { GenericSchemeProposal } from "../proposals/genericScheme";
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../genesisProtocol";
-import { IPluginState } from "../plugin";
+import { IPluginState, Plugin } from "../plugin";
 import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../operation";
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
 
-export interface IGenericSchemeParams extends IPluginState {
+export interface IGenericSchemeState extends IPluginState {
   schemeParams: {
     votingMachine: Address
     contractToCall: Address
@@ -24,7 +24,7 @@ interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
 
 export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IProposalCreateOptionsGS> {
 
-  constructor(public context: Arc, idOrOpts: Address | IGenericSchemeParams) {
+  constructor(public context: Arc, idOrOpts: Address | IGenericSchemeState) {
     super()
     this.context = context
     if (typeof idOrOpts === 'string') {
@@ -105,9 +105,19 @@ export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IPropos
   public getPermissions(): Permissions {
     throw new Error("Method not implemented.");
   }
-  
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IGenericSchemeParams> {
-    throw new Error("Method not implemented.");
+
+  //TODO: Should this be abstracted to Plugin level and templatized for typesafety?
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IGenericSchemeState> {
+    const query = gql`query SchemeStateById
+      {
+        controllerScheme (id: "${this.id}") {
+          ...SchemeFields
+        }
+      }
+      ${Plugin.fragments.SchemeFields}
+    `
+    const itemMap = (item: any) => GenericScheme.itemMap(this.context, item)
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>
   }
 
   public static itemMap(arc: Arc, item: any): GenericScheme | null {
