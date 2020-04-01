@@ -1,17 +1,19 @@
-import { Address, IApolloQueryOptions } from "../../types";
-import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../../proposal/proposal";
+import { Address, IApolloQueryOptions } from "../types";
+import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../proposal";
 import { ProposalPlugin } from "../proposalPlugin";
-import { Arc } from "../../arc";
-import { GenericSchemeProposal } from "./proposal";
-import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../../genesisProtocol";
+import { Arc } from "../arc";
+import { GenericSchemeProposal } from "../proposals/genericScheme";
+import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../genesisProtocol";
 import { IPluginState } from "../plugin";
-import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../../operation";
+import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../operation";
 import { Observable } from "rxjs";
 
-interface IGenericSchemeParams {
-  votingMachine: Address
-  contractToCall: Address
-  voteParams: IGenesisProtocolParams
+export interface IGenericSchemeParams extends IPluginState {
+  schemeParams: {
+    votingMachine: Address
+    contractToCall: Address
+    voteParams: IGenesisProtocolParams
+  }
 }
 
 interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
@@ -19,20 +21,19 @@ interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   value?: number
 }
 
-export interface IGenericScheme {
-  id: string
-  contractToCall: Address
-  callData: string
-  executed: boolean
-  returnValue: string
-}
+export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IProposalCreateOptionsGS> {
 
-export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IProposalCreateOptionsGS, IGenericSchemeParams> implements IGenericScheme {
-
-  contractToCall: Address
-  returnValue: string
-  callData: string
-  executed: boolean
+  constructor(public context: Arc, idOrOpts: Address | IGenericSchemeParams) {
+    super()
+    this.context = context
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts as string
+      this.id = this.id.toLowerCase()
+    } else {
+      this.setState(idOrOpts)
+      this.id = this.coreState.id
+    }
+  }
 
   protected async createProposalTransaction(options: IProposalCreateOptionsGS): Promise<ITransaction> {
     if (options.callData === undefined) {
@@ -78,11 +79,11 @@ export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IPropos
     throw new Error("Method not implemented.");
   }
   
-  state(apolloQueryOptions: IApolloQueryOptions): Observable<IPluginState<IGenericSchemeParams>> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IGenericSchemeParams> {
     throw new Error("Method not implemented.");
   }
 
-  public static itemMap(arc: Arc, item: any): IPluginState<IGenericSchemeParams> | null {
+  public static itemMap(arc: Arc, item: any): GenericScheme | null {
     if (!item) {
       return null
     }
@@ -107,22 +108,23 @@ export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IPropos
       votingMachine: item.genericSchemeParams.votingMachine
     }
     
-    return {
-      address: item.address,
-      canDelegateCall: item.canDelegateCall,
-      canManageGlobalConstraints: item.canManageGlobalConstraints,
-      canRegisterSchemes: item.canRegisterSchemes,
-      canUpgradeController: item.canUpgradeController,
-      dao: item.dao.id,
-      id: item.id,
-      name,
-      numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
-      numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
-      numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-      paramsHash: item.paramsHash,
-      schemeParams: genericSchemeParams,
-      version: item.version
-    }
+    return new GenericScheme(arc, {
+        address: item.address,
+        canDelegateCall: item.canDelegateCall,
+        canManageGlobalConstraints: item.canManageGlobalConstraints,
+        canRegisterSchemes: item.canRegisterSchemes,
+        canUpgradeController: item.canUpgradeController,
+        dao: item.dao.id,
+        id: item.id,
+        name,
+        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
+        paramsHash: item.paramsHash,
+        schemeParams: genericSchemeParams,
+        version: item.version
+      }
+    )
   }
   
 }

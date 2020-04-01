@@ -1,10 +1,12 @@
-import { Address } from '../types'
-import { Entity, IEntityRef } from '../entity'
-import { Arc } from '../arc'
-import { IGenesisProtocolParams } from '../genesisProtocol'
+import { Address, ICommonQueryOptions, IApolloQueryOptions } from './types'
+import { Entity, IEntityRef } from './entity'
 import gql from 'graphql-tag'
+import { Arc } from './arc'
+import { Observable } from 'rxjs'
+import { createGraphQlQuery } from './utils'
+import Schemes from './plugins'
 
-export interface IPluginState<TPluginParams> {
+export interface IPluginState {
   id: string
   address: Address
   dao: IEntityRef<DAO>
@@ -18,22 +20,24 @@ export interface IPluginState<TPluginParams> {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
-  schemeParams?: TPluginParams
 }
 
-export abstract class Plugin<TPluginParams> extends Entity<IPluginState<TPluginParams>> {
-
-  constructor(public context: Arc, idOrOpts: Address | IPluginState<TPluginParams>) {
-    super()
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts as string
-      this.id = this.id.toLowerCase()
-    } else {
-      this.setState(idOrOpts)
-      this.id = this.coreState.id
-    }
+interface ISchemeQueryOptions extends ICommonQueryOptions {
+  where?: {
+    address?: Address
+    canDelegateCall?: boolean
+    canRegisterSchemes?: boolean
+    canUpgradeController?: boolean
+    canManageGlobalConstraints?: boolean
+    dao?: Address
+    id?: string
+    name?: string
+    paramsHash?: string
+    [key: string]: any
   }
+}
+
+export abstract class Plugin extends Entity<IPluginState> {
 
   public abstract getPermissions(): Permissions
 
@@ -166,5 +170,52 @@ export abstract class Plugin<TPluginParams> extends Entity<IPluginState<TPluginP
       }
       version
     }`
+  }
+
+  public static search(
+    context: Arc,
+    options: ISchemeQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Plugin[]> {
+    let query
+    if (apolloQueryOptions.fetchAllData === true) {
+      query = gql`query SchemeSearchAllData {
+        controllerSchemes ${createGraphQlQuery(options)}
+        {
+          ...SchemeFields
+        }
+      }
+      ${Plugin.fragments.SchemeFields}`
+    } else {
+      query = gql`query SchemeSearch {
+        controllerSchemes ${createGraphQlQuery(options)}
+        {
+            id
+            address
+            name
+            dao { id }
+            paramsHash
+            version
+            contributionRewardExtParams {
+              id
+              rewarder
+            }
+        }
+      }`
+    }
+
+    const itemMap = (item: any): Plugin | null => {
+      if (!options.where) {
+        options.where = {}
+      }
+
+      return Schemes[item.name].itemMap(context, item)
+    }
+
+    return context.getObservableList(
+      query,
+      itemMap,
+      apolloQueryOptions
+    ) as Observable<Plugin[]>
   }
 }

@@ -1,10 +1,10 @@
-import { Proposal, IProposalQueryOptions } from "../proposal/proposal"
-import { IApolloQueryOptions } from "../types";
+import { Proposal, IProposalQueryOptions } from "./proposal"
+import { IApolloQueryOptions } from "./types";
 import { Observable } from "rxjs";
-import { Operation, toIOperationObservable, ITransaction, transactionErrorHandler, transactionResultHandler } from "../operation";
+import { Operation, toIOperationObservable, ITransaction, transactionErrorHandler, transactionResultHandler } from "./operation";
 import { Plugin } from './plugin'
 
-export abstract class ProposalPlugin<TProposal, TProposalOptions, TPluginParams> extends Plugin<TPluginParams> {
+export abstract class ProposalPlugin<TProposal, TProposalOptions> extends Plugin {
 
   public createProposal(options: TProposalOptions): Operation<TProposal>  {
     const observable = Observable.create(async (observer: any) => {
@@ -30,7 +30,7 @@ export abstract class ProposalPlugin<TProposal, TProposalOptions, TPluginParams>
     options: TProposalOptions
   ): Promise<ITransaction>
 
-  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal<ProposalPlugin<TProposal, TProposalOptions, TPluginParams>>>
+  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
 
   protected abstract createProposalErrorHandler(
     options: TProposalOptions
@@ -39,7 +39,7 @@ export abstract class ProposalPlugin<TProposal, TProposalOptions, TPluginParams>
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable <Proposal<ProposalPlugin<TProposal, TProposalOptions, TPluginParams>>[]> {
+  ): Observable <Proposal[]> {
     if (!options.where) { options.where = {}}
     options.where.scheme = this.id
     return Proposal.search(this.context, options, apolloQueryOptions)

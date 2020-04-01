@@ -87,21 +87,6 @@ export interface ISchemeQueryOptions extends ICommonQueryOptions {
   }
 }
 
-export interface ISchemeQueryOptions extends ICommonQueryOptions {
-  where?: {
-    address?: Address
-    canDelegateCall?: boolean
-    canRegisterSchemes?: boolean
-    canUpgradeController?: boolean
-    canManageGlobalConstraints?: boolean
-    dao?: Address
-    id?: string
-    name?: string
-    paramsHash?: string
-    [key: string]: any
-  }
-}
-
 /**
  * A Scheme represents a scheme instance that is registered at a DAO
  */

@@ -1,27 +1,67 @@
-import { Proposal, IProposalState, IProposalStage, IProposalOutcome, IExecutionState } from "../../proposal/proposal";
-import { realMathToNumber } from "../../utils";
+import { Proposal, IProposalState, IProposalStage, IProposalOutcome, IExecutionState } from "../proposal";
+import { realMathToNumber } from "../utils";
 import BN from 'bn.js'
-import { GenericScheme, IGenericScheme } from "./plugin";
-import { mapGenesisProtocolParams } from "../../genesisProtocol";
+import { GenericScheme } from "../plugins/genericScheme";
+import { mapGenesisProtocolParams } from "../genesisProtocol";
+import { Address, IApolloQueryOptions } from "../types";
+import { Arc } from "../arc";
+import { Plugin } from '../plugin'
+import { Observable } from "rxjs";
+import gql from "graphql-tag";
 
-interface IGenericSchemeProposalState extends IProposalState<GenericScheme> { 
-  genericScheme: IGenericScheme
+interface IGenericSchemeProposalState extends IProposalState { 
+  id: string
+  contractToCall: Address
+  callData: string
+  executed: boolean
+  returnValue: string
 }
 
-export class GenericSchemeProposal extends Proposal<GenericScheme> {
-  itemMap (item: any): IGenericSchemeProposalState | null {
+export class GenericSchemeProposal extends Proposal {
+
+  constructor(
+    context: Arc,
+    idOrOpts: string | IGenericSchemeProposalState
+  ) {
+    super()
+    this.context = context
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts)
+    }
+    this.context = context
+  }
+
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
+    const query = gql`query ProposalState
+      {
+        proposal(id: "${this.id}") {
+          ...ProposalFields
+          votes {
+            id
+          }
+          stakes {
+            id
+          }
+        }
+      }
+      ${Proposal.fragments.ProposalFields}
+      ${Plugin.fragments.SchemeFields}
+    `
+
+    const itemMap = (item: any) => GenericSchemeProposal.itemMap(this.context, item)
+
+    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeProposalState>
+    return result
+  }
+
+  static itemMap (context: Arc, item: any): GenericSchemeProposal | null {
     if (item === null || item === undefined) {
       // no proposal was found - we return null
       // throw Error(`No proposal with id ${this.id} could be found`)
       return null
-    }
-
-    const genericScheme = {
-      callData: item.genericScheme.callData,
-      contractToCall: item.genericScheme.contractToCall,
-      executed: item.genericScheme.executed,
-      id: item.genericScheme.id,
-      returnValue: item.genericScheme.returnValue
     }
 
     // the  formule to enter into the preboosted state is:
@@ -56,7 +96,8 @@ export class GenericSchemeProposal extends Proposal<GenericScheme> {
     const scheme = item.scheme
     const gpQueue = item.gpQueue
 
-    const schemeState = GenericScheme.itemMap(this.context, scheme)
+    const genericScheme = GenericScheme.itemMap(context, scheme)
+    const schemeState = genericScheme.coreState
     const queueState: IQueueState = {
       dao: item.dao.id,
       id: gpQueue.id,
@@ -66,36 +107,39 @@ export class GenericSchemeProposal extends Proposal<GenericScheme> {
       votingMachine: gpQueue.votingMachine
     }
 
-    return {
+    return new GenericSchemeProposal(context, {
       accountsWithUnclaimedRewards: item.accountsWithUnclaimedRewards,
       boostedAt: Number(item.boostedAt),
       closingAt: Number(item.closingAt),
       confidenceThreshold: Number(item.confidenceThreshold),
       createdAt: Number(item.createdAt),
-      dao: new DAO(this.context, item.dao.id),
+      dao: new DAO(context, item.dao.id),
       description: item.description,
       descriptionHash: item.descriptionHash,
       downStakeNeededToQueue,
       executedAt: Number(item.executedAt),
       executionState: IExecutionState[item.executionState] as any,
       expiresInQueueAt: Number(item.expiresInQueueAt),
-      genericScheme,
       genesisProtocolParams: mapGenesisProtocolParams(item.genesisProtocolParams),
       id: item.id,
       organizationId: item.organizationId,
       paramsHash: item.paramsHash,
       preBoostedAt: Number(item.preBoostedAt),
       proposal: {
-        id: this.id,
-        entity: this
+        id: item.id,
+        entity: new GenericSchemeProposal(context, item.id)
       },
+      callData: item.genericScheme.callData,
+      contractToCall: item.genericScheme.contractToCall,
+      executed: item.genericScheme.executed,
+      returnValue: item.genericScheme.returnValue,
       proposer: item.proposer,
       queue: queueState,
       quietEndingPeriodBeganAt: Number(item.quietEndingPeriodBeganAt),
       resolvedAt: item.resolvedAt !== undefined ? Number(item.resolvedAt) : 0,
       scheme: {
         id: schemeState.id,
-        entity: new GenericScheme(this.context, schemeState)
+        entity: new GenericScheme(context, schemeState)
       },
       stage,
       stakesAgainst,
@@ -112,6 +156,7 @@ export class GenericSchemeProposal extends Proposal<GenericScheme> {
       votesFor: new BN(item.votesFor),
       votingMachine: item.votingMachine,
       winningOutcome: IProposalOutcome[item.winningOutcome] as any
-    }
+    })
   }
+
 }

@@ -1,14 +1,17 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { IEntityRef, Entity } from '../entity'
-import { IApolloQueryOptions, Address, ICommonQueryOptions } from '../types'
-import { Plugin } from '../plugins/plugin'
-import { IGenesisProtocolParams } from '../genesisProtocol'
-import { ProposalPlugin } from '../plugins/proposalPlugin'
-import { Arc } from '../arc'
+import { IEntityRef, Entity } from './entity'
+import { IApolloQueryOptions, Address, ICommonQueryOptions } from './types'
+import { Plugin } from './plugin'
+import { IGenesisProtocolParams } from './genesisProtocol'
+import { Arc } from './arc'
+import { createGraphQlQuery, isAddress } from './utils'
+import { IObservable } from './graphnode'
+import Proposals from './proposals'
+import { SchemeTypes } from './plugins'
 
-type IProposalType = "ContributionReward" | "GenericScheme" | "SchemeRegistrar"
+type ProposalTypeNames = keyof typeof Proposals
 
 export enum IProposalOutcome {
   None,
@@ -34,13 +37,13 @@ export enum IExecutionState {
   BoostedBarCrossed
 }
 
-export interface IProposalState<TProposalPlugin> {
+export interface IProposalState {
   id: string
   dao: IEntityRef<DAO>
   votingMachine: Address
   accountsWithUnclaimedRewards: Address[],
   boostedAt: Number
-  scheme: IEntityRef<TProposalPlugin>
+  scheme: IEntityRef<SchemeTypes>
   confidenceThreshold: number
   closingAt: Number
   createdAt: Number
@@ -54,7 +57,7 @@ export interface IProposalState<TProposalPlugin> {
   organizationId: string
   paramsHash: string
   preBoostedAt: Number
-  proposal: IEntityRef<Proposal<TProposalPlugin>>
+  proposal: IEntityRef<Proposal>
   proposer: Address
   queue: IQueueState
   quietEndingPeriodBeganAt: Number
@@ -75,21 +78,7 @@ export interface IProposalState<TProposalPlugin> {
   winningOutcome: IProposalOutcome
 }
 
-export abstract class Proposal<TProposalPlugin> extends Entity<IProposalState<TProposalPlugin>> {
-
-  constructor(
-    context: Arc,
-    idOrOpts: string | IProposalState<TProposalPlugin>
-  ) {
-    super()
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
-    this.context = context
-  }
+export abstract class Proposal extends Entity<IProposalState> {
 
   public static fragments = {
     ProposalFields: gql`fragment ProposalFields on Proposal {
@@ -214,27 +203,7 @@ export abstract class Proposal<TProposalPlugin> extends Entity<IProposalState<TP
     }`
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IProposalState<TProposalPlugin>> {
-    const query = gql`query ProposalState
-      {
-        proposal(id: "${this.id}") {
-          ...ProposalFields
-          votes {
-            id
-          }
-          stakes {
-            id
-          }
-        }
-      }
-      ${Proposal.fragments.ProposalFields}
-      ${Plugin.fragments.SchemeFields}
-    `
-    const result = this.context.getObservableObject(query, this.itemMap, apolloQueryOptions) as Observable<IProposalState<TProposalPlugin>>
-    return result
-  }
-
-  protected abstract itemMap(item: any): IProposalState<TProposalPlugin> | null
+  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> 
 
   public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {
     if (!options.where) { options.where = {} }
@@ -256,6 +225,97 @@ export abstract class Proposal<TProposalPlugin> extends Entity<IProposalState<TP
     options.where.proposal = this.id
     return Reward.search(this.context, options, apolloQueryOptions)
   }
+
+  public static search(
+    context: Arc,
+    options: IProposalQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Proposal[]> {
+    let where = ''
+
+    if (!options.where) { options.where = {} }
+
+    for (const key of Object.keys(options.where)) {
+      const value = options.where[key]
+      if (key === 'stage' && value !== undefined) {
+        where += `stage: "${IProposalStage[value as IProposalStage]}"\n`
+      } else if (key === 'stage_in' && Array.isArray(value)) {
+        const stageValues = value.map((stage: number) => '"' + IProposalStage[stage as IProposalStage] + '"')
+        where += `stage_in: [${stageValues.join(',')}]\n`
+      } else if (key === 'type') {
+        // TODO: we are not distinguishing between the schemeregisterpropose
+        // and SchemeRegistrarProposeToRemove proposals
+        if (value.toString().includes('SchemeRegistrar')) {
+          where += `schemeRegistrar_not: null\n`
+        } else {
+          if (Proposals[value] === undefined) {
+            throw Error(`Unknown value for "type" in proposals query: ${value}`)
+          }
+          const apolloKey = Proposals[value][0].toLowerCase() + Proposals[value].slice(1)
+          where += `${apolloKey}_not: null\n`
+        }
+      } else if (Array.isArray(options.where[key])) {
+        // Support for operators like _in
+        const values = options.where[key].map((val: number) => '"' + val + '"')
+        where += `${key}: [${values.join(',')}]\n`
+      } else {
+        if (key === 'proposer' || key === 'beneficiary' || key === 'dao') {
+          const option = options.where[key] as string
+          isAddress(option)
+          where += `${key}: "${option.toLowerCase()}"\n`
+        } else {
+          where += `${key}: "${options.where[key]}"\n`
+        }
+      }
+    }
+    let query
+
+    if (apolloQueryOptions.fetchAllData === true) {
+      query = gql`query ProposalsSearchAllData
+        {
+          proposals ${createGraphQlQuery(options, where)} {
+            ...ProposalFields
+            votes {
+              id
+            }
+            stakes {
+              id
+            }
+          }
+        }
+        ${Proposal.fragments.ProposalFields}
+        ${Plugin.fragments.SchemeFields}
+      `
+      return context.getObservableList(
+        query,
+        (r: any) => Proposals[r.scheme.name].itemMap(context, r),
+        apolloQueryOptions
+      ) as IObservable<Proposal[]>
+    } else {
+      query = gql`query ProposalSearchPartialData
+        {
+          proposals ${createGraphQlQuery(options, where)} {
+            id
+            dao {
+              id
+            }
+            votingMachine
+            scheme {
+              id
+              address
+              name
+            }
+          }
+        }
+      `
+      return context.getObservableList(
+        query,
+        (r: any) => new Proposals[r.scheme.name](context, r),
+        apolloQueryOptions
+      ) as IObservable<Proposal[]>
+    }
+  }
+
 
 }
 
@@ -283,7 +343,7 @@ export interface IProposalQueryOptions extends ICommonQueryOptions {
     stage_in?: IProposalStage[]
     scheme?: Address
     orderBy?: ProposalQuerySortOptions
-    type?: IProposalType
+    type?: ProposalTypeNames
     [key: string]: any | undefined
   }
 }
@@ -296,5 +356,5 @@ export interface IProposalBaseCreateOptions {
   tags?: string[]
   scheme?: Address
   url?: string
-  proposalType?: IProposalType | 'competition'
+  proposalType?: ProposalTypeNames | 'competition'
 }

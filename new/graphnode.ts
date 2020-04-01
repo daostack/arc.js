@@ -13,6 +13,7 @@ import { Observable, Observer } from 'rxjs'
 import { catchError, filter, first, map } from 'rxjs/operators'
 import { Logger } from './logger'
 import { zenToRxjsObservable } from './utils'
+import { Arc } from './arc'
 
 export interface IApolloQueryOptions {
   fetchPolicy?: 'cache-first' | 'network-only' | 'cache-only' | 'no-cache' | 'standby',
@@ -345,7 +346,7 @@ export class GraphNodeObserver {
 
   public getObservableObject(
     query: any,
-    itemMap: (o: object) => object | null = (o) => o,
+    itemMap: (context: Arc, o: object) => object | null = (o) => o,
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
@@ -357,7 +358,7 @@ export class GraphNodeObserver {
         }
         return r.data[entity]
       }),
-      map(itemMap)
+      map((object: Object) => itemMap)
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable
