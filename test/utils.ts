@@ -16,7 +16,7 @@ export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/d
 export const web3Provider: string = 'http://127.0.0.1:8545'
 export const ipfsProvider: string = 'http://127.0.0.1:5001/api/v0'
 
-export const LATEST_ARC_VERSION = '0.0.1-rc.32'
+export const LATEST_ARC_VERSION = '0.1.1-rc.11-v0'
 
 export { BN }
 
@@ -37,19 +37,9 @@ export function toWei(amount: string | number): BN {
 
 export interface ITestAddresses {
   base: { [key: string]: Address },
-  dao: { [key: string]: Address },
-  test: {
-    organs: { [key: string]: Address },
-    Avatar: Address,
-    boostedProposalId: Address,
-    executedProposalId: Address,
-    queuedProposalId: Address,
-    preBoostedProposalId: Address,
-    [key: string]: Address | { [key: string]: Address }
-  }
+  dao: { [key: string]: Address }
 }
 
-// TODO: Changed UGenericScheme to GenericScheme here, test
 export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION): ITestAddresses {
   const migration = require('@daostack/migration-experimental/migration.json').private
 
@@ -60,8 +50,7 @@ export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION)
       GenericScheme: arc.getContractInfoByName('GenericScheme', version).address,
       SchemeRegistrar: arc.getContractInfoByName('SchemeRegistrar', version).address
     },
-    dao: migration.dao[version],
-    test: migration.test[version]
+    dao: migration.dao[version]
   }
   return addresses
 

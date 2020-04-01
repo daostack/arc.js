@@ -147,13 +147,10 @@ describe('Claim rewards', () => {
      await proposal.redeemRewards().send()
   })
 
-  // TODO-J: Changed UGenericScheme to GenericScheme here, test
   it('works with non-CR proposal', async () => {
 
-    const version = '0.0.1-rc.32'
     testAddresses = getTestAddresses(arc)
-    // dao = await getTestDAO()
-    const genericSchemes = await arc.schemes({where: {name: "GenericScheme", version}}).pipe(first()).toPromise()
+    const genericSchemes = await arc.schemes({where: {name: "GenericScheme", LATEST_ARC_VERSION}}).pipe(first()).toPromise()
     const genericScheme = genericSchemes[0]
     const genericSchemeState = await genericScheme.state().pipe(first()).toPromise()
     dao  = new DAO(arc, genericSchemeState.dao)

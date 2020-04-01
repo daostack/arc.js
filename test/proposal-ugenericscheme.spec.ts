@@ -6,9 +6,6 @@ import {
   IProposalState,
   Proposal
 } from '../src/proposal'
-import {
-  Scheme
-} from '../src/scheme'
 import { IGenericScheme} from '../src/schemes/genericScheme'
 import { createAProposal, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION,
   newArc, voteToPassProposal, waitUntilTrue } from './utils'

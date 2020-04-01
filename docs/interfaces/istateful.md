@@ -41,7 +41,7 @@
 
 • **state**: *function*
 
-*Defined in [src/types.ts:12](https://github.com/daostack/client/blob/ca3cbac/src/types.ts#L12)*
+*Defined in [src/types.ts:12](https://github.com/daostack/client/blob/9d69996/src/types.ts#L12)*
 
 #### Type declaration:
 

@@ -4,7 +4,6 @@ import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
-import { DAOTOKEN_CONTRACT_VERSION } from './settings'
 import { Address, Hash, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 

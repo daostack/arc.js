@@ -21,7 +21,7 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [src/arc.ts:463](https://github.com/daostack/client/blob/ca3cbac/src/arc.ts#L463)*
+*Defined in [src/arc.ts:463](https://github.com/daostack/client/blob/9d69996/src/arc.ts#L463)*
 
 ___
 
@@ -29,7 +29,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/arc.ts:461](https://github.com/daostack/client/blob/ca3cbac/src/arc.ts#L461)*
+*Defined in [src/arc.ts:461](https://github.com/daostack/client/blob/9d69996/src/arc.ts#L461)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [src/arc.ts:464](https://github.com/daostack/client/blob/ca3cbac/src/arc.ts#L464)*
+*Defined in [src/arc.ts:464](https://github.com/daostack/client/blob/9d69996/src/arc.ts#L464)*
 
 ___
 
@@ -45,4 +45,4 @@ ___
 
 • **version**: *string*
 
-*Defined in [src/arc.ts:462](https://github.com/daostack/client/blob/ca3cbac/src/arc.ts#L462)*
+*Defined in [src/arc.ts:462](https://github.com/daostack/client/blob/9d69996/src/arc.ts#L462)*

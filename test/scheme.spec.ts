@@ -28,7 +28,6 @@ describe('Scheme', () => {
     expect(scheme).toBeInstanceOf(Scheme)
   })
 
-  // TODO-J: Changed UGenericScheme to GenericScheme here, test
   it('Schemes are searchable', async () => {
     const dao = await getTestDAO()
     let result: SchemeBase[]
