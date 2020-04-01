@@ -7,6 +7,7 @@ import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../genesisProt
 import { IPluginState } from "../plugin";
 import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../operation";
 import { Observable } from "rxjs";
+import gql from "graphql-tag";
 
 export interface IGenericSchemeParams extends IPluginState {
   schemeParams: {
@@ -32,6 +33,32 @@ export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IPropos
     } else {
       this.setState(idOrOpts)
       this.id = this.coreState.id
+    }
+  }
+
+  public static fragments = {
+    schemeParams: { 
+      name: 'GenericSchemeParams',
+      fragment: gql` fragment GenericSchemeParams on ControllerScheme {
+      genericSchemeParams {
+        votingMachine
+        contractToCall
+        voteParams {
+          queuedVoteRequiredPercentage
+          queuedVotePeriodLimit
+          boostedVotePeriodLimit
+          preBoostedVotePeriodLimit
+          thresholdConst
+          limitExponentValue
+          quietEndingPeriod
+          proposingRepReward
+          votersReputationLossRatio
+          minimumDaoBounty
+          daoBountyConst
+          activationTime
+          voteOnBehalf
+        }
+      }`
     }
   }
 
