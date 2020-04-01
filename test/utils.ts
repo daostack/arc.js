@@ -10,8 +10,6 @@ import { Address } from '../src/types'
 import { JsonRpcProvider } from 'ethers/providers'
 import { utils } from 'ethers'
 
-const path = require('path')
-
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
 export const graphqlHttpMetaProvider: string = 'http://127.0.0.1:8000/subgraphs'
 export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/daostack'
@@ -54,16 +52,6 @@ export interface ITestAddresses {
 // TODO: Changed UGenericScheme to GenericScheme here, test
 export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION): ITestAddresses {
   const migration = require('@daostack/migration-experimental/migration.json').private
-  let GenericScheme: string = ''
-  try {
-    GenericScheme = arc.getContractInfoByName('GenericScheme', version).address
-  } catch (err) {
-    if (err.message.match(/no contract/i)) {
-      // pass
-    } else {
-      throw err
-    }
-  }
 
   const addresses = {
     base: {

@@ -8,7 +8,6 @@ import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddres
   toWei, voteToPassProposal, waitUntilTrue } from './utils'
 import { BigNumber } from 'ethers/utils'
 import { Contract, ethers } from 'ethers'
-import { Scheme } from '../src'
 
 jest.setTimeout(60000)
 
