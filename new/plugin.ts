@@ -41,7 +41,7 @@ export abstract class Plugin extends Entity<IPluginState> {
 
   public abstract getPermissions(): Permissions
 
-  public static fragments = {
+  public static baseFragment = {
     SchemeFields: gql`
     fragment SchemeFields on ControllerScheme {
       id
@@ -76,7 +76,7 @@ export abstract class Plugin extends Entity<IPluginState> {
           ...SchemeFields
         }
       }
-      ${Plugin.fragments.SchemeFields}`
+      ${Plugin.baseFragment.SchemeFields}`
     } else {
       query = gql`query SchemeSearch {
         controllerSchemes ${createGraphQlQuery(options)}

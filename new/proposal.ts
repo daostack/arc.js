@@ -10,6 +10,8 @@ import { createGraphQlQuery, isAddress } from './utils'
 import { IObservable } from './graphnode'
 import Proposals from './proposals'
 import { SchemeTypes } from './plugins'
+import { IVoteQueryOptions, Vote } from './vote'
+import { Stake, IStakeQueryOptions } from './stake'
 
 type ProposalTypeNames = keyof typeof Proposals
 
@@ -284,7 +286,7 @@ export abstract class Proposal extends Entity<IProposalState> {
           }
         }
         ${Proposal.fragments.ProposalFields}
-        ${Plugin.fragments.SchemeFields}
+        ${Plugin.baseFragment.SchemeFields}
       `
       return context.getObservableList(
         query,

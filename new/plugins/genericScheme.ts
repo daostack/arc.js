@@ -24,6 +24,8 @@ interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
 
 export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IProposalCreateOptionsGS> {
 
+  coreState: IGenericSchemeState
+
   constructor(public context: Arc, idOrOpts: Address | IGenericSchemeState) {
     super()
     this.context = context
@@ -114,7 +116,7 @@ export class GenericScheme extends ProposalPlugin<GenericSchemeProposal, IPropos
           ...SchemeFields
         }
       }
-      ${Plugin.fragments.SchemeFields}
+      ${Plugin.baseFragment.SchemeFields}
     `
     const itemMap = (item: any) => GenericScheme.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>

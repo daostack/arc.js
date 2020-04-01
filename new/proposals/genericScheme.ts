@@ -19,6 +19,8 @@ interface IGenericSchemeProposalState extends IProposalState {
 
 export class GenericSchemeProposal extends Proposal {
 
+  coreState: IGenericSchemeProposalState
+
   constructor(
     context: Arc,
     idOrOpts: string | IGenericSchemeProposalState
@@ -48,7 +50,7 @@ export class GenericSchemeProposal extends Proposal {
         }
       }
       ${Proposal.fragments.ProposalFields}
-      ${Plugin.fragments.SchemeFields}
+      ${Plugin.baseFragment.SchemeFields}
     `
 
     const itemMap = (item: any) => GenericSchemeProposal.itemMap(this.context, item)
