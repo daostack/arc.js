@@ -1,12 +1,12 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
-import { IProposalOutcome } from './proposal'
-import { Address, Date, ICommonQueryOptions, IStateful } from './types'
+import { IProposalOutcome, Proposal } from './proposal'
+import { Address, Date, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
-import { Entity } from './entity'
+import { Entity, IEntityRef } from './entity'
+import Proposals from './proposals'
 
 export interface IVoteState {
   id: string
@@ -14,7 +14,7 @@ export interface IVoteState {
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount of reputation that was voted with
-  proposal: string
+  proposal: IEntityRef<Proposal>
   dao?: Address
 }
 
@@ -40,6 +40,9 @@ export class Vote extends Entity<IVoteState> {
       voter
       proposal {
         id
+        scheme {
+          name
+        }
       }
       outcome
       reputation
@@ -95,6 +98,9 @@ export class Vote extends Entity<IVoteState> {
         {
           proposal (id: "${proposalId}") {
             id
+            scheme {
+              name
+            }
             votes ${createGraphQlQuery({ where: { ...options.where, proposal: undefined}}, where)} {
               ...VoteFields
             }
@@ -167,7 +173,10 @@ export class Vote extends Entity<IVoteState> {
       dao: item.dao.id,
       id: item.id,
       outcome,
-      proposal: item.proposal.id,
+      proposal: {
+        id: item.proposal.id,
+        entity: new Proposals[item.proposal.scheme.name](context, item.proposal.id)
+      },
       voter: item.voter
     })
   }

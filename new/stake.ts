@@ -3,10 +3,11 @@ import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
-import { IProposalOutcome} from './proposal'
+import { IProposalOutcome, Proposal} from './proposal'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
-import { Entity } from './entity'
+import { Entity, IEntityRef } from './entity'
+import Proposals from './proposals'
 
 export interface IStakeState {
   id: string
@@ -14,7 +15,7 @@ export interface IStakeState {
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount staked
-  proposal: string
+  proposal: IEntityRef<Proposal>
 }
 
 export interface IStakeQueryOptions extends ICommonQueryOptions {
@@ -39,6 +40,9 @@ export class Stake extends Entity<IStakeState> {
       staker
       proposal {
         id
+        scheme {
+          name
+        }
       }
       outcome
       amount
@@ -88,6 +92,9 @@ export class Stake extends Entity<IStakeState> {
         {
           proposal (id: "${proposalId}") {
             id
+            scheme {
+              name
+            }
             stakes ${createGraphQlQuery(options, where)} {
               ...StakeFields
             }
@@ -161,7 +168,10 @@ export class Stake extends Entity<IStakeState> {
       createdAt: item.createdAt,
       id: item.id,
       outcome,
-      proposal: item.proposal.id,
+      proposal: {
+        id: item.proposal.id,
+        entity: new Proposals[item.proposal.scheme.name](context, item.proposal.id)
+      },
       staker: item.staker
     })
     
