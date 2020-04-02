@@ -13,6 +13,8 @@ import { IVoteQueryOptions, Vote } from './vote'
 import { IEntityRef, Entity } from './entity'
 import { IPluginQueryOptions, Plugin } from './plugin'
 import { ProposalPlugin } from './proposalPlugin'
+import { Reward, IRewardQueryOptions } from './reward'
+import { Reputation } from './reputation'
 
 export interface IDAOState {
   id: Address,
@@ -145,7 +147,10 @@ export class DAO extends Entity<IDAOState> {
       numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
       numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
       register: item.register,
-      reputation,
+      reputation: {
+        id: item.nativeReputation.id,
+        entity: reputation
+      },
       reputationTotalSupply: new BN(item.nativeReputation.totalSupply),
       token,
       tokenName: item.nativeToken.name,

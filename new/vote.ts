@@ -138,7 +138,7 @@ export class Vote extends Entity<IVoteState> {
       ) as Observable<Vote[]>
     }
   }
-  public id: string|undefined
+  
   public coreState: IVoteState|undefined
 
   constructor(public context: Arc, idOrOpts: string|IVoteState) {

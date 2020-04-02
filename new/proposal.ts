@@ -13,6 +13,7 @@ import { SchemeTypes } from './plugins'
 import { IVoteQueryOptions, Vote } from './vote'
 import { Stake, IStakeQueryOptions } from './stake'
 import { Queue } from './queue'
+import { IRewardQueryOptions, Reward } from './reward'
 
 type ProposalTypeNames = keyof typeof Proposals
 

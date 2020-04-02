@@ -1,6 +1,5 @@
 import { AsyncSendable } from 'ethers/providers'
 import { Observable } from 'rxjs'
-import { IApolloQueryOptions } from './graphnode'
 
 export type Address = string
 export type Date = number
