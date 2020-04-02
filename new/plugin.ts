@@ -22,7 +22,7 @@ export interface IPluginState {
   numberOfBoostedProposals: number
 }
 
-interface ISchemeQueryOptions extends ICommonQueryOptions {
+export interface IPluginQueryOptions extends ICommonQueryOptions {
   where?: {
     address?: Address
     canDelegateCall?: boolean
@@ -65,7 +65,7 @@ export abstract class Plugin extends Entity<IPluginState> {
 
   public static search(
     context: Arc,
-    options: ISchemeQueryOptions = {},
+    options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Plugin[]> {
     let query

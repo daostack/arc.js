@@ -8,6 +8,7 @@ import { Arc } from "../arc";
 import { Plugin } from '../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
+import { IQueueState, Queue } from "../queue";
 
 interface IGenericSchemeProposalState extends IProposalState { 
   id: string
@@ -104,10 +105,14 @@ export class GenericSchemeProposal extends Proposal {
       dao: item.dao.id,
       id: gpQueue.id,
       name: schemeState.name,
-      scheme: schemeState,
+      scheme: {
+        id: schemeState.id,
+        entity: new GenericScheme(context, schemeState),
+      },
       threshold,
       votingMachine: gpQueue.votingMachine
     }
+    const dao = new DAO(context, item.dao.id)
 
     return new GenericSchemeProposal(context, {
       accountsWithUnclaimedRewards: item.accountsWithUnclaimedRewards,
@@ -115,7 +120,7 @@ export class GenericSchemeProposal extends Proposal {
       closingAt: Number(item.closingAt),
       confidenceThreshold: Number(item.confidenceThreshold),
       createdAt: Number(item.createdAt),
-      dao: new DAO(context, item.dao.id),
+      dao,
       description: item.description,
       descriptionHash: item.descriptionHash,
       downStakeNeededToQueue,
@@ -136,7 +141,10 @@ export class GenericSchemeProposal extends Proposal {
       executed: item.genericScheme.executed,
       returnValue: item.genericScheme.returnValue,
       proposer: item.proposer,
-      queue: queueState,
+      queue: {
+        id: queueState.id,
+        entity: new Queue(context, queueState, dao)
+      },
       quietEndingPeriodBeganAt: Number(item.quietEndingPeriodBeganAt),
       resolvedAt: item.resolvedAt !== undefined ? Number(item.resolvedAt) : 0,
       scheme: {

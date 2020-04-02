@@ -12,6 +12,7 @@ import Proposals from './proposals'
 import { SchemeTypes } from './plugins'
 import { IVoteQueryOptions, Vote } from './vote'
 import { Stake, IStakeQueryOptions } from './stake'
+import { Queue } from './queue'
 
 type ProposalTypeNames = keyof typeof Proposals
 
@@ -61,7 +62,7 @@ export interface IProposalState {
   preBoostedAt: Number
   proposal: IEntityRef<Proposal>
   proposer: Address
-  queue: IQueueState
+  queue: IEntityRef<Queue>
   quietEndingPeriodBeganAt: Number
   resolvedAt: Number
   stage: IProposalStage

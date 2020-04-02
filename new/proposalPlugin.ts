@@ -1,12 +1,13 @@
-import { Proposal, IProposalQueryOptions } from "./proposal"
+import { Proposal, IProposalQueryOptions, IProposalBaseCreateOptions } from "./proposal"
 import { IApolloQueryOptions } from "./types";
 import { Observable } from "rxjs";
 import { Operation, toIOperationObservable, ITransaction, transactionErrorHandler, transactionResultHandler } from "./operation";
-import { Plugin } from './plugin'
+import { Plugin, IPluginQueryOptions } from './plugin'
+import { Arc } from "./arc";
 
-export abstract class ProposalPlugin<TProposal, TProposalOptions> extends Plugin {
+export abstract class ProposalPlugin extends Plugin {
 
-  public createProposal(options: TProposalOptions): Operation<TProposal>  {
+  public createProposal(options: IProposalBaseCreateOptions): Operation<Proposal>  {
     const observable = Observable.create(async (observer: any) => {
       try {
         const createTransaction = await this.createProposalTransaction(options)
@@ -27,13 +28,13 @@ export abstract class ProposalPlugin<TProposal, TProposalOptions> extends Plugin
   }
 
   protected abstract async createProposalTransaction(
-    options: TProposalOptions
+    options: IProposalBaseCreateOptions
   ): Promise<ITransaction>
 
   protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
 
   protected abstract createProposalErrorHandler(
-    options: TProposalOptions
+    options: IProposalBaseCreateOptions
   ): transactionErrorHandler
 
   public proposals(
