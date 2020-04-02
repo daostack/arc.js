@@ -42,6 +42,46 @@ export enum IExecutionState {
   BoostedBarCrossed
 }
 
+enum ProposalQuerySortOptions {
+  resolvesAt = 'resolvesAt',
+  preBoostedAt = 'preBoostedAt'
+}
+
+export interface IProposalQueryOptions extends ICommonQueryOptions {
+  where?: {
+    accountsWithUnclaimedRewards_contains?: Address[]
+    active?: boolean
+    boosted?: boolean
+    dao?: Address
+    expiresInQueueAt?: Date
+    expiresInQueueAt_gte?: Date
+    expiresInQueueAt_lte?: Date
+    expiresInQueueAt_gt?: Date
+    executedAfter?: Date
+    executedBefore?: Date
+    id?: string
+    proposer?: Address
+    proposalId?: string
+    stage?: IProposalStage
+    stage_in?: IProposalStage[]
+    scheme?: Address
+    orderBy?: ProposalQuerySortOptions
+    type?: ProposalTypeNames
+    [key: string]: any | undefined
+  }
+}
+
+export interface IProposalBaseCreateOptions {
+  dao: Address
+  description?: string
+  descriptionHash?: string
+  title?: string
+  tags?: string[]
+  scheme?: Address
+  url?: string
+  proposalType?: ProposalTypeNames | 'competition'
+}
+
 export interface IProposalState {
   id: string
   dao: IEntityRef<DAO>
@@ -208,28 +248,7 @@ export abstract class Proposal extends Entity<IProposalState> {
     }`
   }
 
-  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> 
-
-  public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {
-    if (!options.where) { options.where = {} }
-    options.where.proposal = this.id
-    return Vote.search(this.context, options, apolloQueryOptions)
-  }
-
-  public stakes(options: IStakeQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Stake[]> {
-    if (!options.where) { options.where = {} }
-    options.where.proposal = this.id
-    return Stake.search(this.context, options, apolloQueryOptions)
-  }
-
-  public rewards(
-    options: IRewardQueryOptions = {},
-    apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Reward[]> {
-    if (!options.where) { options.where = {} }
-    options.where.proposal = this.id
-    return Reward.search(this.context, options, apolloQueryOptions)
-  }
+  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState>
 
   public static search(
     context: Arc,
@@ -321,45 +340,26 @@ export abstract class Proposal extends Entity<IProposalState> {
     }
   }
 
-
-}
-
-enum ProposalQuerySortOptions {
-  resolvesAt = 'resolvesAt',
-  preBoostedAt = 'preBoostedAt'
-}
-
-export interface IProposalQueryOptions extends ICommonQueryOptions {
-  where?: {
-    accountsWithUnclaimedRewards_contains?: Address[]
-    active?: boolean
-    boosted?: boolean
-    dao?: Address
-    expiresInQueueAt?: Date
-    expiresInQueueAt_gte?: Date
-    expiresInQueueAt_lte?: Date
-    expiresInQueueAt_gt?: Date
-    executedAfter?: Date
-    executedBefore?: Date
-    id?: string
-    proposer?: Address
-    proposalId?: string
-    stage?: IProposalStage
-    stage_in?: IProposalStage[]
-    scheme?: Address
-    orderBy?: ProposalQuerySortOptions
-    type?: ProposalTypeNames
-    [key: string]: any | undefined
+  public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {
+    if (!options.where) { options.where = {} }
+    options.where.proposal = this.id
+    return Vote.search(this.context, options, apolloQueryOptions)
   }
-}
 
-export interface IProposalBaseCreateOptions {
-  dao: Address
-  description?: string
-  descriptionHash?: string
-  title?: string
-  tags?: string[]
-  scheme?: Address
-  url?: string
-  proposalType?: ProposalTypeNames | 'competition'
+  public stakes(options: IStakeQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Stake[]> {
+    if (!options.where) { options.where = {} }
+    options.where.proposal = this.id
+    return Stake.search(this.context, options, apolloQueryOptions)
+  }
+
+  public rewards(
+    options: IRewardQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Reward[]> {
+    if (!options.where) { options.where = {} }
+    options.where.proposal = this.id
+    return Reward.search(this.context, options, apolloQueryOptions)
+  }
+
+
 }

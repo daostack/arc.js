@@ -29,27 +29,19 @@ export interface IQueueQueryOptions extends ICommonQueryOptions {
 
 export class Queue extends Entity<IQueueState> {
 
-  coreState: IQueueState
-
-  public static itemMap(context: Arc, item: any): Queue {
-    if (!item) {
-      //TODO: How to get ID for this error msg?
-      throw Error(`No gpQueue with id was found`)
+  constructor(
+    context: Arc,
+    idOrOpts: string|IQueueState,
+    public dao: DAO
+  ) {
+    super()
+    this.context = context
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts as IQueueState)
     }
-    const threshold = realMathToNumber(new BN(item.threshold))
-    const scheme = new Plugins[item.scheme.name](context, item.scheme.id)
-    const dao = new DAO(context, item.dao.id)
-    return new Queue(context, {
-      dao,
-      id: item.id,
-      name: scheme.name,
-      scheme: {
-        id: item.scheme.id,
-        entity: scheme
-      },
-      threshold,
-      votingMachine: item.votingMachine
-    }, dao)
   }
 
   public static search(
@@ -98,19 +90,25 @@ export class Queue extends Entity<IQueueState> {
     return context.getObservableList(query, itemMap, apolloQueryOptions) as Observable<Queue[]>
   }
 
-  constructor(
-    context: Arc,
-    idOrOpts: string|IQueueState,
-    public dao: DAO
-  ) {
-    super()
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts as IQueueState)
+  public static itemMap(context: Arc, item: any): Queue {
+    if (!item) {
+      //TODO: How to get ID for this error msg?
+      throw Error(`No gpQueue with id was found`)
     }
+    const threshold = realMathToNumber(new BN(item.threshold))
+    const scheme = new Plugins[item.scheme.name](context, item.scheme.id)
+    const dao = new DAO(context, item.dao.id)
+    return new Queue(context, {
+      dao,
+      id: item.id,
+      name: scheme.name,
+      scheme: {
+        id: item.scheme.id,
+        entity: scheme
+      },
+      threshold,
+      votingMachine: item.votingMachine
+    }, dao)
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IQueueState> {

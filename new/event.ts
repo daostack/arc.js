@@ -43,12 +43,17 @@ export class Event extends Entity<IEventState> {
     }`
   }
 
-  /**
-   * Event.search(context, options) searches for reward entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IEventQueryOptions
-   * @return         an observable of Event objects
-   */
+  constructor(public context: Arc, public idOrOpts: string | IEventState) {
+    super()
+    this.context = context
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IEventQueryOptions = {},
@@ -80,17 +85,6 @@ export class Event extends Entity<IEventState> {
       itemMap,
       apolloQueryOptions
     ) as Observable<Event[]>
-  }
-
-  constructor(public context: Arc, public idOrOpts: string | IEventState) {
-    super()
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
   }
 
   public static itemMap(context: Arc, item: any): Event {

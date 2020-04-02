@@ -40,9 +40,6 @@ export interface IPluginQueryOptions extends ICommonQueryOptions {
 
 export abstract class Plugin extends Entity<IPluginState> {
 
-  public abstract coreState: IPluginState
-  public abstract getPermissions(): Permissions
-
   public static baseFragment = {
     SchemeFields: gql`
     fragment SchemeFields on ControllerScheme {
@@ -64,6 +61,9 @@ export abstract class Plugin extends Entity<IPluginState> {
     ${Object.values(Schemes).map(scheme => scheme.fragments.schemeParams.fragment).join('\n')}
     `
   }
+
+  public abstract coreState: IPluginState
+  public abstract getPermissions(): Permissions
 
   public static search(
     context: Arc,

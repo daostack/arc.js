@@ -59,12 +59,17 @@ export class Reward extends Entity<IRewardState> {
     }`
   }
 
-  /**
-   * Reward.search(context, options) searches for reward entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IRewardQueryOptions
-   * @return         an observable of Reward objects
-   */
+  constructor(public context: Arc, public idOrOpts: string|IRewardState) {
+    super()
+    this.context = context
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IRewardQueryOptions = {},
@@ -136,19 +141,6 @@ export class Reward extends Entity<IRewardState> {
       itemMap,
       apolloQueryOptions
     ) as Observable<Reward[]>
-  }
-
-  public coreState: IRewardState|undefined
-
-  constructor(public context: Arc, public idOrOpts: string|IRewardState) {
-    super()
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
   }
 
   public static itemMap(context: Arc, item: any): Reward {

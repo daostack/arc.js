@@ -49,12 +49,19 @@ export class Stake extends Entity<IStakeState> {
     }`
   }
 
-  /**
-   * Stake.search(context, options) searches for stake entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IStakeQueryOptions
-   * @return         an observable of Stake objects
-   */
+  constructor(
+    public context: Arc,
+    idOrOpts: string|IStakeState
+  ) {
+    super()
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts as IStakeState)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IStakeQueryOptions = {},
@@ -129,22 +136,6 @@ export class Stake extends Entity<IStakeState> {
         itemMap,
         apolloQueryOptions
       ) as Observable<Stake[]>
-    }
-  }
-
-  public id: string|undefined
-  public coreState: IStakeState|undefined
-
-  constructor(
-    public context: Arc,
-    idOrOpts: string|IStakeState
-  ) {
-    super()
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts as IStakeState)
     }
   }
 

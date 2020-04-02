@@ -64,64 +64,6 @@ export class GenericScheme extends ProposalPlugin {
     }
   }
 
-  protected async createProposalTransaction(options: IProposalCreateOptionsGS): Promise<ITransaction> {
-    if (options.callData === undefined) {
-      throw new Error(`Missing argument "callData" for GenericScheme in Proposal.create()`)
-    }
-    if (options.value === undefined) {
-      throw new Error(`Missing argument "value" for GenericScheme in Proposal.create()`)
-    }
-    if (options.scheme === undefined) {
-      throw new Error(`Missing argument "scheme" for GenericScheme in Proposal.create()`)
-    }
-  
-    options.descriptionHash = await this.context.saveIPFSData(options)
-  
-    return {
-      contract: this.context.getContract(options.scheme),
-      method: 'proposeCall',
-      args: [
-        options.callData,
-        options.value,
-        options.descriptionHash
-      ]
-    }
-  }
-
-  protected createProposalTransactionMap(): transactionResultHandler<any> {
-    return async (receipt: ITransactionReceipt) => {
-      const args = getEventArgs(receipt, 'NewCallProposal', 'GenericScheme.createProposal')
-      const proposalId = args[1]
-      return new GenericSchemeProposal(this.context, proposalId)
-    }
-  }
-
-  protected createProposalErrorHandler(options: IProposalCreateOptionsGS): transactionErrorHandler {
-    throw new Error("Method not implemented.");
-  }
-
-  public proposals(options: IProposalQueryOptions, apolloQueryOptions: IApolloQueryOptions): Observable<any[]> {
-    throw new Error("Method not implemented.");
-  }
-
-  public getPermissions(): Permissions {
-    throw new Error("Method not implemented.");
-  }
-
-  //TODO: Should this be abstracted to Plugin level and templatized for typesafety?
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IGenericSchemeState> {
-    const query = gql`query SchemeStateById
-      {
-        controllerScheme (id: "${this.id}") {
-          ...SchemeFields
-        }
-      }
-      ${Plugin.baseFragment.SchemeFields}
-    `
-    const itemMap = (item: any) => GenericScheme.itemMap(this.context, item)
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>
-  }
-
   public static itemMap(arc: Arc, item: any): GenericScheme | null {
     if (!item) {
       return null
@@ -164,6 +106,63 @@ export class GenericScheme extends ProposalPlugin {
         version: item.version
       }
     )
+  }
+
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IGenericSchemeState> {
+    const query = gql`query SchemeStateById
+      {
+        controllerScheme (id: "${this.id}") {
+          ...SchemeFields
+        }
+      }
+      ${Plugin.baseFragment.SchemeFields}
+    `
+    const itemMap = (item: any) => GenericScheme.itemMap(this.context, item)
+    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>
+  }
+
+  public getPermissions(): Permissions {
+    throw new Error("Method not implemented.");
+  }
+
+  public proposals(options: IProposalQueryOptions, apolloQueryOptions: IApolloQueryOptions): Observable<any[]> {
+    throw new Error("Method not implemented.");
+  }
+
+  public async createProposalTransaction(options: IProposalCreateOptionsGS): Promise<ITransaction> {
+    if (options.callData === undefined) {
+      throw new Error(`Missing argument "callData" for GenericScheme in Proposal.create()`)
+    }
+    if (options.value === undefined) {
+      throw new Error(`Missing argument "value" for GenericScheme in Proposal.create()`)
+    }
+    if (options.scheme === undefined) {
+      throw new Error(`Missing argument "scheme" for GenericScheme in Proposal.create()`)
+    }
+  
+    options.descriptionHash = await this.context.saveIPFSData(options)
+  
+    return {
+      contract: this.context.getContract(options.scheme),
+      method: 'proposeCall',
+      args: [
+        options.callData,
+        options.value,
+        options.descriptionHash
+      ]
+    }
+  }
+
+  public createProposalTransactionMap(): transactionResultHandler<any> {
+    return async (receipt: ITransactionReceipt) => {
+      const args = getEventArgs(receipt, 'NewCallProposal', 'GenericScheme.createProposal')
+      const proposalId = args[1]
+      return new GenericSchemeProposal(this.context, proposalId)
+    }
+  }
+
+  public createProposalErrorHandler(options: IProposalCreateOptionsGS): transactionErrorHandler {
+    throw new Error("Method not implemented.");
   }
   
 }

@@ -49,12 +49,16 @@ export class Member extends Entity<IMemberState> {
     `
   }
 
-  /**
-   * Member.search(context, options) searches for member entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IMemberQueryOptions
-   * @return         an observable of IRewardState objects
-   */
+  constructor(public context: Arc, idOrOpts: string|IMemberState) {
+    super()
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts as string
+    } else {
+      const opts: IMemberState = idOrOpts
+      this.setState(opts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IMemberQueryOptions = {},
@@ -99,45 +103,6 @@ export class Member extends Entity<IMemberState> {
       }
   }
 
-  public static calculateId(opts: { contract: Address, address: Address}): string {
-    const seed = concat(
-      hexStringToUint8Array(opts.contract.toLowerCase()),
-      hexStringToUint8Array(opts.address.toLowerCase())
-    )
-    return utils.keccak256(seed)
-  }
-
-  /**
-   * @param address addresssof the member
-   * @param daoAdress addresssof the DAO this member is a member of
-   * @param context an instance of Arc
-   */
-  constructor(public context: Arc, idOrOpts: string|IMemberState) {
-    super()
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts as string
-    } else {
-      const opts: IMemberState = idOrOpts
-      this.setState(opts)
-    }
-  }
-
-  public setState(opts: IMemberState) {
-    isAddress(opts.address)
-    if (!opts.id && opts.contract && opts.address) {
-      opts.id = Member.calculateId({ contract: opts.contract, address: opts.address})
-    }
-    this.id = opts.id
-    this.coreState = {
-      address: opts.address.toLowerCase(),
-      contract: opts.contract && opts.contract.toLowerCase(),
-      dao: opts.dao && opts.dao.toLowerCase(),
-      id: opts.id,
-      reputation: opts.reputation
-    }
-    return this.coreState
-  }
-
   public static itemMap(context: Arc, item: any): Member {
     if (item === null || item === undefined || item.id === undefined) {
       //TODO: How to get ID for this error msg?
@@ -150,6 +115,14 @@ export class Member extends Entity<IMemberState> {
       contract: item.contract,
       reputation: new BN(item.balance)
     })
+  }
+
+  public static calculateId(opts: { contract: Address, address: Address}): string {
+    const seed = concat(
+      hexStringToUint8Array(opts.contract.toLowerCase()),
+      hexStringToUint8Array(opts.address.toLowerCase())
+    )
+    return utils.keccak256(seed)
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IMemberState> {
@@ -247,5 +220,21 @@ export class Member extends Entity<IMemberState> {
     })
 
     return toIOperationObservable(observable)
+  }
+
+  public setState(opts: IMemberState) {
+    isAddress(opts.address)
+    if (!opts.id && opts.contract && opts.address) {
+      opts.id = Member.calculateId({ contract: opts.contract, address: opts.address})
     }
+    this.id = opts.id
+    this.coreState = {
+      address: opts.address.toLowerCase(),
+      contract: opts.contract && opts.contract.toLowerCase(),
+      dao: opts.dao && opts.dao.toLowerCase(),
+      id: opts.id,
+      reputation: opts.reputation
+    }
+    return this.coreState
+  }
 }

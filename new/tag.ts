@@ -1,6 +1,5 @@
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { Proposal } from './proposal'
 import { ICommonQueryOptions } from './types'
@@ -33,6 +32,19 @@ export class Tag extends Entity<ITagState> {
         }
       }
     }`
+  }
+
+  constructor(
+    public context: Arc,
+    idOrOpts: string|ITagState
+  ) {
+    super()
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts)
+    }
   }
 
   public static search(
@@ -120,22 +132,6 @@ export class Tag extends Entity<ITagState> {
         }
       })
     })
-  }
-
-  public id: string|undefined
-  public coreState: ITagState|undefined
-
-  constructor(
-    public context: Arc,
-    idOrOpts: string|ITagState
-  ) {
-    super()
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITagState> {

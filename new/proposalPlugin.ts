@@ -7,6 +7,16 @@ import { Arc } from "./arc";
 
 export abstract class ProposalPlugin extends Plugin {
 
+  protected abstract async createProposalTransaction(
+    options: IProposalBaseCreateOptions
+  ): Promise<ITransaction>
+
+  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
+
+  protected abstract createProposalErrorHandler(
+    options: IProposalBaseCreateOptions
+  ): transactionErrorHandler
+
   public createProposal(options: IProposalBaseCreateOptions): Operation<Proposal>  {
     const observable = Observable.create(async (observer: any) => {
       try {
@@ -26,16 +36,6 @@ export abstract class ProposalPlugin extends Plugin {
 
     return toIOperationObservable(observable)
   }
-
-  protected abstract async createProposalTransaction(
-    options: IProposalBaseCreateOptions
-  ): Promise<ITransaction>
-
-  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
-
-  protected abstract createProposalErrorHandler(
-    options: IProposalBaseCreateOptions
-  ): transactionErrorHandler
 
   public proposals(
     options: IProposalQueryOptions = {},

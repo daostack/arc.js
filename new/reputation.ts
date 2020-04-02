@@ -26,12 +26,22 @@ export interface IReputationQueryOptions extends ICommonQueryOptions {
 
 export class Reputation extends Entity<IReputationState> {
 
-  /**
-   * Reputation.search(context, options) searches for reputation entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IReputationQueryOptions
-   * @return         an observable of Reputation objects
-   */
+  public address: Address
+
+  constructor(public context: Arc, idOrOpts: string | IReputationState){
+    super()
+    if (typeof idOrOpts === 'string') {
+      isAddress(idOrOpts)
+      this.address = idOrOpts
+      this.id = idOrOpts
+    } else {
+      isAddress(idOrOpts.address)
+      this.address = idOrOpts.address
+      this.id = idOrOpts.address
+      this.setState(idOrOpts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IReputationQueryOptions = {},
@@ -66,23 +76,6 @@ export class Reputation extends Entity<IReputationState> {
       (r: any) => new Reputation(context, r.id),
       apolloQueryOptions
     )
-  }
-
-  public address: Address
-  public coreState: IReputationState
-
-  constructor(public context: Arc, idOrOpts: string | IReputationState){
-    super()
-    if (typeof idOrOpts === 'string') {
-      isAddress(idOrOpts)
-      this.address = idOrOpts
-      this.id = idOrOpts
-    } else {
-      isAddress(idOrOpts.address)
-      this.address = idOrOpts.address
-      this.id = idOrOpts.address
-      this.setState(idOrOpts)
-    }
   }
 
   public static itemMap = (context: Arc, item: any): Reputation => {
@@ -139,9 +132,6 @@ export class Reputation extends Entity<IReputationState> {
     )
   }
 
-  /*
-   * get a web3 contract instance for this token
-   */
   public contract() {
     const abi = this.context.getABI(undefined, 'Reputation', REPUTATION_CONTRACT_VERSION)
     return this.context.getContract(this.address, abi)

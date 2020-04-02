@@ -26,6 +26,13 @@ import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
 import { IPFSClient } from './ipfsClient'
+import { IEventQueryOptions, Event } from './event'
+import { IPluginQueryOptions, Plugin } from './plugin'
+import Plugins from './plugins'
+import Proposals from './proposals'
+
+type PluginName = keyof typeof Plugins
+type ProposalName = keyof typeof Proposals
 
 /**
  * The Arc class holds all configuration.
@@ -154,19 +161,19 @@ export class Arc extends GraphNodeObserver {
     return Tag.search(this, options, apolloQueryOptions)
   }
 
-  public scheme(id: string): Scheme {
-    return new Scheme(this, id)
+  public scheme(id: string, name: PluginName): Plugin {
+    return new Plugins[name](this, id)
   }
 
   public schemes(
-    options: ISchemeQueryOptions = {},
+    options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<SchemeBase[]> {
-    return Scheme.search(this, options, apolloQueryOptions)
+  ): Observable<Plugin[]> {
+    return Plugin.search(this, options, apolloQueryOptions)
   }
 
-  public proposal(id: string): Proposal {
-    return new Proposal(this, id)
+  public proposal(id: string, name: ProposalName): Proposal {
+    return new Proposals[name](this, id)
   }
 
   public proposals(

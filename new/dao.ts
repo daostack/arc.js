@@ -46,6 +46,7 @@ export interface IDAOQueryOptions extends ICommonQueryOptions {
 }
 
 export class DAO extends Entity<IDAOState> {
+
   public static fragments = {
     DAOFields: gql`
       fragment DAOFields on DAO {
@@ -61,12 +62,16 @@ export class DAO extends Entity<IDAOState> {
     }`
   }
 
-  /**
-   * DAO.search(context, options) searches for DAO entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IDAOQueryOptions
-   * @return         an observable of DAO objects
-   */
+  constructor(public context: Arc, idOrOpts: Address|IDAOState) {
+    super()
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts.toLowerCase()
+    } else {
+      this.id = idOrOpts.address
+      this.setState(idOrOpts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IDAOQueryOptions = {},
@@ -115,19 +120,6 @@ export class DAO extends Entity<IDAOState> {
       apolloQueryOptions
     )
   }
-
-  public coreState: IDAOState|undefined
-
-  constructor(public context: Arc, idOrOpts: Address|IDAOState) {
-    super()
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts.toLowerCase()
-    } else {
-      this.id = idOrOpts.address
-      this.setState(idOrOpts)
-    }
-  }
-
 
   public static itemMap = (context: Arc, item: any): DAO => {
     if (item === null) {
@@ -178,12 +170,12 @@ export class DAO extends Entity<IDAOState> {
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
   }
 
-  /*
-   * return the nativeReputation of the DAO
-   * @returns an (Observable) that returns a Reputation instance
-   */
   public nativeReputation(): Observable<Reputation> {
     return this.state().pipe(first()).pipe(map((r) => r.reputation.entity))
+  }
+
+  public ethBalance(): Observable<BN> {
+    return this.context.ethBalance(this.id)
   }
 
   //TODO: Does this search always yield Schemes that can create proposals? (ProposalPlugins)
@@ -229,39 +221,6 @@ export class DAO extends Entity<IDAOState> {
     }
   }
 
-  /**
-   * create a new proposal in this DAO
-   * @param  options [description]
-   * @return a Proposal instance
-   */
-  public createProposal(options: IProposalBaseCreateOptions) {
-    options.dao = this.id
-
-    if (!options.scheme) {
-      throw Error(`dao.createProposal(options): options must include an address for "scheme"`)
-    }
-
-    const schemesQuery = this.schemes(
-      { where: {
-        address: options.scheme,
-        dao: options.dao
-      }}
-    )
-
-    const observable = schemesQuery.pipe(
-      first(),
-      concatMap((schemes) => {
-        if (schemes && schemes.length > 0) {
-          return schemes[0].createProposal(options)
-        } else {
-          throw Error(`No scheme with address ${options.scheme} is registered with dao ${options.dao}`)
-        }
-      }
-    ))
-
-    return toIOperationObservable(observable)
-  }
-
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
@@ -300,12 +259,31 @@ export class DAO extends Entity<IDAOState> {
     return Stake.search(this.context, options, apolloQueryOptions)
   }
 
-  /**
-   * get (an observable of) the Ether balance of the DAO from the web3Provider
-   *
-   * @return an observable stream of BN number instances
-   */
-  public ethBalance(): Observable<BN> {
-    return this.context.ethBalance(this.id)
+  public createProposal(options: IProposalBaseCreateOptions) {
+    options.dao = this.id
+
+    if (!options.scheme) {
+      throw Error(`dao.createProposal(options): options must include an address for "scheme"`)
+    }
+
+    const schemesQuery = this.schemes(
+      { where: {
+        address: options.scheme,
+        dao: options.dao
+      }}
+    )
+
+    const observable = schemesQuery.pipe(
+      first(),
+      concatMap((schemes) => {
+        if (schemes && schemes.length > 0) {
+          return schemes[0].createProposal(options)
+        } else {
+          throw Error(`No scheme with address ${options.scheme} is registered with dao ${options.dao}`)
+        }
+      }
+    ))
+
+    return toIOperationObservable(observable)
   }
 }

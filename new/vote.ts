@@ -49,12 +49,17 @@ export class Vote extends Entity<IVoteState> {
     }`
   }
 
-  /**
-   * Vote.search(context, options) searches for vote entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IVoteQueryOptions
-   * @return         an observable of Vote objects
-   */
+  constructor(public context: Arc, idOrOpts: string|IVoteState) {
+    super()
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      const opts = idOrOpts as IVoteState
+      this.id = opts.id
+      this.setState(opts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IVoteQueryOptions = {},
@@ -136,19 +141,6 @@ export class Vote extends Entity<IVoteState> {
         itemMap,
         apolloQueryOptions
       ) as Observable<Vote[]>
-    }
-  }
-  
-  public coreState: IVoteState|undefined
-
-  constructor(public context: Arc, idOrOpts: string|IVoteState) {
-    super()
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      const opts = idOrOpts as IVoteState
-      this.id = opts.id
-      this.setState(opts)
     }
   }
 

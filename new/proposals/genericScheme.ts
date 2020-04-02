@@ -38,29 +38,6 @@ export class GenericSchemeProposal extends Proposal {
     this.context = context
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
-    const query = gql`query ProposalState
-      {
-        proposal(id: "${this.id}") {
-          ...ProposalFields
-          votes {
-            id
-          }
-          stakes {
-            id
-          }
-        }
-      }
-      ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.SchemeFields}
-    `
-
-    const itemMap = (item: any) => GenericSchemeProposal.itemMap(this.context, item)
-
-    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeProposalState>
-    return result
-  }
-
   static itemMap (context: Arc, item: any): GenericSchemeProposal | null {
     if (item === null || item === undefined) {
       // no proposal was found - we return null
@@ -171,6 +148,29 @@ export class GenericSchemeProposal extends Proposal {
       votingMachine: item.votingMachine,
       winningOutcome: IProposalOutcome[item.winningOutcome] as any
     })
+  }
+
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
+    const query = gql`query ProposalState
+      {
+        proposal(id: "${this.id}") {
+          ...ProposalFields
+          votes {
+            id
+          }
+          stakes {
+            id
+          }
+        }
+      }
+      ${Proposal.fragments.ProposalFields}
+      ${Plugin.baseFragment.SchemeFields}
+    `
+
+    const itemMap = (item: any) => GenericSchemeProposal.itemMap(this.context, item)
+
+    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeProposalState>
+    return result
   }
 
 }

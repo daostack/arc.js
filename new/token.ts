@@ -46,12 +46,22 @@ export interface IAllowance {
 
 export class Token extends Entity<ITokenState> {
 
-  /**
-   * Token.search(context, options) searches for token entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. ITokenQueryOptions
-   * @return         an observable of Token objects
-   */
+  public address: string
+
+  constructor(public context: Arc, idOrOpts: string|ITokenState) {
+    super()
+    if (typeof idOrOpts === 'string') {
+      isAddress(idOrOpts)
+      this.address = idOrOpts
+      this.id = idOrOpts
+    } else {
+      isAddress(idOrOpts.address)
+      this.address = idOrOpts.address
+      this.id = idOrOpts.address
+      this.setState(idOrOpts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: ITokenQueryOptions = {},
@@ -102,22 +112,6 @@ export class Token extends Entity<ITokenState> {
     })
   }
 
-  public address: string
-
-  constructor(public context: Arc, idOrOpts: string|ITokenState) {
-    super()
-    if (typeof idOrOpts === 'string') {
-      isAddress(idOrOpts)
-      this.address = idOrOpts
-      this.id = idOrOpts
-    } else {
-      isAddress(idOrOpts.address)
-      this.address = idOrOpts.address
-      this.id = idOrOpts.address
-      this.setState(idOrOpts)
-    }
-  }
-
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITokenState> {
     const query = gql`query tokenState {
       token(id: "${this.address.toLowerCase()}") {
@@ -136,9 +130,6 @@ export class Token extends Entity<ITokenState> {
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ITokenState>
   }
 
-  /*
-   * get a web3 contract instance for this token
-   */
   public contract() {
     const abi = this.context.getABI(undefined, `DAOToken`, DAOTOKEN_CONTRACT_VERSION)
     return this.context.getContract(this.address, abi)
