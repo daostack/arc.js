@@ -8,8 +8,6 @@ import { map } from 'rxjs/operators'
 import { DAO, IDAOQueryOptions } from './dao'
 import { GraphNodeObserver, IApolloQueryOptions } from './graphnode'
 export { IApolloQueryOptions } from './graphnode'
-import { Event, IEventQueryOptions } from './event'
-import { IPFSClient } from './ipfsClient'
 import { Logger } from './logger'
 import {
   ITransaction,
@@ -21,14 +19,13 @@ import {
 } from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
 import { IRewardQueryOptions, Reward } from './reward'
-import { ISchemeQueryOptions, Scheme } from './scheme'
-import { SchemeBase } from './schemes/base'
 import { ABI_DIR } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
+import { IPFSClient } from './ipfsClient'
 
 /**
  * The Arc class holds all configuration.

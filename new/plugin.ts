@@ -5,6 +5,7 @@ import { Arc } from './arc'
 import { Observable } from 'rxjs'
 import { createGraphQlQuery } from './utils'
 import Schemes from './plugins'
+import { DAO } from './dao'
 
 export interface IPluginState {
   id: string
@@ -39,6 +40,7 @@ export interface IPluginQueryOptions extends ICommonQueryOptions {
 
 export abstract class Plugin extends Entity<IPluginState> {
 
+  public abstract coreState: IPluginState
   public abstract getPermissions(): Permissions
 
   public static baseFragment = {

@@ -14,6 +14,7 @@ import { IVoteQueryOptions, Vote } from './vote'
 import { Stake, IStakeQueryOptions } from './stake'
 import { Queue } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
+import { DAO } from './dao'
 
 type ProposalTypeNames = keyof typeof Proposals
 

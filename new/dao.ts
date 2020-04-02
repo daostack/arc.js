@@ -15,6 +15,8 @@ import { IPluginQueryOptions, Plugin } from './plugin'
 import { ProposalPlugin } from './proposalPlugin'
 import { Reward, IRewardQueryOptions } from './reward'
 import { Reputation } from './reputation'
+import { Token } from './token'
+import { IMemberQueryOptions, Member } from './member'
 
 export interface IDAOState {
   id: Address,
@@ -152,7 +154,10 @@ export class DAO extends Entity<IDAOState> {
         entity: reputation
       },
       reputationTotalSupply: new BN(item.nativeReputation.totalSupply),
-      token,
+      token: {
+        id: item.nativeToken.id,
+        entity: token
+      },
       tokenName: item.nativeToken.name,
       tokenSymbol: item.nativeToken.symbol,
       tokenTotalSupply: item.nativeToken.totalSupply
@@ -178,7 +183,7 @@ export class DAO extends Entity<IDAOState> {
    * @returns an (Observable) that returns a Reputation instance
    */
   public nativeReputation(): Observable<Reputation> {
-    return this.state().pipe(first()).pipe(map((r) => r.reputation))
+    return this.state().pipe(first()).pipe(map((r) => r.reputation.entity))
   }
 
   //TODO: Does this search always yield Schemes that can create proposals? (ProposalPlugins)
@@ -214,12 +219,13 @@ export class DAO extends Entity<IDAOState> {
       // construct member with the reputationcontract address, if this is known
       // so it can make use of the apollo cache
       return new Member(this.context, {
+        id: address,
         address,
         contract: this.coreState.reputation.entity.address,
         reputation: this.coreState.reputationTotalSupply
       })
     } else {
-      return new Member(this.context, { address, dao: this.id, reputation: new BN(0)})
+      return new Member(this.context, { id: address, address, dao: this.id, reputation: new BN(0)})
     }
   }
 

@@ -18,7 +18,7 @@ export abstract class Entity<TEntityState extends IEntityState> {
   id: string
   name: string
   context: Arc
-  abstract coreState: TEntityState | undefined
+  coreState: TEntityState | undefined
 
   abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<TEntityState>
   

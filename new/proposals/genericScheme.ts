@@ -9,6 +9,7 @@ import { Plugin } from '../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
 import { IQueueState, Queue } from "../queue";
+import { DAO } from "../dao";
 
 interface IGenericSchemeProposalState extends IProposalState { 
   id: string
@@ -120,7 +121,10 @@ export class GenericSchemeProposal extends Proposal {
       closingAt: Number(item.closingAt),
       confidenceThreshold: Number(item.confidenceThreshold),
       createdAt: Number(item.createdAt),
-      dao,
+      dao: {
+        id: dao.id,
+        entity: dao
+      },
       description: item.description,
       descriptionHash: item.descriptionHash,
       downStakeNeededToQueue,
