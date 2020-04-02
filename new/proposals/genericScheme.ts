@@ -19,8 +19,17 @@ interface IGenericSchemeProposalState extends IProposalState {
   returnValue: string
 }
 
+// TODO: Scheme => Plugin
 export class GenericSchemeProposal extends Proposal {
 
+  /*
+    TODO:
+    const entity = new Entity()
+    const entityState = entity.fetchState()
+    const sub = entity.state().subscribe()
+    const current = entity.currentState
+    const current = entity.fetchState()
+  */
   coreState: IGenericSchemeProposalState
 
   constructor(

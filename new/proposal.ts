@@ -79,52 +79,57 @@ export interface IProposalBaseCreateOptions {
   tags?: string[]
   scheme?: Address
   url?: string
+  // TODO: try to remove this ('competition')
   proposalType?: ProposalTypeNames | 'competition'
 }
 
 export interface IProposalState {
+  // TODO: semantically order props
   id: string
   dao: IEntityRef<DAO>
   votingMachine: Address
-  accountsWithUnclaimedRewards: Address[],
-  boostedAt: Number
   scheme: IEntityRef<SchemeTypes>
-  confidenceThreshold: number
   closingAt: Number
   createdAt: Number
   descriptionHash?: string
   description?: string
-  downStakeNeededToQueue: BN
   executedAt: Number
-  executionState: IExecutionState
-  expiresInQueueAt: Number
-  genesisProtocolParams: IGenesisProtocolParams
   organizationId: string
   paramsHash: string
-  preBoostedAt: Number
   proposal: IEntityRef<Proposal>
   proposer: Address
-  queue: IEntityRef<Queue>
-  quietEndingPeriodBeganAt: Number
   resolvedAt: Number
-  stage: IProposalStage
-  stakesFor: BN
-  stakesAgainst: BN
   tags?: string[]
   title?: string
   totalRepWhenCreated: BN
   totalRepWhenExecuted: BN
-  upstakeNeededToPreBoost: BN
   url?: string
   votesFor: BN
   votesAgainst: BN
   votesCount: number
   voteOnBehalf: Address
   winningOutcome: IProposalOutcome
+
+  // Genesis Protocol Proposal
+  queue: IEntityRef<Queue>
+  quietEndingPeriodBeganAt: Number
+  stage: IProposalStage
+  accountsWithUnclaimedRewards: Address[]
+  boostedAt: Number
+  upstakeNeededToPreBoost: BN
+  stakesFor: BN
+  stakesAgainst: BN
+  preBoostedAt: Number
+  genesisProtocolParams: IGenesisProtocolParams
+  executionState: IExecutionState
+  expiresInQueueAt: Number
+  downStakeNeededToQueue: BN
+  confidenceThreshold: number
 }
 
 export abstract class Proposal extends Entity<IProposalState> {
 
+  // TODO: dynamically generate these from Proposals
   public static fragments = {
     ProposalFields: gql`fragment ProposalFields on Proposal {
       id
@@ -132,6 +137,19 @@ export abstract class Proposal extends Entity<IProposalState> {
       boostedAt
       closingAt
       confidenceThreshold
+      createdAt
+      dao {
+        id
+        schemes {
+          id
+          address
+        }
+      }
+      description
+      descriptionHash
+      executedAt
+      executionState
+      expiresInQueueAt
       competition {
         id
         admin
@@ -169,19 +187,6 @@ export abstract class Proposal extends Entity<IProposalState> {
         alreadyRedeemedNativeTokenPeriods
         alreadyRedeemedEthPeriods
       }
-      createdAt
-      dao {
-        id
-        schemes {
-          id
-          address
-        }
-      }
-      description
-      descriptionHash
-      executedAt
-      executionState
-      expiresInQueueAt
       genericScheme {
         id
         contractToCall

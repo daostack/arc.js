@@ -30,7 +30,6 @@ export interface IDAOState {
   memberCount: number,
   reputationTotalSupply: BN,
   tokenTotalSupply: BN,
-  dao?: IEntityRef<DAO>,
   numberOfQueuedProposals: number,
   numberOfPreBoostedProposals: number,
   numberOfBoostedProposals: number
@@ -130,10 +129,6 @@ export class DAO extends Entity<IDAOState> {
     const token = new Token(context, item.nativeToken.id)
     return new DAO(context, {
       address: item.id,
-      dao: {
-        id: item.id,
-        entity: new DAO(context, item.id)
-      },
       id: item.id,
       memberCount: Number(item.reputationHoldersCount),
       name: item.name,
@@ -178,7 +173,7 @@ export class DAO extends Entity<IDAOState> {
     return this.context.ethBalance(this.id)
   }
 
-  //TODO: Does this search always yield Schemes that can create proposals? (ProposalPlugins)
+  // TODO: Does this search always yield Schemes that can create proposals? (ProposalPlugins)
   public schemes(
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
@@ -187,6 +182,11 @@ export class DAO extends Entity<IDAOState> {
     options.where.dao = this.id
     return Plugin.search(this.context, options, apolloQueryOptions) as Observable<ProposalPlugin[]>
   }
+
+  /* TODO
+  public proposalSchemes() {
+    return ProposalPlugin.search()
+  }*/
 
   public async scheme(options: IPluginQueryOptions): Promise<ProposalPlugin> {
     const schemes = await this.schemes(options).pipe(first()).toPromise()
@@ -214,10 +214,16 @@ export class DAO extends Entity<IDAOState> {
         id: address,
         address,
         contract: this.coreState.reputation.entity.address,
+        dao: this.id,
         reputation: this.coreState.reputationTotalSupply
       })
     } else {
-      return new Member(this.context, { id: address, address, dao: this.id, reputation: new BN(0)})
+      return new Member(this.context, {
+        id: address,
+        address,
+        dao: this.id,
+        reputation: new BN(0)
+      })
     }
   }
 

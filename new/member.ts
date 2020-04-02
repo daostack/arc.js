@@ -15,10 +15,11 @@ import { IVoteQueryOptions, Vote } from './vote'
 import { Entity } from './entity'
 
 export interface IMemberState {
-  address: Address,
-  dao?: Address
-  contract?: Address
   id: string
+  address: Address
+  contract?: Address
+  // TODO: IEntityRef<DAO>
+  dao: Address
   reputation: BN
 }
 
@@ -224,15 +225,12 @@ export class Member extends Entity<IMemberState> {
 
   public setState(opts: IMemberState) {
     isAddress(opts.address)
-    if (!opts.id && opts.contract && opts.address) {
-      opts.id = Member.calculateId({ contract: opts.contract, address: opts.address})
-    }
-    this.id = opts.id
+    this.id = Member.calculateId({ contract: opts.contract, address: opts.address})
     this.coreState = {
+      id: this.id,
       address: opts.address.toLowerCase(),
       contract: opts.contract && opts.contract.toLowerCase(),
       dao: opts.dao && opts.dao.toLowerCase(),
-      id: opts.id,
       reputation: opts.reputation
     }
     return this.coreState
