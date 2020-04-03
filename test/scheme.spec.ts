@@ -3,7 +3,7 @@ import { Arc } from '../src/arc'
 import { IProposalStage } from '../src/proposal'
 import { ISchemeState, Scheme } from '../src/scheme'
 import { SchemeBase } from '../src/schemes/base'
-import { firstResult, getTestAddresses, getTestDAO,  ITestAddresses, newArc } from './utils'
+import { firstResult, getTestAddresses, getTestDAO, getTestScheme, ITestAddresses, newArc } from './utils'
 
 jest.setTimeout(20000)
 
@@ -17,7 +17,7 @@ describe('Scheme', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = await getTestAddresses(arc)
+    testAddresses = await getTestAddresses()
   })
 
   it('Scheme is instantiable', () => {
@@ -84,7 +84,7 @@ describe('Scheme', () => {
     const scheme = result[0]
     const state = await scheme.fetchState()
     expect(state).toMatchObject({
-      address: testAddresses.base.ContributionReward.toLowerCase(),
+      address: getTestScheme("ContributionReward").toLowerCase(),
       id: scheme.id,
       name: 'ContributionReward'
     })
@@ -100,7 +100,7 @@ describe('Scheme', () => {
     const scheme = result[0]
     const state = await scheme.fetchState()
     expect(state).toMatchObject({
-      address: testAddresses.base.SchemeRegistrar.toLowerCase(),
+      address: getTestScheme("SchemeRegistrar").toLowerCase(),
       id: scheme.id,
       name: 'SchemeRegistrar'
     })
@@ -123,7 +123,7 @@ describe('Scheme', () => {
   })
 
   it('state() should be equal to proposal.state().scheme', async () => {
-    const { queuedProposalId } = testAddresses.test
+    const { queuedProposalId } = testAddresses
     const dao = await getTestDAO()
     const proposal = await dao.proposal(queuedProposalId)
     const proposalState = await proposal.fetchState()
@@ -133,7 +133,7 @@ describe('Scheme', () => {
   })
 
   it('numberOfProposals counts are correct', async () =>  {
-    const { queuedProposalId } = testAddresses.test
+    const { queuedProposalId } = testAddresses
     const dao = await getTestDAO()
     const proposal = await dao.proposal(queuedProposalId)
     const proposalState = await proposal.fetchState()

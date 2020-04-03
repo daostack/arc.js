@@ -14,6 +14,7 @@ import BN = require('bn.js')
 import { createAProposal,
   fromWei,
   getTestAddresses,
+  getTestScheme,
   ITestAddresses,
   newArc,
   toWei,
@@ -36,9 +37,9 @@ describe('Proposal', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = await getTestAddresses(arc)
-    const { Avatar, executedProposalId, queuedProposalId, preBoostedProposalId } = addresses.test
-    dao = arc.dao(Avatar.toLowerCase())
+    addresses = await getTestAddresses()
+    const { executedProposalId, queuedProposalId, preBoostedProposalId } = addresses
+    dao = arc.dao(addresses.dao.Avatar.toLowerCase())
     // check if the executedProposalId indeed has the correct state
     executedProposal = await dao.proposal(executedProposalId)
     queuedProposal = await dao.proposal(queuedProposalId)
@@ -166,7 +167,7 @@ describe('Proposal', () => {
       periodLength: 0,
       periods: 1,
       reputationReward: toWei('10'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      scheme: getTestScheme("ContributionReward")
     }
 
     const response = await (dao as DAO).createProposal(options as IProposalCreateOptions).send()

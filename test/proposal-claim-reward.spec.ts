@@ -4,7 +4,7 @@ import { DAO } from '../src/dao'
 import { IProposalOutcome, IProposalStage, IProposalState, Proposal } from '../src/proposal'
 
 import BN = require('bn.js')
-import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION, newArc,
+import { createAProposal, firstResult, getTestAddresses, getTestDAO, getTestScheme, ITestAddresses, LATEST_ARC_VERSION, newArc,
   toWei, voteToPassProposal, waitUntilTrue } from './utils'
 import { BigNumber } from 'ethers/utils'
 import { Contract, ethers } from 'ethers'
@@ -18,7 +18,7 @@ describe('Claim rewards', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = getTestAddresses(arc)
+    testAddresses = getTestAddresses()
     dao = await getTestDAO()
   })
 
@@ -53,7 +53,7 @@ describe('Claim rewards', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward,
       reputationReward,
-      scheme: testAddresses.base.ContributionReward
+      scheme: getTestScheme("ContributionReward")
     }
 
     const response = await dao.createProposal(options).send()
@@ -97,21 +97,21 @@ describe('Claim rewards', () => {
 
   it('works for external token', async () => {
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    const externalTokenAddress = testAddresses.base.GEN
     const externalTokenReward = new BN(12345)
 
-    await arc.GENToken().transfer(dao.id, externalTokenReward).send()
+    const gen = arc.GENToken()
+    await gen.transfer(dao.id, externalTokenReward).send()
     const daoBalance =  await firstResult(arc.GENToken().balanceOf(dao.id))
     expect(Number(daoBalance.toString())).toBeGreaterThanOrEqual(Number(externalTokenReward.toString()))
     const options = {
       beneficiary,
       dao: dao.id,
       ethReward: new BN(0),
-      externalTokenAddress,
+      externalTokenAddress: gen.address,
       externalTokenReward,
       nativeTokenReward: new BN(0),
       reputationReward: new BN(0),
-      scheme: testAddresses.base.ContributionReward
+      scheme: getTestScheme("ContributionReward")
     }
 
     const response = await dao.createProposal(options).send()
@@ -143,13 +143,13 @@ describe('Claim rewards', () => {
   })
 
   it('redeemRewards should also work for expired proposals', async () => {
-     const proposal: Proposal = await arc.proposal(testAddresses.test.queuedProposalId)
+     const proposal: Proposal = await arc.proposal(testAddresses.queuedProposalId)
      await proposal.redeemRewards().send()
   })
 
   it('works with non-CR proposal', async () => {
 
-    testAddresses = getTestAddresses(arc)
+    testAddresses = getTestAddresses()
     const genericSchemes = await arc.schemes({where: {name: "GenericScheme", LATEST_ARC_VERSION}}).pipe(first()).toPromise()
     const genericScheme = genericSchemes[0]
     const genericSchemeState = await genericScheme.state().pipe(first()).toPromise()
@@ -162,7 +162,7 @@ describe('Claim rewards', () => {
 
     if(!arc.web3) throw new Error("Web3 provider not set")
 
-    const actionMock = new Contract(testAddresses.test.ActionMock.toString(), actionMockABI, arc.web3.getSigner())
+    const actionMock = new Contract(testAddresses.organs.ActionMock, actionMockABI, arc.web3.getSigner())
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
     const proposal = await createAProposal(dao, {

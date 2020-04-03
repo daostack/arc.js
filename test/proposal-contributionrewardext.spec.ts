@@ -26,7 +26,7 @@ describe('ContributionReward Ext', () => {
     // contract in our test environment that is not a Competition scheme..
 
     // we'll get a `ContributionRewardExt` contract
-    const ARC_VERSION = '0.0.1-rc.36'
+    // TODO-J
     const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
     // find the corresponding scheme object
     const contributionRewardExts = await arc

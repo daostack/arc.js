@@ -5,6 +5,7 @@ import { IProposalStage, Proposal } from '../src/proposal'
 import { fromWei,
   getTestAddresses,
   getTestDAO,
+  getTestScheme,
   newArc,
   newArcWithoutGraphql,
   toWei,
@@ -121,7 +122,7 @@ describe('DAO', () => {
 
   it('dao.proposal() should work', async () => {
     const dao = await getTestDAO()
-    const proposal = await dao.proposal(getTestAddresses(arc).test.executedProposalId)
+    const proposal = await dao.proposal(getTestAddresses().executedProposalId)
     expect(proposal).toBeInstanceOf(Proposal)
   })
 
@@ -156,7 +157,7 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      scheme: getTestScheme("ContributionReward")
     }
 
     const response = await dao.createProposal(options).send()
@@ -183,7 +184,7 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      scheme: getTestScheme("ContributionReward")
     }
 
     await dao.createProposal(options).send()

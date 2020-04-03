@@ -16,9 +16,9 @@ describe('Proposal execute()', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = await getTestAddresses(arc)
+    addresses = await getTestAddresses()
     dao = await getTestDAO()
-    executedProposal = await dao.proposal(addresses.test.executedProposalId)
+    executedProposal = await dao.proposal(addresses.executedProposalId)
   })
 
   it('runs correctly through the stages', async () => {

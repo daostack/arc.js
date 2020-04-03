@@ -14,6 +14,7 @@ describe('Scheme', () => {
     arc = await newArc()
   })
 
+  // TODO-J
   it('version 0.0.1-rc.32', async () => {
     const schemeContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.32')
     const schemes = await arc.schemes({ where: {address: schemeContractInfo.address}})
@@ -29,6 +30,7 @@ describe('Scheme', () => {
     // TODO: the transaction reverts, for erasons to check :-/
     expect(redemptionPromise).rejects.toThrow()
   })
+  // TODO-J
   it('version 0.0.1-rc.34', async () => {
     const schemeContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.34')
     const schemes = await arc.schemes({ where: {address: schemeContractInfo.address}})
@@ -56,6 +58,7 @@ describe('Scheme', () => {
    })
 
   it('getAgreementHash works', async () => {
+    // TODO-J
     const schemeContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.34')
     const schemes = await arc.schemes({ where: {address: schemeContractInfo.address}})
       .pipe(first()).toPromise()

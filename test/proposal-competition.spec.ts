@@ -61,7 +61,7 @@ describe('Competition Proposal', () => {
     arc = await newArc()
     // we'll get a `ContributionRewardExt` contract
     // find the corresponding scheme object
-    const ARC_VERSION = '0.0.1-rc.40'
+    // TODO-J
     const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
     const contributionRewardExtAddres = contributionRewardExtContract.address.toLowerCase()
     const contributionRewardExts = await arc

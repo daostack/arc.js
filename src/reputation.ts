@@ -5,7 +5,6 @@ import { Observable } from 'rxjs'
 import { first, map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { ITransactionReceipt, Operation } from './operation'
-import { REPUTATION_CONTRACT_VERSION } from './settings'
 import { Address, ICommonQueryOptions, IStateful } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 
@@ -125,7 +124,7 @@ export class Reputation implements IStateful<IReputationState> {
    * get a web3 contract instance for this token
    */
   public contract() {
-    const abi = this.context.getABI(undefined, 'Reputation', REPUTATION_CONTRACT_VERSION)
+    const abi = this.context.getABI(undefined, 'Reputation')
     return this.context.getContract(this.address, abi)
   }
 

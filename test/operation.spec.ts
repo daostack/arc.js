@@ -1,6 +1,6 @@
 import { ITransactionState, ITransactionUpdate } from '../src/operation'
 import { Proposal } from '../src/proposal'
-import { getTestAddresses, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
+import { getTestDAO, getTestScheme, mineANewBlock, toWei, waitUntilTrue } from './utils'
 
 jest.setTimeout(20000)
 
@@ -16,7 +16,7 @@ describe('Operation', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      scheme: getTestScheme("ContributionReward")
     }
 
     // collect the first 4 results of the observable in a a listOfUpdates array

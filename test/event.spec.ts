@@ -1,6 +1,6 @@
 import { first } from 'rxjs/operators'
 import { Arc, DAO, Event, IEventState, Proposal } from '../src'
-import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei, waitUntilTrue } from './utils'
+import { getTestAddresses, getTestDAO, getTestScheme, ITestAddresses, newArc, toWei, waitUntilTrue } from './utils'
 
 jest.setTimeout(20000)
 
@@ -15,7 +15,7 @@ describe('Event', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = getTestAddresses(arc)
+    testAddresses = getTestAddresses()
     dao = await getTestDAO()
   })
 
@@ -36,7 +36,7 @@ describe('Event', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: testAddresses.base.ContributionReward,
+      scheme: getTestScheme("ContributionReward"),
       title: 'a-title'
     }).send()
     const proposal = state.result as Proposal

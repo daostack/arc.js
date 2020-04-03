@@ -898,6 +898,7 @@ export function getCompetitionContract(arc: Arc, schemeState: ISchemeState) {
   return contract
 }
 
+// TODO-J
 export function isCompetitionScheme(arc: Arc, item: any) {
   if (item.contributionRewardExtParams) {
     const contractInfo = arc.getContractInfo(item.contributionRewardExtParams.rewarder)

@@ -130,7 +130,7 @@ export class Token implements IStateful<ITokenState> {
    * get a web3 contract instance for this token
    */
   public contract() {
-    const abi = this.context.getABI(undefined, `DAOToken`, DAOTOKEN_CONTRACT_VERSION)
+    const abi = this.context.getABI(undefined, `DAOToken`)
     return this.context.getContract(this.address, abi)
   }
 

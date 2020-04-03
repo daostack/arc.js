@@ -21,7 +21,7 @@ describe('Proposal', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = getTestAddresses(arc)
+    testAddresses = getTestAddresses()
   })
 
   it('Check proposal state is correct', async () => {
@@ -37,7 +37,7 @@ describe('Proposal', () => {
 
     if(!arc.web3) throw new Error('Web3 provider not set')
 
-    const actionMock = new Contract(testAddresses.test.ActionMock.toString(), actionMockABI, arc.web3.getSigner())
+    const actionMock = new Contract(testAddresses.organs.ActionMock.toString(), actionMockABI, arc.web3.getSigner())
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
     const schemes = await dao.schemes({ where: {name: 'GenericScheme' }}).pipe(first()).toPromise()

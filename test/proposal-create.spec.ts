@@ -8,6 +8,7 @@ import {
   fromWei,
   getTestAddresses,
   getTestDAO,
+  getTestScheme,
   ITestAddresses,
   newArc,
   toWei,
@@ -27,7 +28,7 @@ describe('Create a ContributionReward proposal', () => {
     if (!arc.web3) throw new Error('Web3 provider not set')
     accounts = await arc.web3.listAccounts()
     arc.defaultAccount = accounts[0]
-    testAddresses = getTestAddresses(arc)
+    testAddresses = getTestAddresses()
     dao = await getTestDAO()
   })
 
@@ -40,7 +41,7 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: testAddresses.base.ContributionReward
+      scheme: getTestScheme("ContributionReward")
     }
 
     const response = await dao.createProposal(options).send()
@@ -93,7 +94,7 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: testAddresses.base.ContributionReward,
+      scheme: getTestScheme("ContributionReward"),
       title: 'A modest proposal',
       url: 'http://swift.org/modest'
     }
@@ -128,7 +129,7 @@ describe('Create a ContributionReward proposal', () => {
   it('handles the fact that the ipfs url is not set elegantly', async () => {
     const arcWithoutIPFS = await newArc()
     arcWithoutIPFS.ipfsProvider = ''
-    const contractAddresses = await getTestAddresses(arc)
+    const contractAddresses = await getTestAddresses()
     const anotherDAO = arcWithoutIPFS.dao(contractAddresses.dao.Avatar)
     const options = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
@@ -137,7 +138,7 @@ describe('Create a ContributionReward proposal', () => {
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       nativeTokenReward: toWei('1'),
-      scheme: testAddresses.base.ContributionReward,
+      scheme: getTestScheme("ContributionReward"),
       title: 'A modest proposal',
       url: 'http://swift.org/modest'
     }

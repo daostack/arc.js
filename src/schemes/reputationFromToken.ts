@@ -29,6 +29,7 @@ export class ReputationFromTokenScheme {
       const contract = await this.getContract()
       const contractInfo = this.scheme.context.getContractInfo(contract.address)
       const contractVersion = contractInfo.version
+      // TODO-J
       const versionNumber = Number(contractVersion.split('rc.')[1])
       if (versionNumber <= 32) {
         return {
