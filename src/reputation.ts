@@ -124,8 +124,7 @@ export class Reputation implements IStateful<IReputationState> {
    * get a web3 contract instance for this token
    */
   public contract() {
-    const abi = this.context.getABI(undefined, 'Reputation')
-    return this.context.getContract(this.address, abi)
+    return this.context.getContract(this.address)
   }
 
   public mint(beneficiary: Address, amount: BN): Operation<undefined> {

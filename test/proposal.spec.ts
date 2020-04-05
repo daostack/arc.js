@@ -297,6 +297,7 @@ describe('Proposal', () => {
     const proposal = await createAProposal()
     // vote with several accounts
     await voteToPassProposal(proposal)
+    await new Promise((resolve) => setTimeout(() => resolve(), 1000))
     const votes = await proposal.votes({}, { fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     expect(votes.length).toBeGreaterThanOrEqual(1)
     // @ts-ignore

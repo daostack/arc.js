@@ -342,6 +342,7 @@ export class Scheme extends SchemeBase  {
             const opts = options as GenericScheme.IProposalCreateOptionsGS
             transaction = await GenericScheme.createProposalTransaction(this.context, opts)
             map = GenericScheme.createProposalTransactionMap(this.context, opts)
+            break
           }
           case 'SchemeRegistrar': {
             const opts = options as SchemeRegistrar.IProposalCreateOptionsSR

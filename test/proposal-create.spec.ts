@@ -9,7 +9,6 @@ import {
   getTestAddresses,
   getTestDAO,
   getTestScheme,
-  ITestAddresses,
   newArc,
   toWei,
   waitUntilTrue
@@ -20,7 +19,6 @@ jest.setTimeout(20000)
 describe('Create a ContributionReward proposal', () => {
   let arc: Arc
   let accounts: string[]
-  let testAddresses: ITestAddresses
   let dao: DAO
 
   beforeAll(async () => {
@@ -28,7 +26,6 @@ describe('Create a ContributionReward proposal', () => {
     if (!arc.web3) throw new Error('Web3 provider not set')
     accounts = await arc.web3.listAccounts()
     arc.defaultAccount = accounts[0]
-    testAddresses = getTestAddresses()
     dao = await getTestDAO()
   })
 

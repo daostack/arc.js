@@ -18,7 +18,6 @@ export interface ISchemeRegistrar {
 }
 
 export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
-  parametersHash?: string
   permissions?: string
   schemeToRegister?: Address
 }
@@ -35,14 +34,11 @@ export async function createProposalTransaction(
 ): Promise<ITransaction> {
   let msg: string
   switch (options.proposalType) {
+    // TODO-J
     case IProposalType.SchemeRegistrarAdd:
     case IProposalType.SchemeRegistrarEdit:
       if (options.scheme === undefined) {
         msg = `Missing argument "scheme" for SchemeRegistrar in Proposal.create()`
-        throw Error(msg)
-      }
-      if (options.parametersHash === undefined) {
-        msg = `Missing argument "parametersHash" for SchemeRegistrar in Proposal.create()`
         throw Error(msg)
       }
       if (options.permissions === undefined) {
@@ -56,9 +52,7 @@ export async function createProposalTransaction(
         contract: context.getContract(options.scheme),
         method: 'proposeScheme',
         args: [
-          options.dao,
           options.schemeToRegister,
-          options.parametersHash,
           options.permissions,
           options.descriptionHash
         ]
@@ -75,13 +69,12 @@ export async function createProposalTransaction(
         contract: context.getContract(options.scheme),
         method: 'proposeToRemoveScheme',
         args: [
-          options.dao,
           options.schemeToRegister,
           options.descriptionHash
         ]
       }
   }
-  throw Error('For a schemeregistrar proposal, you must specifcy proposal.proposalType')
+  throw Error('For a schemeregistrar proposal, you must specify proposal.proposalType')
 }
 
 export function createTransactionMap(context: Arc, options: IProposalCreateOptionsSR) {

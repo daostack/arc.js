@@ -23,29 +23,13 @@ export class ReputationFromTokenScheme {
     return result
   }
 
-  public redeem(beneficiary: Address, agreementHash?: string): Operation<undefined> {
+  public redeem(beneficiary: Address): Operation<undefined> {
 
     const createTransaction = async (): Promise<ITransaction> => {
-      const contract = await this.getContract()
-      const contractInfo = this.scheme.context.getContractInfo(contract.address)
-      const contractVersion = contractInfo.version
-      // TODO-J
-      const versionNumber = Number(contractVersion.split('rc.')[1])
-      if (versionNumber <= 32) {
-        return {
-          contract,
-          method: 'redeem',
-          args: [ beneficiary ]
-        }
-      } else {
-        if (!agreementHash) {
-          throw Error(`For ReputationForToken version > rc.32, an "agreementHash" argument must be provided`)
-        }
-        return {
-          contract,
-          method: 'redeem',
-          args: [ beneficiary, agreementHash ]
-        }
+      return {
+        contract: await this.getContract(),
+        method: 'redeem',
+        args: [ beneficiary ]
       }
     }
 
@@ -63,5 +47,4 @@ export class ReputationFromTokenScheme {
     const contract = this.scheme.context.getContract(state.address)
     return contract
   }
-
 }

@@ -51,8 +51,7 @@ describe('Scheme', () => {
     }))
     expect((schemeStates.map((r) => r.name)).sort()).toEqual([
       'ContributionReward',
-      'ControllerCreator',
-      'DaoCreator',
+      'DAOFactoryInstance',
       'GenericScheme',
       'SchemeRegistrar'
     ].sort())

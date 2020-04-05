@@ -6,6 +6,7 @@ import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IProposalOutcome } from '../src/proposal'
 import { Reputation } from '../src/reputation'
+import { LATEST_ARC_VERSION } from '../src/settings'
 import { Address } from '../src/types'
 import { JsonRpcProvider } from 'ethers/providers'
 import { utils } from 'ethers'
@@ -16,8 +17,7 @@ export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/d
 export const web3Provider: string = 'http://127.0.0.1:8545'
 export const ipfsProvider: string = 'http://127.0.0.1:5001/api/v0'
 
-// TODO-J
-export const LATEST_ARC_VERSION = '0.1.1-rc.11'
+export { LATEST_ARC_VERSION }
 
 export { BN }
 
@@ -62,13 +62,7 @@ export interface ITestAddresses {
 }
 
 export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAddresses {
-  console.log(require('@daostack/test-env-experimental/daos.json').demo[version])
-  const { dao } = require('@daostack/test-env-experimental/daos.json').demo[version]
-
-  const addresses = {
-    ...dao
-  }
-  return addresses
+  return require('@daostack/test-env-experimental/daos.json').demo[version]
 }
 
 export function getTestScheme(name: string): Address {
@@ -174,7 +168,7 @@ export async function createAProposal(
 
 export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
-  const addresses = getTestAddresses( version)
+  const addresses = getTestAddresses(version)
   const token = new Reputation(arc, addresses.organs.DemoReputation)
   if (!arc.web3) throw new Error('Web3 provider not set')
   const accounts = await arc.web3.listAccounts()
@@ -244,11 +238,11 @@ export async function firstResult(observable: Observable<any>) {
 export function getContractAddressesFromMigration(environment: 'private'|'rinkeby'|'mainnet'): IContractInfo[] {
   const migration = require('@daostack/migration-experimental/migration.json')[environment]
   const contracts: IContractInfo[] = []
-  for (const version of Object.keys(migration.base)) {
-    for (const name of Object.keys(migration.base[version])) {
+  for (const version of Object.keys(migration.package)) {
+    for (const name of Object.keys(migration.package[version])) {
       contracts.push({
-        address: migration.base[version][name].toLowerCase(),
-        id: migration.base[version][name],
+        address: migration.package[version][name].toLowerCase(),
+        id: migration.package[version][name],
         name,
         version
       })

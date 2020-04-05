@@ -57,7 +57,6 @@ export async function createProposalTransaction(
     contract: context.getContract(options.scheme),
     method: 'proposeContributionReward',
     args: [
-      options.dao,
       options.descriptionHash || '',
       options.reputationReward && options.reputationReward.toString() || 0,
       [

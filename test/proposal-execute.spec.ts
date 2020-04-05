@@ -110,9 +110,7 @@ describe('Proposal execute()', () => {
       // executedProposal.votingMachineAddress,
     )
     await expect(proposal.execute().send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/no proposal/i*/
+      /no proposal/i
     )
   })
 
@@ -143,9 +141,7 @@ describe('Proposal execute()', () => {
 
     /// with the last (winning) vote, the proposal is already executed
     await expect(proposal.execute().send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/already executed/i*/
+      /already executed/i
     )
 
     // check the state

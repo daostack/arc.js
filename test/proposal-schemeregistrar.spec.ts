@@ -7,7 +7,7 @@ import {
   } from '../src/proposal'
 import { Scheme } from '../src/scheme'
 import { ISchemeRegistrar } from '../src/schemes/schemeRegistrar'
-import { createAProposal, firstResult, getTestAddresses, getTestDAO, getTestScheme,
+import { createAProposal, firstResult, getTestDAO, getTestScheme,
   newArc, voteToPassProposal, waitUntilTrue } from './utils'
 import { Wallet } from 'ethers'
 

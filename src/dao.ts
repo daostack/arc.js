@@ -282,6 +282,10 @@ export class DAO implements IStateful<IDAOState> {
     return toIOperationObservable(observable)
   }
 
+  public getAvatarContract() {
+    return this.context.getContract(this.id)
+  }
+
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
@@ -329,7 +333,8 @@ export class DAO implements IStateful<IDAOState> {
    *
    * @return an observable stream of BN number instances
    */
-  public ethBalance(): Observable<BN> {
-    return this.context.ethBalance(this.id)
+  public async ethBalance(): Promise<Observable<BN>> {
+    const avatar = this.getAvatarContract()
+    return this.context.ethBalance(await avatar.vault())
   }
 }

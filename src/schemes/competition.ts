@@ -898,14 +898,9 @@ export function getCompetitionContract(arc: Arc, schemeState: ISchemeState) {
   return contract
 }
 
-// TODO-J
 export function isCompetitionScheme(arc: Arc, item: any) {
   if (item.contributionRewardExtParams) {
     const contractInfo = arc.getContractInfo(item.contributionRewardExtParams.rewarder)
-    const versionNumber = Number(contractInfo.version.split('rc.')[1])
-    if (versionNumber < 39) {
-      throw Error(`Competition contracts of version < 0.0.1-rc.39 are not supported`)
-    }
     return contractInfo.name === 'Competition'
   } else {
     return false

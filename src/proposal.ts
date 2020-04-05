@@ -816,22 +816,16 @@ export class Proposal implements IStateful<IProposalState> {
       let args
       if (state.scheme.name === 'ContributionRewardExt') {
         method = 'redeemFromCRExt'
-        args = [
-          schemeAddress, // contributionreward address
-          state.votingMachine, // genesisProtocol address
-          this.id,
-          beneficiary
-        ]
       } else {
         method = 'redeem'
-        args = [
-          schemeAddress, // contributionreward address
-          state.votingMachine, // genesisProtocol address
-          this.id,
-          state.dao.id,
-          beneficiary
-        ]
       }
+
+      args = [
+        schemeAddress, // contributionreward address
+        state.votingMachine, // genesisProtocol address
+        this.id,
+        beneficiary
+      ]
 
       return {
         contract: this.redeemerContract(),

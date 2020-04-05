@@ -69,11 +69,5 @@ describe('Proposal', () => {
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Executed
     })
-    // TODO: check why this fails
-    // expect(lastState().genericScheme).toMatchObject({
-    //   callData,
-    //   executed: true,
-    //   returnValue: '0x'
-    // })
   })
 })

@@ -40,7 +40,7 @@ describe('Claim rewards', () => {
       value: new BigNumber(ethReward.toString()).toHexString()
     })
 
-    const daoBalance = await arc.web3.getBalance(dao.id)
+    const daoBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     const daoEthBalance = new BN(daoBalance.toString())
     expect(Number(daoEthBalance.toString())).toBeGreaterThanOrEqual(Number(ethReward.toString()))
@@ -150,7 +150,7 @@ describe('Claim rewards', () => {
   it('works with non-CR proposal', async () => {
 
     testAddresses = getTestAddresses()
-    const genericSchemes = await arc.schemes({where: {name: "GenericScheme", LATEST_ARC_VERSION}}).pipe(first()).toPromise()
+    const genericSchemes = await arc.schemes({where: {name: "GenericScheme" }}).pipe(first()).toPromise()
     const genericScheme = genericSchemes[0]
     const genericSchemeState = await genericScheme.state().pipe(first()).toPromise()
     dao  = new DAO(arc, genericSchemeState.dao)
@@ -168,7 +168,7 @@ describe('Claim rewards', () => {
     const proposal = await createAProposal(dao, {
       callData,
       scheme: genericSchemeState.address,
-      schemeToRegister: actionMock.options.address,
+      contractToCall: actionMock.address,
       value: 0
     })
 

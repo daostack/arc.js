@@ -12,6 +12,7 @@ import { fromWei,
   waitUntilTrue
 } from './utils'
 import { BigNumber } from 'ethers/utils'
+import { IProposalCreateOptionsCR } from '../src/schemes/contributionReward'
 
 jest.setTimeout(20000)
 
@@ -149,7 +150,7 @@ describe('DAO', () => {
 
   it('createProposal should work', async () => {
     const dao = await getTestDAO(arc)
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       ethReward: toWei('300'),
@@ -201,10 +202,9 @@ describe('DAO', () => {
 
   it('dao.ethBalance() should work', async () => {
     const dao = await getTestDAO()
-    const previousBalance = await dao.ethBalance().pipe(first()).toPromise()
+    const previousBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     if(!arc.web3) throw new Error("Web3 provider not set")
-    //const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
 
     await arc.web3.getSigner().sendTransaction({
       gasLimit: 4000000,
@@ -212,7 +212,8 @@ describe('DAO', () => {
       to: dao.id,
       value: new BigNumber(toWei('1').toString()).toHexString()
     })
-    const newBalance = await dao.ethBalance().pipe(first()).toPromise()
+
+    const newBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     expect(Number(fromWei(newBalance.sub(previousBalance)))).toBe(1)
   })

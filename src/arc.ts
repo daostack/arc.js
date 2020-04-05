@@ -4,7 +4,6 @@ import { JsonRpcProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
-import { map } from 'rxjs/operators'
 import { DAO, IDAOQueryOptions } from './dao'
 import { GraphNodeObserver, IApolloQueryOptions } from './graphnode'
 export { IApolloQueryOptions } from './graphnode'
@@ -211,7 +210,7 @@ export class Arc extends GraphNodeObserver {
       return this.observedAccounts[owner].observable as Observable<BN>
     }
 
-    const observable = Observable.create((observer: Observer<BN>) => {
+    const observable: Observable<BN> = Observable.create((observer: Observer<BN>) => {
       this.observedAccounts[owner].observer = observer
 
       // get the current balance and return it
@@ -252,7 +251,6 @@ export class Arc extends GraphNodeObserver {
 
     this.observedAccounts[owner].observable = observable
     return observable
-      .pipe(map((item: BN) => item))
   }
 
   /**
@@ -291,7 +289,7 @@ export class Arc extends GraphNodeObserver {
       abiName = contractInfo.name
       version = contractInfo.version
       if (abiName === 'GEN') {
-        abiName = 'ERC20'
+        abiName = 'DAOToken'
       }
     }
 
