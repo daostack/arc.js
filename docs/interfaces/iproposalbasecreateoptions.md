@@ -14,8 +14,6 @@
 
   ↳ [IProposalCreateOptionsGS](iproposalcreateoptionsgs.md)
 
-  ↳ [IProposalCreateOptionsGS](iproposalcreateoptionsgs.md)
-
   ↳ [IProposalCreateOptionsSR](iproposalcreateoptionssr.md)
 
 ## Index
@@ -37,7 +35,7 @@
 
 • **dao**: *[Address](../globals.md#address)*
 
-*Defined in [src/proposal.ts:954](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L954)*
+*Defined in [src/proposal.ts:954](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L954)*
 
 ___
 
@@ -45,7 +43,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [src/proposal.ts:955](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L955)*
+*Defined in [src/proposal.ts:955](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L955)*
 
 ___
 
@@ -53,7 +51,7 @@ ___
 
 • **descriptionHash**? : *undefined | string*
 
-*Defined in [src/proposal.ts:956](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L956)*
+*Defined in [src/proposal.ts:956](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L956)*
 
 ___
 
@@ -61,7 +59,7 @@ ___
 
 • **proposalType**? : *[IProposalType](../globals.md#const-iproposaltype) | "competition"*
 
-*Defined in [src/proposal.ts:961](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L961)*
+*Defined in [src/proposal.ts:961](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L961)*
 
 ___
 
@@ -69,7 +67,7 @@ ___
 
 • **scheme**? : *[Address](../globals.md#address)*
 
-*Defined in [src/proposal.ts:959](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L959)*
+*Defined in [src/proposal.ts:959](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L959)*
 
 ___
 
@@ -77,7 +75,7 @@ ___
 
 • **tags**? : *string[]*
 
-*Defined in [src/proposal.ts:958](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L958)*
+*Defined in [src/proposal.ts:958](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L958)*
 
 ___
 
@@ -85,7 +83,7 @@ ___
 
 • **title**? : *undefined | string*
 
-*Defined in [src/proposal.ts:957](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L957)*
+*Defined in [src/proposal.ts:957](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L957)*
 
 ___
 
@@ -93,4 +91,4 @@ ___
 
 • **url**? : *undefined | string*
 
-*Defined in [src/proposal.ts:960](https://github.com/daostack/client/blob/ca3cbac/src/proposal.ts#L960)*
+*Defined in [src/proposal.ts:960](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L960)*

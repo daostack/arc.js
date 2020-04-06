@@ -60,12 +60,8 @@ describe('Competition Proposal', () => {
   beforeAll(async () => {
     arc = await newArc()
     // we'll get a `ContributionRewardExt` contract
-    // find the corresponding scheme object
-    const ARC_VERSION = '0.0.1-rc.40'
-    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
-    const contributionRewardExtAddres = contributionRewardExtContract.address.toLowerCase()
     const contributionRewardExts = await arc
-      .schemes({ where: { address: contributionRewardExtAddres } }).pipe(first()).toPromise()
+      .schemes({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
 
     contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
 
@@ -236,7 +232,7 @@ describe('Competition Proposal', () => {
 
     if(!arc.web3) throw new Error("Web3 provider not set")
 
-    // make sure that the DAO has enough Ether to pay forthe reward
+    // make sure that the DAO has enough Ether to pay for the reward
 
     if(!arc.web3) throw new Error('Web3 provider not set')
 
@@ -256,7 +252,7 @@ describe('Competition Proposal', () => {
     const startTime = addSeconds(now, 3)
     const proposalOptions: IProposalCreateOptionsComp = {
       dao: dao.id,
-      endTime: addSeconds(startTime, 200),
+      endTime: addSeconds(startTime, 300),
       ethReward,
       externalTokenAddress: undefined,
       externalTokenReward,
@@ -316,10 +312,13 @@ describe('Competition Proposal', () => {
     expect(schemeState.address).toEqual(lastState().scheme.address)
 
     // redeem the proposal
+    await proposal.fetchState()
     await proposal.redeemRewards().send()
 
     // find the competition
-    const competitions = await scheme.competitions({ where: { id: proposal.id } }).pipe(first()).toPromise()
+    const competitions = await scheme.competitions({
+      where: { id: proposal.id }
+    }).pipe(first()).toPromise()
     expect(competitions.length).toEqual(1)
     const competition = competitions[0]
     expect(competition).toBeInstanceOf(Competition)
@@ -390,9 +389,7 @@ describe('Competition Proposal', () => {
 
     // if we vote twice we get an error
     expect(suggestion1.vote().send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      // 'already voted on this suggestion'
+      'already voted on this suggestion'
     )
 
     let competitionVotes: CompetitionVote[] = []
@@ -409,9 +406,7 @@ describe('Competition Proposal', () => {
 
     // if we claim our reward now, it should fail because the competion has not ended yet
     await expect(suggestion1.redeem().send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      // competition is still on/i
+      /competition is still on/i
     )
     await advanceTimeAndBlock(2000)
 
@@ -485,9 +480,7 @@ describe('Competition Proposal', () => {
     // let's try to redeem
     await advanceTimeAndBlock(2000)
     expect(suggestions[0].redeem().send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      // 'not in winners list'
+      'not in winners list'
     )
   })
 
@@ -525,29 +518,25 @@ describe('Competition Proposal', () => {
 
     if(!arc.web3) throw new Error('Web3 provider not set')
 
-    const crextContractAddress = contributionRewardExtAddress
-    const crExtBalanceBefore = await arc.web3.getBalance(crextContractAddress)
+    const crExtBalanceBefore = await (await contributionRewardExt.ethBalance()).pipe(first()).toPromise()
     const beneficiary = address1
 
-    const beforeBalanceBigNum = await arc.web3.getBalance(beneficiary)
-    let balanceBefore = new BN(beforeBalanceBigNum.toString())
+    const beforeBalanceBigNum = (await arc.web3.getBalance(beneficiary)).toString()
+    let balanceBefore = new BN(beforeBalanceBigNum)
     await suggestions[0].redeem().send()
 
-    const afterBalanceBigNum = await arc.web3.getBalance(beneficiary)
-    let balanceAfter = new BN(afterBalanceBigNum.toString())
+    const afterBalanceBigNum = (await arc.web3.getBalance(beneficiary)).toString()
+    let balanceAfter = new BN(afterBalanceBigNum)
     let balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual('150')
 
-
-    const crExtBalanceAfter = await arc.web3.getBalance(crextContractAddress)
-    const crExtBalanceDelta = new BN(crExtBalanceBefore.toString()).sub(new BN(crExtBalanceAfter.toString()))
+    const crExtBalanceAfter = await (await contributionRewardExt.ethBalance()).pipe(first()).toPromise()
+    const crExtBalanceDelta = new BN(crExtBalanceBefore).sub(new BN(crExtBalanceAfter))
     expect(crExtBalanceDelta.toString()).toEqual('150')
 
     // the reward _is_ redeemed
     await expect(suggestions[0].redeem().send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      // 'suggestion was already redeemed'
+      'suggestion was already redeemed'
     )
 
     const beforeBalanceBigNum2 = await arc.web3.getBalance(beneficiary)
@@ -612,9 +601,7 @@ describe('Competition Proposal', () => {
     balanceDelta = balanceAfter.sub(balanceBefore)
 
     expect(suggestions[3].redeem().send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      // 'not in winners list'
+      'not in winners list'
     )
 
     expect(await isWinner(suggestions[0])).toEqual(true)
@@ -663,11 +650,8 @@ describe('Competition Proposal', () => {
 
   it('CompetionScheme is recognized', async () => {
     // we'll get a `ContributionRewardExt` contract that has a Compietion contract as a rewarder
-    const ARC_VERSION = '0.0.1-rc.39'
-    const contributionRewardExtContract = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
-    // find the corresponding scheme object
     const contributionRewardExts = await arc
-      .schemes({ where: { address: contributionRewardExtContract.address } }).pipe(first()).toPromise()
+      .schemes({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
     expect(contributionRewardExts.length).toEqual(1)
     const scheme = contributionRewardExts[0]
     expect(scheme).toBeInstanceOf(CompetitionScheme)
@@ -676,7 +660,7 @@ describe('Competition Proposal', () => {
   it('Can create a propsal using dao.createProposal', async () => {
     if (!arc.web3) throw Error('Web3 provider not set')
     const now = await getBlockTime(arc.web3)
-    const startTime = addSeconds(now, 3)
+    const startTime = addSeconds(now, 10)
     const proposalOptions: IProposalCreateOptionsComp = {
       dao: dao.id,
       endTime: addSeconds(startTime, 3000),
@@ -743,9 +727,7 @@ describe('Competition Proposal', () => {
 
     await expect(competition.createSuggestion(suggestionOptions).send())
       .rejects.toThrow(
-        // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-        // https://github.com/ethers-io/ethers.js/issues/446
-        // /only admin/
+        /only admin/
       )
     arc.setAccount(address0)
   })

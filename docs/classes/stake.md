@@ -39,7 +39,7 @@
 
 \+ **new Stake**(`context`: [Arc](arc.md), `idOrOpts`: string | [IStakeState](../interfaces/istakestate.md)): *[Stake](stake.md)*
 
-*Defined in [src/stake.ts:145](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L145)*
+*Defined in [src/stake.ts:145](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L145)*
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/stake.ts:148](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L148)*
+*Defined in [src/stake.ts:148](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L148)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **coreState**: *[IStakeState](../interfaces/istakestate.md) | undefined*
 
-*Defined in [src/stake.ts:145](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L145)*
+*Defined in [src/stake.ts:145](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L145)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **id**: *string | undefined*
 
-*Defined in [src/stake.ts:144](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L144)*
+*Defined in [src/stake.ts:144](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L144)*
 
 ## Methods
 
@@ -80,7 +80,7 @@ ___
 
 ▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IStakeState](../interfaces/istakestate.md)›*
 
-*Defined in [src/stake.ts:207](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L207)*
+*Defined in [src/stake.ts:207](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L207)*
 
 **Parameters:**
 
@@ -96,7 +96,7 @@ ___
 
 ▸ **setState**(`opts`: [IStakeState](../interfaces/istakestate.md)): *void*
 
-*Defined in [src/stake.ts:203](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L203)*
+*Defined in [src/stake.ts:203](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L203)*
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IStakeState](../interfaces/istakestate.md)›*
 
-*Defined in [src/stake.ts:159](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L159)*
+*Defined in [src/stake.ts:159](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L159)*
 
 **Parameters:**
 
@@ -128,7 +128,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IStakeQueryOptions](../interfaces/istakequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Stake](stake.md)[]›*
 
-*Defined in [src/stake.ts:53](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L53)*
+*Defined in [src/stake.ts:53](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L53)*
 
 Stake.search(context, options) searches for stake entities
 
@@ -150,7 +150,7 @@ an observable of Stake objects
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/stake.ts:31](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L31)*
+*Defined in [src/stake.ts:31](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L31)*
 
 ###  StakeFields
 
@@ -168,4 +168,4 @@ an observable of Stake objects
       amount
     }`
 
-*Defined in [src/stake.ts:32](https://github.com/daostack/client/blob/ca3cbac/src/stake.ts#L32)*
+*Defined in [src/stake.ts:32](https://github.com/daostack/client/blob/9d69996/src/stake.ts#L32)*

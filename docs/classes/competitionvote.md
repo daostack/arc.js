@@ -40,7 +40,7 @@
 
 \+ **new CompetitionVote**(`context`: [Arc](arc.md), `idOrOpts`: string | [ICompetitionVoteState](../interfaces/icompetitionvotestate.md)): *[CompetitionVote](competitionvote.md)*
 
-*Defined in [src/schemes/competition.ts:842](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L842)*
+*Defined in [src/schemes/competition.ts:842](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L842)*
 
 **Parameters:**
 
@@ -57,7 +57,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/schemes/competition.ts:844](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L844)*
+*Defined in [src/schemes/competition.ts:844](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L844)*
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **coreState**? : *[ICompetitionVoteState](../interfaces/icompetitionvotestate.md)*
 
-*Defined in [src/schemes/competition.ts:842](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L842)*
+*Defined in [src/schemes/competition.ts:842](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L842)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **id**? : *undefined | string*
 
-*Defined in [src/schemes/competition.ts:841](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L841)*
+*Defined in [src/schemes/competition.ts:841](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L841)*
 
 ## Methods
 
@@ -81,7 +81,7 @@ ___
 
 ▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ICompetitionVoteState](../interfaces/icompetitionvotestate.md)›*
 
-*Defined in [src/schemes/competition.ts:854](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L854)*
+*Defined in [src/schemes/competition.ts:854](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L854)*
 
 **Parameters:**
 
@@ -97,7 +97,7 @@ ___
 
 ▸ **setState**(`opts`: [ICompetitionVoteState](../interfaces/icompetitionvotestate.md)): *void*
 
-*Defined in [src/schemes/competition.ts:860](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L860)*
+*Defined in [src/schemes/competition.ts:860](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L860)*
 
 **Parameters:**
 
@@ -113,7 +113,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ICompetitionVoteState](../interfaces/icompetitionvotestate.md)›*
 
-*Defined in [src/schemes/competition.ts:865](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L865)*
+*Defined in [src/schemes/competition.ts:865](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L865)*
 
 **Parameters:**
 
@@ -129,7 +129,7 @@ ___
 
 ▸ **itemMap**(`item`: any): *object*
 
-*Defined in [src/schemes/competition.ts:829](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L829)*
+*Defined in [src/schemes/competition.ts:829](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L829)*
 
 **Parameters:**
 
@@ -157,7 +157,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [ICompetitionVoteQueryOptions](../interfaces/icompetitionvotequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[CompetitionVote](competitionvote.md)[]›*
 
-*Defined in [src/schemes/competition.ts:776](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L776)*
+*Defined in [src/schemes/competition.ts:776](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L776)*
 
 **Parameters:**
 
@@ -175,7 +175,7 @@ Name | Type | Default |
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/schemes/competition.ts:765](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L765)*
+*Defined in [src/schemes/competition.ts:765](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L765)*
 
 ###  CompetitionVoteFields
 
@@ -188,4 +188,4 @@ Name | Type | Default |
       suggestion { id }
     }`
 
-*Defined in [src/schemes/competition.ts:766](https://github.com/daostack/client/blob/ca3cbac/src/schemes/competition.ts#L766)*
+*Defined in [src/schemes/competition.ts:766](https://github.com/daostack/client/blob/9d69996/src/schemes/competition.ts#L766)*

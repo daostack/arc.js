@@ -37,7 +37,7 @@
 
 \+ **new Reputation**(`context`: [Arc](arc.md), `id`: [Address](../globals.md#address)): *[Reputation](reputation.md)*
 
-*Defined in [src/reputation.ts:68](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L68)*
+*Defined in [src/reputation.ts:68](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L68)*
 
 **Parameters:**
 
@@ -54,7 +54,7 @@ Name | Type |
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [src/reputation.ts:68](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L68)*
+*Defined in [src/reputation.ts:68](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L68)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/reputation.ts:70](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L70)*
+*Defined in [src/reputation.ts:70](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L70)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Defined in [src/reputation.ts:70](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L70)*
+*Defined in [src/reputation.ts:70](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L70)*
 
 ## Methods
 
@@ -78,7 +78,7 @@ ___
 
 ▸ **contract**(): *Contract‹›*
 
-*Defined in [src/reputation.ts:127](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L127)*
+*Defined in [src/reputation.ts:127](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L127)*
 
 **Returns:** *Contract‹›*
 
@@ -88,7 +88,7 @@ ___
 
 ▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IReputationState](../interfaces/ireputationstate.md)›*
 
-*Defined in [src/reputation.ts:99](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L99)*
+*Defined in [src/reputation.ts:99](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L99)*
 
 **Parameters:**
 
@@ -104,7 +104,7 @@ ___
 
 ▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[Operation](../globals.md#operation)‹undefined›*
 
-*Defined in [src/reputation.ts:132](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L132)*
+*Defined in [src/reputation.ts:132](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L132)*
 
 **Parameters:**
 
@@ -121,7 +121,7 @@ ___
 
 ▸ **reputationOf**(`address`: [Address](../globals.md#address)): *Observable‹BN›*
 
-*Defined in [src/reputation.ts:103](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L103)*
+*Defined in [src/reputation.ts:103](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L103)*
 
 **Parameters:**
 
@@ -137,7 +137,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IReputationState](../interfaces/ireputationstate.md)›*
 
-*Defined in [src/reputation.ts:75](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L75)*
+*Defined in [src/reputation.ts:75](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L75)*
 
 **Parameters:**
 
@@ -153,7 +153,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IReputationQueryOptions](../interfaces/ireputationqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Reputation](reputation.md)[]›*
 
-*Defined in [src/reputation.ts:32](https://github.com/daostack/client/blob/ca3cbac/src/reputation.ts#L32)*
+*Defined in [src/reputation.ts:32](https://github.com/daostack/client/blob/9d69996/src/reputation.ts#L32)*
 
 Reputation.search(context, options) searches for reputation entities
 

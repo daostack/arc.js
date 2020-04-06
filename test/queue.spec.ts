@@ -17,7 +17,7 @@ describe('Queue', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = await getTestAddresses(arc)
+    addresses = await getTestAddresses()
     dao = await getTestDAO()
   })
 
@@ -51,7 +51,7 @@ describe('Queue', () => {
   })
 
   it('Queue.state() should be equal to proposal.state().queue', async () => {
-    const { queuedProposalId } = addresses.test
+    const { queuedProposalId } = addresses
     const proposal = await dao.proposal(queuedProposalId)
     const proposalState = await proposal.fetchState()
     const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.dao)

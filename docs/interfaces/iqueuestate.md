@@ -23,7 +23,7 @@
 
 • **dao**: *[DAO](../classes/dao.md)*
 
-*Defined in [src/queue.ts:12](https://github.com/daostack/client/blob/ca3cbac/src/queue.ts#L12)*
+*Defined in [src/queue.ts:12](https://github.com/daostack/client/blob/9d69996/src/queue.ts#L12)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/queue.ts:13](https://github.com/daostack/client/blob/ca3cbac/src/queue.ts#L13)*
+*Defined in [src/queue.ts:13](https://github.com/daostack/client/blob/9d69996/src/queue.ts#L13)*
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [src/queue.ts:14](https://github.com/daostack/client/blob/ca3cbac/src/queue.ts#L14)*
+*Defined in [src/queue.ts:14](https://github.com/daostack/client/blob/9d69996/src/queue.ts#L14)*
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **scheme**: *ISchemeState*
 
-*Defined in [src/queue.ts:15](https://github.com/daostack/client/blob/ca3cbac/src/queue.ts#L15)*
+*Defined in [src/queue.ts:15](https://github.com/daostack/client/blob/9d69996/src/queue.ts#L15)*
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **threshold**: *number*
 
-*Defined in [src/queue.ts:16](https://github.com/daostack/client/blob/ca3cbac/src/queue.ts#L16)*
+*Defined in [src/queue.ts:16](https://github.com/daostack/client/blob/9d69996/src/queue.ts#L16)*
 
 ___
 
@@ -63,4 +63,4 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [src/queue.ts:17](https://github.com/daostack/client/blob/ca3cbac/src/queue.ts#L17)*
+*Defined in [src/queue.ts:17](https://github.com/daostack/client/blob/9d69996/src/queue.ts#L17)*

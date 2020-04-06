@@ -28,7 +28,7 @@ A transaction update is a snapshot of the state of a transaction at a particular
 
 • **confirmations**? : *undefined | number*
 
-*Defined in [src/operation.ts:45](https://github.com/daostack/client/blob/ca3cbac/src/operation.ts#L45)*
+*Defined in [src/operation.ts:45](https://github.com/daostack/client/blob/9d69996/src/operation.ts#L45)*
 
  number of confirmations
 
@@ -38,7 +38,7 @@ ___
 
 • **receipt**? : *ITransactionReceipt*
 
-*Defined in [src/operation.ts:41](https://github.com/daostack/client/blob/ca3cbac/src/operation.ts#L41)*
+*Defined in [src/operation.ts:41](https://github.com/daostack/client/blob/9d69996/src/operation.ts#L41)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **result**? : *T*
 
-*Defined in [src/operation.ts:49](https://github.com/daostack/client/blob/ca3cbac/src/operation.ts#L49)*
+*Defined in [src/operation.ts:49](https://github.com/daostack/client/blob/9d69996/src/operation.ts#L49)*
 
 Parsed return value from the method call
 
@@ -56,7 +56,7 @@ ___
 
 • **state**: *[ITransactionState](../enums/itransactionstate.md)*
 
-*Defined in [src/operation.ts:39](https://github.com/daostack/client/blob/ca3cbac/src/operation.ts#L39)*
+*Defined in [src/operation.ts:39](https://github.com/daostack/client/blob/9d69996/src/operation.ts#L39)*
 
 ___
 
@@ -64,4 +64,4 @@ ___
 
 • **transactionHash**? : *undefined | string*
 
-*Defined in [src/operation.ts:40](https://github.com/daostack/client/blob/ca3cbac/src/operation.ts#L40)*
+*Defined in [src/operation.ts:40](https://github.com/daostack/client/blob/9d69996/src/operation.ts#L40)*

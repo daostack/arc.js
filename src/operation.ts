@@ -98,6 +98,20 @@ export function sendTransaction<T>(
   errorHandler: transactionErrorHandler
 ): Operation<T> {
 
+  const methodInfo = tx.contract.interface.functions[tx.method]
+
+  if (methodInfo === undefined) {
+    throw Error(`Trying to call non-existent function named '${tx.method}' at address ${tx.contract.address}`)
+  }
+
+  if (methodInfo.type === 'call') {
+    throw Error(`Trying to send a transaction to a pure function named '${tx.method}' at address ${tx.contract.address}, please use viewContract(...) instead`)
+  }
+
+  if (methodInfo.inputs.length !== tx.args.length) {
+    throw Error(`Incorrect number of arguments. Expected ${methodInfo.inputs.length} for method '${tx.method}', got ${tx.args.length}.\nInputs: ${JSON.stringify(methodInfo.inputs, null, 2)}`)
+  }
+
   const observable = Observable.create(async (observer: Observer<ITransactionUpdate<T>>) => {
     const catchHandler = async (error: Error, transaction: ITransaction, from?: string) => {
       try {

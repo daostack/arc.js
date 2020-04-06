@@ -47,7 +47,7 @@ Represents an account that holds reputaion in a specific DAO
 
 \+ **new Member**(`context`: [Arc](arc.md), `idOrOpts`: string | [IMemberState](../interfaces/imemberstate.md)): *[Member](member.md)*
 
-*Defined in [src/member.ts:114](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L114)*
+*Defined in [src/member.ts:114](https://github.com/daostack/client/blob/9d69996/src/member.ts#L114)*
 
 **Parameters:**
 
@@ -64,7 +64,7 @@ Name | Type | Description |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/member.ts:121](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L121)*
+*Defined in [src/member.ts:121](https://github.com/daostack/client/blob/9d69996/src/member.ts#L121)*
 
 an instance of Arc
 
@@ -74,7 +74,7 @@ ___
 
 • **coreState**: *[IMemberState](../interfaces/imemberstate.md) | undefined*
 
-*Defined in [src/member.ts:114](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L114)*
+*Defined in [src/member.ts:114](https://github.com/daostack/client/blob/9d69996/src/member.ts#L114)*
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 • **id**: *string | undefined*
 
-*Defined in [src/member.ts:113](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L113)*
+*Defined in [src/member.ts:113](https://github.com/daostack/client/blob/9d69996/src/member.ts#L113)*
 
 ## Methods
 
@@ -90,7 +90,7 @@ ___
 
 ▸ **dao**(): *Promise‹[DAO](dao.md)›*
 
-*Defined in [src/member.ts:221](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L221)*
+*Defined in [src/member.ts:221](https://github.com/daostack/client/blob/9d69996/src/member.ts#L221)*
 
 **Returns:** *Promise‹[DAO](dao.md)›*
 
@@ -100,7 +100,7 @@ ___
 
 ▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IMemberState](../interfaces/imemberstate.md)›*
 
-*Defined in [src/member.ts:130](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L130)*
+*Defined in [src/member.ts:130](https://github.com/daostack/client/blob/9d69996/src/member.ts#L130)*
 
 **Parameters:**
 
@@ -116,7 +116,7 @@ ___
 
 ▸ **proposals**(`options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Proposal](proposal.md)[]›*
 
-*Defined in [src/member.ts:230](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L230)*
+*Defined in [src/member.ts:230](https://github.com/daostack/client/blob/9d69996/src/member.ts#L230)*
 
 **Parameters:**
 
@@ -133,7 +133,7 @@ ___
 
 ▸ **rewards**(): *Observable‹[Reward](reward.md)[]›*
 
-*Defined in [src/member.ts:226](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L226)*
+*Defined in [src/member.ts:226](https://github.com/daostack/client/blob/9d69996/src/member.ts#L226)*
 
 **Returns:** *Observable‹[Reward](reward.md)[]›*
 
@@ -143,7 +143,7 @@ ___
 
 ▸ **setState**(`opts`: [IMemberState](../interfaces/imemberstate.md)): *[IMemberState](../interfaces/imemberstate.md)*
 
-*Defined in [src/member.ts:136](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L136)*
+*Defined in [src/member.ts:136](https://github.com/daostack/client/blob/9d69996/src/member.ts#L136)*
 
 **Parameters:**
 
@@ -159,7 +159,7 @@ ___
 
 ▸ **stakes**(`options`: [IStakeQueryOptions](../interfaces/istakequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Stake](stake.md)[]›*
 
-*Defined in [src/member.ts:246](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L246)*
+*Defined in [src/member.ts:246](https://github.com/daostack/client/blob/9d69996/src/member.ts#L246)*
 
 **Parameters:**
 
@@ -176,7 +176,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IMemberState](../interfaces/imemberstate.md)›*
 
-*Defined in [src/member.ts:152](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L152)*
+*Defined in [src/member.ts:152](https://github.com/daostack/client/blob/9d69996/src/member.ts#L152)*
 
 **Parameters:**
 
@@ -192,7 +192,7 @@ ___
 
 ▸ **votes**(`options`: [IVoteQueryOptions](../interfaces/ivotequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Vote](vote.md)[]›*
 
-*Defined in [src/member.ts:259](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L259)*
+*Defined in [src/member.ts:259](https://github.com/daostack/client/blob/9d69996/src/member.ts#L259)*
 
 **Parameters:**
 
@@ -209,7 +209,7 @@ ___
 
 ▸ **calculateId**(`opts`: object): *string*
 
-*Defined in [src/member.ts:105](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L105)*
+*Defined in [src/member.ts:105](https://github.com/daostack/client/blob/9d69996/src/member.ts#L105)*
 
 **Parameters:**
 
@@ -228,7 +228,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IMemberQueryOptions](../interfaces/imemberqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Member](member.md)[]›*
 
-*Defined in [src/member.ts:57](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L57)*
+*Defined in [src/member.ts:57](https://github.com/daostack/client/blob/9d69996/src/member.ts#L57)*
 
 Member.search(context, options) searches for member entities
 
@@ -250,7 +250,7 @@ an observable of IRewardState objects
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/member.ts:37](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L37)*
+*Defined in [src/member.ts:37](https://github.com/daostack/client/blob/9d69996/src/member.ts#L37)*
 
 ###  ReputationHolderFields
 
@@ -266,4 +266,4 @@ an observable of IRewardState objects
       }
     `
 
-*Defined in [src/member.ts:38](https://github.com/daostack/client/blob/ca3cbac/src/member.ts#L38)*
+*Defined in [src/member.ts:38](https://github.com/daostack/client/blob/9d69996/src/member.ts#L38)*

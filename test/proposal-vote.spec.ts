@@ -18,9 +18,9 @@ describe('Vote on a ContributionReward', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = await getTestAddresses(arc)
+    addresses = await getTestAddresses()
     dao = await getTestDAO()
-    const { executedProposalId} = addresses.test
+    const { executedProposalId } = addresses
     executedProposal = await dao.proposal(executedProposalId)
   })
 
@@ -88,9 +88,7 @@ describe('Vote on a ContributionReward', () => {
     if (!arc.web3) throw new Error('Web3 provider not set')
     proposal.context.defaultAccount = await arc.web3.getSigner(2).getAddress()
     await expect(proposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/No proposal/i*/
+      /No proposal/i
     )
   })
 
@@ -99,13 +97,15 @@ describe('Vote on a ContributionReward', () => {
     await expect(executedProposal.execute().send()).rejects.toThrow(
       // TODO: uncomment when Ethers.js supports revert reasons, see thread:
       // https://github.com/ethers-io/ethers.js/issues/446
-      /*/already executed/i*/
+      // /already executed/i
+      /transaction: revert/i
     )
 
     await expect(executedProposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
       // TODO: uncomment when Ethers.js supports revert reasons, see thread:
       // https://github.com/ethers-io/ethers.js/issues/446
-      /*/already executed/i*/
+      // /already executed/i
+      /transaction: revert/i
     )
   })
 

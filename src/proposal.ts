@@ -350,9 +350,15 @@ export class Proposal implements IStateful<IProposalState> {
 
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IProposalState> {
     const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+
+    if (state === null) {
+      throw Error(`No proposal with id ${this.id} was found in the subgraph`)
+    }
+
     this.setState(state)
     return state
   }
+
   /**
    * `state` is an observable of the proposal state
    */
@@ -376,7 +382,6 @@ export class Proposal implements IStateful<IProposalState> {
     const itemMap = (item: any): IProposalState | null => {
       if (item === null || item === undefined) {
         // no proposal was found - we return null
-        // throw Error(`No proposal with id ${this.id} could be found`)
         return null
       }
 
@@ -590,9 +595,17 @@ export class Proposal implements IStateful<IProposalState> {
    * @return a web3 Contract instance
    */
   public async votingMachine() {
-    const state = await this.fetchState()
+    let state
+
+    if (!this.coreState) {
+      state = await this.fetchState()
+    } else {
+      state = this.coreState
+    }
+
     return this.context.getContract(state.votingMachine)
   }
+
   /**
    * [redeemerContract description]
    * @return a web3 Contract instance
@@ -726,7 +739,7 @@ export class Proposal implements IStateful<IProposalState> {
       }
       // staker has sufficient balance
       const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
-      const balance = new BN(await stakingToken.contract().balanceOf(defaultAccount))
+      const balance = new BN((await stakingToken.contract().balanceOf(defaultAccount)).toString())
       const amountBN = new BN(amount)
       if (balance.lt(amountBN)) {
         const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}
@@ -735,9 +748,9 @@ export class Proposal implements IStateful<IProposalState> {
       }
 
       // staker has approved the token spend
-      const allowance = new BN(await stakingToken.contract().allowance(
+      const allowance = new BN((await stakingToken.contract().allowance(
         defaultAccount, votingMachine.address
-      ))
+      )).toString())
       if (allowance.lt(amountBN)) {
         return new Error(
           `Staker has insufficient allowance to stake ${amount.toString()}
@@ -816,22 +829,16 @@ export class Proposal implements IStateful<IProposalState> {
       let args
       if (state.scheme.name === 'ContributionRewardExt') {
         method = 'redeemFromCRExt'
-        args = [
-          schemeAddress, // contributionreward address
-          state.votingMachine, // genesisProtocol address
-          this.id,
-          beneficiary
-        ]
       } else {
         method = 'redeem'
-        args = [
-          schemeAddress, // contributionreward address
-          state.votingMachine, // genesisProtocol address
-          this.id,
-          state.dao.id,
-          beneficiary
-        ]
       }
+
+      args = [
+        schemeAddress, // contributionreward address
+        state.votingMachine, // genesisProtocol address
+        this.id,
+        beneficiary
+      ]
 
       return {
         contract: this.redeemerContract(),

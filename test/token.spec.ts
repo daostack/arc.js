@@ -15,7 +15,7 @@ describe('Token', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = getTestAddresses(arc)
+    addresses = getTestAddresses()
     address = addresses.dao.DAOToken
   })
 
@@ -58,7 +58,7 @@ describe('Token', () => {
   })
 
   it('mint some new tokens', async () => {
-    const token = new Token(arc, addresses.test.organs.DemoDAOToken)
+    const token = new Token(arc, addresses.organs.DemoDAOToken)
     const account = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
     // check if the currentAccount is the owner of the contract
     const balances: Array<BN> = []

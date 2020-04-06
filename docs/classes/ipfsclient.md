@@ -33,7 +33,7 @@
 
 \+ **new IPFSClient**(`ipfsUrl`: string): *[IPFSClient](ipfsclient.md)*
 
-*Defined in [src/ipfsClient.ts:6](https://github.com/daostack/client/blob/ca3cbac/src/ipfsClient.ts#L6)*
+*Defined in [src/ipfsClient.ts:6](https://github.com/daostack/client/blob/9d69996/src/ipfsClient.ts#L6)*
 
 **Parameters:**
 
@@ -49,7 +49,7 @@ Name | Type |
 
 • **baseUrl**: *string*
 
-*Defined in [src/ipfsClient.ts:6](https://github.com/daostack/client/blob/ca3cbac/src/ipfsClient.ts#L6)*
+*Defined in [src/ipfsClient.ts:6](https://github.com/daostack/client/blob/9d69996/src/ipfsClient.ts#L6)*
 
 ## Accessors
 
@@ -57,7 +57,7 @@ Name | Type |
 
 • **get ipfsUrl**(): *string*
 
-*Defined in [src/ipfsClient.ts:12](https://github.com/daostack/client/blob/ca3cbac/src/ipfsClient.ts#L12)*
+*Defined in [src/ipfsClient.ts:12](https://github.com/daostack/client/blob/9d69996/src/ipfsClient.ts#L12)*
 
 **Returns:** *string*
 
@@ -67,7 +67,7 @@ Name | Type |
 
 ▸ **addAndPinString**(`data`: string): *Promise‹any›*
 
-*Defined in [src/ipfsClient.ts:63](https://github.com/daostack/client/blob/ca3cbac/src/ipfsClient.ts#L63)*
+*Defined in [src/ipfsClient.ts:63](https://github.com/daostack/client/blob/9d69996/src/ipfsClient.ts#L63)*
 
 **Parameters:**
 
@@ -83,7 +83,7 @@ ___
 
 ▸ **addString**(`data`: string): *Promise‹any›*
 
-*Defined in [src/ipfsClient.ts:31](https://github.com/daostack/client/blob/ca3cbac/src/ipfsClient.ts#L31)*
+*Defined in [src/ipfsClient.ts:31](https://github.com/daostack/client/blob/9d69996/src/ipfsClient.ts#L31)*
 
 **Parameters:**
 
@@ -99,7 +99,7 @@ ___
 
 ▸ **cat**(`hash`: string): *Promise‹any›*
 
-*Defined in [src/ipfsClient.ts:16](https://github.com/daostack/client/blob/ca3cbac/src/ipfsClient.ts#L16)*
+*Defined in [src/ipfsClient.ts:16](https://github.com/daostack/client/blob/9d69996/src/ipfsClient.ts#L16)*
 
 **Parameters:**
 
@@ -115,7 +115,7 @@ ___
 
 ▸ **pinHash**(`hash`: string): *Promise‹void›*
 
-*Defined in [src/ipfsClient.ts:47](https://github.com/daostack/client/blob/ca3cbac/src/ipfsClient.ts#L47)*
+*Defined in [src/ipfsClient.ts:47](https://github.com/daostack/client/blob/9d69996/src/ipfsClient.ts#L47)*
 
 **Parameters:**
 
