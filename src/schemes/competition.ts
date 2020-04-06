@@ -316,6 +316,24 @@ export class CompetitionScheme extends SchemeBase {
   }
 
   /**
+   * get (an observable of) the Ether balance of the Competition from the web3Provider
+   *
+   * @return an observable stream of BN number instances
+   */
+  public async ethBalance(): Promise<Observable<BN>> {
+    let state
+
+    if (!this.coreState) {
+      state = await this.fetchState()
+    } else {
+      state = this.coreState
+    }
+
+    const contributionRewardExt = this.context.getContract(state.address)
+    return this.context.ethBalance(await contributionRewardExt.vault())
+  }
+
+  /**
    *
    * @param options
    * @param context
@@ -536,6 +554,7 @@ export interface ICompetitionSuggestionQueryOptions extends ICommonQueryOptions 
     positionInWinnerList_not?: number | null
   }
 }
+
 export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionState> {
 
   public static fragments = {

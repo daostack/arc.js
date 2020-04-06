@@ -141,7 +141,10 @@ describe('Proposal execute()', () => {
 
     /// with the last (winning) vote, the proposal is already executed
     await expect(proposal.execute().send()).rejects.toThrow(
-      /already executed/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      // /already executed/i
+      /transaction: revert/i
     )
 
     // check the state

@@ -173,9 +173,10 @@ describe('Proposal', () => {
     const response = await (dao as DAO).createProposal(options as IProposalCreateOptions).send()
     const proposal = response.result as Proposal
 
-    const proposalState = await proposal.fetchState()
     // the state is null because the proposal has not been indexed yet
-    expect(proposalState).toEqual(null)
+    await expect(proposal.fetchState()).rejects.toThrow(
+      /No proposal with id/i
+    )
   })
 
   it('Check queued proposal state is correct', async () => {

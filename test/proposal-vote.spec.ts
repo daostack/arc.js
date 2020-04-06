@@ -95,11 +95,17 @@ describe('Vote on a ContributionReward', () => {
   it('throws a meaningful error if the proposal was already executed', async () => {
 
     await expect(executedProposal.execute().send()).rejects.toThrow(
-      /already executed/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      // /already executed/i
+      /transaction: revert/i
     )
 
     await expect(executedProposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
-      /already executed/i
+      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
+      // https://github.com/ethers-io/ethers.js/issues/446
+      // /already executed/i
+      /transaction: revert/i
     )
   })
 
