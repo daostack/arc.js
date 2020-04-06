@@ -34,7 +34,6 @@ export async function createProposalTransaction(
 ): Promise<ITransaction> {
   let msg: string
   switch (options.proposalType) {
-    // TODO-J
     case IProposalType.SchemeRegistrarAdd:
     case IProposalType.SchemeRegistrarEdit:
       if (options.scheme === undefined) {
