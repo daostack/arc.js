@@ -5,7 +5,6 @@ import { Plugin } from '../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
 import { SchemeRegistrar } from "../plugins/schemeRegistrar";
-import { ProposalTypeNames } from ".";
 
 interface ISchemeRegistrarProposalState extends IProposalState { 
   id: string

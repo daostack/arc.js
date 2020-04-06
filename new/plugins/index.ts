@@ -1,8 +1,11 @@
 import { GenericScheme } from "./genericScheme"
 import { SchemeRegistrar } from "./schemeRegistrar"
-
-export type SchemeTypes = GenericScheme | SchemeRegistrar
+import { UGenericScheme } from "./uGenericScheme"
+import { ContributionReward } from './contributionReward'
 
 export default {
-  GenericScheme
+  GenericScheme,
+  SchemeRegistrar,
+  UGenericScheme,
+  ContributionReward
 }

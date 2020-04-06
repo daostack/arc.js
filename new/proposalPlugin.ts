@@ -11,7 +11,8 @@ export abstract class ProposalPlugin extends Plugin {
     options: IProposalBaseCreateOptions
   ): Promise<ITransaction>
 
-  protected abstract createProposalTransactionMap(): transactionResultHandler<Proposal>
+  //TODO: optional parameter 'options'?
+  protected abstract createProposalTransactionMap(options?: IProposalBaseCreateOptions): transactionResultHandler<Proposal>
 
   protected abstract createProposalErrorHandler(
     options: IProposalBaseCreateOptions

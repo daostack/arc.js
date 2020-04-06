@@ -1,12 +1,12 @@
 import { Proposal, IProposalState } from "../proposal";
-import { GenericScheme } from "../plugins/genericScheme";
 import { Address, IApolloQueryOptions } from "../types";
 import { Arc } from "../arc";
 import { Plugin } from '../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
+import { UGenericScheme } from "../plugins/uGenericScheme";
 
-interface IGenericSchemeProposalState extends IProposalState { 
+interface IUGenericSchemeProposalState extends IProposalState { 
   id: string
   contractToCall: Address
   callData: string
@@ -14,22 +14,13 @@ interface IGenericSchemeProposalState extends IProposalState {
   returnValue: string
 }
 
-// TODO: Scheme => Plugin
-export class GenericSchemeProposal extends Proposal {
+export class UGenericSchemeProposal extends Proposal {
 
-  /*
-    TODO:
-    const entity = new Entity()
-    const entityState = entity.fetchState()
-    const sub = entity.state().subscribe()
-    const current = entity.currentState
-    const current = entity.fetchState()
-  */
-  coreState: IGenericSchemeProposalState
+  coreState: IUGenericSchemeProposalState
 
   constructor(
     context: Arc,
-    idOrOpts: string | IGenericSchemeProposalState
+    idOrOpts: string | IUGenericSchemeProposalState
   ) {
     super()
     this.context = context
@@ -42,22 +33,22 @@ export class GenericSchemeProposal extends Proposal {
     this.context = context
   }
 
-  static itemMap (context: Arc, item: any): GenericSchemeProposal | null {
+  static itemMap (context: Arc, item: any): UGenericSchemeProposal | null {
 
     if (item === null || item === undefined) return null
     
-    const genericScheme = GenericScheme.itemMap(context, item)
-    const genericSchemeProposal = new GenericSchemeProposal(context, item.id)
+    const uGenericScheme = UGenericScheme.itemMap(context, item)
+    const uGenericSchemeProposal = new UGenericSchemeProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
       context,
       item,
-      genericScheme,
-      genericSchemeProposal,
-      "GenericScheme"
+      uGenericScheme,
+      uGenericSchemeProposal,
+      "UGenericScheme"
     )
     
-    const state: IGenericSchemeProposalState = {
+    const state: IUGenericSchemeProposalState = {
       ...baseState,
       callData: item.genericScheme.callData,
       contractToCall: item.genericScheme.contractToCall,
@@ -65,7 +56,7 @@ export class GenericSchemeProposal extends Proposal {
       returnValue: item.genericScheme.returnValue
     }
 
-    return new GenericSchemeProposal(context, state)
+    return new UGenericSchemeProposal(context, state)
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
@@ -85,9 +76,9 @@ export class GenericSchemeProposal extends Proposal {
       ${Plugin.baseFragment.SchemeFields}
     `
 
-    const itemMap = (item: any) => GenericSchemeProposal.itemMap(this.context, item)
+    const itemMap = (item: any) => UGenericSchemeProposal.itemMap(this.context, item)
 
-    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeProposalState>
+    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IUGenericSchemeProposalState>
     return result
   }
 

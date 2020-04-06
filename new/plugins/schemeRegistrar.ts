@@ -6,7 +6,8 @@ import gql from "graphql-tag";
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../genesisProtocol";
 import { IProposalBaseCreateOptions } from "../proposal";
 import { Observable } from "rxjs";
-import { ITransaction, ITransactionReceipt, getEventArgs } from "../operation";
+import { ITransaction, ITransactionReceipt, getEventArgs, transactionResultHandler } from "../operation";
+import { SchemeRegistrarProposal } from "../proposals/schemeRegistrar";
 
 export interface ISchemeRegistrarState extends IPluginState {
   schemeParams: {
@@ -138,8 +139,8 @@ export class SchemeRegistrar extends ProposalPlugin {
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {
     let msg: string
     switch (options.proposalType) {
-      case IProposalType.SchemeRegistrarAdd:
-      case IProposalType.SchemeRegistrarEdit:
+      case "SchemeRegistrarAdd":
+      case "SchemeRegistrarEdit":
         if (options.scheme === undefined) {
           msg = `Missing argument "scheme" for SchemeRegistrar in Proposal.create()`
           throw Error(msg)
@@ -166,7 +167,7 @@ export class SchemeRegistrar extends ProposalPlugin {
             options.descriptionHash
           ]
         }
-      case IProposalType.SchemeRegistrarRemove:
+      case "SchemeRegistrarRemove":
         if (options.scheme === undefined) {
           msg = `Missing argument "scheme" for SchemeRegistrar`
           throw Error(msg)
@@ -191,11 +192,11 @@ export class SchemeRegistrar extends ProposalPlugin {
     return (receipt: ITransactionReceipt) => {
       let eventName: string
       switch (options.proposalType) {
-        case IProposalType.SchemeRegistrarAdd:
-        case IProposalType.SchemeRegistrarEdit:
+        case "SchemeRegistrarAdd":
+        case "SchemeRegistrarEdit":
           eventName = 'NewSchemeProposal'
           break
-        case IProposalType.SchemeRegistrarRemove:
+        case "SchemeRegistrarRemove":
           eventName = 'RemoveSchemeProposal'
           break
         default:
@@ -203,7 +204,7 @@ export class SchemeRegistrar extends ProposalPlugin {
       }
       const args = getEventArgs(receipt, eventName, 'SchemeRegistrar.createProposal')
       const proposalId = args[1]
-      return new Proposal(context, proposalId)
+      return new SchemeRegistrarProposal(this.context, proposalId)
     }
   }
 

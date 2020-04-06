@@ -9,13 +9,11 @@ import { Arc } from './arc'
 import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
 import { IObservable } from './graphnode'
 import Proposals, { ProposalTypeNames } from './proposals'
-import { SchemeTypes } from './plugins'
 import { IVoteQueryOptions, Vote } from './vote'
 import { Stake, IStakeQueryOptions } from './stake'
 import { Queue, IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
 import { DAO } from './dao'
-import { SchemeRegistrarProposalTypes } from './proposals/schemeRegistrar'
 
 export enum IProposalOutcome {
   None,
