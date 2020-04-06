@@ -4,19 +4,18 @@ import { Observable } from 'rxjs'
 import { IEntityRef, Entity } from './entity'
 import { IApolloQueryOptions, Address, ICommonQueryOptions } from './types'
 import { Plugin } from './plugin'
-import { IGenesisProtocolParams } from './genesisProtocol'
+import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProtocol'
 import { Arc } from './arc'
-import { createGraphQlQuery, isAddress } from './utils'
+import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
 import { IObservable } from './graphnode'
-import Proposals from './proposals'
+import Proposals, { ProposalTypeNames } from './proposals'
 import { SchemeTypes } from './plugins'
 import { IVoteQueryOptions, Vote } from './vote'
 import { Stake, IStakeQueryOptions } from './stake'
-import { Queue } from './queue'
+import { Queue, IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
 import { DAO } from './dao'
-
-type ProposalTypeNames = keyof typeof Proposals
+import { SchemeRegistrarProposalTypes } from './proposals/schemeRegistrar'
 
 export enum IProposalOutcome {
   None,
@@ -88,11 +87,12 @@ export interface IProposalState {
   id: string
   dao: IEntityRef<DAO>
   votingMachine: Address
-  scheme: IEntityRef<SchemeTypes>
+  scheme: IEntityRef<Plugin>
   closingAt: Number
   createdAt: Number
   descriptionHash?: string
   description?: string
+  name: string,
   executedAt: Number
   organizationId: string
   paramsHash: string
@@ -103,6 +103,7 @@ export interface IProposalState {
   title?: string
   totalRepWhenCreated: BN
   totalRepWhenExecuted: BN
+  type: ProposalTypeNames
   url?: string
   votesFor: BN
   votesAgainst: BN
@@ -342,6 +343,134 @@ export abstract class Proposal extends Entity<IProposalState> {
         (r: any) => new Proposals[r.scheme.name](context, r),
         apolloQueryOptions
       ) as IObservable<Proposal[]>
+    }
+  }
+
+  protected static itemMapToBaseState<TPlugin extends Plugin, TProposal extends Proposal>(
+    context: Arc,
+    item: any,
+    scheme: TPlugin,
+    proposal: TProposal,
+    type: ProposalTypeNames
+  ) : IProposalState {
+    if (item === null || item === undefined) {
+      // no proposal was found - we return null
+      // throw Error(`No proposal with id ${this.id} could be found`)
+      return null
+    }
+
+    let name = item.name
+    if (!name) {
+
+      try {
+        name = context.getContractInfo(item.address).name
+      } catch (err) {
+        if (err.message.match(/no contract/ig)) {
+          // continue
+        } else {
+          throw err
+        }
+      }
+    }
+
+    // the  formule to enter into the preboosted state is:
+    // (S+/S-) > AlphaConstant^NumberOfBoostedProposal.
+    // (stakesFor/stakesAgainst) > gpQueue.threshold
+    const stage: any = IProposalStage[item.stage]
+    const threshold = realMathToNumber(new BN(item.gpQueue.threshold))
+    const stakesFor = new BN(item.stakesFor)
+    const stakesAgainst = new BN(item.stakesAgainst)
+
+    // upstakeNeededToPreBoost is the amount of tokens needed to upstake to move to the preboost queue
+    // this is only non-zero for Queued proposals
+    // note that the number can be negative!
+    let upstakeNeededToPreBoost: BN = new BN(0)
+    const PRECISION = Math.pow(2, 40)
+    if (stage === IProposalStage.Queued) {
+
+      upstakeNeededToPreBoost = new BN(threshold * PRECISION)
+        .mul(stakesAgainst)
+        .div(new BN(PRECISION))
+        .sub(stakesFor)
+    }
+    // upstakeNeededToPreBoost is the amount of tokens needed to upstake to move to the Queued queue
+    // this is only non-zero for Preboosted proposals
+    // note that the number can be negative!
+    let downStakeNeededToQueue: BN = new BN(0)
+    if (stage === IProposalStage.PreBoosted) {
+      downStakeNeededToQueue = stakesFor.mul(new BN(PRECISION))
+        .div(new BN(threshold * PRECISION))
+        .sub(stakesAgainst)
+    }
+
+    const gpQueue = item.gpQueue
+
+    const queueState: IQueueState = {
+      dao: item.dao.id,
+      id: gpQueue.id,
+      name: scheme.coreState.name,
+      scheme: {
+        id: scheme.id,
+        entity: scheme
+      },
+      threshold,
+      votingMachine: gpQueue.votingMachine
+    }
+    const dao = new DAO(context, item.dao.id)
+
+    return {
+      accountsWithUnclaimedRewards: item.accountsWithUnclaimedRewards,
+      boostedAt: Number(item.boostedAt),
+      closingAt: Number(item.closingAt),
+      confidenceThreshold: Number(item.confidenceThreshold),
+      createdAt: Number(item.createdAt),
+      dao: {
+        id: dao.id,
+        entity: dao
+      },
+      description: item.description,
+      descriptionHash: item.descriptionHash,
+      downStakeNeededToQueue,
+      executedAt: Number(item.executedAt),
+      executionState: IExecutionState[item.executionState] as any,
+      expiresInQueueAt: Number(item.expiresInQueueAt),
+      genesisProtocolParams: mapGenesisProtocolParams(item.genesisProtocolParams),
+      id: item.id,
+      name,
+      organizationId: item.organizationId,
+      paramsHash: item.paramsHash,
+      preBoostedAt: Number(item.preBoostedAt),
+      proposal: {
+        id: proposal.id,
+        entity: proposal
+      },
+      proposer: item.proposer,
+      queue: {
+        id: queueState.id,
+        entity: new Queue(context, queueState, dao)
+      },
+      quietEndingPeriodBeganAt: Number(item.quietEndingPeriodBeganAt),
+      resolvedAt: item.resolvedAt !== undefined ? Number(item.resolvedAt) : 0,
+      scheme: {
+        id: scheme.id,
+        entity: scheme
+      },
+      stage,
+      stakesAgainst,
+      stakesFor,
+      tags: item.tags.map((t: any) => t.id),
+      title: item.title,
+      totalRepWhenCreated: new BN(item.totalRepWhenCreated),
+      totalRepWhenExecuted: new BN(item.totalRepWhenExecuted),
+      type,
+      upstakeNeededToPreBoost,
+      url: item.url,
+      voteOnBehalf: item.voteOnBehalf,
+      votesAgainst: new BN(item.votesAgainst),
+      votesCount: item.votes.length,
+      votesFor: new BN(item.votesFor),
+      votingMachine: item.votingMachine,
+      winningOutcome: IProposalOutcome[item.winningOutcome] as any
     }
   }
 
