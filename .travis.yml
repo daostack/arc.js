@@ -21,6 +21,7 @@ script:
   - ./scripts/wait-for-it.sh 127.0.0.1:8545
   - ./scripts/wait-for-it.sh 127.0.0.1:8000
   - ./scripts/wait-for-it.sh 127.0.0.1:8020
+  - sleep 10
 
   - echo 'Debug info:' && echo -en 'travis_fold:start:script.3\\r'
   - docker-compose logs ganache
