@@ -87,7 +87,7 @@ export interface IProposalState {
   votingMachine: Address
   scheme: IEntityRef<Plugin>
   closingAt: Number
-  createdAt: Number
+  createdAt: Number | Date
   descriptionHash?: string
   description?: string
   name: string,
