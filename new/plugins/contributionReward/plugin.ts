@@ -1,15 +1,15 @@
 import BN from 'bn.js'
-import { Address, IApolloQueryOptions } from "../types";
-import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../proposal";
-import { ProposalPlugin } from "../proposalPlugin";
-import { Arc } from "../arc";
-import { GenericSchemeProposal } from "../proposals/genericScheme";
-import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../genesisProtocol";
-import { IPluginState, Plugin } from "../plugin";
-import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../operation";
+import { Address, IApolloQueryOptions } from "../../types";
+import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../../proposal";
+import { ProposalPlugin } from "../../proposalPlugin";
+import { Arc } from "../../arc";
+import { GenericSchemeProposal } from "../../proposals/genericScheme";
+import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../../genesisProtocol";
+import { IPluginState, Plugin } from "../../plugin";
+import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../../operation";
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
-import { NULL_ADDRESS } from '../utils';
+import { NULL_ADDRESS } from '../../utils';
 
 export interface IContributionRewardSchemeState extends IPluginState {
   schemeParams: {

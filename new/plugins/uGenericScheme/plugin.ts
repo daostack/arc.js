@@ -1,13 +1,14 @@
-import { ProposalPlugin } from "../proposalPlugin";
-import { IPluginState, Plugin } from "../plugin";
-import { Address, IApolloQueryOptions } from "../types";
-import { Arc } from "../arc";
-import gql from "graphql-tag";
-import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../genesisProtocol";
-import { IProposalBaseCreateOptions } from "../proposal";
-import { Observable } from "rxjs";
-import { ITransaction, ITransactionReceipt, getEventArgs } from "../operation";
-import { UGenericSchemeProposal } from "../proposals/uGenericScheme";
+import { Address, IApolloQueryOptions } from "../../types"
+import { IPluginState, Plugin } from "../../plugin"
+import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../../genesisProtocol"
+import { IProposalBaseCreateOptions } from "../../proposal"
+import { ProposalPlugin } from "../../proposalPlugin"
+import { Arc } from "../../arc"
+import gql from "graphql-tag"
+import { Observable } from "rxjs"
+import { ITransaction, ITransactionReceipt, getEventArgs, transactionErrorHandler } from "../../operation"
+import { UGenericSchemeProposal } from "./proposal"
+
 
 export interface IUGenericSchemeState extends IPluginState {
   schemeParams: {
@@ -154,7 +155,7 @@ export class UGenericScheme extends ProposalPlugin {
     }
   }
 
-  public createProposalErrorHandler(options: IProposalBaseCreateOptions): import("../operation").transactionErrorHandler {
+  public createProposalErrorHandler(options: IProposalBaseCreateOptions): transactionErrorHandler {
     throw new Error("Method not implemented.");
   }
   public getPermissions(): Permissions {

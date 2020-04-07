@@ -4,7 +4,7 @@ import gql from 'graphql-tag'
 import { Arc } from './arc'
 import { Observable } from 'rxjs'
 import { createGraphQlQuery } from './utils'
-import Schemes from './plugins'
+import { Plugins } from './plugins'
 import { DAO } from './dao'
 
 export interface IPluginState {
@@ -56,9 +56,9 @@ export abstract class Plugin extends Entity<IPluginState> {
       numberOfPreBoostedProposals
       numberOfBoostedProposals
       version
-      ${Object.values(Schemes).map(scheme => '...' + scheme.fragments.schemeParams.name).join('\n')}
+      ${Object.values(Plugins).map(scheme => '...' + scheme.fragments.schemeParams.name).join('\n')}
     }
-    ${Object.values(Schemes).map(scheme => scheme.fragments.schemeParams.fragment).join('\n')}
+    ${Object.values(Plugins).map(scheme => scheme.fragments.schemeParams.fragment).join('\n')}
     `
   }
 
@@ -102,7 +102,7 @@ export abstract class Plugin extends Entity<IPluginState> {
         options.where = {}
       }
 
-      return Schemes[item.name].itemMap(context, item)
+      return Plugins[item.name].itemMap(context, item)
     }
 
     return context.getObservableList(

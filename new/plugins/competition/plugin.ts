@@ -1,17 +1,17 @@
 import BN from 'bn.js'
-import { Address, IApolloQueryOptions } from "../types";
-import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../proposal";
-import { ProposalPlugin } from "../proposalPlugin";
-import { Arc } from "../arc";
-import { IPluginState, Plugin } from "../plugin";
-import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../operation";
+import { Address, IApolloQueryOptions } from "../../types";
+import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../../proposal";
+import { ProposalPlugin } from "../../proposalPlugin";
+import { Arc } from "../../arc";
+import { IPluginState, Plugin } from "../../plugin";
+import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../../operation";
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
-import { ICompetitionSuggestionQueryOptions, CompetitionSuggestion } from '../competitionSuggestion';
-import { IVoteQueryOptions } from '../vote';
-import { CompetitionVote } from '../competitionVote';
-import { CompetitionProposal } from '../proposals/competition';
-import { getBlockTime, dateToSecondsSinceEpoch, NULL_ADDRESS } from '../utils';
+import { ICompetitionSuggestionQueryOptions, CompetitionSuggestion } from './suggestion';
+import { IVoteQueryOptions } from '../../vote';
+import { getBlockTime, dateToSecondsSinceEpoch, NULL_ADDRESS } from '../../utils';
+import { CompetitionVote } from './vote';
+import { CompetitionProposal } from './proposal';
 
 export interface ICompetitionState extends IPluginState { }
 

@@ -5,7 +5,7 @@ import { Proposal } from './proposal'
 import { ICommonQueryOptions } from './types'
 import { createGraphQlQuery } from './utils'
 import { Entity, IEntityRef } from './entity'
-import Proposals from './proposals'
+import { Proposals } from './plugins'
 
 export interface ITagState {
   id: string

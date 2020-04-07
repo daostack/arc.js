@@ -8,12 +8,12 @@ import { IGenesisProtocolParams, mapGenesisProtocolParams } from './genesisProto
 import { Arc } from './arc'
 import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
 import { IObservable } from './graphnode'
-import Proposals, { ProposalTypeNames } from './proposals'
 import { IVoteQueryOptions, Vote } from './vote'
 import { Stake, IStakeQueryOptions } from './stake'
 import { Queue, IQueueState } from './queue'
 import { IRewardQueryOptions, Reward } from './reward'
 import { DAO } from './dao'
+import { ProposalTypeNames, Proposals } from './plugins'
 
 export enum IProposalOutcome {
   None,

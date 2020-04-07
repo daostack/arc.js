@@ -1,10 +1,10 @@
 import BN from 'bn.js'
-import { Entity } from "./entity"
-import { Address, IApolloQueryOptions, ICommonQueryOptions } from "./types"
+import { Entity } from "../../entity"
+import { Address, IApolloQueryOptions, ICommonQueryOptions } from "../../types"
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { createGraphQlQuery, secondSinceEpochToDate } from './utils'
-import { Arc } from './arc'
+import { createGraphQlQuery, secondSinceEpochToDate } from '../../utils'
+import { Arc } from '../../arc'
 
 export interface ICompetitionVoteState {
   id: string

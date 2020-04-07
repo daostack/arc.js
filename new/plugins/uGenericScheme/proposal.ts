@@ -1,10 +1,10 @@
-import { Proposal, IProposalState } from "../proposal";
-import { Address, IApolloQueryOptions } from "../types";
-import { Arc } from "../arc";
-import { Plugin } from '../plugin'
+import { Proposal, IProposalState } from "../../proposal";
+import { Address, IApolloQueryOptions } from "../../types";
+import { Arc } from "../../arc";
+import { Plugin } from '../../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
-import { UGenericScheme } from "../plugins/uGenericScheme";
+import { UGenericScheme } from "./plugin";
 
 interface IUGenericSchemeProposalState extends IProposalState { 
   id: string

@@ -1,17 +1,17 @@
-import { Proposal, IProposalState } from "../proposal";
-import { Address, IApolloQueryOptions } from "../types";
-import { Arc } from "../arc";
-import { Plugin } from '../plugin'
-import { Observable, from } from "rxjs";
-import gql from "graphql-tag";
-import { secondSinceEpochToDate } from '../utils';
-import { Competition } from "../plugins/competition";
-import { ITransactionReceipt, toIOperationObservable, ITransaction, getEventArgs, Operation } from "../operation";
-import { concatMap, first } from "rxjs/operators";
-import { CompetitionSuggestion } from "../competitionSuggestion";
-import { DAO } from "../dao";
-import { CompetitionVote } from "../competitionVote";
-import { IEntityRef } from "../entity";
+import { IProposalState, Proposal } from "../../proposal"
+import { IEntityRef } from "../../entity"
+import { Arc } from "../../arc"
+import { secondSinceEpochToDate } from "../../utils"
+import { IApolloQueryOptions, Address } from "../../types"
+import { Observable, from } from "rxjs"
+import gql from "graphql-tag"
+import { CompetitionVote } from "./vote"
+import { ITransactionReceipt, getEventArgs, ITransaction, toIOperationObservable, Operation } from "../../operation"
+import { CompetitionSuggestion } from "./suggestion"
+import { DAO } from "../../dao"
+import { first, concatMap } from "rxjs/operators"
+import { Competition } from "./plugin"
+import { Plugin } from "../../plugin"
 
 //TODO: 'createdAt', is it a number or a Date?
 

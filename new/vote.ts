@@ -6,7 +6,7 @@ import { IProposalOutcome, Proposal } from './proposal'
 import { Address, Date, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { Entity, IEntityRef } from './entity'
-import Proposals from './proposals'
+import { Proposals } from './plugins'
 
 export interface IVoteState {
   id: string

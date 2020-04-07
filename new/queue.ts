@@ -7,7 +7,7 @@ import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
 import { Entity, IEntityRef } from './entity'
 import { Plugin } from './plugin'
-import Plugins from './plugins'
+import { Plugins } from './plugins'
 
 export interface IQueueState {
   dao: DAO

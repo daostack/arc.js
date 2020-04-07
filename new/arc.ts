@@ -28,8 +28,7 @@ import { isAddress } from './utils'
 import { IPFSClient } from './ipfsClient'
 import { IEventQueryOptions, Event } from './event'
 import { IPluginQueryOptions, Plugin } from './plugin'
-import Plugins from './plugins'
-import Proposals from './proposals'
+import { Plugins, Proposals } from './plugins'
 
 type PluginName = keyof typeof Plugins
 type ProposalName = keyof typeof Proposals

@@ -1,15 +1,14 @@
 import BN from 'bn.js'
-import { Proposal, IProposalState } from "../proposal";
-import { GenericScheme } from "../plugins/genericScheme";
-import { Address, IApolloQueryOptions } from "../types";
-import { Arc } from "../arc";
-import { Plugin } from '../plugin'
-import { Observable } from "rxjs";
-import gql from "graphql-tag";
-import { IContributionRewardProposalState, ContributionRewardProposal } from './contributionReward';
-import { ContributionRewardExt } from '../plugins/contributionRewardExt';
+import { IProposalState, Proposal } from '../../proposal'
+import { Arc } from '../../arc'
+import { ContributionReward } from './plugin'
+import { IApolloQueryOptions, Address } from '../../types'
+import { Observable } from 'rxjs'
+import gql from 'graphql-tag'
+import { Plugin } from '../../plugin'
 
-export interface IContributionRewardExtProposalState extends IProposalState { 
+
+export interface IContributionRewardProposalState extends IProposalState { 
   beneficiary: Address
   externalTokenReward: BN
   externalToken: Address
@@ -22,19 +21,19 @@ export interface IContributionRewardExtProposalState extends IProposalState {
   alreadyRedeemedReputationPeriods: number
   alreadyRedeemedExternalTokenPeriods: number
   alreadyRedeemedEthPeriods: number
-  reputationChangeLeft: BN
-  nativeTokenRewardLeft: BN
-  ethRewardLeft: BN
-  externalTokenRewardLeft: BN
+  reputationChangeLeft: BN | null
+  nativeTokenRewardLeft: BN | null
+  ethRewardLeft: BN | null
+  externalTokenRewardLeft: BN | null
 }
 
-export class ContributionRewardExtProposal extends Proposal {
+export class ContributionRewardProposal extends Proposal {
 
   coreState: IContributionRewardProposalState
 
   constructor(
     context: Arc,
-    idOrOpts: string | IContributionRewardExtProposalState
+    idOrOpts: string | IContributionRewardProposalState
   ) {
     super()
     this.context = context
@@ -72,18 +71,18 @@ export class ContributionRewardExtProposal extends Proposal {
       null
     )
     
-    const contributionRewardExt = ContributionRewardExt.itemMap(context, item)
-    const contributionRewardExtProposal = new ContributionRewardExtProposal(context, item.id)
+    const contributionReward = ContributionReward.itemMap(context, item)
+    const contributionRewardProposal = new ContributionRewardProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
       context,
       item,
-      contributionRewardExt,
-      contributionRewardExtProposal,
-      "ContributionRewardExt"
+      contributionReward,
+      contributionRewardProposal,
+      "ContributionReward"
     )
     
-    const state: IContributionRewardExtProposalState = {
+    const state: IContributionRewardProposalState = {
       ...baseState,
       alreadyRedeemedEthPeriods: Number(item.contributionReward.alreadyRedeemedEthPeriods),
       alreadyRedeemedExternalTokenPeriods: Number(item.contributionReward.alreadyRedeemedExternalTokenPeriods),
@@ -103,7 +102,7 @@ export class ContributionRewardExtProposal extends Proposal {
       reputationReward: new BN(item.contributionReward.reputationReward)
     }
 
-    return new ContributionRewardExtProposal(context, state)
+    return new ContributionRewardProposal(context, state)
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
@@ -123,9 +122,9 @@ export class ContributionRewardExtProposal extends Proposal {
       ${Plugin.baseFragment.SchemeFields}
     `
 
-    const itemMap = (item: any) => ContributionRewardExtProposal.itemMap(this.context, item)
+    const itemMap = (item: any) => ContributionRewardProposal.itemMap(this.context, item)
 
-    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IContributionRewardExtProposalState>
+    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IContributionRewardProposalState>
     return result
   }
 

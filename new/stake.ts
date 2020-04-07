@@ -4,10 +4,10 @@ import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { IProposalOutcome, Proposal} from './proposal'
-import { Address, ICommonQueryOptions, IStateful } from './types'
+import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { Entity, IEntityRef } from './entity'
-import Proposals from './proposals'
+import { Proposals } from './plugins'
 
 export interface IStakeState {
   id: string

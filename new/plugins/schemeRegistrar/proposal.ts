@@ -1,10 +1,10 @@
-import { Proposal, IProposalState, IProposalBaseCreateOptions } from "../proposal";
-import { Address, IApolloQueryOptions } from "../types";
-import { Arc } from "../arc";
-import { Plugin } from '../plugin'
+import { Proposal, IProposalState } from "../../proposal";
+import { Address, IApolloQueryOptions } from "../../types";
+import { Arc } from "../../arc";
+import { Plugin } from '../../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
-import { SchemeRegistrar } from "../plugins/schemeRegistrar";
+import { SchemeRegistrar } from "./plugin";
 
 interface ISchemeRegistrarProposalState extends IProposalState { 
   id: string

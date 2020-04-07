@@ -1,15 +1,15 @@
 import BN from 'bn.js'
-import { Address, IApolloQueryOptions } from "../types";
-import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../proposal";
-import { ProposalPlugin } from "../proposalPlugin";
-import { Arc } from "../arc";
-import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../genesisProtocol";
-import { IPluginState, Plugin } from "../plugin";
-import { ITransaction, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../operation";
-import { Observable } from "rxjs";
-import gql from "graphql-tag";
-import { NULL_ADDRESS } from '../utils';
-import { ContributionRewardExtProposal } from '../proposals/contributionRewardExt';
+import { IPluginState, Plugin } from "../../plugin"
+import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../../genesisProtocol"
+import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../../proposal"
+import { ProposalPlugin } from "../../proposalPlugin"
+import gql from "graphql-tag"
+import { Arc } from "../../arc"
+import { IApolloQueryOptions, Address } from "../../types"
+import { Observable } from "rxjs"
+import { ITransaction, ITransactionReceipt, getEventArgs, transactionErrorHandler } from "../../operation"
+import { NULL_ADDRESS } from "../../utils"
+import { ContributionRewardExtProposal } from "./proposal"
 
 export interface IContributionRewardExtState extends IPluginState {
   schemeParams: {
