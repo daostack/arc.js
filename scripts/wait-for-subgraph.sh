@@ -3,7 +3,7 @@ do
   STR=$(docker-compose logs --tail=8 graph-node)
 
   if [[ "$STR" == *"database system is starting up"* ]]; then
-    echo "It's there."
+    sleep 2
   else
     break
   fi
