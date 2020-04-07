@@ -21,7 +21,6 @@ script:
   - ./scripts/wait-for-it.sh 127.0.0.1:8545
   - ./scripts/wait-for-it.sh 127.0.0.1:8000
   - ./scripts/wait-for-it.sh 127.0.0.1:8020
-  - sleep 30
 
   - echo 'Debug info:' && echo -en 'travis_fold:start:script.3\\r'
   - docker-compose logs ganache
@@ -29,7 +28,7 @@ script:
   - echo -en 'travis_fold:end:script.3\\r'
 
 # sleep a bit to make sure the subgraph is ready
-  - sleep 5
+  - sleep 60
   - echo -en 'travis_fold:end:script.2\\r'
   - npm run lint
   - npm run test
