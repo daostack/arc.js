@@ -105,7 +105,7 @@ export function sendTransaction<T>(
   }
 
   if (methodInfo.type === 'call') {
-    throw Error(`Trying to send a transaction to a pure function named '${tx.method}' at address ${tx.contract.address}, please use viewContract(...) instead`)
+    throw Error(`Trying to send a transaction to a pure function named '${tx.method}' at address ${tx.contract.address}`)
   }
 
   if (methodInfo.inputs.length !== tx.args.length) {
