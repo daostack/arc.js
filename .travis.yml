@@ -27,7 +27,6 @@ script:
   - docker-compose logs ganache
   - docker-compose logs graph-node
   - echo -en 'travis_fold:end:script.3\\r'
-  - ./scripts/wait-for-subgraph.sh 127.0.0.1:5
   - echo -en 'travis_fold:end:script.2\\r'
   - npm run lint
   - npm run test
