@@ -6,6 +6,8 @@
 
 * [IProposalBaseCreateOptions](iproposalbasecreateoptions.md)
 
+* [IProposalBaseCreateOptions](iproposalbasecreateoptions.md)
+
   ↳ **IProposalCreateOptionsGS**
 
 ## Index
@@ -29,7 +31,9 @@
 
 • **callData**? : *undefined | string*
 
-*Defined in [src/schemes/genericScheme.ts:25](https://github.com/daostack/client/blob/9d69996/src/schemes/genericScheme.ts#L25)*
+*Defined in [src/schemes/genericScheme.ts:25](https://github.com/dorgtech/client/blob/19b4373/src/schemes/genericScheme.ts#L25)*
+
+*Defined in [src/schemes/uGenericScheme.ts:25](https://github.com/dorgtech/client/blob/19b4373/src/schemes/uGenericScheme.ts#L25)*
 
 ___
 
@@ -39,7 +43,9 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[dao](iproposalbasecreateoptions.md#dao)*
 
-*Defined in [src/proposal.ts:954](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L954)*
+*Overrides [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[dao](iproposalbasecreateoptions.md#dao)*
+
+*Defined in [src/proposal.ts:959](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L959)*
 
 ___
 
@@ -49,7 +55,9 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[description](iproposalbasecreateoptions.md#optional-description)*
 
-*Defined in [src/proposal.ts:955](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L955)*
+*Overrides [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[description](iproposalbasecreateoptions.md#optional-description)*
+
+*Defined in [src/proposal.ts:960](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L960)*
 
 ___
 
@@ -59,7 +67,9 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[descriptionHash](iproposalbasecreateoptions.md#optional-descriptionhash)*
 
-*Defined in [src/proposal.ts:956](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L956)*
+*Overrides [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[descriptionHash](iproposalbasecreateoptions.md#optional-descriptionhash)*
+
+*Defined in [src/proposal.ts:961](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L961)*
 
 ___
 
@@ -69,7 +79,9 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[proposalType](iproposalbasecreateoptions.md#optional-proposaltype)*
 
-*Defined in [src/proposal.ts:961](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L961)*
+*Overrides [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[proposalType](iproposalbasecreateoptions.md#optional-proposaltype)*
+
+*Defined in [src/proposal.ts:966](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L966)*
 
 ___
 
@@ -79,7 +91,9 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[scheme](iproposalbasecreateoptions.md#optional-scheme)*
 
-*Defined in [src/proposal.ts:959](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L959)*
+*Overrides [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[scheme](iproposalbasecreateoptions.md#optional-scheme)*
+
+*Defined in [src/proposal.ts:964](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L964)*
 
 ___
 
@@ -89,7 +103,9 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[tags](iproposalbasecreateoptions.md#optional-tags)*
 
-*Defined in [src/proposal.ts:958](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L958)*
+*Overrides [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[tags](iproposalbasecreateoptions.md#optional-tags)*
+
+*Defined in [src/proposal.ts:963](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L963)*
 
 ___
 
@@ -99,7 +115,9 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[title](iproposalbasecreateoptions.md#optional-title)*
 
-*Defined in [src/proposal.ts:957](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L957)*
+*Overrides [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[title](iproposalbasecreateoptions.md#optional-title)*
+
+*Defined in [src/proposal.ts:962](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L962)*
 
 ___
 
@@ -109,7 +127,9 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[url](iproposalbasecreateoptions.md#optional-url)*
 
-*Defined in [src/proposal.ts:960](https://github.com/daostack/client/blob/9d69996/src/proposal.ts#L960)*
+*Overrides [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[url](iproposalbasecreateoptions.md#optional-url)*
+
+*Defined in [src/proposal.ts:965](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L965)*
 
 ___
 
@@ -117,4 +137,6 @@ ___
 
 • **value**? : *undefined | number*
 
-*Defined in [src/schemes/genericScheme.ts:26](https://github.com/daostack/client/blob/9d69996/src/schemes/genericScheme.ts#L26)*
+*Defined in [src/schemes/genericScheme.ts:26](https://github.com/dorgtech/client/blob/19b4373/src/schemes/genericScheme.ts#L26)*
+
+*Defined in [src/schemes/uGenericScheme.ts:26](https://github.com/dorgtech/client/blob/19b4373/src/schemes/uGenericScheme.ts#L26)*

@@ -16,7 +16,7 @@
 
 • **Mined**:
 
-*Defined in [src/operation.ts:32](https://github.com/daostack/client/blob/9d69996/src/operation.ts#L32)*
+*Defined in [src/operation.ts:32](https://github.com/dorgtech/client/blob/19b4373/src/operation.ts#L32)*
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **Sending**:
 
-*Defined in [src/operation.ts:30](https://github.com/daostack/client/blob/9d69996/src/operation.ts#L30)*
+*Defined in [src/operation.ts:30](https://github.com/dorgtech/client/blob/19b4373/src/operation.ts#L30)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **Sent**:
 
-*Defined in [src/operation.ts:31](https://github.com/daostack/client/blob/9d69996/src/operation.ts#L31)*
+*Defined in [src/operation.ts:31](https://github.com/dorgtech/client/blob/19b4373/src/operation.ts#L31)*

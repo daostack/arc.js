@@ -50,7 +50,7 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 \+ **new SchemeBase**(`context`: [Arc](arc.md), `idOrOpts`: [Address](../globals.md#address) | [ISchemeState](../interfaces/ischemestate.md)): *[SchemeBase](schemebase.md)*
 
-*Defined in [src/schemes/base.ts:210](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L210)*
+*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
 
 **Parameters:**
 
@@ -67,7 +67,7 @@ Name | Type |
 
 • **ReputationFromToken**: *[ReputationFromTokenScheme](reputationfromtokenscheme.md) | null* =  null
 
-*Defined in [src/schemes/base.ts:210](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L210)*
+*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
 
 ___
 
@@ -75,7 +75,7 @@ ___
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/schemes/base.ts:212](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L212)*
+*Defined in [src/schemes/base.ts:242](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L242)*
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 • **coreState**: *[ISchemeState](../interfaces/ischemestate.md) | null* =  null
 
-*Defined in [src/schemes/base.ts:209](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L209)*
+*Defined in [src/schemes/base.ts:239](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L239)*
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/base.ts:208](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L208)*
+*Defined in [src/schemes/base.ts:238](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L238)*
 
 ## Methods
 
@@ -99,7 +99,7 @@ ___
 
 ▸ **createProposal**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *[Operation](../globals.md#operation)‹[Proposal](proposal.md)›*
 
-*Defined in [src/schemes/base.ts:240](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L240)*
+*Defined in [src/schemes/base.ts:273](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L273)*
 
 **Parameters:**
 
@@ -115,7 +115,7 @@ ___
 
 ▸ **createProposalErrorHandler**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *[transactionErrorHandler](../globals.md#transactionerrorhandler)*
 
-*Defined in [src/schemes/base.ts:283](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L283)*
+*Defined in [src/schemes/base.ts:316](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L316)*
 
 **Parameters:**
 
@@ -131,7 +131,7 @@ ___
 
 ▸ **createProposalTransaction**(`options`: [IProposalCreateOptions](../globals.md#iproposalcreateoptions)): *Promise‹[ITransaction](../interfaces/itransaction.md)›*
 
-*Defined in [src/schemes/base.ts:277](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L277)*
+*Defined in [src/schemes/base.ts:310](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L310)*
 
 create a new proposal in this scheme
 TODO: move this to the schemes - we should call proposal.scheme.createProposal
@@ -152,7 +152,7 @@ ___
 
 ▸ **createProposalTransactionMap**(): *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
-*Defined in [src/schemes/base.ts:281](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L281)*
+*Defined in [src/schemes/base.ts:314](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L314)*
 
 **Returns:** *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
@@ -162,7 +162,7 @@ ___
 
 ▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ISchemeState](../interfaces/ischemestate.md)›*
 
-*Defined in [src/schemes/base.ts:227](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L227)*
+*Defined in [src/schemes/base.ts:257](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L257)*
 
 fetch the static state from the subgraph
 
@@ -182,7 +182,7 @@ ___
 
 ▸ **proposals**(`options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Proposal](proposal.md)[]›*
 
-*Defined in [src/schemes/base.ts:262](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L262)*
+*Defined in [src/schemes/base.ts:295](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L295)*
 
 **Parameters:**
 
@@ -199,7 +199,7 @@ ___
 
 ▸ **setState**(`opts`: [ISchemeState](../interfaces/ischemestate.md)): *void*
 
-*Defined in [src/schemes/base.ts:236](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L236)*
+*Defined in [src/schemes/base.ts:269](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L269)*
 
 **Parameters:**
 
@@ -215,7 +215,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions?`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ISchemeState](../interfaces/ischemestate.md)›*
 
-*Defined in [src/schemes/base.ts:260](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L260)*
+*Defined in [src/schemes/base.ts:293](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L293)*
 
 **Parameters:**
 
@@ -231,7 +231,7 @@ Name | Type |
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/schemes/base.ts:97](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L97)*
+*Defined in [src/schemes/base.ts:107](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L107)*
 
 ###  SchemeFields
 
@@ -245,6 +245,7 @@ Name | Type |
       canRegisterSchemes
       canUpgradeController
       canManageGlobalConstraints
+      paramsHash
       contributionRewardParams {
         id
         votingMachine
@@ -341,7 +342,26 @@ Name | Type |
       numberOfQueuedProposals
       numberOfPreBoostedProposals
       numberOfBoostedProposals
+      uGenericSchemeParams {
+        votingMachine
+        contractToCall
+        voteParams {
+          queuedVoteRequiredPercentage
+          queuedVotePeriodLimit
+          boostedVotePeriodLimit
+          preBoostedVotePeriodLimit
+          thresholdConst
+          limitExponentValue
+          quietEndingPeriod
+          proposingRepReward
+          votersReputationLossRatio
+          minimumDaoBounty
+          daoBountyConst
+          activationTime
+          voteOnBehalf
+        }
+      }
       version
     }`
 
-*Defined in [src/schemes/base.ts:98](https://github.com/daostack/client/blob/9d69996/src/schemes/base.ts#L98)*
+*Defined in [src/schemes/base.ts:108](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L108)*

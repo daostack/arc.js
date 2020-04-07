@@ -40,7 +40,7 @@ handles connections with the Graph
 
 \+ **new GraphNodeObserver**(`options`: object): *[GraphNodeObserver](graphnodeobserver.md)*
 
-*Defined in [src/graphnode.ts:159](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L159)*
+*Defined in [src/graphnode.ts:159](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L159)*
 
 **Parameters:**
 
@@ -63,7 +63,7 @@ Name | Type |
 
 • **Logger**: *GlobalLogger* =  Logger
 
-*Defined in [src/graphnode.ts:157](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L157)*
+*Defined in [src/graphnode.ts:157](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L157)*
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 • **apolloClient**? : *ApolloClient‹object›*
 
-*Defined in [src/graphnode.ts:158](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L158)*
+*Defined in [src/graphnode.ts:158](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L158)*
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 • **graphqlHttpProvider**? : *undefined | string*
 
-*Defined in [src/graphnode.ts:155](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L155)*
+*Defined in [src/graphnode.ts:155](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L155)*
 
 ___
 
@@ -87,7 +87,7 @@ ___
 
 • **graphqlSubscribeToQueries**? : *undefined | false | true*
 
-*Defined in [src/graphnode.ts:159](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L159)*
+*Defined in [src/graphnode.ts:159](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L159)*
 
 ___
 
@@ -95,7 +95,7 @@ ___
 
 • **graphqlWsProvider**? : *undefined | string*
 
-*Defined in [src/graphnode.ts:156](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L156)*
+*Defined in [src/graphnode.ts:156](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L156)*
 
 ## Methods
 
@@ -103,7 +103,7 @@ ___
 
 ▸ **getObservable**(`query`: any, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *any*
 
-*Defined in [src/graphnode.ts:189](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L189)*
+*Defined in [src/graphnode.ts:189](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L189)*
 
 Given a gql query, will return an observable of query results
 
@@ -124,7 +124,7 @@ ___
 
 ▸ **getObservableList**(`query`: any, `itemMap`: function, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *any*
 
-*Defined in [src/graphnode.ts:290](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L290)*
+*Defined in [src/graphnode.ts:290](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L290)*
 
 Returns an observable that:
 - sends a query over http and returns the current list of results
@@ -172,7 +172,7 @@ ___
 
 ▸ **getObservableListWithFilter**(`query`: any, `itemMap`: function, `filterFunc`: function, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *any*
 
-*Defined in [src/graphnode.ts:329](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L329)*
+*Defined in [src/graphnode.ts:329](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L329)*
 
 Returns an observable that:
 - sends a query over http and returns the current list of results
@@ -225,7 +225,7 @@ ___
 
 ▸ **getObservableObject**(`query`: any, `itemMap`: function, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *any*
 
-*Defined in [src/graphnode.ts:346](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L346)*
+*Defined in [src/graphnode.ts:346](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L346)*
 
 **Parameters:**
 
@@ -251,7 +251,7 @@ ___
 
 ▸ **sendQuery**(`query`: any, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹object›*
 
-*Defined in [src/graphnode.ts:366](https://github.com/daostack/client/blob/9d69996/src/graphnode.ts#L366)*
+*Defined in [src/graphnode.ts:366](https://github.com/dorgtech/client/blob/19b4373/src/graphnode.ts#L366)*
 
 **Parameters:**
 

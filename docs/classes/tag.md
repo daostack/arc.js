@@ -39,7 +39,7 @@
 
 \+ **new Tag**(`context`: [Arc](arc.md), `idOrOpts`: string | [ITagState](../interfaces/itagstate.md)): *[Tag](tag.md)*
 
-*Defined in [src/tag.ts:110](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L110)*
+*Defined in [src/tag.ts:110](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L110)*
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/tag.ts:113](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L113)*
+*Defined in [src/tag.ts:113](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L113)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **coreState**: *[ITagState](../interfaces/itagstate.md) | undefined*
 
-*Defined in [src/tag.ts:110](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L110)*
+*Defined in [src/tag.ts:110](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L110)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **id**: *string | undefined*
 
-*Defined in [src/tag.ts:109](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L109)*
+*Defined in [src/tag.ts:109](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L109)*
 
 ## Methods
 
@@ -80,7 +80,7 @@ ___
 
 ▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[ITagState](../interfaces/itagstate.md)›*
 
-*Defined in [src/tag.ts:154](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L154)*
+*Defined in [src/tag.ts:154](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L154)*
 
 **Parameters:**
 
@@ -96,7 +96,7 @@ ___
 
 ▸ **setState**(`opts`: [ITagState](../interfaces/itagstate.md)): *void*
 
-*Defined in [src/tag.ts:150](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L150)*
+*Defined in [src/tag.ts:150](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L150)*
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[ITagState](../interfaces/itagstate.md)›*
 
-*Defined in [src/tag.ts:124](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L124)*
+*Defined in [src/tag.ts:124](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L124)*
 
 **Parameters:**
 
@@ -128,7 +128,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [ITagQueryOptions](../interfaces/itagqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Tag](tag.md)[]›*
 
-*Defined in [src/tag.ts:37](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L37)*
+*Defined in [src/tag.ts:37](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L37)*
 
 Tag.search(context, options) searches for stake entities
 
@@ -150,7 +150,7 @@ an observable of Tag objects
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/tag.ts:23](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L23)*
+*Defined in [src/tag.ts:23](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L23)*
 
 ###  TagFields
 
@@ -160,4 +160,4 @@ an observable of Tag objects
       proposals { id }
     }`
 
-*Defined in [src/tag.ts:24](https://github.com/daostack/client/blob/9d69996/src/tag.ts#L24)*
+*Defined in [src/tag.ts:24](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L24)*
