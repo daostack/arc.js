@@ -28,7 +28,7 @@ script:
   - echo -en 'travis_fold:end:script.3\\r'
 
 # sleep a bit to make sure the subgraph is ready
-  - sleep 60
+  - sleep 120
   - echo -en 'travis_fold:end:script.2\\r'
   - npm run lint
   - npm run test
