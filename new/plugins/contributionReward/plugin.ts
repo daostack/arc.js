@@ -3,7 +3,7 @@ import { Address, IApolloQueryOptions } from "../../types";
 import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../../proposal";
 import { ProposalPlugin } from "../../proposalPlugin";
 import { Arc } from "../../arc";
-import { GenericSchemeProposal } from "../../proposals/genericScheme";
+import { GenericSchemeProposal } from "../genericScheme/proposal";
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../../genesisProtocol";
 import { IPluginState, Plugin } from "../../plugin";
 import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../../operation";

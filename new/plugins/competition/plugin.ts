@@ -12,8 +12,7 @@ import { IVoteQueryOptions } from '../../vote';
 import { getBlockTime, dateToSecondsSinceEpoch, NULL_ADDRESS } from '../../utils';
 import { CompetitionVote } from './vote';
 import { CompetitionProposal } from './proposal';
-
-export interface ICompetitionState extends IPluginState { }
+import { IContributionRewardExtState, ContributionRewardExt } from '../contributionRewardExt/plugin';
 
 export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   // beneficiary: Address
@@ -32,95 +31,24 @@ export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   votingStartTime: Date
 }
 
-export class Competition extends ProposalPlugin {
+export class Competition extends ContributionRewardExt {
 
-  coreState: ICompetitionState
+  coreState: IContributionRewardExtState
 
-  constructor(public context: Arc, idOrOpts: Address | ICompetitionState) {
-    super()
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts as string
-      this.id = this.id.toLowerCase()
-    } else {
-      this.setState(idOrOpts)
-      this.id = this.coreState.id
-    }
+  constructor(context: Arc, idOrOpts: Address | IContributionRewardExtState) {
+    super(context, idOrOpts)
   }
 
-  public static fragments = {
-    schemeParams: { 
-      name: 'GenericSchemeParams',
-      fragment: gql` fragment GenericSchemeParams on ControllerScheme {
-      genericSchemeParams {
-        votingMachine
-        contractToCall
-        voteParams {
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-      }`
-    }
-  }
-
-  public static itemMap(arc: Arc, item: any): Competition | null {
-    if (!item) {
-      return null
-    }
-
-    let name = item.name
-    if (!name) {
-
-      try {
-        name = arc.getContractInfo(item.address).name
-      } catch (err) {
-        if (err.message.match(/no contract/ig)) {
-          // continue
-        } else {
-          throw err
-        }
-      }
-    }
-    
-    return new Competition(arc, {
-        address: item.address,
-        canDelegateCall: item.canDelegateCall,
-        canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterSchemes: item.canRegisterSchemes,
-        canUpgradeController: item.canUpgradeController,
-        dao: item.dao.id,
-        id: item.id,
-        name,
-        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
-        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
-        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        paramsHash: item.paramsHash,
-        version: item.version
-      }
-    )
-  }
-
-  public static getCompetitionContract(arc: Arc, schemeState: ISchemeState) {
-    if (schemeState === null) {
+  public static getCompetitionContract(arc: Arc, state: IContributionRewardExtState) {
+    if (state === null) {
       throw Error(`No scheme was provided`)
     }
-    const rewarder = schemeState.contributionRewardExtParams && schemeState.contributionRewardExtParams.rewarder
+    const rewarder = state.schemeParams && state.schemeParams.rewarder
     if (!rewarder) {
       throw Error(`This scheme's rewarder is not set, and so no compeittion contract could be found`)
     }
   
-    if (!Competition.isCompetitionScheme(arc, schemeState)) {
+    if (!Competition.isCompetitionScheme(arc, state)) {
       throw Error(`We did not find a Competition contract at the rewarder address ${rewarder}`)
     }
     const contract = arc.getContract(rewarder as Address)
@@ -140,28 +68,8 @@ export class Competition extends ProposalPlugin {
     }
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionState> {
-    const query = gql`query SchemeStateById
-      {
-        controllerScheme (id: "${this.id}") {
-          ...SchemeFields
-        }
-      }
-      ${Plugin.baseFragment.SchemeFields}
-    `
-    const itemMap = (item: any) => Competition.itemMap(this.context, item)
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ICompetitionState>
-  }
-
   //TODO: Get competition contract
 
-  public getPermissions(): Permissions {
-    throw new Error("Method not implemented.");
-  }
-
-  public proposals(options: IProposalQueryOptions, apolloQueryOptions: IApolloQueryOptions): Observable<any[]> {
-    throw new Error("Method not implemented.");
-  }
 
   public suggestions(
     options: ICompetitionSuggestionQueryOptions = {},
@@ -181,14 +89,14 @@ export class Competition extends ProposalPlugin {
     return CompetitionVote.search(this.context, options, apolloQueryOptions)
   }
 
-  protected async createProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
+  public async createCompetitionProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
     const context = this.context
     const schemeState = await this.fetchState()
     if (!schemeState) {
       throw Error(`No scheme was found with this id: ${this.id}`)
     }
 
-    const contract = Competition.getCompetitionContract(this.context, schemeState)
+    const contract = Competition.getCompetitionContract(this.context, schemeState as IContributionRewardExtState)
 
     // check sanity -- is the competition contract actually c
     const contributionRewardExtAddress = await contract.contributionRewardExt()
@@ -204,15 +112,6 @@ export class Competition extends ProposalPlugin {
         throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b)})`)
       }
     }
-    // * @param _rewardSplit an array of precentages which specify how to split the rewards
-    // *         between the winning suggestions
-    // * @param _competitionParams competition parameters :
-    // *         _competitionParams[0] - competition startTime
-    // *         _competitionParams[1] - _votingStartTime competition voting start time
-    // *         _competitionParams[2] - _endTime competition end time
-    // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
-    // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
-    // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
 
     const competitionParams = [
       (options.startTime && dateToSecondsSinceEpoch(options.startTime)) || 0,
@@ -240,9 +139,9 @@ export class Competition extends ProposalPlugin {
         proposerIsAdmin
       ]
     }
-}
+  }
 
-  protected createProposalTransactionMap(): transactionResultHandler<CompetitionProposal> {
+  public createCompetitionProposalTransactionMap(): transactionResultHandler<CompetitionProposal> {
     return (receipt: ITransactionReceipt) => {
       const args = getEventArgs(receipt, 'NewCompetitionProposal', 'Competition.createProposal')
       const proposalId = args[0]
@@ -250,7 +149,7 @@ export class Competition extends ProposalPlugin {
     }
   }
 
-  protected createProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
+  public createCompetitionProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
     return async (err) => {
       if (err.message.match(/startTime should be greater than proposing time/ig)) {
         if (!this.context.web3) {

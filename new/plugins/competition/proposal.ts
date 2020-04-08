@@ -12,8 +12,7 @@ import { DAO } from "../../dao"
 import { first, concatMap } from "rxjs/operators"
 import { Competition } from "./plugin"
 import { Plugin } from "../../plugin"
-
-//TODO: 'createdAt', is it a number or a Date?
+import { IContributionRewardExtState } from "../contributionRewardExt/plugin"
 
 export interface ICompetitionProposalState extends IProposalState { 
   id: string
@@ -59,7 +58,7 @@ export class CompetitionProposal extends Proposal {
     
     if (!item.contributionReward) throw new Error(`Unexpected proposal state: competition is set, but contributionReward is not`)
     
-    const competition = Competition.itemMap(context, item)
+    const competition = Competition.itemMap(context, item) as Competition
     const competitionProposal = new CompetitionProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -81,6 +80,10 @@ export class CompetitionProposal extends Proposal {
       numberOfWinners: Number(item.competition.numberOfWinners),
       numberOfWinningSuggestions: Number(item.competition.numberOfWinningSuggestions),
       rewardSplit: item.competition.rewardSplit.map((perc: string) => Number(perc)),
+      scheme: {
+        id: competition.id,
+        entity: competition
+      },
       snapshotBlock: item.competition.snapshotBlock,
       startTime: secondSinceEpochToDate(item.competition.startTime),
       suggestionsEndTime: secondSinceEpochToDate(item.competition.suggestionsEndTime),
@@ -115,6 +118,59 @@ export class CompetitionProposal extends Proposal {
     return result
   }
 
+  public createSuggestion(options: {
+    title: string,
+    description: string,
+    beneficiary?: Address,
+    tags?: string[],
+    url?: string
+  }): Operation<CompetitionSuggestion> {
+
+    const mapReceipt = async (receipt: ITransactionReceipt) => {
+      const schemeState = await this.coreState.scheme.entity.fetchState({}, true) as IContributionRewardExtState
+      const args = getEventArgs(receipt, 'NewSuggestion', 'Competition.createSuggestion')
+      const suggestionId = args[1]
+      return new CompetitionSuggestion(this.context, {
+        scheme: (schemeState).id,
+        suggestionId
+      })
+    }
+
+    const errorHandler = async (err: Error) => {
+      const schemeState = await this.coreState.scheme.entity.fetchState({}, true) as IContributionRewardExtState
+      const contract = Competition.getCompetitionContract(this.context, schemeState)
+      const proposal = await contract.proposals(this.id)
+      if (!proposal) {
+        throw Error(`A proposal with id ${this.id} does not exist`)
+      }
+      throw err
+    }
+
+    const createTransaction = async (): Promise<ITransaction> => {
+      if (!options.beneficiary) {
+        options.beneficiary = await this.context.getAccount().pipe(first()).toPromise()
+      }
+      const schemeState = await this.coreState.scheme.entity.fetchState({}, true) as IContributionRewardExtState
+      const contract = Competition.getCompetitionContract(this.context, schemeState)
+      const descriptionHash = await this.context.saveIPFSData(options)
+      return {
+        contract,
+        method: 'suggest',
+        args: [ this.id, descriptionHash, options.beneficiary ]
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(
+          transaction, mapReceipt, errorHandler
+        )
+      })
+    )
+
+    return toIOperationObservable(observable)
+  }
+
   public voteSuggestion(options: {
     suggestionId: number // this is the suggestion COUNTER
   }): Operation<CompetitionVote> {
@@ -143,7 +199,8 @@ export class CompetitionProposal extends Proposal {
     }
 
     const errorHandler = async (err: Error) => {
-      const contract = await Competition.getCompetitionContract(this.context, await this.coreState.scheme.entity.fetchState({}, true))
+      const schemeState = await this.coreState.scheme.entity.fetchState({}, true) as IContributionRewardExtState
+      const contract = await Competition.getCompetitionContract(this.context, schemeState)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
@@ -163,7 +220,8 @@ export class CompetitionProposal extends Proposal {
     }
 
     const createTransaction = async (): Promise<ITransaction> => {
-      const contract = await Competition.getCompetitionContract(this.context, await this.coreState.scheme.entity.fetchState({}, true))
+      const schemeState = await this.coreState.scheme.entity.fetchState({}, true) as IContributionRewardExtState
+      const contract = await Competition.getCompetitionContract(this.context, schemeState)
       return {
         contract,
         method: 'vote',
@@ -193,7 +251,8 @@ export class CompetitionProposal extends Proposal {
     }
 
     const errorHandler = async (err: Error) => {
-      const contract = await Competition.getCompetitionContract(this.context, await this.coreState.scheme.entity.fetchState({}, true))
+      const schemeState = await this.coreState.scheme.entity.fetchState({}, true) as IContributionRewardExtState
+      const contract = await Competition.getCompetitionContract(this.context, schemeState)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
@@ -203,7 +262,8 @@ export class CompetitionProposal extends Proposal {
     }
 
     const createTransaction = async (): Promise<ITransaction> => {
-      const contract = await Competition.getCompetitionContract(this.context, await this.coreState.scheme.entity.fetchState({}, true))
+      const schemeState = await this.coreState.scheme.entity.fetchState({}, true) as IContributionRewardExtState
+      const contract = await Competition.getCompetitionContract(this.context, schemeState)
       return {
         contract,
         method: 'redeem',
@@ -227,7 +287,8 @@ export class CompetitionProposal extends Proposal {
   }
 
   public errorHandler = async (err: Error) => {
-    const contract = Competition.getCompetitionContract(this.context, await getSchemeState())
+    const schemeState = await this.coreState.scheme.entity.fetchState({}, true) as IContributionRewardExtState
+    const contract = Competition.getCompetitionContract(this.context, schemeState)
     const proposal = await contract.proposals(this.id)
     if (!proposal) {
       throw Error(`A proposal with id ${this.id} does not exist`)
