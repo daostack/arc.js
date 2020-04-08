@@ -105,11 +105,16 @@ export function sendTransaction<T>(
   }
 
   if (methodInfo.type === 'call') {
-    throw Error(`Trying to send a transaction to a pure function named '${tx.method}' at address ${tx.contract.address}`)
+    throw Error(
+      `Trying to send a transaction to a pure function named '${tx.method}' at address ${tx.contract.address}`
+    )
   }
 
   if (methodInfo.inputs.length !== tx.args.length) {
-    throw Error(`Incorrect number of arguments. Expected ${methodInfo.inputs.length} for method '${tx.method}', got ${tx.args.length}.\nInputs: ${JSON.stringify(methodInfo.inputs, null, 2)}`)
+    throw Error(
+      `Incorrect number of arguments. Expected ${methodInfo.inputs.length} for method '${tx.method}', ` +
+      `got ${tx.args.length}.\nInputs: ${JSON.stringify(methodInfo.inputs, null, 2)}`
+    )
   }
 
   const observable = Observable.create(async (observer: Observer<ITransactionUpdate<T>>) => {
