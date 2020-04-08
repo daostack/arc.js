@@ -1,6 +1,5 @@
 import { AsyncSendable } from 'ethers/providers'
 import { Observable } from 'rxjs'
-import { IApolloQueryOptions } from './graphnode'
 
 export type Address = string
 export type Date = number
@@ -18,4 +17,10 @@ export interface ICommonQueryOptions {
   orderBy?: string
   orderDirection?: 'asc' | 'desc'
   where?: any
+}
+
+export interface IApolloQueryOptions {
+  fetchPolicy?: 'cache-first' | 'network-only' | 'cache-only' | 'no-cache' | 'standby',
+  subscribe?: true | false,
+  fetchAllData?: true | false
 }

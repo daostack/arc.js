@@ -5,10 +5,12 @@ import { Observable, Observer } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAOTOKEN_CONTRACT_VERSION } from './settings'
-import { Address, Hash, ICommonQueryOptions, IStateful } from './types'
+import { Address, Hash, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
+import { Entity } from './entity'
 
 export interface ITokenState {
+  id: Address
   address: Address
   name: string
   owner: Address
@@ -42,14 +44,24 @@ export interface IAllowance {
   amount: BN
 }
 
-export class Token implements IStateful<ITokenState> {
+export class Token extends Entity<ITokenState> {
 
-  /**
-   * Token.search(context, options) searches for token entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. ITokenQueryOptions
-   * @return         an observable of Token objects
-   */
+  public address: string
+
+  constructor(context: Arc, idOrOpts: string|ITokenState) {
+    super(context, idOrOpts)
+    if (typeof idOrOpts === 'string') {
+      isAddress(idOrOpts)
+      this.address = idOrOpts
+      this.id = idOrOpts
+    } else {
+      isAddress(idOrOpts.address)
+      this.address = idOrOpts.address
+      this.id = idOrOpts.address
+      this.setState(idOrOpts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: ITokenQueryOptions = {},
@@ -85,18 +97,19 @@ export class Token implements IStateful<ITokenState> {
     ) as Observable<Token[]>
   }
 
-  public address: string
-
-  constructor(public context: Arc, public id: Address) {
-    if (!id) {
-      throw Error(`No address provided - cannot create Token instance`)
+  public static itemMap = (context: Arc, item: any): Token => {
+    if (item === null) {
+      //TODO: How to get ID for this error msg?
+      throw Error(`Could not find a token contract with address`)
     }
-    isAddress(id)
-    this.address = id
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ITokenState> {
-    return this.state(apolloQueryOptions).pipe(first()).toPromise()
+    return new Token(context, {
+      id: item.id,
+      address: item.id,
+      name: item.name,
+      owner: item.dao.id,
+      symbol: item.symbol,
+      totalSupply: new BN(item.totalSupply)
+    })
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITokenState> {
@@ -112,24 +125,11 @@ export class Token implements IStateful<ITokenState> {
       }
     }`
 
-    const itemMap = (item: any): ITokenState => {
-      if (item === null) {
-        throw Error(`Could not find a token contract with address ${this.address.toLowerCase()}`)
-      }
-      return {
-        address: item.id,
-        name: item.name,
-        owner: item.dao.id,
-        symbol: item.symbol,
-        totalSupply: new BN(item.totalSupply)
-      }
-    }
+    const itemMap = (item: any) => Token.itemMap(this.context, item)
+
     return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ITokenState>
   }
 
-  /*
-   * get a web3 contract instance for this token
-   */
   public contract() {
     const abi = this.context.getABI(undefined, `DAOToken`, DAOTOKEN_CONTRACT_VERSION)
     return this.context.getContract(this.address, abi)

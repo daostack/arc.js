@@ -1,18 +1,19 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
-import { ISchemeState, Scheme } from './scheme'
-import { Address, ICommonQueryOptions, IStateful } from './types'
+import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
+import { Entity, IEntityRef } from './entity'
+import { Plugin } from './plugins/plugin'
+import { Plugins } from './plugins'
 
 export interface IQueueState {
   dao: DAO
   id: string
   name: string
-  scheme: ISchemeState
+  scheme: IEntityRef<Plugin>
   threshold: number
   votingMachine: Address
 }
@@ -26,14 +27,23 @@ export interface IQueueQueryOptions extends ICommonQueryOptions {
   }
 }
 
-export class Queue implements IStateful<IQueueState> {
+export class Queue extends Entity<IQueueState> {
 
-  /**
-   * Queue.search(context, options) searches for queue entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IQueueQueryOptions
-   * @return         an observable of Queue objects
-   */
+  constructor(
+    context: Arc,
+    idOrOpts: string|IQueueState,
+    public dao: DAO
+  ) {
+    super(context, idOrOpts)
+    this.context = context
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts as IQueueState)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IQueueQueryOptions = {},
@@ -75,29 +85,30 @@ export class Queue implements IStateful<IQueueState> {
       }
     `
 
-    const itemMap = (item: any): Queue|null => {
-      // we must filter explictly by name as the subgraph does not return the name
-
-      return new Queue(
-        context,
-        item.id,
-        new DAO(context, item.dao.id)
-      )
-    }
+    const itemMap = (item: any): Queue|null => new Queue(context, item.id, new DAO(context, item.dao.id))
 
     return context.getObservableList(query, itemMap, apolloQueryOptions) as Observable<Queue[]>
   }
 
-  constructor(
-    public context: Arc,
-    public id: string,
-    public dao: DAO
-  ) {
-    this.context = context
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IQueueState> {
-    return await this.state(apolloQueryOptions).pipe(first()).toPromise()
+  public static itemMap(context: Arc, item: any): Queue {
+    if (!item) {
+      //TODO: How to get ID for this error msg?
+      throw Error(`No gpQueue with id was found`)
+    }
+    const threshold = realMathToNumber(new BN(item.threshold))
+    const scheme = new Plugins[item.scheme.name](context, item.scheme.id)
+    const dao = new DAO(context, item.dao.id)
+    return new Queue(context, {
+      dao,
+      id: item.id,
+      name: scheme.name,
+      scheme: {
+        id: item.scheme.id,
+        entity: scheme
+      },
+      threshold,
+      votingMachine: item.votingMachine
+    }, dao)
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IQueueState> {
@@ -115,24 +126,10 @@ export class Queue implements IStateful<IQueueState> {
           threshold
         }
       }
-      ${Scheme.fragments.SchemeFields}
+      ${Plugin.baseFragment.SchemeFields}
     `
 
-    const itemMap = (item: any): IQueueState => {
-      if (!item) {
-        throw Error(`No gpQueue with id ${this.id} was found`)
-      }
-      const threshold = realMathToNumber(new BN(item.threshold))
-      const scheme = Scheme.itemMap(this.context, item.scheme) as ISchemeState
-      return {
-        dao: item.dao.id,
-        id: item.id,
-        name: scheme.name,
-        scheme,
-        threshold,
-        votingMachine: item.votingMachine
-      }
-    }
+    const itemMap = (item: any) => Queue.itemMap(this.context, item)
 
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IQueueState>
   }

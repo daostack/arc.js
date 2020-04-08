@@ -8,8 +8,6 @@ import { map } from 'rxjs/operators'
 import { DAO, IDAOQueryOptions } from './dao'
 import { GraphNodeObserver, IApolloQueryOptions } from './graphnode'
 export { IApolloQueryOptions } from './graphnode'
-import { Event, IEventQueryOptions } from './event'
-import { IPFSClient } from './ipfsClient'
 import { Logger } from './logger'
 import {
   ITransaction,
@@ -19,16 +17,21 @@ import {
   transactionErrorHandler,
   transactionResultHandler
 } from './operation'
-import { IProposalQueryOptions, Proposal } from './proposal'
+import { IProposalQueryOptions, Proposal } from './plugins/proposal'
 import { IRewardQueryOptions, Reward } from './reward'
-import { ISchemeQueryOptions, Scheme } from './scheme'
-import { SchemeBase } from './schemes/base'
 import { ABI_DIR } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
+import { IPFSClient } from './ipfsClient'
+import { IEventQueryOptions, Event } from './event'
+import { IPluginQueryOptions, Plugin } from './plugins/plugin'
+import { Plugins, Proposals } from './plugins'
+
+type PluginName = keyof typeof Plugins
+type ProposalName = keyof typeof Proposals
 
 /**
  * The Arc class holds all configuration.
@@ -157,19 +160,19 @@ export class Arc extends GraphNodeObserver {
     return Tag.search(this, options, apolloQueryOptions)
   }
 
-  public scheme(id: string): Scheme {
-    return new Scheme(this, id)
+  public scheme(id: string, name: PluginName): Plugin {
+    return new Plugins[name](this, id)
   }
 
   public schemes(
-    options: ISchemeQueryOptions = {},
+    options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<SchemeBase[]> {
-    return Scheme.search(this, options, apolloQueryOptions)
+  ): Observable<Plugin[]> {
+    return Plugin.search(this, options, apolloQueryOptions)
   }
 
-  public proposal(id: string): Proposal {
-    return new Proposal(this, id)
+  public proposal(id: string, name: ProposalName): Proposal {
+    return new Proposals[name](this, id)
   }
 
   public proposals(

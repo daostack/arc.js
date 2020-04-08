@@ -1,11 +1,12 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
-import { IProposalOutcome } from './proposal'
-import { Address, Date, ICommonQueryOptions, IStateful } from './types'
+import { IProposalOutcome, Proposal } from './plugins/proposal'
+import { Address, Date, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
+import { Entity, IEntityRef } from './entity'
+import { Proposals } from './plugins'
 
 export interface IVoteState {
   id: string
@@ -13,7 +14,7 @@ export interface IVoteState {
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount of reputation that was voted with
-  proposal: string
+  proposal: IEntityRef<Proposal>
   dao?: Address
 }
 
@@ -28,7 +29,7 @@ export interface IVoteQueryOptions extends ICommonQueryOptions {
   }
 }
 
-export class Vote implements IStateful<IVoteState> {
+export class Vote extends Entity<IVoteState> {
   public static fragments = {
     VoteFields: gql`fragment VoteFields on ProposalVote {
       id
@@ -39,18 +40,26 @@ export class Vote implements IStateful<IVoteState> {
       voter
       proposal {
         id
+        scheme {
+          name
+        }
       }
       outcome
       reputation
     }`
   }
 
-  /**
-   * Vote.search(context, options) searches for vote entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IVoteQueryOptions
-   * @return         an observable of Vote objects
-   */
+  constructor(context: Arc, idOrOpts: string|IVoteState) {
+    super(context, idOrOpts)
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      const opts = idOrOpts as IVoteState
+      this.id = opts.id
+      this.setState(opts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IVoteQueryOptions = {},
@@ -84,25 +93,7 @@ export class Vote implements IStateful<IVoteState> {
     }
 
     let query
-    const itemMap = (r: any) => {
-      let outcome: IProposalOutcome = IProposalOutcome.Pass
-      if (r.outcome === 'Pass') {
-        outcome = IProposalOutcome.Pass
-      } else if (r.outcome === 'Fail') {
-        outcome = IProposalOutcome.Fail
-      } else {
-        throw new Error(`Unexpected value for proposalVote.outcome: ${r.outcome}`)
-      }
-      return new Vote(context, {
-        amount: new BN(r.reputation || 0),
-        createdAt: r.createdAt,
-        dao: r.dao.id,
-        id: r.id,
-        outcome,
-        proposal: r.proposal.id,
-        voter: r.voter
-      })
-    }
+    const itemMap = (item: any) => Vote.itemMap(context, item)
 
     // if we are searching for votes of a specific proposal (a common case), we
     // will structure the query so that votes are stored in the cache together with the proposal
@@ -112,6 +103,9 @@ export class Vote implements IStateful<IVoteState> {
         {
           proposal (id: "${proposalId}") {
             id
+            scheme {
+              name
+            }
             votes ${createGraphQlQuery({ where: { ...options.where, proposal: undefined}}, where)} {
               ...VoteFields
             }
@@ -149,17 +143,34 @@ export class Vote implements IStateful<IVoteState> {
       ) as Observable<Vote[]>
     }
   }
-  public id: string|undefined
-  public coreState: IVoteState|undefined
 
-  constructor(public context: Arc, idOrOpts: string|IVoteState) {
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      const opts = idOrOpts as IVoteState
-      this.id = opts.id
-      this.setState(opts)
+  public static itemMap = (context: Arc, item: any): Vote => {
+    if (item === null) {
+      //TODO: How to get ID for this error msg?
+      throw Error(`Could not find a Vote with id`)
     }
+
+    let outcome: IProposalOutcome = IProposalOutcome.Pass
+    if (item.outcome === 'Pass') {
+      outcome = IProposalOutcome.Pass
+    } else if (item.outcome === 'Fail') {
+      outcome = IProposalOutcome.Fail
+    } else {
+      throw new Error(`Unexpected value for proposalVote.outcome: ${item.outcome}`)
+    }
+
+    return new Vote(context, {
+      amount: new BN(item.reputation || 0),
+      createdAt: item.createdAt,
+      dao: item.dao.id,
+      id: item.id,
+      outcome,
+      proposal: {
+        id: item.proposal.id,
+        entity: new Proposals[item.proposal.scheme.name](context, item.proposal.id)
+      },
+      voter: item.voter
+    })
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IVoteState> {
@@ -171,41 +182,8 @@ export class Vote implements IStateful<IVoteState> {
     ${Vote.fragments.VoteFields}
     `
 
-    const itemMap = (item: any): IVoteState => {
-      if (item === null) {
-        throw Error(`Could not find a Vote with id ${this.id}`)
-      }
-
-      let outcome: IProposalOutcome = IProposalOutcome.Pass
-      if (item.outcome === 'Pass') {
-        outcome = IProposalOutcome.Pass
-      } else if (item.outcome === 'Fail') {
-        outcome = IProposalOutcome.Fail
-      } else {
-        throw new Error(`Unexpected value for proposalVote.outcome: ${item.outcome}`)
-      }
-
-      return {
-        amount: new BN(item.reputation || 0),
-        createdAt: item.createdAt,
-        dao: item.dao.id,
-        id: item.id,
-        outcome,
-        proposal: item.proposal.id,
-        voter: item.voter
-      }
-    }
+    const itemMap = (item: any) => Vote.itemMap(this.context, item)
 
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
-  }
-
-  public setState(opts: IVoteState) {
-    this.coreState = opts
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IVoteState> {
-    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-    this.setState(state)
-    return state
   }
 }

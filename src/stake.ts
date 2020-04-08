@@ -3,9 +3,11 @@ import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
-import { IProposalOutcome} from './proposal'
-import { Address, ICommonQueryOptions, IStateful } from './types'
+import { IProposalOutcome, Proposal} from './plugins/proposal'
+import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
+import { Entity, IEntityRef } from './entity'
+import { Proposals } from './plugins'
 
 export interface IStakeState {
   id: string
@@ -13,7 +15,7 @@ export interface IStakeState {
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount staked
-  proposal: string
+  proposal: IEntityRef<Proposal>
 }
 
 export interface IStakeQueryOptions extends ICommonQueryOptions {
@@ -27,7 +29,7 @@ export interface IStakeQueryOptions extends ICommonQueryOptions {
   }
 }
 
-export class Stake implements IStateful<IStakeState> {
+export class Stake extends Entity<IStakeState> {
   public static fragments = {
     StakeFields: gql`fragment StakeFields on ProposalStake {
       id
@@ -38,18 +40,28 @@ export class Stake implements IStateful<IStakeState> {
       staker
       proposal {
         id
+        scheme {
+          name
+        }
       }
       outcome
       amount
     }`
   }
 
-  /**
-   * Stake.search(context, options) searches for stake entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IStakeQueryOptions
-   * @return         an observable of Stake objects
-   */
+  constructor(
+    context: Arc,
+    idOrOpts: string|IStakeState
+  ) {
+    super(context, idOrOpts)
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts as IStakeState)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IStakeQueryOptions = {},
@@ -80,30 +92,16 @@ export class Stake implements IStateful<IStakeState> {
     }
 
     let query
-    const itemMap = (r: any) => {
-      let outcome: IProposalOutcome = IProposalOutcome.Pass
-      if (r.outcome === 'Pass') {
-        outcome = IProposalOutcome.Pass
-      } else if (r.outcome === 'Fail') {
-        outcome = IProposalOutcome.Fail
-      } else {
-        throw new Error(`Unexpected value for proposalStakes.outcome: ${r.outcome}`)
-      }
-      return new Stake(context, {
-        amount: new BN(r.amount || 0),
-        createdAt: r.createdAt,
-        id: r.id,
-        outcome,
-        proposal: r.proposal.id,
-        staker: r.staker
-      })
-    }
+    const itemMap = (item: any) => Stake.itemMap(context, item)
 
     if (proposalId && !options.where.id) {
       query = gql`query ProposalStakesSearchFromProposal
         {
           proposal (id: "${proposalId}") {
             id
+            scheme {
+              name
+            }
             stakes ${createGraphQlQuery(options, where)} {
               ...StakeFields
             }
@@ -141,19 +139,33 @@ export class Stake implements IStateful<IStakeState> {
     }
   }
 
-  public id: string|undefined
-  public coreState: IStakeState|undefined
-
-  constructor(
-    public context: Arc,
-    idOrOpts: string|IStakeState
-  ) {
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts as IStakeState)
+  public static itemMap = (context: Arc, item: any): Stake => {
+    if (item === null) {
+      //TODO: How to get ID for this error msg?
+      throw Error(`Could not find a Stake with id`)
     }
+
+    let outcome: IProposalOutcome = IProposalOutcome.Pass
+    if (item.outcome === 'Pass') {
+      outcome = IProposalOutcome.Pass
+    } else if (item.outcome === 'Fail') {
+      outcome = IProposalOutcome.Fail
+    } else {
+      throw new Error(`Unexpected value for proposalStakes.outcome: ${item.outcome}`)
+    }
+
+    return new Stake(context, {
+      amount: new BN(item.amount),
+      createdAt: item.createdAt,
+      id: item.id,
+      outcome,
+      proposal: {
+        id: item.proposal.id,
+        entity: new Proposals[item.proposal.scheme.name](context, item.proposal.id)
+      },
+      staker: item.staker
+    })
+    
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IStakeState> {
@@ -172,41 +184,8 @@ export class Stake implements IStateful<IStakeState> {
       }
     `
 
-    const itemMap = (item: any): IStakeState => {
-      if (item === null) {
-        throw Error(`Could not find a Stake with id ${this.id}`)
-      }
+    const itemMap = (item: any) => Stake.itemMap(this.context, item)
 
-      let outcome: IProposalOutcome = IProposalOutcome.Pass
-      if (item.outcome === 'Pass') {
-        outcome = IProposalOutcome.Pass
-      } else if (item.outcome === 'Fail') {
-        outcome = IProposalOutcome.Fail
-      } else {
-        throw new Error(`Unexpected value for proposalStakes.outcome: ${item.outcome}`)
-      }
-
-      this.setState({
-        amount: new BN(item.amount),
-        createdAt: item.createdAt,
-        id: item.id,
-        outcome,
-        proposal: item.proposal.id,
-        staker: item.staker
-      })
-
-      return this.coreState as IStakeState
-    }
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
-  }
-
-  public setState(opts: IStakeState) {
-    this.coreState = opts
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IStakeState> {
-    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-    this.setState(state)
-    return state
   }
 }

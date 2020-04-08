@@ -2,17 +2,20 @@ import { ApolloQueryResult } from 'apollo-client'
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first, map } from 'rxjs/operators'
+import { map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { ITransactionReceipt, Operation } from './operation'
 import { REPUTATION_CONTRACT_VERSION } from './settings'
-import { Address, ICommonQueryOptions, IStateful } from './types'
+import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
+import { Entity, IEntityRef } from './entity'
+import { DAO } from './dao'
 
 export interface IReputationState {
+  id: Address
   address: Address
   totalSupply: BN
-  dao: Address
+  dao: IEntityRef<DAO>
 }
 
 export interface IReputationQueryOptions extends ICommonQueryOptions {
@@ -21,14 +24,24 @@ export interface IReputationQueryOptions extends ICommonQueryOptions {
   [key: string]: any
 }
 
-export class Reputation implements IStateful<IReputationState> {
+export class Reputation extends Entity<IReputationState> {
 
-  /**
-   * Reputation.search(context, options) searches for reputation entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IReputationQueryOptions
-   * @return         an observable of Reputation objects
-   */
+  public address: Address
+
+  constructor(context: Arc, idOrOpts: string | IReputationState){
+    super(context, idOrOpts)
+    if (typeof idOrOpts === 'string') {
+      isAddress(idOrOpts)
+      this.address = idOrOpts
+      this.id = idOrOpts
+    } else {
+      isAddress(idOrOpts.address)
+      this.address = idOrOpts.address
+      this.id = idOrOpts.address
+      this.setState(idOrOpts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IReputationQueryOptions = {},
@@ -65,11 +78,20 @@ export class Reputation implements IStateful<IReputationState> {
     )
   }
 
-  public address: Address
-
-  constructor(public context: Arc, public id: Address) {
-    isAddress(id)
-    this.address = id
+  public static itemMap = (context: Arc, item: any): Reputation => {
+    //TODO: How to get ID for this error msg?
+    if (item === null) {
+      throw Error(`Could not find a reputation contract with address`)
+    }
+    return new Reputation(context, {
+      id: item.id,
+      address: item.id,
+      dao: {
+        id: item.dao.id,
+        entity: new DAO(context, item.dao.id)
+      },
+      totalSupply: new BN(item.totalSupply)
+    })
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IReputationState> {
@@ -83,21 +105,10 @@ export class Reputation implements IStateful<IReputationState> {
         }
       }
     }`
-    const itemMap = (item: any): IReputationState => {
-      if (item === null) {
-        throw Error(`Could not find a reputation contract with address ${this.address.toLowerCase()}`)
-      }
-      return {
-        address: item.id,
-        dao: item.dao.id,
-        totalSupply: new BN(item.totalSupply)
-      }
-    }
-    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IReputationState>
-  }
 
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IReputationState> {
-    return await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    const itemMap = (item: any) => Reputation.itemMap(this.context, item)
+
+    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IReputationState>
   }
 
   public reputationOf(address: Address): Observable<BN> {
@@ -121,9 +132,6 @@ export class Reputation implements IStateful<IReputationState> {
     )
   }
 
-  /*
-   * get a web3 contract instance for this token
-   */
   public contract() {
     const abi = this.context.getABI(undefined, 'Reputation', REPUTATION_CONTRACT_VERSION)
     return this.context.getContract(this.address, abi)

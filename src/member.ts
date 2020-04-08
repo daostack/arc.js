@@ -2,22 +2,24 @@ import BN = require('bn.js')
 import { utils } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
-import { first, map } from 'rxjs/operators'
+import { map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { toIOperationObservable } from './operation'
-import { IProposalQueryOptions, Proposal } from './proposal'
+import { IProposalQueryOptions, Proposal } from './plugins/proposal'
 import { Reward } from './reward'
 import { IStakeQueryOptions, Stake } from './stake'
-import { Address, ICommonQueryOptions, IStateful } from './types'
+import { Address, ICommonQueryOptions } from './types'
 import { concat, createGraphQlQuery, hexStringToUint8Array, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
+import { Entity } from './entity'
 
 export interface IMemberState {
-  address: Address,
-  dao?: Address
+  id: string
+  address: Address
   contract?: Address
-  id?: string
+  // TODO: IEntityRef<DAO>
+  dao: Address
   reputation: BN
 }
 
@@ -32,7 +34,7 @@ export interface IMemberQueryOptions extends ICommonQueryOptions {
 /**
  * Represents an account that holds reputaion in a specific DAO
  */
-export class Member implements IStateful<IMemberState> {
+export class Member extends Entity<IMemberState> {
 
   public static fragments = {
     ReputationHolderFields: gql`
@@ -48,12 +50,16 @@ export class Member implements IStateful<IMemberState> {
     `
   }
 
-  /**
-   * Member.search(context, options) searches for member entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IMemberQueryOptions
-   * @return         an observable of IRewardState objects
-   */
+  constructor(context: Arc, idOrOpts: string|IMemberState) {
+    super(context, idOrOpts)
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts as string
+    } else {
+      const opts: IMemberState = idOrOpts
+      this.setState(opts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: IMemberQueryOptions = {},
@@ -88,18 +94,28 @@ export class Member implements IStateful<IMemberState> {
         ${Member.fragments.ReputationHolderFields}
       `
 
+      const itemMap = (item: any) => Member.itemMap(context, item)
+
       return context.getObservableList(
           query,
-          (r: any) => {
-            return new Member(context, {
-              address: r.address,
-              contract: r.contract,
-              reputation: new BN(r.balance)
-            })
-          },
+          itemMap,
           apolloQueryOptions
         )
       }
+  }
+
+  public static itemMap(context: Arc, item: any): Member {
+    if (item === null || item === undefined || item.id === undefined) {
+      //TODO: How to get ID for this error msg?
+      throw Error(`No member with id was found`)
+    }
+    return new Member(context, {
+      id: item.id,
+      address: item.address,
+      dao: item.dao.id,
+      contract: item.contract,
+      reputation: new BN(item.balance)
+    })
   }
 
   public static calculateId(opts: { contract: Address, address: Address}): string {
@@ -110,47 +126,11 @@ export class Member implements IStateful<IMemberState> {
     return utils.keccak256(seed)
   }
 
-  public id: string|undefined
-  public coreState: IMemberState|undefined
-
-  /**
-   * @param address addresssof the member
-   * @param daoAdress addresssof the DAO this member is a member of
-   * @param context an instance of Arc
-   */
-  constructor(public context: Arc, idOrOpts: string|IMemberState) {
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts as string
-    } else {
-      const opts: IMemberState = idOrOpts
-      this.setState(opts)
-    }
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IMemberState> {
-    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-    this.setState(state)
-    return state
-  }
-
-  public setState(opts: IMemberState) {
-    isAddress(opts.address)
-    if (!opts.id && opts.contract && opts.address) {
-      opts.id = Member.calculateId({ contract: opts.contract, address: opts.address})
-    }
-    this.id = opts.id
-    this.coreState = {
-      address: opts.address.toLowerCase(),
-      contract: opts.contract && opts.contract.toLowerCase(),
-      dao: opts.dao && opts.dao.toLowerCase(),
-      id: opts.id,
-      reputation: opts.reputation
-    }
-    return this.coreState
-  }
-
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IMemberState> {
     let query: any
+
+    const itemMap = (item: any) => Member.itemMap(this.context, item)
+
     if (this.id) {
       query = gql`query ReputionHolderStateFromId {
           # contract: ${this.coreState && this.coreState.contract}
@@ -165,18 +145,7 @@ export class Member implements IStateful<IMemberState> {
       `
       return this.context.getObservableObject(
         query,
-        (r: any) => {
-          if (r === null || r === undefined || r.id === undefined) {
-            throw Error(`No member with id ${this.id} was found`)
-          }
-          return {
-            id: r.id,
-            address: r.address,
-            dao: r.dao.id,
-            contract: r.contract,
-            reputation: new BN(r.balance)
-          }
-        },
+        itemMap,
         apolloQueryOptions
       )
     } else {
@@ -196,26 +165,18 @@ export class Member implements IStateful<IMemberState> {
         `
     }
 
-    const itemMap = (items: any) => {
-      if (items.length === 0) {
-        const state = this.coreState as IMemberState
-        return  {
-          address: state.address,
-          dao: state.dao,
-          reputation: new BN(0)
+    return this.context.getObservableObject(
+      query,
+      (items: any) => {
+        if(items.length) {
+          if(!this.coreState) throw new Error("Member state is not set")
+          return new Member(this.context, this.coreState)
         }
-      } else {
-        const item = items[0]
-        return {
-            address: item.address,
-            contract: item.contract,
-            dao: item.dao.id,
-            id: item.id,
-            reputation: new BN(item.balance)
-          }
-        }
-      }
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IMemberState>
+        
+        return itemMap(items[0])
+      },
+      apolloQueryOptions
+    ) as Observable<IMemberState>
   }
 
   public async dao(): Promise < DAO > {
@@ -267,5 +228,21 @@ export class Member implements IStateful<IMemberState> {
     })
 
     return toIOperationObservable(observable)
+  }
+
+  public setState(opts: IMemberState) {
+    isAddress(opts.address)
+    
+    if(!opts.contract) throw new Error("Contract not defined in options")
+
+    this.id = Member.calculateId({ contract: opts.contract, address: opts.address})
+    this.coreState = {
+      id: this.id,
+      address: opts.address.toLowerCase(),
+      contract: opts.contract && opts.contract.toLowerCase(),
+      dao: opts.dao && opts.dao.toLowerCase(),
+      reputation: opts.reputation
     }
+    return this.coreState
+  }
 }

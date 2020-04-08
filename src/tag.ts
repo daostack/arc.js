@@ -1,15 +1,16 @@
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
-import { Proposal } from './proposal'
-import { ICommonQueryOptions, IStateful } from './types'
+import { Proposal } from './plugins/proposal'
+import { ICommonQueryOptions } from './types'
 import { createGraphQlQuery } from './utils'
+import { Entity, IEntityRef } from './entity'
+import { Proposals } from './plugins'
 
 export interface ITagState {
   id: string
   numberOfProposals: number
-  proposals?: Proposal[]
+  proposals?: IEntityRef<Proposal>[]
 }
 
 export interface ITagQueryOptions extends ICommonQueryOptions {
@@ -19,21 +20,33 @@ export interface ITagQueryOptions extends ICommonQueryOptions {
   }
 }
 
-export class Tag implements IStateful<ITagState> {
+export class Tag extends Entity<ITagState> {
   public static fragments = {
     TagFields: gql`fragment TagFields on Tag {
       id
       numberOfProposals
-      proposals { id }
+      proposals { 
+        id
+        scheme {
+          name
+        }
+      }
     }`
   }
 
-  /**
-   * Tag.search(context, options) searches for stake entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. ITagQueryOptions
-   * @return         an observable of Tag objects
-   */
+  constructor(
+    context: Arc,
+    idOrOpts: string|ITagState
+  ) {
+    super(context, idOrOpts)
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts)
+    }
+  }
+
   public static search(
     context: Arc,
     options: ITagQueryOptions = {},
@@ -57,19 +70,16 @@ export class Tag implements IStateful<ITagState> {
     }
 
     let query
-    const itemMap = (r: any) => {
-      return new Tag(context, {
-        id: r.id,
-        numberOfProposals: Number(r.numberOfProposals),
-        proposals: r.proposals.map((id: string) => new Proposal(context, id))
-      })
-    }
+    const itemMap = (item: any) => Tag.itemMap(context, item)
 
     if (proposalId) {
       query = gql`query TagsSearchFromProposal
         {
           proposal (id: "${proposalId}") {
             id
+            scheme {
+              name
+            }
             tags ${createGraphQlQuery(options, where)} {
               ...TagFields
             }
@@ -106,19 +116,22 @@ export class Tag implements IStateful<ITagState> {
     }
   }
 
-  public id: string|undefined
-  public coreState: ITagState|undefined
-
-  constructor(
-    public context: Arc,
-    idOrOpts: string|ITagState
-  ) {
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
+  public static itemMap = (context: Arc, item: any): Tag => {
+    if (item === null) {
+      //TODO: How to get ID for this error msg?
+      throw Error(`Could not find a Tag with id`)
     }
+
+    return new Tag(context, {
+      id: item.id,
+      numberOfProposals: Number(item.numberOfProposals),
+      proposals: item.proposals.map((proposal: any) => {
+        return {
+          id: proposal.id,
+          entity: new Proposals[proposal.scheme.name](context, proposal.id)
+        }
+      })
+    })
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITagState> {
@@ -131,29 +144,8 @@ export class Tag implements IStateful<ITagState> {
       ${Tag.fragments.TagFields}
     `
 
-    const itemMap = (item: any): ITagState => {
-      if (item === null) {
-        throw Error(`Could not find a Tag with id ${this.id}`)
-      }
+    const itemMap = (item: any) => Tag.itemMap(this.context, item)
 
-      const state = {
-        id: item.id,
-        numberOfProposals: Number(item.numberOfProposals),
-        proposals: item.proposals.map((id: string) => new Proposal(this.context, id))
-      }
-      this.setState(state)
-      return state
-    }
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
-  }
-
-  public setState(opts: ITagState) {
-    this.coreState = opts
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ITagState> {
-    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-    this.setState(state)
-    return state
   }
 }
