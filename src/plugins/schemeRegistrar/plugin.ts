@@ -11,7 +11,7 @@ import { SchemeRegistrarProposal } from "./proposal"
 
 
 export interface ISchemeRegistrarState extends IPluginState {
-  schemeParams: {
+  pluginParams: {
     votingMachine: Address
     voteRemoveParams: IGenesisProtocolParams
     voteRegisterParams: IGenesisProtocolParams
@@ -41,7 +41,7 @@ export class SchemeRegistrar extends ProposalPlugin {
   }
 
   public static fragments = {
-    schemeParams: { 
+    pluginParams: { 
       name: 'SchemeRegistrarParams',
       fragment: gql` fragment SchemeRegistrarParams on ControllerScheme {
         schemeRegistrarParams {
@@ -109,7 +109,7 @@ export class SchemeRegistrar extends ProposalPlugin {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterSchemes: item.canRegisterSchemes,
+        canRegisterPlugins: item.canRegisterSchemes,
         canUpgradeController: item.canUpgradeController,
         dao: item.dao.id,
         id: item.id,
@@ -118,7 +118,7 @@ export class SchemeRegistrar extends ProposalPlugin {
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
         paramsHash: item.paramsHash,
-        schemeParams: schemeRegistrarParams,
+        pluginParams: schemeRegistrarParams,
         version: item.version
       }
     )
@@ -128,10 +128,10 @@ export class SchemeRegistrar extends ProposalPlugin {
     const query = gql`query SchemeStateById
       {
         controllerScheme (id: "${this.id}") {
-          ...SchemeFields
+          ...PluginFields
         }
       }
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
     const itemMap = (item: any) => SchemeRegistrar.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeRegistrarState>
@@ -142,8 +142,8 @@ export class SchemeRegistrar extends ProposalPlugin {
     switch (options.proposalType) {
       case "SchemeRegistrarAdd":
       case "SchemeRegistrarEdit":
-        if (options.scheme === undefined) {
-          msg = `Missing argument "scheme" for SchemeRegistrar in Proposal.create()`
+        if (options.plugin === undefined) {
+          msg = `Missing argument "plugin" for SchemeRegistrar in Proposal.create()`
           throw Error(msg)
         }
         if (options.parametersHash === undefined) {
@@ -158,7 +158,7 @@ export class SchemeRegistrar extends ProposalPlugin {
         options.descriptionHash = await this.context.saveIPFSData(options)
   
         return {
-          contract: this.context.getContract(options.scheme),
+          contract: this.context.getContract(options.plugin),
           method: 'proposeScheme',
           args: [
             options.dao,
@@ -169,7 +169,7 @@ export class SchemeRegistrar extends ProposalPlugin {
           ]
         }
       case "SchemeRegistrarRemove":
-        if (options.scheme === undefined) {
+        if (options.plugin === undefined) {
           msg = `Missing argument "scheme" for SchemeRegistrar`
           throw Error(msg)
         }
@@ -177,7 +177,7 @@ export class SchemeRegistrar extends ProposalPlugin {
         options.descriptionHash = await this.context.saveIPFSData(options)
   
         return {
-          contract: this.context.getContract(options.scheme),
+          contract: this.context.getContract(options.plugin),
           method: 'proposeToRemoveScheme',
           args: [
             options.dao,

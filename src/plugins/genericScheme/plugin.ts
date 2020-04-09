@@ -11,7 +11,7 @@ import { ITransaction, transactionResultHandler, ITransactionReceipt, getEventAr
 import { GenericSchemeProposal } from "./proposal";
 
 export interface IGenericSchemeState extends IPluginState {
-  schemeParams: {
+  pluginParams: {
     votingMachine: Address
     contractToCall: Address
     voteParams: IGenesisProtocolParams
@@ -40,10 +40,10 @@ export class GenericScheme extends ProposalPlugin {
   }
 
   public static fragments = {
-    schemeParams: { 
-      name: 'GenericSchemeParams',
-      fragment: gql` fragment GenericSchemeParams on ControllerScheme {
-      genericSchemeParams {
+    pluginParams: { 
+      name: 'GenericpluginParams',
+      fragment: gql` fragment GenericpluginParams on ControllerScheme {
+      genericpluginParams {
         votingMachine
         contractToCall
         voteParams {
@@ -84,17 +84,17 @@ export class GenericScheme extends ProposalPlugin {
       }
     }
 
-    const genericSchemeParams = item.genericSchemeParams  && {
-      contractToCall: item.genericSchemeParams.contractToCall,
-      voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
-      votingMachine: item.genericSchemeParams.votingMachine
+    const genericpluginParams = item.genericpluginParams  && {
+      contractToCall: item.genericpluginParams.contractToCall,
+      voteParams: mapGenesisProtocolParams(item.genericpluginParams.voteParams),
+      votingMachine: item.genericpluginParams.votingMachine
     }
     
     return new GenericScheme(arc, {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterSchemes: item.canRegisterSchemes,
+        canRegisterPlugins: item.canRegisterSchemes,
         canUpgradeController: item.canUpgradeController,
         dao: item.dao.id,
         id: item.id,
@@ -103,7 +103,7 @@ export class GenericScheme extends ProposalPlugin {
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
         paramsHash: item.paramsHash,
-        schemeParams: genericSchemeParams,
+        pluginParams: genericpluginParams,
         version: item.version
       }
     )
@@ -113,10 +113,10 @@ export class GenericScheme extends ProposalPlugin {
     const query = gql`query SchemeStateById
       {
         controllerScheme (id: "${this.id}") {
-          ...SchemeFields
+          ...PluginFields
         }
       }
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
     const itemMap = (item: any) => GenericScheme.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>
@@ -137,14 +137,14 @@ export class GenericScheme extends ProposalPlugin {
     if (options.value === undefined) {
       throw new Error(`Missing argument "value" for GenericScheme in Proposal.create()`)
     }
-    if (options.scheme === undefined) {
-      throw new Error(`Missing argument "scheme" for GenericScheme in Proposal.create()`)
+    if (options.plugin === undefined) {
+      throw new Error(`Missing argument "plugin" for GenericScheme in Proposal.create()`)
     }
   
     options.descriptionHash = await this.context.saveIPFSData(options)
   
     return {
-      contract: this.context.getContract(options.scheme),
+      contract: this.context.getContract(options.plugin),
       method: 'proposeCall',
       args: [
         options.callData,

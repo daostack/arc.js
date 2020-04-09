@@ -13,7 +13,7 @@ export interface IQueueState {
   dao: DAO
   id: string
   name: string
-  scheme: IEntityRef<Plugin>
+  plugin: IEntityRef<Plugin>
   threshold: number
   votingMachine: Address
 }
@@ -22,7 +22,7 @@ export interface IQueueQueryOptions extends ICommonQueryOptions {
   where?: {
     dao?: Address,
     votingMachine?: Address
-    scheme?: Address
+    plugin?: Address
     [key: string]: any
   }
 }
@@ -96,15 +96,15 @@ export class Queue extends Entity<IQueueState> {
       throw Error(`No gpQueue with id was found`)
     }
     const threshold = realMathToNumber(new BN(item.threshold))
-    const scheme = new Plugins[item.scheme.name](context, item.scheme.id)
+    const plugin = new Plugins[item.scheme.name](context, item.scheme.id)
     const dao = new DAO(context, item.dao.id)
     return new Queue(context, {
       dao,
       id: item.id,
-      name: scheme.name,
-      scheme: {
+      name: plugin.name,
+      plugin: {
         id: item.scheme.id,
-        entity: scheme
+        entity: plugin
       },
       threshold,
       votingMachine: item.votingMachine
@@ -120,13 +120,13 @@ export class Queue extends Entity<IQueueState> {
             id
           }
           scheme {
-            ...SchemeFields
+            ...PluginFields
           }
           votingMachine
           threshold
         }
       }
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
 
     const itemMap = (item: any) => Queue.itemMap(this.context, item)

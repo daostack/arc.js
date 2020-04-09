@@ -1,7 +1,6 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { IProposalOutcome, Proposal} from './plugins/proposal'
 import { Address, ICommonQueryOptions } from './types'

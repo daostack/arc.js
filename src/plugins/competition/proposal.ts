@@ -25,7 +25,7 @@ export interface ICompetitionProposalState extends IProposalState {
   votingStartTime: Date
   suggestionsEndTime: Date
   numberOfVotesPerVoter: number
-  scheme: IEntityRef<Competition>
+  plugin: IEntityRef<Competition>
   snapshotBlock: number
   createdAt: Date
   totalVotes: number
@@ -82,7 +82,7 @@ export class CompetitionProposal extends Proposal {
       numberOfWinners: Number(item.competition.numberOfWinners),
       numberOfWinningSuggestions: Number(item.competition.numberOfWinningSuggestions),
       rewardSplit: item.competition.rewardSplit.map((perc: string) => Number(perc)),
-      scheme: {
+      plugin: {
         id: competition.id,
         entity: competition
       },
@@ -111,7 +111,7 @@ export class CompetitionProposal extends Proposal {
         }
       }
       ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
 
     const itemMap = (item: any) => CompetitionProposal.itemMap(this.context, item)
@@ -121,9 +121,9 @@ export class CompetitionProposal extends Proposal {
   }
 
   private async getState() {
-    if(!this.coreState) throw new Error("Cannot get scheme state if competitionProposal's coreState is not set")
+    if(!this.coreState) throw new Error("Cannot get plugin state if competitionProposal's coreState is not set")
 
-    return await this.coreState.scheme.entity.fetchState({}, true) as IContributionRewardExtState
+    return await this.coreState.plugin.entity.fetchState({}, true) as IContributionRewardExtState
   }
 
   public createSuggestion(options: {
@@ -135,18 +135,18 @@ export class CompetitionProposal extends Proposal {
   }): Operation<CompetitionSuggestion> {
 
     const mapReceipt = async (receipt: ITransactionReceipt) => {
-      const schemeState = await this.getState()
+      const pluginState = await this.getState()
       const args = getEventArgs(receipt, 'NewSuggestion', 'Competition.createSuggestion')
       const suggestionId = args[1]
       return new CompetitionSuggestion(this.context, {
-        scheme: (schemeState).id,
+        plugin: (pluginState).id,
         suggestionId
       })
     }
 
     const errorHandler = async (err: Error) => {
-      const schemeState = await this.getState()
-      const contract = Competition.getCompetitionContract(this.context, schemeState)
+      const pluginState = await this.getState()
+      const contract = Competition.getCompetitionContract(this.context, pluginState)
       const proposal = await contract.proposals(this.id)
       if (!proposal) {
         throw Error(`A proposal with id ${this.id} does not exist`)
@@ -158,8 +158,8 @@ export class CompetitionProposal extends Proposal {
       if (!options.beneficiary) {
         options.beneficiary = await this.context.getAccount().pipe(first()).toPromise()
       }
-      const schemeState = await this.getState()
-      const contract = Competition.getCompetitionContract(this.context, schemeState)
+      const pluginState = await this.getState()
+      const contract = Competition.getCompetitionContract(this.context, pluginState)
       const descriptionHash = await this.context.saveIPFSData(options)
       return {
         contract,
@@ -192,7 +192,7 @@ export class CompetitionProposal extends Proposal {
       ] = getEventArgs(receipt, 'NewVote', 'Competition.voteSuggestion')
 
       const suggestion = CompetitionSuggestion.calculateId({
-        scheme: this.id,
+        plugin: this.id,
         suggestionId
       })
 
@@ -207,8 +207,8 @@ export class CompetitionProposal extends Proposal {
     }
 
     const errorHandler = async (err: Error) => {
-      const schemeState = await this.getState()
-      const contract = await Competition.getCompetitionContract(this.context, schemeState)
+      const pluginState = await this.getState()
+      const contract = await Competition.getCompetitionContract(this.context, pluginState)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
@@ -231,8 +231,8 @@ export class CompetitionProposal extends Proposal {
     }
 
     const createTransaction = async (): Promise<ITransaction> => {
-      const schemeState = await this.getState()
-      const contract = await Competition.getCompetitionContract(this.context, schemeState)
+      const pluginState = await this.getState()
+      const contract = await Competition.getCompetitionContract(this.context, pluginState)
       return {
         contract,
         method: 'vote',
@@ -262,8 +262,8 @@ export class CompetitionProposal extends Proposal {
     }
 
     const errorHandler = async (err: Error) => {
-      const schemeState = await this.getState()
-      const contract = await Competition.getCompetitionContract(this.context, schemeState)
+      const pluginState = await this.getState()
+      const contract = await Competition.getCompetitionContract(this.context, pluginState)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (suggestion.proposalId === '0x0000000000000000000000000000000000000000000000000000000000000000') {
@@ -273,8 +273,8 @@ export class CompetitionProposal extends Proposal {
     }
 
     const createTransaction = async (): Promise<ITransaction> => {
-      const schemeState = await this.getState()
-      const contract = await Competition.getCompetitionContract(this.context, schemeState)
+      const pluginState = await this.getState()
+      const contract = await Competition.getCompetitionContract(this.context, pluginState)
       return {
         contract,
         method: 'redeem',
@@ -298,8 +298,8 @@ export class CompetitionProposal extends Proposal {
   }
 
   public errorHandler = async (err: Error) => {
-    const schemeState = await this.getState()
-    const contract = Competition.getCompetitionContract(this.context, schemeState)
+    const pluginState = await this.getState()
+    const contract = Competition.getCompetitionContract(this.context, pluginState)
     const proposal = await contract.proposals(this.id)
     if (!proposal) {
       throw Error(`A proposal with id ${this.id} does not exist`)

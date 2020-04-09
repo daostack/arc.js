@@ -18,7 +18,7 @@ export interface IPluginState {
   canDelegateCall: boolean
   canUpgradeController: boolean
   canManageGlobalConstraints: boolean
-  canRegisterSchemes: boolean
+  canRegisterPlugins: boolean
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
@@ -28,7 +28,7 @@ export interface IPluginQueryOptions extends ICommonQueryOptions {
   where?: {
     address?: Address
     canDelegateCall?: boolean
-    canRegisterSchemes?: boolean
+    canRegisterPlugins?: boolean
     canUpgradeController?: boolean
     canManageGlobalConstraints?: boolean
     dao?: Address
@@ -41,9 +41,9 @@ export interface IPluginQueryOptions extends ICommonQueryOptions {
 
 export abstract class Plugin extends Entity<IPluginState> {
 
-  public static baseFragment: { SchemeFields: DocumentNode} = {
-    SchemeFields: gql`
-    fragment SchemeFields on ControllerScheme {
+  public static baseFragment: { PluginFields: DocumentNode} = {
+    PluginFields: gql`
+    fragment PluginFields on ControllerScheme {
       id
       address
       name
@@ -57,9 +57,9 @@ export abstract class Plugin extends Entity<IPluginState> {
       numberOfPreBoostedProposals
       numberOfBoostedProposals
       version
-      ${Object.values(Plugins).map(scheme => '...' + scheme.fragments.schemeParams.name).join('\n')}
+      ${Object.values(Plugins).map(plugin => '...' + plugin.fragments.pluginParams.name).join('\n')}
     }
-    ${Object.values(Plugins).map(scheme => scheme.fragments.schemeParams.fragment).join('\n')}
+    ${Object.values(Plugins).map(plugin => plugin.fragments.pluginParams.fragment).join('\n')}
     `
   }
 
@@ -76,10 +76,10 @@ export abstract class Plugin extends Entity<IPluginState> {
       query = gql`query SchemeSearchAllData {
         controllerSchemes ${createGraphQlQuery(options)}
         {
-          ...SchemeFields
+          ...PluginFields
         }
       }
-      ${Plugin.baseFragment.SchemeFields}`
+      ${Plugin.baseFragment.PluginFields}`
     } else {
       query = gql`query SchemeSearch {
         controllerSchemes ${createGraphQlQuery(options)}

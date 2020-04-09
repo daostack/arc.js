@@ -36,21 +36,21 @@ export class Competition extends ContributionRewardExt {
 
   public static getCompetitionContract(arc: Arc, state: IContributionRewardExtState) {
     if (state === null) {
-      throw Error(`No scheme was provided`)
+      throw Error(`No Plugin was provided`)
     }
-    const rewarder = state.schemeParams && state.schemeParams.rewarder
+    const rewarder = state.pluginParams && state.pluginParams.rewarder
     if (!rewarder) {
-      throw Error(`This scheme's rewarder is not set, and so no compeittion contract could be found`)
+      throw Error(`This Plugin's rewarder is not set, and so no compeittion contract could be found`)
     }
   
-    if (!Competition.isCompetitionScheme(arc, state)) {
+    if (!Competition.isCompetitionPlugin(arc, state)) {
       throw Error(`We did not find a Competition contract at the rewarder address ${rewarder}`)
     }
     const contract = arc.getContract(rewarder as Address)
     return contract
   }
 
-  public static isCompetitionScheme(arc: Arc, item: any) {
+  public static isCompetitionPlugin(arc: Arc, item: any) {
     if (item.contributionRewardExtParams) {
       const contractInfo = arc.getContractInfo(item.contributionRewardExtParams.rewarder)
       const versionNumber = Number(contractInfo.version.split('rc.')[1])
@@ -62,9 +62,6 @@ export class Competition extends ContributionRewardExt {
       return false
     }
   }
-
-  //TODO: Get competition contract
-
 
   public suggestions(
     options: ICompetitionSuggestionQueryOptions = {},
@@ -86,17 +83,17 @@ export class Competition extends ContributionRewardExt {
 
   public async createCompetitionProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
     const context = this.context
-    const schemeState = await this.fetchState()
-    if (!schemeState) {
-      throw Error(`No scheme was found with this id: ${this.id}`)
+    const pluginState = await this.fetchState()
+    if (!pluginState) {
+      throw Error(`No plugin was found with this id: ${this.id}`)
     }
 
-    const contract = Competition.getCompetitionContract(this.context, schemeState as IContributionRewardExtState)
+    const contract = Competition.getCompetitionContract(this.context, pluginState as IContributionRewardExtState)
 
     // check sanity -- is the competition contract actually c
     const contributionRewardExtAddress = await contract.contributionRewardExt()
-    if (contributionRewardExtAddress.toLowerCase() !== schemeState.address) {
-      throw Error(`This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${schemeState.address}`)
+    if (contributionRewardExtAddress.toLowerCase() !== pluginState.address) {
+      throw Error(`This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${pluginState.address}`)
     }
 
     options.descriptionHash = await context.saveIPFSData(options)

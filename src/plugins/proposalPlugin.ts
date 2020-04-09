@@ -2,7 +2,8 @@ import { Proposal, IProposalQueryOptions, IProposalBaseCreateOptions } from "./p
 import { IApolloQueryOptions } from "../types";
 import { Observable } from "rxjs";
 import { Operation, toIOperationObservable, ITransaction, transactionErrorHandler, transactionResultHandler } from "../operation";
-import { Plugin } from './plugin'
+import { Plugin, IPluginQueryOptions } from './plugin'
+import { Arc } from "../arc";
 
 export abstract class ProposalPlugin extends Plugin {
 
@@ -16,6 +17,20 @@ export abstract class ProposalPlugin extends Plugin {
   protected abstract createProposalErrorHandler(
     options: IProposalBaseCreateOptions
   ): transactionErrorHandler
+
+  public static search(
+    context: Arc,
+    options: IPluginQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<ProposalPlugin[]> {
+
+    const proposalPluginOptions = {
+      ...options
+      //TODO: query to get only Plugins that can create proposals
+    }
+
+    return Plugin.search(context, proposalPluginOptions, apolloQueryOptions) as Observable<ProposalPlugin[]>
+  }
 
   public createProposal(options: IProposalBaseCreateOptions): Operation<Proposal>  {
     const observable = Observable.create(async (observer: any) => {

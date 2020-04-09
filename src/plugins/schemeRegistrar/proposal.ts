@@ -109,7 +109,7 @@ export class SchemeRegistrarProposal extends Proposal {
         }
       }
       ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
 
     const itemMap = (item: any) => SchemeRegistrarProposal.itemMap(this.context, item)

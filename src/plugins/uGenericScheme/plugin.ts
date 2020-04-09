@@ -11,7 +11,7 @@ import { UGenericSchemeProposal } from "./proposal"
 
 
 export interface IUGenericSchemeState extends IPluginState {
-  schemeParams: {
+  pluginParams: {
     votingMachine: Address
     contractToCall: Address
     voteParams: IGenesisProtocolParams
@@ -40,10 +40,10 @@ export class UGenericScheme extends ProposalPlugin {
   }
 
   public static fragments = {
-    schemeParams: { 
-      name: 'UGenericSchemeParams',
-      fragment: gql` fragment UGenericSchemeParams on ControllerScheme {
-      uGenericSchemeParams {
+    pluginParams: { 
+      name: 'UGenericpluginParams',
+      fragment: gql` fragment UGenericpluginParams on ControllerScheme {
+      uGenericpluginParams {
         votingMachine
         contractToCall
         voteParams {
@@ -84,17 +84,17 @@ export class UGenericScheme extends ProposalPlugin {
       }
     }
 
-    const uGenericSchemeParams = item.uGenericSchemeParams && {
-      contractToCall: item.uGenericSchemeParams.contractToCall,
-      voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
-      votingMachine: item.uGenericSchemeParams.votingMachine
+    const uGenericpluginParams = item.uGenericpluginParams && {
+      contractToCall: item.uGenericpluginParams.contractToCall,
+      voteParams: mapGenesisProtocolParams(item.uGenericpluginParams.voteParams),
+      votingMachine: item.uGenericpluginParams.votingMachine
     }
     
     return new UGenericScheme(arc, {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterSchemes: item.canRegisterSchemes,
+        canRegisterPlugins: item.canRegisterSchemes,
         canUpgradeController: item.canUpgradeController,
         dao: item.dao.id,
         id: item.id,
@@ -103,7 +103,7 @@ export class UGenericScheme extends ProposalPlugin {
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
         paramsHash: item.paramsHash,
-        schemeParams: uGenericSchemeParams,
+        pluginParams: uGenericpluginParams,
         version: item.version
       }
     )
@@ -113,10 +113,10 @@ export class UGenericScheme extends ProposalPlugin {
     const query = gql`query SchemeStateById
       {
         controllerScheme (id: "${this.id}") {
-          ...SchemeFields
+          ...PluginFields
         }
       }
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
     const itemMap = (item: any) => UGenericScheme.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IUGenericSchemeState>
@@ -129,14 +129,14 @@ export class UGenericScheme extends ProposalPlugin {
     if (options.value === undefined) {
       throw new Error(`Missing argument "value" for UGenericScheme in Proposal.create()`)
     }
-    if (options.scheme === undefined) {
-      throw new Error(`Missing argument "scheme" for GenericScheme in Proposal.create()`)
+    if (options.plugin === undefined) {
+      throw new Error(`Missing argument "plugin" for GenericScheme in Proposal.create()`)
     }
   
     options.descriptionHash = await this.context.saveIPFSData(options)
   
     return {
-      contract: this.context.getContract(options.scheme),
+      contract: this.context.getContract(options.plugin),
       method: 'proposeCall',
       args: [
         options.dao,

@@ -160,11 +160,11 @@ export class Arc extends GraphNodeObserver {
     return Tag.search(this, options, apolloQueryOptions)
   }
 
-  public scheme(id: string, name: PluginName): Plugin {
+  public plugin(id: string, name: PluginName): Plugin {
     return new Plugins[name](this, id)
   }
 
-  public schemes(
+  public plugins(
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Plugin[]> {

@@ -75,7 +75,7 @@ export class UGenericSchemeProposal extends Proposal {
         }
       }
       ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
 
     const itemMap = (item: any) => UGenericSchemeProposal.itemMap(this.context, item)

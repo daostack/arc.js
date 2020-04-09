@@ -173,27 +173,26 @@ export class DAO extends Entity<IDAOState> {
     return this.context.ethBalance(this.id)
   }
 
-  // TODO: Does this search always yield Schemes that can create proposals? (ProposalPlugins)
-  public schemes(
+  public plugins(
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<ProposalPlugin[]> {
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
-    return Plugin.search(this.context, options, apolloQueryOptions) as Observable<ProposalPlugin[]>
+    return ProposalPlugin.search(this.context, options, apolloQueryOptions)
   }
 
   /* TODO
-  public proposalSchemes() {
+  public proposalplugins() {
     return ProposalPlugin.search()
   }*/
 
-  public async scheme(options: IPluginQueryOptions): Promise<ProposalPlugin> {
-    const schemes = await this.schemes(options).pipe(first()).toPromise()
-    if (schemes.length === 1) {
-      return schemes[0]
+  public async plugin(options: IPluginQueryOptions): Promise<ProposalPlugin> {
+    const plugins = await this.plugins(options).pipe(first()).toPromise()
+    if (plugins.length === 1) {
+      return plugins[0]
     } else {
-      throw Error('Could not find a unique scheme satisfying these options')
+      throw Error('Could not find a unique plugin satisfying these options')
     }
   }
 
@@ -214,14 +213,20 @@ export class DAO extends Entity<IDAOState> {
         id: address,
         address,
         contract: this.coreState.reputation.entity.address,
-        dao: this.id,
+        dao: {
+          id: this.id,
+          entity: new DAO(this.context, this.id)
+        },
         reputation: this.coreState.reputationTotalSupply
       })
     } else {
       return new Member(this.context, {
         id: address,
         address,
-        dao: this.id,
+        dao: {
+          id: this.id,
+          entity: new DAO(this.context, this.id)
+        },
         reputation: new BN(0)
       })
     }
@@ -268,24 +273,24 @@ export class DAO extends Entity<IDAOState> {
   public createProposal(options: IProposalBaseCreateOptions) {
     options.dao = this.id
 
-    if (!options.scheme) {
-      throw Error(`dao.createProposal(options): options must include an address for "scheme"`)
+    if (!options.plugin) {
+      throw Error(`dao.createProposal(options): options must include an address for "plugin"`)
     }
 
-    const schemesQuery = this.schemes(
+    const pluginsQuery = this.plugins(
       { where: {
-        address: options.scheme,
+        address: options.plugin,
         dao: options.dao
       }}
     )
 
-    const observable = schemesQuery.pipe(
+    const observable = pluginsQuery.pipe(
       first(),
-      concatMap((schemes) => {
-        if (schemes && schemes.length > 0) {
-          return schemes[0].createProposal(options)
+      concatMap((plugins) => {
+        if (plugins && plugins.length > 0) {
+          return plugins[0].createProposal(options)
         } else {
-          throw Error(`No scheme with address ${options.scheme} is registered with dao ${options.dao}`)
+          throw Error(`No plugin with address ${options.plugin} is registered with dao ${options.dao}`)
         }
       }
     ))

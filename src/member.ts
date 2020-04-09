@@ -12,14 +12,13 @@ import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions } from './types'
 import { concat, createGraphQlQuery, hexStringToUint8Array, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
-import { Entity } from './entity'
+import { Entity, IEntityRef } from './entity'
 
 export interface IMemberState {
   id: string
   address: Address
   contract?: Address
-  // TODO: IEntityRef<DAO>
-  dao: Address
+  dao: IEntityRef<DAO>
   reputation: BN
 }
 
@@ -112,7 +111,10 @@ export class Member extends Entity<IMemberState> {
     return new Member(context, {
       id: item.id,
       address: item.address,
-      dao: item.dao.id,
+      dao: {
+        id: item.dao.id,
+        entity: new DAO(context, item.dao.id)
+      },
       contract: item.contract,
       reputation: new BN(item.balance)
     })
@@ -181,7 +183,7 @@ export class Member extends Entity<IMemberState> {
 
   public async dao(): Promise < DAO > {
     const state = await this.fetchState()
-    return new DAO(this.context, state.dao as Address)
+    return new DAO(this.context, state.dao.id as Address)
   }
 
   public rewards(): Observable < Reward[] > {
@@ -196,7 +198,7 @@ export class Member extends Entity<IMemberState> {
       const state = await this.fetchState()
       if (!options.where) { options.where = {} }
       options.where.proposer = state.address
-      options.where.dao = state.dao
+      options.where.dao = state.dao.id
       const sub = Proposal.search(this.context, options, apolloQueryOptions).subscribe(observer)
       return () => sub.unsubscribe()
     })
@@ -209,7 +211,7 @@ export class Member extends Entity<IMemberState> {
       const state = await this.fetchState()
       if (!options.where) { options.where = {} }
       options.where.staker = state.address
-      options.where.dao = state.dao
+      options.where.dao = state.dao.id
       const sub = Stake.search(this.context, options, apolloQueryOptions).subscribe(observer)
       return () => sub.unsubscribe()
     })
@@ -222,7 +224,7 @@ export class Member extends Entity<IMemberState> {
       const state = await this.fetchState()
       if (!options.where) { options.where = {} }
       options.where.voter = state.address
-      options.where.dao = state.dao
+      options.where.dao = state.dao.id
       const sub = Vote.search(this.context, options, apolloQueryOptions) .subscribe(observer)
       return () => sub.unsubscribe()
     })
@@ -236,11 +238,17 @@ export class Member extends Entity<IMemberState> {
     if(!opts.contract) throw new Error("Contract not defined in options")
 
     this.id = Member.calculateId({ contract: opts.contract, address: opts.address})
+
+    const daoId = opts.dao && opts.dao.id.toLowerCase()
+
     this.coreState = {
       id: this.id,
       address: opts.address.toLowerCase(),
       contract: opts.contract && opts.contract.toLowerCase(),
-      dao: opts.dao && opts.dao.toLowerCase(),
+      dao: {
+        id: daoId,
+        entity: new DAO(this.context, daoId)
+      },
       reputation: opts.reputation
     }
     return this.coreState

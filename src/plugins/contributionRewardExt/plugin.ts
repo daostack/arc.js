@@ -12,7 +12,7 @@ import { NULL_ADDRESS } from "../../utils"
 import { ContributionRewardExtProposal } from "./proposal"
 
 export interface IContributionRewardExtState extends IPluginState {
-  schemeParams: {
+  pluginParams: {
     votingMachine: Address
     voteParams: IGenesisProtocolParams
     rewarder: Address
@@ -34,7 +34,7 @@ export class ContributionRewardExt extends ProposalPlugin {
   coreState: IContributionRewardExtState| undefined
 
   public static fragments = {
-    schemeParams: { 
+    pluginParams: { 
       name: 'ContributionRewardExtParams',
       fragment: gql` fragment ContributionRewardExtParams on ControllerScheme {
       contributionRewardExtParams {
@@ -73,8 +73,6 @@ export class ContributionRewardExt extends ProposalPlugin {
     }
   }
 
-  //TODO: no fragment of his own?
-
   public static itemMap(arc: Arc, item: any): ContributionRewardExt | null {
     if (!item) {
       return null
@@ -104,7 +102,7 @@ export class ContributionRewardExt extends ProposalPlugin {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterSchemes: item.canRegisterSchemes,
+        canRegisterPlugins: item.canRegisterSchemes,
         canUpgradeController: item.canUpgradeController,
         dao: item.dao.id,
         id: item.id,
@@ -113,7 +111,7 @@ export class ContributionRewardExt extends ProposalPlugin {
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
         paramsHash: item.paramsHash,
-        schemeParams: contributionRewardExtParams,
+        pluginParams: contributionRewardExtParams,
         version: item.version
       }
     )
@@ -123,10 +121,10 @@ export class ContributionRewardExt extends ProposalPlugin {
     const query = gql`query SchemeStateById
       {
         controllerScheme (id: "${this.id}") {
-          ...SchemeFields
+          ...PluginFields
         }
       }
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
     const itemMap = (item: any) => ContributionRewardExt.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IContributionRewardExtState>
@@ -149,12 +147,12 @@ export class ContributionRewardExt extends ProposalPlugin {
   
     options.descriptionHash = await this.context.saveIPFSData(options)
   
-    if (options.scheme === undefined) {
-      throw new Error(`Missing argument "scheme" for ContributionRewardExt in Proposal.create()`)
+    if (options.plugin === undefined) {
+      throw new Error(`Missing argument "plugin" for ContributionRewardExt in Proposal.create()`)
     }
   
     return {
-      contract: this.context.getContract(options.scheme),
+      contract: this.context.getContract(options.plugin),
       method: 'proposeContributionReward',
       args: [
         options.descriptionHash || '',

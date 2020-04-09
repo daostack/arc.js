@@ -14,17 +14,8 @@ interface IGenericSchemeProposalState extends IProposalState {
   returnValue: string
 }
 
-// TODO: Scheme => Plugin
 export class GenericSchemeProposal extends Proposal {
 
-  /*
-    TODO:
-    const entity = new Entity()
-    const entityState = entity.fetchState()
-    const sub = entity.state().subscribe()
-    const current = entity.currentState
-    const current = entity.fetchState()
-  */
   coreState: IGenericSchemeProposalState| undefined
 
   constructor(
@@ -84,7 +75,7 @@ export class GenericSchemeProposal extends Proposal {
         }
       }
       ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
 
     const itemMap = (item: any) => GenericSchemeProposal.itemMap(this.context, item)

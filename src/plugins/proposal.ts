@@ -61,7 +61,7 @@ export interface IProposalQueryOptions extends ICommonQueryOptions {
     proposalId?: string
     stage?: IProposalStage
     stage_in?: IProposalStage[]
-    scheme?: Address
+    plugin?: Address
     orderBy?: ProposalQuerySortOptions
     type?: ProposalTypeNames
     [key: string]: any | undefined
@@ -74,10 +74,9 @@ export interface IProposalBaseCreateOptions {
   descriptionHash?: string
   title?: string
   tags?: string[]
-  scheme?: Address
+  plugin?: Address
   url?: string
-  // TODO: try to remove this ('competition')
-  proposalType?: ProposalTypeNames | 'competition'
+  proposalType?: ProposalTypeNames
 }
 
 export interface IProposalState {
@@ -85,7 +84,7 @@ export interface IProposalState {
   id: string
   dao: IEntityRef<DAO>
   votingMachine: Address
-  scheme: IEntityRef<Plugin>
+  plugin: IEntityRef<Plugin>
   closingAt: Number
   createdAt: Number | Date
   descriptionHash?: string
@@ -212,7 +211,7 @@ export abstract class Proposal extends Entity<IProposalState> {
         id
       }
       scheme {
-        ...SchemeFields
+        ...PluginFields
       }
       gpQueue {
         id
@@ -312,7 +311,7 @@ export abstract class Proposal extends Entity<IProposalState> {
           }
         }
         ${Proposal.fragments.ProposalFields}
-        ${Plugin.baseFragment.SchemeFields}
+        ${Plugin.baseFragment.PluginFields}
       `
       return context.getObservableList(
         query,
@@ -347,7 +346,7 @@ export abstract class Proposal extends Entity<IProposalState> {
   protected static itemMapToBaseState<TPlugin extends Plugin, TProposal extends Proposal>(
     context: Arc,
     item: any,
-    scheme: TPlugin,
+    plugin: TPlugin,
     proposal: TProposal,
     type: ProposalTypeNames
   ) : IProposalState | null{
@@ -406,10 +405,10 @@ export abstract class Proposal extends Entity<IProposalState> {
     const queueState: IQueueState = {
       dao: item.dao.id,
       id: gpQueue.id,
-      name: scheme.coreState? scheme.coreState.name: '',
-      scheme: {
-        id: scheme.id,
-        entity: scheme
+      name: plugin.coreState? plugin.coreState.name: '',
+      plugin: {
+        id: plugin.id,
+        entity: plugin
       },
       threshold,
       votingMachine: gpQueue.votingMachine
@@ -449,9 +448,9 @@ export abstract class Proposal extends Entity<IProposalState> {
       },
       quietEndingPeriodBeganAt: Number(item.quietEndingPeriodBeganAt),
       resolvedAt: item.resolvedAt !== undefined ? Number(item.resolvedAt) : 0,
-      scheme: {
-        id: scheme.id,
-        entity: scheme
+      plugin: {
+        id: plugin.id,
+        entity: plugin
       },
       stage,
       stakesAgainst,

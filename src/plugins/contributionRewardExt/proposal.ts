@@ -122,7 +122,7 @@ export class ContributionRewardExtProposal extends Proposal {
         }
       }
       ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
 
     const itemMap = (item: any) => ContributionRewardExtProposal.itemMap(this.context, item)

@@ -75,17 +75,17 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
 
   constructor(
     context: Arc,
-    idOrOpts: string | { suggestionId: number, scheme: string } | ICompetitionSuggestionState
+    idOrOpts: string | { suggestionId: number, plugin: string } | ICompetitionSuggestionState
   ) {
     if (typeof idOrOpts === 'string') {
       super(context, idOrOpts)
       this.id = idOrOpts
     } else {
       if (
-        Object.keys(idOrOpts).includes('scheme') &&
+        Object.keys(idOrOpts).includes('plugin') &&
         Object.keys(idOrOpts).includes('suggestionId')
       ) {
-        const id = CompetitionSuggestion.calculateId(idOrOpts as { suggestionId: number, scheme: string })
+        const id = CompetitionSuggestion.calculateId(idOrOpts as { suggestionId: number, plugin: string })
         super(context, id)
         this.id = id 
         this.suggestionId = idOrOpts.suggestionId
@@ -149,9 +149,9 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     }
   }
 
-  public static calculateId(opts: { scheme: Address, suggestionId: number }): string {
+  public static calculateId(opts: { plugin: Address, suggestionId: number }): string {
     const seed = concat(
-      hexStringToUint8Array(opts.scheme.toLowerCase()),
+      hexStringToUint8Array(opts.plugin.toLowerCase()),
       hexStringToUint8Array(Number(opts.suggestionId).toString(16))
     )
     return utils.keccak256(seed)

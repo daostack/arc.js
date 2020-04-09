@@ -12,7 +12,7 @@ import gql from "graphql-tag";
 import { NULL_ADDRESS } from '../../utils';
 
 export interface IContributionRewardSchemeState extends IPluginState {
-  schemeParams: {
+  pluginParams: {
     votingMachine: Address
     voteParams: IGenesisProtocolParams
   }
@@ -46,7 +46,7 @@ export class ContributionReward extends ProposalPlugin {
   }
 
   public static fragments = {
-    schemeParams: { 
+    pluginParams: { 
       name: 'ContributionRewardParams',
       fragment: gql` fragment ContributionRewardParams on ControllerScheme {
       contributionRewardParams {
@@ -100,7 +100,7 @@ export class ContributionReward extends ProposalPlugin {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterSchemes: item.canRegisterSchemes,
+        canRegisterPlugins: item.canRegisterSchemes,
         canUpgradeController: item.canUpgradeController,
         dao: item.dao.id,
         id: item.id,
@@ -109,7 +109,7 @@ export class ContributionReward extends ProposalPlugin {
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
         paramsHash: item.paramsHash,
-        schemeParams: contributionRewardParams,
+        pluginParams: contributionRewardParams,
         version: item.version
       }
     )
@@ -119,10 +119,10 @@ export class ContributionReward extends ProposalPlugin {
     const query = gql`query SchemeStateById
       {
         controllerScheme (id: "${this.id}") {
-          ...SchemeFields
+          ...PluginFields
         }
       }
-      ${Plugin.baseFragment.SchemeFields}
+      ${Plugin.baseFragment.PluginFields}
     `
     const itemMap = (item: any) => ContributionReward.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IContributionRewardSchemeState>
@@ -139,12 +139,12 @@ export class ContributionReward extends ProposalPlugin {
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {
     options.descriptionHash = await this.context.saveIPFSData(options)
   
-    if (options.scheme === undefined) {
-      throw new Error(`Missing argument "scheme" for ContributionReward in Proposal.create()`)
+    if (options.plugin === undefined) {
+      throw new Error(`Missing argument "plugin" for ContributionReward in Proposal.create()`)
     }
   
     return {
-      contract: this.context.getContract(options.scheme),
+      contract: this.context.getContract(options.plugin),
       method: 'proposeContributionReward',
       args: [
         options.dao,
