@@ -19,17 +19,26 @@ interface ISchemeRegistrarProposalState extends IProposalState {
 
 export type SchemeRegistrarProposalTypes = 'SchemeRegistrarAdd' | 'SchemeRegistrarEdit' | 'SchemeRegistrarRemove'
 
-// TODO: Scheme => Plugin
 export class SchemeRegistrarProposal extends Proposal {
 
-  /*
-    TODO:
-    const entity = new Entity()
-    const entityState = entity.fetchState()
-    const sub = entity.state().subscribe()
-    const current = entity.currentState
-    const current = entity.fetchState()
-  */
+  public static fragment = {
+    name: 'SchemeRegistrarProposalFields',
+    fragment: gql`
+      fragment SchemeRegistrarProposalFields on Proposal {
+        schemeRegistrar {
+          id
+          schemeToRegister
+          schemeToRegisterParamsHash
+          schemeToRegisterPermission
+          schemeToRemove
+          decision
+          schemeRegistered
+          schemeRemoved
+        }
+      }
+    `
+  }
+  
   coreState: ISchemeRegistrarProposalState| undefined
 
   constructor(
@@ -108,8 +117,8 @@ export class SchemeRegistrarProposal extends Proposal {
           }
         }
       }
-      ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.PluginFields}
+      ${Proposal.baseFragment}
+      ${Plugin.baseFragment}
     `
 
     const itemMap = (item: any) => SchemeRegistrarProposal.itemMap(this.context, item)

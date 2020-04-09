@@ -16,6 +16,21 @@ interface IGenericSchemeProposalState extends IProposalState {
 
 export class GenericSchemeProposal extends Proposal {
 
+  public static fragment = {
+    name: 'GenericSchemeProposalFields',
+    fragment: gql`
+      fragment GenericSchemeProposalFields on Proposal {
+        genericScheme {
+          id
+          contractToCall
+          callData
+          executed
+          returnValue
+        }
+      }
+    `
+  }
+
   coreState: IGenericSchemeProposalState| undefined
 
   constructor(
@@ -74,8 +89,8 @@ export class GenericSchemeProposal extends Proposal {
           }
         }
       }
-      ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.PluginFields}
+      ${Proposal.baseFragment}
+      ${Plugin.baseFragment}
     `
 
     const itemMap = (item: any) => GenericSchemeProposal.itemMap(this.context, item)

@@ -29,6 +29,33 @@ export interface IContributionRewardProposalState extends IProposalState {
 
 export class ContributionRewardProposal extends Proposal {
 
+  public static fragment = {
+    name: 'ContributionRewardProposalFields',
+    fragment: gql`
+      fragment ContributionRewardProposalFields on Proposal {
+        contributionReward {
+          id
+          beneficiary
+          ethReward
+          ethRewardLeft
+          externalToken
+          externalTokenReward
+          externalTokenRewardLeft
+          nativeTokenReward
+          nativeTokenRewardLeft
+          periods
+          periodLength
+          reputationReward
+          reputationChangeLeft
+          alreadyRedeemedReputationPeriods
+          alreadyRedeemedExternalTokenPeriods
+          alreadyRedeemedNativeTokenPeriods
+          alreadyRedeemedEthPeriods
+        }
+      }
+    `
+  }
+
   coreState: IContributionRewardProposalState| undefined
 
   constructor(
@@ -120,8 +147,8 @@ export class ContributionRewardProposal extends Proposal {
           }
         }
       }
-      ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.PluginFields}
+      ${Proposal.baseFragment}
+      ${Plugin.baseFragment}
     `
 
     const itemMap = (item: any) => ContributionRewardProposal.itemMap(this.context, item)

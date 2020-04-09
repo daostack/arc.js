@@ -6,7 +6,7 @@ import { IApolloQueryOptions, Address, ICommonQueryOptions } from '../types'
 import { Plugin } from './plugin'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from '../genesisProtocol'
 import { Arc } from '../arc'
-import { createGraphQlQuery, isAddress, realMathToNumber } from '../utils'
+import { createGraphQlQuery, isAddress, realMathToNumber, hexStringToUint8Array, concat } from '../utils'
 import { IObservable } from '../graphnode'
 import { IVoteQueryOptions, Vote } from '../vote'
 import { Stake, IStakeQueryOptions } from '../stake'
@@ -14,6 +14,8 @@ import { Queue, IQueueState } from '../queue'
 import { IRewardQueryOptions, Reward } from '../reward'
 import { DAO } from '../dao'
 import { ProposalTypeNames, Proposals } from '.'
+import { utils } from 'ethers'
+import { DocumentNode } from 'graphql'
 
 export enum IProposalOutcome {
   None,
@@ -127,9 +129,10 @@ export interface IProposalState {
 
 export abstract class Proposal extends Entity<IProposalState> {
 
+  public static fragment: { name: string, fragment: DocumentNode } | undefined
+
   // TODO: dynamically generate these from Proposals
-  public static fragments = {
-    ProposalFields: gql`fragment ProposalFields on Proposal {
+  public static baseFragment: DocumentNode = gql`fragment ProposalFields on Proposal {
       id
       accountsWithUnclaimedRewards
       boostedAt
@@ -148,50 +151,6 @@ export abstract class Proposal extends Entity<IProposalState> {
       executedAt
       executionState
       expiresInQueueAt
-      competition {
-        id
-        admin
-        endTime
-        contract
-        suggestionsEndTime
-        createdAt
-        numberOfWinningSuggestions
-        numberOfVotesPerVoters
-        numberOfWinners
-        rewardSplit
-        snapshotBlock
-        startTime
-        totalSuggestions
-        totalVotes
-        votingStartTime
-
-      }
-      contributionReward {
-        id
-        beneficiary
-        ethReward
-        ethRewardLeft
-        externalToken
-        externalTokenReward
-        externalTokenRewardLeft
-        nativeTokenReward
-        nativeTokenRewardLeft
-        periods
-        periodLength
-        reputationReward
-        reputationChangeLeft
-        alreadyRedeemedReputationPeriods
-        alreadyRedeemedExternalTokenPeriods
-        alreadyRedeemedNativeTokenPeriods
-        alreadyRedeemedEthPeriods
-      }
-      genericScheme {
-        id
-        contractToCall
-        callData
-        executed
-        returnValue
-      }
       genesisProtocolParams {
         id
         activationTime
@@ -222,16 +181,7 @@ export abstract class Proposal extends Entity<IProposalState> {
       preBoostedAt
       proposer
       quietEndingPeriodBeganAt
-      schemeRegistrar {
-        id
-        schemeToRegister
-        schemeToRegisterParamsHash
-        schemeToRegisterPermission
-        schemeToRemove
-        decision
-        schemeRegistered
-        schemeRemoved
-      }
+      
       stage
       # stakes { id }
       stakesFor
@@ -248,8 +198,12 @@ export abstract class Proposal extends Entity<IProposalState> {
       votesFor
       votingMachine
       winningOutcome
-    }`
-  }
+      ${Object.values(Proposals).filter(proposal => proposal.fragment)
+        .map(proposal => '...' + proposal.fragment.name).join('\n')}
+    }
+    ${Object.values(Proposals).filter(proposal => proposal.fragment)
+      .map(proposal => '...' + proposal.fragment.fragment).join('\n')}
+  `
 
   public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState>
 
@@ -310,8 +264,8 @@ export abstract class Proposal extends Entity<IProposalState> {
             }
           }
         }
-        ${Proposal.fragments.ProposalFields}
-        ${Plugin.baseFragment.PluginFields}
+        ${Proposal.baseFragment}
+        ${Plugin.baseFragment}
       `
       return context.getObservableList(
         query,
@@ -341,6 +295,14 @@ export abstract class Proposal extends Entity<IProposalState> {
         apolloQueryOptions
       ) as IObservable<Proposal[]>
     }
+  }
+
+  public static calculateId(address: Address, proposalCount: number) {
+    const seed = concat(
+      hexStringToUint8Array(address.toLowerCase()),
+      hexStringToUint8Array(proposalCount.toString())
+    )
+    return utils.keccak256(seed)
   }
 
   protected static itemMapToBaseState<TPlugin extends Plugin, TProposal extends Proposal>(

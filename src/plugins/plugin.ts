@@ -41,8 +41,9 @@ export interface IPluginQueryOptions extends ICommonQueryOptions {
 
 export abstract class Plugin extends Entity<IPluginState> {
 
-  public static baseFragment: { PluginFields: DocumentNode} = {
-    PluginFields: gql`
+  public static fragment: { name: string, fragment: DocumentNode } | undefined
+
+  public static baseFragment: DocumentNode = gql`
     fragment PluginFields on ControllerScheme {
       id
       address
@@ -57,14 +58,14 @@ export abstract class Plugin extends Entity<IPluginState> {
       numberOfPreBoostedProposals
       numberOfBoostedProposals
       version
-      ${Object.values(Plugins).map(plugin => '...' + plugin.fragments.pluginParams.name).join('\n')}
+      ${Object.values(Plugins).filter(plugin => plugin.fragment)
+        .map(plugin => '...' + plugin.fragment.name).join('\n')}
     }
-    ${Object.values(Plugins).map(plugin => plugin.fragments.pluginParams.fragment).join('\n')}
-    `
-  }
+    ${Object.values(Plugins).filter(plugin => plugin.fragment)
+      .map(plugin => '...' + plugin.fragment.name).join('\n')}
+  `
 
   public abstract coreState: IPluginState| undefined
-  public abstract getPermissions(): Permissions
 
   public static search(
     context: Arc,
@@ -79,7 +80,7 @@ export abstract class Plugin extends Entity<IPluginState> {
           ...PluginFields
         }
       }
-      ${Plugin.baseFragment.PluginFields}`
+      ${Plugin.baseFragment}`
     } else {
       query = gql`query SchemeSearch {
         controllerSchemes ${createGraphQlQuery(options)}

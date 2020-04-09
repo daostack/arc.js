@@ -45,31 +45,29 @@ export class ContributionReward extends ProposalPlugin {
     }
   }
 
-  public static fragments = {
-    pluginParams: { 
-      name: 'ContributionRewardParams',
-      fragment: gql` fragment ContributionRewardParams on ControllerScheme {
-      contributionRewardParams {
+  public static fragment = {
+    name: 'ContributionRewardParams',
+    fragment: gql` fragment ContributionRewardParams on ControllerScheme {
+    contributionRewardParams {
+      id
+      votingMachine
+      voteParams {
         id
-        votingMachine
-        voteParams {
-          id
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-      }`
-    }
+        queuedVoteRequiredPercentage
+        queuedVotePeriodLimit
+        boostedVotePeriodLimit
+        preBoostedVotePeriodLimit
+        thresholdConst
+        limitExponentValue
+        quietEndingPeriod
+        proposingRepReward
+        votersReputationLossRatio
+        minimumDaoBounty
+        daoBountyConst
+        activationTime
+        voteOnBehalf
+      }
+    }`
   }
 
   public static itemMap(arc: Arc, item: any): ContributionReward | null {
@@ -122,7 +120,7 @@ export class ContributionReward extends ProposalPlugin {
           ...PluginFields
         }
       }
-      ${Plugin.baseFragment.PluginFields}
+      ${Plugin.baseFragment}
     `
     const itemMap = (item: any) => ContributionReward.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IContributionRewardSchemeState>

@@ -39,30 +39,28 @@ export class GenericScheme extends ProposalPlugin {
     }
   }
 
-  public static fragments = {
-    pluginParams: { 
-      name: 'GenericpluginParams',
-      fragment: gql` fragment GenericpluginParams on ControllerScheme {
-      genericpluginParams {
-        votingMachine
-        contractToCall
-        voteParams {
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-      }`
-    }
+  public static fragment = {
+    name: 'GenericpluginParams',
+    fragment: gql` fragment GenericpluginParams on ControllerScheme {
+    genericpluginParams {
+      votingMachine
+      contractToCall
+      voteParams {
+        queuedVoteRequiredPercentage
+        queuedVotePeriodLimit
+        boostedVotePeriodLimit
+        preBoostedVotePeriodLimit
+        thresholdConst
+        limitExponentValue
+        quietEndingPeriod
+        proposingRepReward
+        votersReputationLossRatio
+        minimumDaoBounty
+        daoBountyConst
+        activationTime
+        voteOnBehalf
+      }
+    }`
   }
 
   public static itemMap(arc: Arc, item: any): GenericScheme | null {
@@ -116,7 +114,7 @@ export class GenericScheme extends ProposalPlugin {
           ...PluginFields
         }
       }
-      ${Plugin.baseFragment.PluginFields}
+      ${Plugin.baseFragment}
     `
     const itemMap = (item: any) => GenericScheme.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>

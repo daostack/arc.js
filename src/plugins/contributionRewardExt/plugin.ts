@@ -33,32 +33,30 @@ export class ContributionRewardExt extends ProposalPlugin {
 
   coreState: IContributionRewardExtState| undefined
 
-  public static fragments = {
-    pluginParams: { 
-      name: 'ContributionRewardExtParams',
-      fragment: gql` fragment ContributionRewardExtParams on ControllerScheme {
-      contributionRewardExtParams {
+  public static fragment = { 
+    name: 'ContributionRewardExtParams',
+    fragment: gql` fragment ContributionRewardExtParams on ControllerScheme {
+    contributionRewardExtParams {
+      id
+      votingMachine
+      voteParams {
         id
-        votingMachine
-        voteParams {
-          id
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-        rewarder
-      }`
-    }
+        queuedVoteRequiredPercentage
+        queuedVotePeriodLimit
+        boostedVotePeriodLimit
+        preBoostedVotePeriodLimit
+        thresholdConst
+        limitExponentValue
+        quietEndingPeriod
+        proposingRepReward
+        votersReputationLossRatio
+        minimumDaoBounty
+        daoBountyConst
+        activationTime
+        voteOnBehalf
+      }
+      rewarder
+    }`
   }
 
   constructor(context: Arc, idOrOpts: Address | IContributionRewardExtState) {
@@ -124,7 +122,7 @@ export class ContributionRewardExt extends ProposalPlugin {
           ...PluginFields
         }
       }
-      ${Plugin.baseFragment.PluginFields}
+      ${Plugin.baseFragment}
     `
     const itemMap = (item: any) => ContributionRewardExt.itemMap(this.context, item)
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IContributionRewardExtState>

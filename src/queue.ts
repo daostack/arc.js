@@ -126,7 +126,7 @@ export class Queue extends Entity<IQueueState> {
           threshold
         }
       }
-      ${Plugin.baseFragment.PluginFields}
+      ${Plugin.baseFragment}
     `
 
     const itemMap = (item: any) => Queue.itemMap(this.context, item)

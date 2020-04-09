@@ -35,6 +35,32 @@ export interface ICompetitionProposalState extends IProposalState {
 
 export class CompetitionProposal extends Proposal {
 
+  public static fragment = {
+    name: 'CompetitionProposalFields',
+    fragment: gql`
+      fragment CompetitionProposalFields on Proposal {
+        competition {
+          id
+          admin
+          endTime
+          contract
+          suggestionsEndTime
+          createdAt
+          numberOfWinningSuggestions
+          numberOfVotesPerVoters
+          numberOfWinners
+          rewardSplit
+          snapshotBlock
+          startTime
+          totalSuggestions
+          totalVotes
+          votingStartTime
+  
+        }
+      }
+    `
+  }
+
   coreState: ICompetitionProposalState| undefined
 
   constructor(
@@ -110,8 +136,8 @@ export class CompetitionProposal extends Proposal {
           }
         }
       }
-      ${Proposal.fragments.ProposalFields}
-      ${Plugin.baseFragment.PluginFields}
+      ${Proposal.baseFragment}
+      ${Plugin.baseFragment}
     `
 
     const itemMap = (item: any) => CompetitionProposal.itemMap(this.context, item)
