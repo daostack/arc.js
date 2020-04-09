@@ -153,11 +153,4 @@ export class UGenericScheme extends ProposalPlugin {
     }
   }
 
-  public createProposalErrorHandler(options: IProposalBaseCreateOptions): transactionErrorHandler {
-    throw new Error("Method not implemented.");
-  }
-  public getPermissions(): Permissions {
-    throw new Error("Method not implemented.");
-  }
-
 }

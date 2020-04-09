@@ -14,9 +14,19 @@ export abstract class ProposalPlugin extends Plugin {
   //TODO: optional parameter 'options'?
   protected abstract createProposalTransactionMap(options?: IProposalBaseCreateOptions): transactionResultHandler<Proposal>
 
-  protected abstract createProposalErrorHandler(
+
+  //TODO: do we need this method? 
+
+  // protected abstract createProposalErrorHandler(
+  //   options: IProposalBaseCreateOptions
+  // ): transactionErrorHandler
+
+  //The old implementation in scheme.ts was:
+  protected createProposalErrorHandler(
     options: IProposalBaseCreateOptions
-  ): transactionErrorHandler
+  ): transactionErrorHandler {
+    throw Error('this should never be called')
+  }
 
   public static search(
     context: Arc,

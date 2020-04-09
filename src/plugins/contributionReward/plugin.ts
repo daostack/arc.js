@@ -126,14 +126,6 @@ export class ContributionReward extends ProposalPlugin {
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IContributionRewardSchemeState>
   }
 
-  public getPermissions(): Permissions {
-    throw new Error("Method not implemented.");
-  }
-
-  public proposals(options: IProposalQueryOptions, apolloQueryOptions: IApolloQueryOptions): Observable<any[]> {
-    throw new Error("Method not implemented.");
-  }
-
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {
     options.descriptionHash = await this.context.saveIPFSData(options)
   
@@ -167,10 +159,6 @@ export class ContributionReward extends ProposalPlugin {
       const proposalId = args[1]
       return new GenericSchemeProposal(this.context, proposalId)
     }
-  }
-
-  public createProposalErrorHandler(options: IProposalCreateOptionsCR): transactionErrorHandler {
-    throw new Error("Method not implemented.");
   }
   
 }

@@ -120,14 +120,6 @@ export class GenericScheme extends ProposalPlugin {
     return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>
   }
 
-  public getPermissions(): Permissions {
-    throw new Error("Method not implemented.");
-  }
-
-  public proposals(options: IProposalQueryOptions, apolloQueryOptions: IApolloQueryOptions): Observable<any[]> {
-    throw new Error("Method not implemented.");
-  }
-
   public async createProposalTransaction(options: IProposalCreateOptionsGS): Promise<ITransaction> {
     if (options.callData === undefined) {
       throw new Error(`Missing argument "callData" for GenericScheme in Proposal.create()`)
@@ -160,8 +152,4 @@ export class GenericScheme extends ProposalPlugin {
     }
   }
 
-  public createProposalErrorHandler(options: IProposalCreateOptionsGS): transactionErrorHandler {
-    throw new Error("Method not implemented.");
-  }
-  
 }
