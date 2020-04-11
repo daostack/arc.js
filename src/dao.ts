@@ -124,8 +124,7 @@ export class DAO extends Entity<IDAOState> {
       //TODO: How to get ID for this error msg?
       throw Error(`Could not find a DAO with id`)
     }
-    const reputation = new Reputation(context, item.nativeReputation.id)
-    const token = new Token(context, item.nativeToken.id)
+
     return new DAO(context, {
       address: item.id,
       id: item.id,
@@ -137,12 +136,12 @@ export class DAO extends Entity<IDAOState> {
       register: item.register,
       reputation: {
         id: item.nativeReputation.id,
-        entity: reputation
+        entity: new Reputation(context, item.nativeReputation.id)
       },
       reputationTotalSupply: new BN(item.nativeReputation.totalSupply),
       token: {
         id: item.nativeToken.id,
-        entity: token
+        entity: new Token(context, item.nativeToken.id)
       },
       tokenName: item.nativeToken.name,
       tokenSymbol: item.nativeToken.symbol,
@@ -180,11 +179,6 @@ export class DAO extends Entity<IDAOState> {
     options.where.dao = this.id
     return ProposalPlugin.search(this.context, options, apolloQueryOptions)
   }
-
-  /* TODO
-  public proposalplugins() {
-    return ProposalPlugin.search()
-  }*/
 
   public async plugin(options: IPluginQueryOptions): Promise<ProposalPlugin> {
     const plugins = await this.plugins(options).pipe(first()).toPromise()

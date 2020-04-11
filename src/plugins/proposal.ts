@@ -205,6 +205,8 @@ export abstract class Proposal extends Entity<IProposalState> {
     ${Object.values(Proposals)
       .filter(proposal => proposal.fragment)
       .map(proposal => '...' + proposal.fragment?.fragment).join('\n')}
+    
+    ${Plugin.baseFragment}
   `
 
   public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState>
@@ -267,7 +269,6 @@ export abstract class Proposal extends Entity<IProposalState> {
           }
         }
         ${Proposal.baseFragment}
-        ${Plugin.baseFragment}
       `
       return context.getObservableList(
         query,

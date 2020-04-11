@@ -3,8 +3,6 @@ import { first } from 'rxjs/operators'
 import { IApolloQueryOptions, Address } from "./types"
 import { Arc } from "./arc"
 
-// Vote, Competition, Member, Vote, Stake, Plugin, Proposal, DAO, Tag, Event, Reward
-
 interface IEntityState {
   id: string
 }
@@ -49,14 +47,4 @@ export abstract class Entity<TEntityState extends IEntityState> {
 
     return this.coreState
   }
-
-  // searchRelatedEntity<TRelatedEntity, TRelatedEntityQueryOptions>(
-  //   options: TRelatedEntityQueryOptions,
-  //   apolloQueryOptions: IApolloQueryOptions = {},
-  //   staticSearchMethod:
-  // ): Observable<TRelatedEntity[]> {
-  //   if (!options.where) { options.where = {}}
-  //   options.where.scheme = this.id
-  //   return Proposal.search(this.context, options, apolloQueryOptions)
-  // }
 }

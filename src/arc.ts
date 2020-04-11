@@ -28,10 +28,7 @@ import { isAddress } from './utils'
 import { IPFSClient } from './ipfsClient'
 import { IEventQueryOptions, Event } from './event'
 import { IPluginQueryOptions, Plugin } from './plugins/plugin'
-import { Plugins, Proposals } from './plugins'
-
-type PluginName = keyof typeof Plugins
-type ProposalName = keyof typeof Proposals
+import { Plugins, Proposals, PluginName, ProposalName } from './plugins'
 
 /**
  * The Arc class holds all configuration.
@@ -462,10 +459,6 @@ export class Arc extends GraphNodeObserver {
     Logger.debug(`Data saved successfully as ${descriptionHash}`)
     return descriptionHash
   }
-}
-
-export interface IContractAddresses {
-  [key: string]: Address
 }
 
 export interface IContractInfo {
