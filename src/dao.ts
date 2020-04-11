@@ -11,7 +11,7 @@ import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 import { IEntityRef, Entity } from './entity'
-import { IPluginQueryOptions, Plugin } from './plugins/plugin'
+import { IPluginQueryOptions } from './plugins/plugin'
 import { ProposalPlugin } from './plugins/proposalPlugin'
 import { Reward, IRewardQueryOptions } from './reward'
 import { Reputation } from './reputation'
@@ -108,7 +108,6 @@ export class DAO extends Entity<IDAOState> {
           id
         }
       }`
-
     }
 
     const itemMap = (item: any) => apolloQueryOptions.fetchAllData? DAO.itemMap(context, item) : new DAO(context, item.id)
@@ -247,7 +246,7 @@ export class DAO extends Entity<IDAOState> {
     options: IRewardQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Reward[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) { options.where = {} }
     options.where.dao = this.id
     return Reward.search(this.context, options, apolloQueryOptions)
   }
@@ -256,7 +255,7 @@ export class DAO extends Entity<IDAOState> {
     options: IVoteQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Vote[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) { options.where = {} }
     options.where.dao = this.id
     return Vote.search(this.context, options, apolloQueryOptions)
   }
@@ -265,7 +264,7 @@ export class DAO extends Entity<IDAOState> {
     options: IStakeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Stake[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) { options.where = {} }
     options.where.dao = this.id
     return Stake.search(this.context, options, apolloQueryOptions)
   }

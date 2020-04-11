@@ -1,13 +1,13 @@
 import BN from 'bn.js'
 import { IPluginState, Plugin } from "../plugin"
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../../genesisProtocol"
-import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../proposal"
+import { IProposalBaseCreateOptions } from "../proposal"
 import { ProposalPlugin } from "../proposalPlugin"
 import gql from "graphql-tag"
 import { Arc } from "../../arc"
 import { IApolloQueryOptions, Address } from "../../types"
 import { Observable } from "rxjs"
-import { ITransaction, ITransactionReceipt, getEventArgs, transactionErrorHandler } from "../../operation"
+import { ITransaction, ITransactionReceipt, getEventArgs } from "../../operation"
 import { NULL_ADDRESS } from "../../utils"
 import { ContributionRewardExtProposal } from "./proposal"
 

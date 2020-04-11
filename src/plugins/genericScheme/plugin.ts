@@ -2,12 +2,12 @@
 import gql from "graphql-tag";
 import { IPluginState, Plugin } from "../plugin";
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../../genesisProtocol";
-import { IProposalBaseCreateOptions, IProposalQueryOptions } from "../proposal";
+import { IProposalBaseCreateOptions } from "../proposal";
 import { ProposalPlugin } from "../proposalPlugin";
 import { Arc } from "../../arc";
 import { IApolloQueryOptions, Address } from "../../types";
 import { Observable } from "rxjs";
-import { ITransaction, transactionResultHandler, ITransactionReceipt, getEventArgs, transactionErrorHandler } from "../../operation";
+import { ITransaction, transactionResultHandler, ITransactionReceipt, getEventArgs } from "../../operation";
 import { GenericSchemeProposal } from "./proposal";
 
 export interface IGenericSchemeState extends IPluginState {

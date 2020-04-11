@@ -13,7 +13,7 @@ import { Stake, IStakeQueryOptions } from '../stake'
 import { Queue, IQueueState } from '../queue'
 import { IRewardQueryOptions, Reward } from '../reward'
 import { DAO } from '../dao'
-import { ProposalTypeNames, Proposals } from '.'
+import { ProposalTypeNames, Proposals } from './'
 import { utils } from 'ethers'
 import { DocumentNode } from 'graphql'
 
@@ -198,11 +198,13 @@ export abstract class Proposal extends Entity<IProposalState> {
       votesFor
       votingMachine
       winningOutcome
-      ${Object.values(Proposals).filter(proposal => proposal.fragment)
-        .map(proposal => '...' + proposal.fragment.name).join('\n')}
+      ${Object.values(Proposals)
+        .filter(proposal => proposal.fragment)
+        .map(proposal => '...' + proposal.fragment?.name).join('\n')}
     }
-    ${Object.values(Proposals).filter(proposal => proposal.fragment)
-      .map(proposal => '...' + proposal.fragment.fragment).join('\n')}
+    ${Object.values(Proposals)
+      .filter(proposal => proposal.fragment)
+      .map(proposal => '...' + proposal.fragment?.fragment).join('\n')}
   `
 
   public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState>

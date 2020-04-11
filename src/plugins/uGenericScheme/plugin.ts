@@ -6,7 +6,7 @@ import { ProposalPlugin } from "../proposalPlugin"
 import { Arc } from "../../arc"
 import gql from "graphql-tag"
 import { Observable } from "rxjs"
-import { ITransaction, ITransactionReceipt, getEventArgs, transactionErrorHandler } from "../../operation"
+import { ITransaction, ITransactionReceipt, getEventArgs } from "../../operation"
 import { UGenericSchemeProposal } from "./proposal"
 
 
