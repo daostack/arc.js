@@ -285,7 +285,15 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-  public getABI(address?: Address, abiName?: string, version?: string): any[] {
+  public getABI(opts: { address?: Address, abiName?: string, version?: string }): any[] {
+
+    if (Object.values(opts).filter(value => value !== undefined).length === 0) {
+      throw Error('getABI needs at least one parameter passed')
+    }
+
+    const { address } = opts
+    let { abiName, version } = opts
+
     if (address && !abiName || !version) {
       const contractInfo = this.getContractInfo(address as Address)
       abiName = contractInfo.name
@@ -319,7 +327,7 @@ export class Arc extends GraphNodeObserver {
    */
   public getContract(address: Address, abi?: any[]): Contract {
     if (!abi) {
-      abi = this.getABI(address)
+      abi = this.getABI({ address })
     }
     if (!this.web3) {
       throw new Error('Web3 provider not set')

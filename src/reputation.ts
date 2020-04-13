@@ -132,7 +132,7 @@ export class Reputation extends Entity<IReputationState> {
   }
 
   public contract() {
-    const abi = this.context.getABI(undefined, 'Reputation', REPUTATION_CONTRACT_VERSION)
+    const abi = this.context.getABI({abiName: 'Reputation', version: REPUTATION_CONTRACT_VERSION})
     return this.context.getContract(this.address, abi)
   }
 
