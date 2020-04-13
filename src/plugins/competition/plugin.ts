@@ -30,10 +30,6 @@ export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
 
 export class Competition extends ContributionRewardExt {
 
-  constructor(context: Arc, idOrOpts: Address | IContributionRewardExtState) {
-    super(context, idOrOpts)
-  }
-
   public static getCompetitionContract(arc: Arc, state: IContributionRewardExtState) {
     if (state === null) {
       throw Error(`No Plugin was provided`)

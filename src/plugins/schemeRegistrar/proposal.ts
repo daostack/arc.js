@@ -41,21 +41,6 @@ export class SchemeRegistrarProposal extends Proposal {
   
   coreState: ISchemeRegistrarProposalState| undefined
 
-  constructor(
-    context: Arc,
-    idOrOpts: string | ISchemeRegistrarProposalState
-  ) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
-    this.context = context
-  }
-
   protected static itemMap (
     context: Arc,
     item: any
@@ -121,9 +106,7 @@ export class SchemeRegistrarProposal extends Proposal {
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (item: any) => SchemeRegistrarProposal.itemMap(this.context, item)
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeRegistrarProposalState>
+    return this.context.getObservableObject(this.context, query, SchemeRegistrarProposal.itemMap, apolloQueryOptions) as Observable<ISchemeRegistrarProposalState>
   }
 
 }

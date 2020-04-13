@@ -124,8 +124,7 @@ export class ContributionRewardExt extends ProposalPlugin {
       }
       ${Plugin.baseFragment}
     `
-    const itemMap = (item: any) => ContributionRewardExt.itemMap(this.context, item)
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IContributionRewardExtState>
+    return this.context.getObservableObject(this.context, query, ContributionRewardExt.itemMap, apolloQueryOptions) as Observable<IContributionRewardExtState>
   }
 
   public async createProposalTransaction(

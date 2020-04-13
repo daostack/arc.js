@@ -85,9 +85,9 @@ export class Queue extends Entity<IQueueState> {
       }
     `
 
-    const itemMap = (item: any): Queue|null => new Queue(context, item.id, new DAO(context, item.dao.id))
+    const itemMap = (context: Arc, item: any): Queue|null => new Queue(context, item.id, new DAO(context, item.dao.id))
 
-    return context.getObservableList(query, itemMap, apolloQueryOptions) as Observable<Queue[]>
+    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<Queue[]>
   }
 
   public static itemMap(context: Arc, item: any): Queue {
@@ -129,8 +129,6 @@ export class Queue extends Entity<IQueueState> {
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (item: any) => Queue.itemMap(this.context, item)
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IQueueState>
+    return this.context.getObservableObject(this.context, query, Queue.itemMap, apolloQueryOptions) as Observable<IQueueState>
   }
 }

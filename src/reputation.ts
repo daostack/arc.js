@@ -72,8 +72,9 @@ export class Reputation extends Entity<IReputationState> {
     }`
 
     return context.getObservableList(
+      context,
       query,
-      (r: any) => new Reputation(context, r.id),
+      (context: Arc, r: any) => new Reputation(context, r.id),
       apolloQueryOptions
     )
   }
@@ -106,9 +107,7 @@ export class Reputation extends Entity<IReputationState> {
       }
     }`
 
-    const itemMap = (item: any) => Reputation.itemMap(this.context, item)
-
-    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IReputationState>
+    return  this.context.getObservableObject(this.context, query, Reputation.itemMap, apolloQueryOptions) as Observable<IReputationState>
   }
 
   public reputationOf(address: Address): Observable<BN> {

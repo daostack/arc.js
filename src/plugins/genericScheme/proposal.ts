@@ -33,21 +33,6 @@ export class GenericSchemeProposal extends Proposal {
 
   coreState: IGenericSchemeProposalState| undefined
 
-  constructor(
-    context: Arc,
-    idOrOpts: string | IGenericSchemeProposalState
-  ) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
-    this.context = context
-  }
-
   static itemMap (context: Arc, item: any): GenericSchemeProposal | null {
 
     if (item === null || item === undefined) return null
@@ -93,9 +78,7 @@ export class GenericSchemeProposal extends Proposal {
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (item: any) => GenericSchemeProposal.itemMap(this.context, item)
-
-    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeProposalState>
+    const result = this.context.getObservableObject(this.context, query, GenericSchemeProposal.itemMap, apolloQueryOptions) as Observable<IGenericSchemeProposalState>
     return result
   }
 

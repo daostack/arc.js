@@ -99,7 +99,7 @@ export abstract class Plugin extends Entity<IPluginState> {
       }`
     }
 
-    const itemMap = (item: any): Plugin | null => {
+    const itemMap = (context: Arc, item: any): Plugin | null => {
       if (!options.where) {
         options.where = {}
       }
@@ -108,6 +108,7 @@ export abstract class Plugin extends Entity<IPluginState> {
     }
 
     return context.getObservableList(
+      context,
       query,
       itemMap,
       apolloQueryOptions

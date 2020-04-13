@@ -99,8 +99,6 @@ export class Reward extends Entity<IRewardState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    const itemMap = (item: any) => Reward.itemMap(context, item)
-
     let query
     if (proposalId) {
       query = gql`query RewardSearchFromProposal
@@ -115,12 +113,15 @@ export class Reward extends Entity<IRewardState> {
       ${Reward.fragments.RewardFields}
       `
       return context.getObservableObject(
+        context,
         query,
-        (r: any) => {
+        (context: Arc, r: any) => {
           if (r === null) {
             return []
           }
           const rewards = r.gpRewards
+
+          const itemMap = (item: any) => Reward.itemMap(context, item)
           return rewards.map(itemMap)
         },
         apolloQueryOptions
@@ -137,8 +138,9 @@ export class Reward extends Entity<IRewardState> {
     }
 
     return context.getObservableList(
+      context,
       query,
-      itemMap,
+      Reward.itemMap,
       apolloQueryOptions
     ) as Observable<Reward[]>
   }
@@ -173,8 +175,6 @@ export class Reward extends Entity<IRewardState> {
       ${Reward.fragments.RewardFields}
     `
 
-    const itemMap = (item: any) => Reward.itemMap(this.context, item)
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, Reward.itemMap, apolloQueryOptions)
   }
 }

@@ -60,16 +60,6 @@ export class Event extends Entity<IEventState> {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Event[]> {
 
-    const itemMap = (item: any) => new Event(context, {
-      dao: item.dao.id,
-      data: JSON.parse(item.data),
-      id: item.id,
-      proposal: item.proposal && item.proposal.id,
-      timestamp: item.timestamp,
-      type: item.type,
-      user: item.user
-    })
-
     let query
     query = gql`query EventSearch
       {
@@ -81,8 +71,9 @@ export class Event extends Entity<IEventState> {
       `
 
     return context.getObservableList(
+      context,
       query,
-      itemMap,
+      Event.itemMap,
       apolloQueryOptions
     ) as Observable<Event[]>
   }
@@ -111,8 +102,6 @@ export class Event extends Entity<IEventState> {
       ${Event.fragments.EventFields}
     `
 
-    const itemMap = (item: any) => Event.itemMap(this.context, item)
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, Event.itemMap, apolloQueryOptions)
   }
 }

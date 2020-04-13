@@ -271,8 +271,9 @@ export abstract class Proposal extends Entity<IProposalState> {
         ${Proposal.baseFragment}
       `
       return context.getObservableList(
+        context,
         query,
-        (r: any) => Proposals[r.scheme.name].itemMap(context, r),
+        (context: Arc, r: any) => Proposals[r.scheme.name].itemMap(context, r),
         apolloQueryOptions
       ) as IObservable<Proposal[]>
     } else {
@@ -293,8 +294,9 @@ export abstract class Proposal extends Entity<IProposalState> {
         }
       `
       return context.getObservableList(
+        context,
         query,
-        (r: any) => new Proposals[r.scheme.name](context, r),
+        (context: Arc, r: any) => new Proposals[r.scheme.name](context, r),
         apolloQueryOptions
       ) as IObservable<Proposal[]>
     }

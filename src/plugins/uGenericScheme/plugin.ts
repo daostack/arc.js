@@ -116,8 +116,7 @@ export class UGenericScheme extends ProposalPlugin {
       }
       ${Plugin.baseFragment}
     `
-    const itemMap = (item: any) => UGenericScheme.itemMap(this.context, item)
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IUGenericSchemeState>
+    return this.context.getObservableObject(this.context, query, UGenericScheme.itemMap, apolloQueryOptions) as Observable<IUGenericSchemeState>
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsUGS): Promise<ITransaction> {

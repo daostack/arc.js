@@ -131,8 +131,7 @@ export class SchemeRegistrar extends ProposalPlugin {
       }
       ${Plugin.baseFragment}
     `
-    const itemMap = (item: any) => SchemeRegistrar.itemMap(this.context, item)
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ISchemeRegistrarState>
+    return this.context.getObservableObject(this.context, query, SchemeRegistrar.itemMap, apolloQueryOptions) as Observable<ISchemeRegistrarState>
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {

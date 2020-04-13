@@ -91,8 +91,9 @@ export class Token extends Entity<ITokenState> {
     }`
 
     return context.getObservableList(
+      context,
       query,
-      (r: any) => new Token(context, r.id),
+      (context: Arc, r: any) => new Token(context, r.id),
       apolloQueryOptions
     ) as Observable<Token[]>
   }
@@ -125,9 +126,7 @@ export class Token extends Entity<ITokenState> {
       }
     }`
 
-    const itemMap = (item: any) => Token.itemMap(this.context, item)
-
-    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ITokenState>
+    return  this.context.getObservableObject(this.context,query, Token.itemMap, apolloQueryOptions) as Observable<ITokenState>
   }
 
   public contract() {

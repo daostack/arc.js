@@ -91,7 +91,6 @@ export class Stake extends Entity<IStakeState> {
     }
 
     let query
-    const itemMap = (item: any) => Stake.itemMap(context, item)
 
     if (proposalId && !options.where.id) {
       query = gql`query ProposalStakesSearchFromProposal
@@ -110,12 +109,14 @@ export class Stake extends Entity<IStakeState> {
       `
 
       return context.getObservableObject(
+        context,
         query,
-        (r: any) => {
+        (context: Arc, r: any) => {
           if (r === null) { // no such proposal was found
             return []
           }
           const stakes = r.stakes
+          const itemMap = (item: any) => Stake.itemMap(context, item)
           return stakes.map(itemMap)
         },
         apolloQueryOptions
@@ -131,8 +132,9 @@ export class Stake extends Entity<IStakeState> {
       `
 
       return context.getObservableList(
+        context,
         query,
-        itemMap,
+        Stake.itemMap,
         apolloQueryOptions
       ) as Observable<Stake[]>
     }
@@ -183,8 +185,6 @@ export class Stake extends Entity<IStakeState> {
       }
     `
 
-    const itemMap = (item: any) => Stake.itemMap(this.context, item)
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, Stake.itemMap, apolloQueryOptions)
   }
 }

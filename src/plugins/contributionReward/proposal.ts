@@ -58,21 +58,6 @@ export class ContributionRewardProposal extends Proposal {
 
   coreState: IContributionRewardProposalState| undefined
 
-  constructor(
-    context: Arc,
-    idOrOpts: string | IContributionRewardProposalState
-  ) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
-    this.context = context
-  }
-
   static itemMap (context: Arc, item: any): ContributionRewardProposal | null {
 
     if (item === null || item === undefined) return null
@@ -153,7 +138,7 @@ export class ContributionRewardProposal extends Proposal {
 
     const itemMap = (item: any) => ContributionRewardProposal.itemMap(this.context, item)
 
-    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IContributionRewardProposalState>
+    const result = this.context.getObservableObject(this.context, query, itemMap, apolloQueryOptions) as Observable<IContributionRewardProposalState>
     return result
   }
 

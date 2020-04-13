@@ -38,25 +38,12 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
     }`
   }
 
-  constructor(context: Arc, idOrOpts: string | ICompetitionVoteState) {
-    super(context, idOrOpts)
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      const opts = idOrOpts as ICompetitionVoteState
-      this.id = opts.id
-      this.setState(opts)
-    }
-  }
-
   public static search(
     context: Arc,
     options: ICompetitionVoteQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionVote[]> {
     if (!options.where) { options.where = {} }
-
-    const itemMap = (item: any) => CompetitionVote.itemMap(context, item)
     
     let query
     if (options.where.suggestion && !options.where.id) {
@@ -73,11 +60,13 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
       `
 
       return context.getObservableObject(
+        context,
         query,
-        (r: any) => {
+        (context: Arc, r: any) => {
           if (r === null) { // no such proposal was found
             return []
           }
+          const itemMap = (item: any) => CompetitionVote.itemMap(context, item)
           return r.votes.map(itemMap)
         },
         apolloQueryOptions
@@ -94,8 +83,9 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
       `
 
       return context.getObservableList(
+        context,
         query,
-        itemMap,
+        CompetitionVote.itemMap,
         apolloQueryOptions
       ) as Observable<CompetitionVote[]>
     }
@@ -122,7 +112,7 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
       }
       ${CompetitionVote.fragments.CompetitionVoteFields}
       `
-    return this.context.getObservableObject(query, (item: any) => CompetitionVote.itemMap(this.context, item), apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, CompetitionVote.itemMap, apolloQueryOptions)
   }
 
 }

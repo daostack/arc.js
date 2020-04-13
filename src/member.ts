@@ -93,11 +93,10 @@ export class Member extends Entity<IMemberState> {
         ${Member.fragments.ReputationHolderFields}
       `
 
-      const itemMap = (item: any) => Member.itemMap(context, item)
-
       return context.getObservableList(
+          context,
           query,
-          itemMap,
+          Member.itemMap,
           apolloQueryOptions
         )
       }
@@ -131,8 +130,6 @@ export class Member extends Entity<IMemberState> {
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IMemberState> {
     let query: any
 
-    const itemMap = (item: any) => Member.itemMap(this.context, item)
-
     if (this.id) {
       query = gql`query ReputionHolderStateFromId {
           # contract: ${this.coreState && this.coreState.contract}
@@ -146,8 +143,9 @@ export class Member extends Entity<IMemberState> {
         ${Member.fragments.ReputationHolderFields}
       `
       return this.context.getObservableObject(
+        this.context,
         query,
-        itemMap,
+        Member.itemMap,
         apolloQueryOptions
       )
     } else {
@@ -168,14 +166,15 @@ export class Member extends Entity<IMemberState> {
     }
 
     return this.context.getObservableObject(
+      this.context,
       query,
-      (items: any) => {
+      (context: Arc, items: any) => {
         if(items.length) {
           if(!this.coreState) throw new Error("Member state is not set")
-          return new Member(this.context, this.coreState)
+          return new Member(context, this.coreState)
         }
         
-        return itemMap(items[0])
+        return Member.itemMap(context, items[0])
       },
       apolloQueryOptions
     ) as Observable<IMemberState>

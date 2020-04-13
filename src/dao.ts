@@ -110,9 +110,11 @@ export class DAO extends Entity<IDAOState> {
       }`
     }
 
-    const itemMap = (item: any) => apolloQueryOptions.fetchAllData? DAO.itemMap(context, item) : new DAO(context, item.id)
+    const itemMap = (context: Arc, item: any) => 
+      apolloQueryOptions.fetchAllData? DAO.itemMap(context, item) : new DAO(context, item.id)
 
     return context.getObservableList(
+      context,
       query,
       itemMap,
       apolloQueryOptions
@@ -157,10 +159,8 @@ export class DAO extends Entity<IDAOState> {
       }
       ${DAO.fragments.DAOFields}
      `
-
-    const itemMap = (item: any) => DAO.itemMap(this.context, item)
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+     
+    return this.context.getObservableObject(this.context, query, DAO.itemMap, apolloQueryOptions)
   }
 
   public nativeReputation(): Observable<Reputation> {

@@ -63,21 +63,6 @@ export class CompetitionProposal extends Proposal {
 
   coreState: ICompetitionProposalState| undefined
 
-  constructor(
-    context: Arc,
-    idOrOpts: string | ICompetitionProposalState
-  ) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
-    this.context = context
-  }
-
   static itemMap (context: Arc, item: any): CompetitionProposal | null {
 
     if (item === null || item === undefined) return null
@@ -140,9 +125,7 @@ export class CompetitionProposal extends Proposal {
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (item: any) => CompetitionProposal.itemMap(this.context, item)
-
-    const result = this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ICompetitionProposalState>
+    const result = this.context.getObservableObject(this.context, query, CompetitionProposal.itemMap, apolloQueryOptions) as Observable<ICompetitionProposalState>
     return result
   }
 

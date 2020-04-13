@@ -70,7 +70,6 @@ export class Tag extends Entity<ITagState> {
     }
 
     let query
-    const itemMap = (item: any) => Tag.itemMap(context, item)
 
     if (proposalId) {
       query = gql`query TagsSearchFromProposal
@@ -89,11 +88,13 @@ export class Tag extends Entity<ITagState> {
       `
 
       return context.getObservableObject(
+        context,
         query,
-        (r: any) => {
+        (context: Arc, r: any) => {
           if (r === null) { // no such proposal was found
             return []
           }
+          const itemMap = (item: any) => Tag.itemMap(context, item)
           return r.tags.map(itemMap)
         },
         apolloQueryOptions
@@ -109,8 +110,9 @@ export class Tag extends Entity<ITagState> {
       `
 
       return context.getObservableList(
+        context,
         query,
-        itemMap,
+        Tag.itemMap,
         apolloQueryOptions
       ) as Observable<Tag[]>
     }
@@ -144,8 +146,6 @@ export class Tag extends Entity<ITagState> {
       ${Tag.fragments.TagFields}
     `
 
-    const itemMap = (item: any) => Tag.itemMap(this.context, item)
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, Tag.itemMap, apolloQueryOptions)
   }
 }

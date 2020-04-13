@@ -289,8 +289,9 @@ export class GraphNodeObserver {
    * ```
    */
   public getObservableList(
+    context: Arc,
     query: any,
-    itemMap: (o: object) => object | null = (o) => o,
+    itemMap: (context: Arc, o: object) => object | null = (o) => o,
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
@@ -301,7 +302,7 @@ export class GraphNodeObserver {
         }
         return r.data[entity]
       }),
-      map((rs: object[]) => rs.map(itemMap).filter((x) => x !== null))
+      map((rs: object[]) => rs.map((item: Object) => itemMap(context, item)).filter((x) => x !== null))
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable
@@ -345,6 +346,7 @@ export class GraphNodeObserver {
   }
 
   public getObservableObject(
+    context: Arc,
     query: any,
     itemMap: (context: Arc, o: object) => object | null = (o) => o,
     apolloQueryOptions: IApolloQueryOptions = {}
@@ -358,7 +360,7 @@ export class GraphNodeObserver {
         }
         return r.data[entity]
       }),
-      map((object: Object) => itemMap)
+      map((object: Object) => itemMap(context, object))
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable

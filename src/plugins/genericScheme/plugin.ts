@@ -116,8 +116,7 @@ export class GenericScheme extends ProposalPlugin {
       }
       ${Plugin.baseFragment}
     `
-    const itemMap = (item: any) => GenericScheme.itemMap(this.context, item)
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>
+    return this.context.getObservableObject(this.context, query, GenericScheme.itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsGS): Promise<ITransaction> {

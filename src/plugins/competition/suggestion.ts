@@ -105,9 +105,6 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
   ): Observable<CompetitionSuggestion[]> {
 
     let query
-    const itemMap = (item: any) => {
-      return new CompetitionSuggestion(context, this.mapItemToObject(context, item) as ICompetitionSuggestionState)
-    }
 
     // if we are looing for the suggestions of a particular proposal, we prime the cache..
     if (options.where && options.where.proposal && !options.where.id) {
@@ -122,11 +119,15 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
       `
       return context.getObservableObject(
+        context,
         query,
-        (r: any) => {
+        (context: Arc, r: any) => {
           if (r === null) { // no such proposal was found
             return []
           }
+          const itemMap = (item: any) =>
+            new CompetitionSuggestion(context, CompetitionSuggestion.mapItemToObject(context, item) as ICompetitionSuggestionState)
+
           return r.suggestions.map(itemMap)
         },
         apolloQueryOptions
@@ -142,8 +143,9 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       `
 
       return context.getObservableList(
+        context,
         query,
-        itemMap,
+        CompetitionSuggestion.mapItemToObject,
         apolloQueryOptions
       ) as Observable<CompetitionSuggestion[]>
     }
@@ -201,8 +203,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
     `
 
-    const itemMap = (item: any) => CompetitionSuggestion.mapItemToObject(this.context, item)
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, CompetitionSuggestion.mapItemToObject, apolloQueryOptions)
   }
 
   public async fetchState(): Promise<ICompetitionSuggestionState> {
