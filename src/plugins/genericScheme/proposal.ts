@@ -4,9 +4,9 @@ import { Arc } from "../../arc";
 import { Plugin } from '../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
-import { GenericScheme } from "./plugin";
+import { GenericScheme, IGenericSchemeState } from "./plugin";
 
-interface IGenericSchemeProposalState extends IProposalState { 
+export interface IGenericSchemeProposalState extends IProposalState { 
   id: string
   contractToCall: Address
   callData: string
@@ -14,7 +14,7 @@ interface IGenericSchemeProposalState extends IProposalState {
   returnValue: string
 }
 
-export class GenericSchemeProposal extends Proposal {
+export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState> {
 
   public static fragment = {
     name: 'GenericSchemeProposalFields',
@@ -30,8 +30,6 @@ export class GenericSchemeProposal extends Proposal {
       }
     `
   }
-
-  coreState: IGenericSchemeProposalState| undefined
 
   static itemMap (context: Arc, item: any): GenericSchemeProposal | null {
 
@@ -61,7 +59,7 @@ export class GenericSchemeProposal extends Proposal {
     return new GenericSchemeProposal(context, state)
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IGenericSchemeProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {

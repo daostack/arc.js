@@ -5,13 +5,13 @@ import { concatMap, first, map } from 'rxjs/operators'
 import { Arc } from './arc'
 import { IApolloQueryOptions } from './graphnode'
 import { toIOperationObservable } from './operation'
-import { IProposalQueryOptions, Proposal, IProposalBaseCreateOptions } from './plugins/proposal'
+import { IProposalQueryOptions, Proposal, IProposalBaseCreateOptions, IProposalState } from './plugins/proposal'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 import { IEntityRef, Entity } from './entity'
-import { IPluginQueryOptions } from './plugins/plugin'
+import { IPluginQueryOptions, IPluginState } from './plugins/plugin'
 import { ProposalPlugin } from './plugins/proposalPlugin'
 import { Reward, IRewardQueryOptions } from './reward'
 import { Reputation } from './reputation'
@@ -174,13 +174,13 @@ export class DAO extends Entity<IDAOState> {
   public plugins(
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<ProposalPlugin[]> {
+  ): Observable<ProposalPlugin<IPluginState, IProposalState>[]> {
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
     return ProposalPlugin.search(this.context, options, apolloQueryOptions)
   }
 
-  public async plugin(options: IPluginQueryOptions): Promise<ProposalPlugin> {
+  public async plugin(options: IPluginQueryOptions): Promise<ProposalPlugin<IPluginState, IProposalState>> {
     const plugins = await this.plugins(options).pipe(first()).toPromise()
     if (plugins.length === 1) {
       return plugins[0]
@@ -228,7 +228,7 @@ export class DAO extends Entity<IDAOState> {
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Proposal[]> {
+  ): Observable<Proposal<IProposalState>[]> {
     if (!options.where) {
       options.where = {}
     }

@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { toIOperationObservable } from './operation'
-import { IProposalQueryOptions, Proposal } from './plugins/proposal'
+import { IProposalQueryOptions, Proposal, IProposalState } from './plugins/proposal'
 import { Reward } from './reward'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions } from './types'
@@ -170,7 +170,10 @@ export class Member extends Entity<IMemberState> {
       query,
       (context: Arc, items: any) => {
         if(items.length) {
-          if(!this.coreState) throw new Error("Member state is not set")
+          if(!this.coreState){
+            throw new Error("Member state is not set")
+          }
+
           return new Member(context, this.coreState)
         }
         
@@ -192,8 +195,8 @@ export class Member extends Entity<IMemberState> {
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable < Proposal[] > {
-    const observable = Observable.create(async (observer: Observer<Proposal[]>) => {
+  ): Observable < Proposal<IProposalState>[] > {
+    const observable = Observable.create(async (observer: Observer<Proposal<IProposalState>[]>) => {
       const state = await this.fetchState()
       if (!options.where) { options.where = {} }
       options.where.proposer = state.address
@@ -235,10 +238,12 @@ export class Member extends Entity<IMemberState> {
     isAddress(opts.address)
     
     if(!opts.contract) throw new Error("Contract not defined in options")
+    
+    if(!opts.dao) throw new Error("DAO not defined in options")
 
     this.id = Member.calculateId({ contract: opts.contract, address: opts.address})
 
-    const daoId = opts.dao && opts.dao.id.toLowerCase()
+    const daoId = opts.dao.id.toLowerCase()
 
     this.coreState = {
       id: this.id,

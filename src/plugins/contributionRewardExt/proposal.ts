@@ -8,7 +8,6 @@ import gql from "graphql-tag";
 import { IContributionRewardProposalState, ContributionRewardProposal } from '../contributionReward/proposal';
 import { ContributionRewardExt } from './plugin';
 
-
 export interface IContributionRewardExtProposalState extends IProposalState { 
   beneficiary: Address
   externalTokenReward: BN
@@ -28,9 +27,7 @@ export interface IContributionRewardExtProposalState extends IProposalState {
   externalTokenRewardLeft: BN | null
 }
 
-export class ContributionRewardExtProposal extends Proposal {
-
-  coreState: IContributionRewardProposalState| undefined
+export class ContributionRewardExtProposal extends Proposal<IContributionRewardExtProposalState> {
 
   static itemMap (context: Arc, item: any): ContributionRewardProposal | null {
 
@@ -93,7 +90,7 @@ export class ContributionRewardExtProposal extends Proposal {
     return new ContributionRewardExtProposal(context, state)
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IContributionRewardExtProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {

@@ -7,8 +7,7 @@ import { Arc } from "../../arc"
 import gql from "graphql-tag"
 import { Observable } from "rxjs"
 import { ITransaction, ITransactionReceipt, getEventArgs } from "../../operation"
-import { SchemeRegistrarProposal } from "./proposal"
-
+import { SchemeRegistrarProposal, ISchemeRegistrarProposalState } from "./proposal"
 
 export interface ISchemeRegistrarState extends IPluginState {
   pluginParams: {
@@ -24,9 +23,7 @@ export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
   schemeToRegister?: Address
 }
 
-export class SchemeRegistrar extends ProposalPlugin {
-
-  coreState: ISchemeRegistrarState| undefined
+export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISchemeRegistrarProposalState> {
 
   constructor(context: Arc, idOrOpts: Address | ISchemeRegistrarState) {
     super(context, idOrOpts)

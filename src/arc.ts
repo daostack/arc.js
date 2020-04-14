@@ -17,7 +17,7 @@ import {
   transactionErrorHandler,
   transactionResultHandler
 } from './operation'
-import { IProposalQueryOptions, Proposal } from './plugins/proposal'
+import { IProposalQueryOptions, Proposal, IProposalState } from './plugins/proposal'
 import { IRewardQueryOptions, Reward } from './reward'
 import { ABI_DIR } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
@@ -27,7 +27,7 @@ import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
 import { IPFSClient } from './ipfsClient'
 import { IEventQueryOptions, Event } from './event'
-import { IPluginQueryOptions, Plugin } from './plugins/plugin'
+import { IPluginQueryOptions, Plugin, IPluginState } from './plugins/plugin'
 import { Plugins, Proposals, PluginName, ProposalName } from './plugins'
 
 /**
@@ -157,25 +157,25 @@ export class Arc extends GraphNodeObserver {
     return Tag.search(this, options, apolloQueryOptions)
   }
 
-  public plugin(id: string, name: PluginName): Plugin {
+  public plugin(id: string, name: PluginName): Plugin<IPluginState> {
     return new Plugins[name](this, id)
   }
 
   public plugins(
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Plugin[]> {
+  ): Observable<Plugin<IPluginState>[]> {
     return Plugin.search(this, options, apolloQueryOptions)
   }
 
-  public proposal(id: string, name: ProposalName): Proposal {
+  public proposal(id: string, name: ProposalName): Proposal<IProposalState> {
     return new Proposals[name](this, id)
   }
 
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Proposal[]> {
+  ): Observable<Proposal<IProposalState>[]> {
     return Proposal.search(this, options, apolloQueryOptions)
   }
 

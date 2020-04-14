@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { Arc, IApolloQueryOptions } from './arc'
-import { Proposal } from './plugins/proposal'
+import { Proposal, IProposalState } from './plugins/proposal'
 import { ICommonQueryOptions } from './types'
 import { createGraphQlQuery } from './utils'
 import { Entity, IEntityRef } from './entity'
@@ -10,7 +10,7 @@ import { Proposals } from './plugins'
 export interface ITagState {
   id: string
   numberOfProposals: number
-  proposals?: IEntityRef<Proposal>[]
+  proposals?: IEntityRef<Proposal<IProposalState>>[]
 }
 
 export interface ITagQueryOptions extends ICommonQueryOptions {

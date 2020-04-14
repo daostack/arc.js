@@ -27,7 +27,7 @@ export interface IContributionRewardProposalState extends IProposalState {
   externalTokenRewardLeft: BN | null
 }
 
-export class ContributionRewardProposal extends Proposal {
+export class ContributionRewardProposal extends Proposal<IContributionRewardProposalState> {
 
   public static fragment = {
     name: 'ContributionRewardProposalFields',
@@ -55,8 +55,6 @@ export class ContributionRewardProposal extends Proposal {
       }
     `
   }
-
-  coreState: IContributionRewardProposalState| undefined
 
   static itemMap (context: Arc, item: any): ContributionRewardProposal | null {
 
@@ -119,7 +117,7 @@ export class ContributionRewardProposal extends Proposal {
     return new ContributionRewardProposal(context, state)
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IContributionRewardProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {

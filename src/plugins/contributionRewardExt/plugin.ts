@@ -9,7 +9,7 @@ import { IApolloQueryOptions, Address } from "../../types"
 import { Observable } from "rxjs"
 import { ITransaction, ITransactionReceipt, getEventArgs } from "../../operation"
 import { NULL_ADDRESS } from "../../utils"
-import { ContributionRewardExtProposal } from "./proposal"
+import { ContributionRewardExtProposal, IContributionRewardExtProposalState } from "./proposal"
 
 export interface IContributionRewardExtState extends IPluginState {
   pluginParams: {
@@ -29,9 +29,7 @@ export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions 
   proposer: Address
 }
 
-export class ContributionRewardExt extends ProposalPlugin {
-
-  coreState: IContributionRewardExtState| undefined
+export class ContributionRewardExt extends ProposalPlugin<IContributionRewardExtState, IContributionRewardExtProposalState> {
 
   public static fragment = { 
     name: 'ContributionRewardExtParams',

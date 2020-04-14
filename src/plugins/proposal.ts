@@ -3,7 +3,7 @@ import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { IEntityRef, Entity } from '../entity'
 import { IApolloQueryOptions, Address, ICommonQueryOptions } from '../types'
-import { Plugin } from './plugin'
+import { Plugin, IPluginState } from './plugin'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from '../genesisProtocol'
 import { Arc } from '../arc'
 import { createGraphQlQuery, isAddress, realMathToNumber, hexStringToUint8Array, concat } from '../utils'
@@ -86,7 +86,8 @@ export interface IProposalState {
   id: string
   dao: IEntityRef<DAO>
   votingMachine: Address
-  plugin: IEntityRef<Plugin>
+  //TODO: plugin instance inside itself? or other type of plugin?
+  plugin: IEntityRef<Plugin<IPluginState>>
   closingAt: Number
   createdAt: Number | Date
   descriptionHash?: string
@@ -95,7 +96,8 @@ export interface IProposalState {
   executedAt: Number
   organizationId: string
   paramsHash: string
-  proposal: IEntityRef<Proposal>
+  //TODO: Stores proposal instance inside itself? Or is this another proposaltype?
+  proposal: IEntityRef<Proposal<IProposalState>>
   proposer: Address
   resolvedAt: Number
   tags?: string[]
@@ -127,11 +129,10 @@ export interface IProposalState {
   confidenceThreshold: number
 }
 
-export abstract class Proposal extends Entity<IProposalState> {
+export abstract class Proposal<TProposalState extends IProposalState> extends Entity<TProposalState> {
 
   public static fragment: { name: string, fragment: DocumentNode } | undefined
 
-  // TODO: dynamically generate these from Proposals
   public static baseFragment: DocumentNode = gql`fragment ProposalFields on Proposal {
       id
       accountsWithUnclaimedRewards
@@ -209,13 +210,13 @@ export abstract class Proposal extends Entity<IProposalState> {
     ${Plugin.baseFragment}
   `
 
-  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState>
+  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<TProposalState>
 
-  public static search(
+  public static search<TProposalState extends IProposalState>(
     context: Arc,
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Proposal[]> {
+  ): Observable<Proposal<TProposalState>[]> {
     let where = ''
 
     if (!options.where) { options.where = {} }
@@ -275,7 +276,7 @@ export abstract class Proposal extends Entity<IProposalState> {
         query,
         (context: Arc, r: any) => Proposals[r.scheme.name].itemMap(context, r),
         apolloQueryOptions
-      ) as IObservable<Proposal[]>
+      ) as IObservable<Proposal<TProposalState>[]>
     } else {
       query = gql`query ProposalSearchPartialData
         {
@@ -298,7 +299,7 @@ export abstract class Proposal extends Entity<IProposalState> {
         query,
         (context: Arc, r: any) => new Proposals[r.scheme.name](context, r),
         apolloQueryOptions
-      ) as IObservable<Proposal[]>
+      ) as IObservable<Proposal<TProposalState>[]>
     }
   }
 
@@ -310,7 +311,7 @@ export abstract class Proposal extends Entity<IProposalState> {
     return utils.keccak256(seed)
   }
 
-  protected static itemMapToBaseState<TPlugin extends Plugin, TProposal extends Proposal>(
+  protected static itemMapToBaseState<TPlugin extends Plugin<IPluginState>, TProposal extends Proposal<IProposalState>>(
     context: Arc,
     item: any,
     plugin: TPlugin,

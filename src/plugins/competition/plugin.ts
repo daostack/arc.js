@@ -12,13 +12,11 @@ import { CompetitionProposal } from './proposal';
 import { IContributionRewardExtState, ContributionRewardExt } from '../contributionRewardExt/plugin';
 
 export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
-  // beneficiary: Address
   endTime: Date,
   reputationReward?: BN
   ethReward?: BN
   externalTokenReward?: BN
   externalTokenAddress?: Address
-  // proposer: Address,
   rewardSplit: number[]
   nativeTokenReward?: BN
   numberOfVotesPerVoter: number

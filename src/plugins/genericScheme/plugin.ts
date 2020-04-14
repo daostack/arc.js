@@ -8,7 +8,7 @@ import { Arc } from "../../arc";
 import { IApolloQueryOptions, Address } from "../../types";
 import { Observable } from "rxjs";
 import { ITransaction, transactionResultHandler, ITransactionReceipt, getEventArgs } from "../../operation";
-import { GenericSchemeProposal } from "./proposal";
+import { GenericSchemeProposal, IGenericSchemeProposalState } from "./proposal";
 
 export interface IGenericSchemeState extends IPluginState {
   pluginParams: {
@@ -23,9 +23,7 @@ interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   value?: number
 }
 
-export class GenericScheme extends ProposalPlugin {
-
-  coreState: IGenericSchemeState| undefined
+export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericSchemeProposalState> {
 
   constructor(context: Arc, idOrOpts: Address | IGenericSchemeState) {
     super(context, idOrOpts)

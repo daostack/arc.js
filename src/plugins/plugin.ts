@@ -39,7 +39,7 @@ export interface IPluginQueryOptions extends ICommonQueryOptions {
   }
 }
 
-export abstract class Plugin extends Entity<IPluginState> {
+export abstract class Plugin<TPluginState extends IPluginState> extends Entity<TPluginState> {
 
   public static fragment: { name: string, fragment: DocumentNode } | undefined
 
@@ -65,13 +65,11 @@ export abstract class Plugin extends Entity<IPluginState> {
       .map(plugin => '...' + plugin.fragment.name).join('\n')}
   `
 
-  public abstract coreState: IPluginState| undefined
-
-  public static search(
+  public static search<TPluginState extends IPluginState>(
     context: Arc,
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Plugin[]> {
+  ): Observable<Plugin<TPluginState>[]> {
     let query
     if (apolloQueryOptions.fetchAllData === true) {
       query = gql`query SchemeSearchAllData {
@@ -99,7 +97,7 @@ export abstract class Plugin extends Entity<IPluginState> {
       }`
     }
 
-    const itemMap = (context: Arc, item: any): Plugin | null => {
+    const itemMap = (context: Arc, item: any): Plugin<TPluginState> | null => {
       if (!options.where) {
         options.where = {}
       }
@@ -112,6 +110,6 @@ export abstract class Plugin extends Entity<IPluginState> {
       query,
       itemMap,
       apolloQueryOptions
-    ) as Observable<Plugin[]>
+    ) as Observable<Plugin<TPluginState>[]>
   }
 }

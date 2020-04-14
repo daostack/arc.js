@@ -33,7 +33,7 @@ export interface ICompetitionProposalState extends IProposalState {
   numberOfWinningSuggestions: number
 }
 
-export class CompetitionProposal extends Proposal {
+export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
   public static fragment = {
     name: 'CompetitionProposalFields',
@@ -60,8 +60,6 @@ export class CompetitionProposal extends Proposal {
       }
     `
   }
-
-  coreState: ICompetitionProposalState| undefined
 
   static itemMap (context: Arc, item: any): CompetitionProposal | null {
 
@@ -108,7 +106,7 @@ export class CompetitionProposal extends Proposal {
     return new CompetitionProposal(context, state)
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<ICompetitionProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {

@@ -10,8 +10,9 @@ import { ITransaction, transactionResultHandler, ITransactionReceipt, getEventAr
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
 import { NULL_ADDRESS } from '../../utils';
+import { IContributionRewardProposalState } from './proposal';
 
-export interface IContributionRewardSchemeState extends IPluginState {
+export interface IContributionRewardState extends IPluginState {
   pluginParams: {
     votingMachine: Address
     voteParams: IGenesisProtocolParams
@@ -29,11 +30,9 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
   periods?: any
 }
 
-export class ContributionReward extends ProposalPlugin {
+export class ContributionReward extends ProposalPlugin<IContributionRewardState, IContributionRewardProposalState> {
 
-  coreState: IContributionRewardSchemeState| undefined
-
-  constructor(context: Arc, idOrOpts: Address | IContributionRewardSchemeState) {
+  constructor(context: Arc, idOrOpts: Address | IContributionRewardState) {
     super(context, idOrOpts)
     this.context = context
     if (typeof idOrOpts === 'string') {
@@ -113,7 +112,7 @@ export class ContributionReward extends ProposalPlugin {
     )
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IContributionRewardSchemeState> {
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IContributionRewardState> {
     const query = gql`query SchemeStateById
       {
         controllerScheme (id: "${this.id}") {
@@ -122,8 +121,8 @@ export class ContributionReward extends ProposalPlugin {
       }
       ${Plugin.baseFragment}
     `
-    
-    return this.context.getObservableObject(this.context, query, ContributionReward.itemMap, apolloQueryOptions) as Observable<IContributionRewardSchemeState>
+
+    return this.context.getObservableObject(this.context, query, ContributionReward.itemMap, apolloQueryOptions) as Observable<IContributionRewardState>
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {

@@ -4,9 +4,9 @@ import { Arc } from "../../arc";
 import { Plugin } from '../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
-import { SchemeRegistrar } from "./plugin";
+import { SchemeRegistrar, ISchemeRegistrarState } from "./plugin";
 
-interface ISchemeRegistrarProposalState extends IProposalState { 
+export interface ISchemeRegistrarProposalState extends IProposalState { 
   id: string
   schemeToRegister: Address
   schemeToRegisterParamsHash: string
@@ -19,7 +19,7 @@ interface ISchemeRegistrarProposalState extends IProposalState {
 
 export type SchemeRegistrarProposalTypes = 'SchemeRegistrarAdd' | 'SchemeRegistrarEdit' | 'SchemeRegistrarRemove'
 
-export class SchemeRegistrarProposal extends Proposal {
+export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalState> {
 
   public static fragment = {
     name: 'SchemeRegistrarProposalFields',
@@ -38,8 +38,6 @@ export class SchemeRegistrarProposal extends Proposal {
       }
     `
   }
-  
-  coreState: ISchemeRegistrarProposalState| undefined
 
   protected static itemMap (
     context: Arc,
@@ -89,7 +87,7 @@ export class SchemeRegistrarProposal extends Proposal {
     }
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<ISchemeRegistrarProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {
