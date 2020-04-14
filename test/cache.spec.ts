@@ -1,7 +1,7 @@
 import { getMainDefinition } from 'apollo-utilities'
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
-import { Member, Proposal, Scheme, Stake } from '../src'
+import { Member, Proposal, GenericScheme, Stake, Plugin } from '../src'
 import { createApolloClient } from '../src/graphnode'
 import { Vote } from '../src/vote'
 import { graphqlHttpProvider, graphqlWsProvider, newArc } from './utils'
@@ -79,7 +79,8 @@ describe('apolloClient caching checks', () => {
     const voteState = await vote.fetchState()
     const voterAddress = voteState.voter
     const proposalState = await proposal.fetchState()
-    const scheme = new Scheme(arc, proposalState.scheme.id)
+    //TODO: What kind of plugin is this one?
+    const plugin = new GenericScheme(arc, proposalState.plugin.id)
 
     // now we have our objects, reset the cache
     await arc.apolloClient.cache.reset()
@@ -87,7 +88,7 @@ describe('apolloClient caching checks', () => {
 
     // construct our superquery
     const query = gql`query {
-      proposals (where: { scheme: "${scheme.id}"}){
+      proposals (where: { scheme: "${plugin.id}"}){
         ...ProposalFields
         stakes { ...StakeFields }
         votes (where: { voter: "${voterAddress}"}) {
@@ -95,10 +96,10 @@ describe('apolloClient caching checks', () => {
           }
         }
       }
-      ${Proposal.fragments.ProposalFields}
+      ${Proposal.baseFragment}
       ${Vote.fragments.VoteFields}
       ${Stake.fragments.StakeFields}
-      ${Scheme.fragments.SchemeFields}
+      ${Plugin.baseFragment}
     `
     // let subscribed = false
     // arc.getObservable(query, { subscribe: true, fetchPolicy: 'no-cache'}).subscribe((x: any) => {

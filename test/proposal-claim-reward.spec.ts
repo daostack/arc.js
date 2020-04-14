@@ -1,14 +1,14 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { IProposalOutcome, IProposalStage, IProposalState, Proposal } from '../src/proposal'
+import { IProposalOutcome, IProposalStage, IProposalState, Proposal, ContributionReward } from '../src'
 
 import BN = require('bn.js')
 import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION, newArc,
   toWei, voteToPassProposal, waitUntilTrue } from './utils'
 import { BigNumber } from 'ethers/utils'
 import { Contract, ethers } from 'ethers'
-import { Scheme } from '../src'
+import { Plugin, ContributionRewardProposal } from '../src'
 
 jest.setTimeout(60000)
 
@@ -115,14 +115,17 @@ describe('Claim rewards', () => {
       scheme: testAddresses.base.ContributionReward
     }
 
-    const response = await dao.createProposal(options).send()
-    const proposal = response.result as Proposal
+    const plugin = new ContributionReward(arc, testAddresses.base.ContributionReward)
+    const response = await plugin.createProposal(options).send()
+    const proposal = new ContributionRewardProposal(arc, response.result.coreState)
 
     // vote for the proposal with all the votest
     await voteToPassProposal(proposal)
     // check if prposal is indeed accepted etc
     const states: IProposalState[] = []
-    proposal.state().subscribe(((next) => states.push(next)))
+
+    //TODO: ApolloQuery options here?
+    proposal.state({}).subscribe(((next) => states.push(next)))
     const lastState = () => states[states.length - 1]
 
     await waitUntilTrue(() => {
@@ -138,13 +141,14 @@ describe('Claim rewards', () => {
 
   })
 
+  //TODO: check this one
   it('redeemRewards should also work without providing a "beneficiary" argument', async () => {
     const proposal: Proposal = await createAProposal()
     await proposal.redeemRewards().send()
   })
 
   it('redeemRewards should also work for expired proposals', async () => {
-     const proposal: Proposal = await arc.proposal(testAddresses.test.queuedProposalId)
+     const proposal = new ContributionRewardProposal(arc, testAddresses.test.queuedProposalId)
      await proposal.redeemRewards().send()
   })
 

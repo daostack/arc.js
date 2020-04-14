@@ -29,7 +29,7 @@ export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions 
   proposer: Address
 }
 
-export class ContributionRewardExt extends ProposalPlugin<IContributionRewardExtState, IContributionRewardExtProposalState> {
+export class ContributionRewardExt extends ProposalPlugin<IContributionRewardExtState, IContributionRewardExtProposalState, IProposalCreateOptionsCRExt> {
 
   public static fragment = { 
     name: 'ContributionRewardExtParams',

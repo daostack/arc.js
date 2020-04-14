@@ -30,7 +30,7 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
   periods?: any
 }
 
-export class ContributionReward extends ProposalPlugin<IContributionRewardState, IContributionRewardProposalState> {
+export class ContributionReward extends ProposalPlugin<IContributionRewardState, IContributionRewardProposalState, IProposalCreateOptionsCR> {
 
   public static fragment = {
     name: 'ContributionRewardParams',

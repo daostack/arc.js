@@ -23,7 +23,7 @@ export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
   schemeToRegister?: Address
 }
 
-export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISchemeRegistrarProposalState> {
+export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISchemeRegistrarProposalState, IProposalCreateOptionsSR> {
 
   public static fragment = {
     name: 'SchemeRegistrarParams',

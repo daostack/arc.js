@@ -168,10 +168,6 @@ export class Arc extends GraphNodeObserver {
     return Plugin.search(this, options, apolloQueryOptions)
   }
 
-  public proposal(id: string, name: ProposalName): Proposal<IProposalState> {
-    return new Proposals[name](this, id)
-  }
-
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}

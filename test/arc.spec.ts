@@ -1,10 +1,10 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
-import Arc from '../src/index'
-import { Proposal } from '../src/proposal'
-import { Scheme } from '../src/scheme'
-import { REDEEMER_CONTRACT_VERSIONS } from '../src/settings'
+import { Proposal } from '../src'
+import { Plugin } from '../src'
+import { Arc } from '../src'
+import { REDEEMER_CONTRACT_VERSIONS } from '../src'
 import { Address } from '../src/types'
 import {
   fromWei,
@@ -181,11 +181,7 @@ describe('Arc ', () => {
     expect(Object.keys(arc.observedAccounts).length).toEqual(0)
   })
 
-  it('arc.proposal() should work', async () => {
-    const arc = await newArc()
-    const proposal = arc.proposal(getTestAddresses(arc).test.executedProposalId)
-    expect(proposal).toBeInstanceOf(Proposal)
-  })
+  //TODO: arc.proposal eliminated
 
   it('arc.proposals() should work', async () => {
     const arc = await newArc()
@@ -194,17 +190,17 @@ describe('Arc ', () => {
     expect(proposals.length).toBeGreaterThanOrEqual(6)
   })
 
-  it('arc.scheme() should work', async () => {
+  it('arc.plugin() should work', async () => {
     const arc = await newArc()
-    const schemeId = '0x124355'
-    const scheme = await arc.scheme(schemeId)
-    expect(scheme).toBeInstanceOf(Scheme)
+    const pluginId = '0x124355'
+    const plugin = await arc.plugin(pluginId, "GenericScheme")
+    expect(plugin).toBeInstanceOf(Plugin)
   })
 
   it('arc.schemes() should work', async () => {
     const arc = await newArc()
-    const schemes = await arc.schemes().pipe(first()).toPromise()
-    expect(schemes.length).toBeGreaterThan(0)
+    const plugins = await arc.plugins().pipe(first()).toPromise()
+    expect(plugins.length).toBeGreaterThan(0)
   })
 
   it('arc.fetchContractInfos() should return lower case addresses', async () => {
@@ -217,7 +213,7 @@ describe('Arc ', () => {
   it('arc.getABI works', async () => {
     const arc = await newArc()
     await arc.fetchContractInfos()
-    const abi = arc.getABI(undefined, 'Redeemer', REDEEMER_CONTRACT_VERSIONS[0])
+    const abi = arc.getABI({abiName: 'Redeemer', version: REDEEMER_CONTRACT_VERSIONS[0]})
     expect(abi[0].name).toEqual('redeem')
   })
 })

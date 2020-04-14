@@ -1,7 +1,7 @@
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IProposalStage, Proposal } from '../src/proposal'
+import { Arc, IProposalState } from '../src'
+import { DAO } from '../src'
+import { IProposalStage, Proposal } from '../src'
 import { fromWei,
   getTestAddresses,
   getTestDAO,
@@ -49,7 +49,7 @@ describe('DAO', () => {
   it('should be possible to get the token balance of the DAO', async () => {
     const dao = await getTestDAO()
     const { token } = await dao.fetchState()
-    const balance = await token.balanceOf(dao.id).pipe(first()).toPromise()
+    const balance = await token.entity.balanceOf(dao.id).pipe(first()).toPromise()
     expect(fromWei(balance)).toEqual('0.0')
   })
 
@@ -119,11 +119,7 @@ describe('DAO', () => {
     expect(Number(fromWei(memberState.reputation))).toBeGreaterThan(0)
   })
 
-  it('dao.proposal() should work', async () => {
-    const dao = await getTestDAO()
-    const proposal = await dao.proposal(getTestAddresses(arc).test.executedProposalId)
-    expect(proposal).toBeInstanceOf(Proposal)
-  })
+  //TODO: dao.proposals test eliminated
 
   it('dao.proposals() should work', async () => {
     const dao = await getTestDAO()
@@ -160,8 +156,8 @@ describe('DAO', () => {
     }
 
     const response = await dao.createProposal(options).send()
-    const proposal = response.result as Proposal
-    let proposals: Proposal[] = []
+    const proposal = response.result as Proposal<IProposalState>
+    let proposals: Proposal<IProposalState>[] = []
     const proposalIsIndexed = async () => {
       proposals = await Proposal.search(arc, {where: {id: proposal.id}}, { fetchPolicy: 'network-only'})
         .pipe(first()).toPromise()
@@ -189,13 +185,13 @@ describe('DAO', () => {
     await dao.createProposal(options).send()
   })
 
-  it('dao.schemes() should work', async () => {
+  it('dao.plugins() should work', async () => {
     const dao = await getTestDAO()
-    let schemes = await dao.schemes().pipe(first()).toPromise()
-    expect(typeof schemes).toEqual(typeof [])
-    expect(schemes.length).toBeGreaterThanOrEqual(3)
-    schemes = await dao.schemes({ where: {name: 'ContributionReward'}}).pipe(first()).toPromise()
-    expect(schemes.length).toBeGreaterThanOrEqual(1)
+    let plugins = await dao.plugins().pipe(first()).toPromise()
+    expect(typeof plugins).toEqual(typeof [])
+    expect(plugins.length).toBeGreaterThanOrEqual(3)
+    plugins = await dao.plugins({ where: {name: 'ContributionReward'}}).pipe(first()).toPromise()
+    expect(plugins.length).toBeGreaterThanOrEqual(1)
   })
 
   it('dao.ethBalance() should work', async () => {

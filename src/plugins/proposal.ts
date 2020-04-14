@@ -1,12 +1,12 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
-import { Observable } from 'rxjs'
+import { Observable, from } from 'rxjs'
 import { IEntityRef, Entity } from '../entity'
 import { IApolloQueryOptions, Address, ICommonQueryOptions } from '../types'
 import { Plugin, IPluginState } from './plugin'
 import { IGenesisProtocolParams, mapGenesisProtocolParams } from '../genesisProtocol'
 import { Arc } from '../arc'
-import { createGraphQlQuery, isAddress, realMathToNumber, hexStringToUint8Array, concat } from '../utils'
+import { createGraphQlQuery, isAddress, realMathToNumber, hexStringToUint8Array, concat, eventId, NULL_ADDRESS } from '../utils'
 import { IObservable } from '../graphnode'
 import { IVoteQueryOptions, Vote } from '../vote'
 import { Stake, IStakeQueryOptions } from '../stake'
@@ -16,6 +16,8 @@ import { DAO } from '../dao'
 import { ProposalTypeNames, Proposals } from './'
 import { utils } from 'ethers'
 import { DocumentNode } from 'graphql'
+import { ITransactionReceipt, Operation, getEventAndArgs, ITransaction, toIOperationObservable } from '../operation'
+import { concatMap } from 'rxjs/operators'
 
 export enum IProposalOutcome {
   None,
@@ -439,6 +441,11 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     }
   }
 
+  public async votingMachine() {
+    const state = await this.fetchState()
+    return this.context.getContract(state.votingMachine)
+  }
+
   public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {
     if (!options.where) { options.where = {} }
     options.where.proposal = this.id
@@ -460,5 +467,65 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     return Reward.search(this.context, options, apolloQueryOptions)
   }
 
+  public vote(outcome: IProposalOutcome, amount: number = 0): Operation<Vote | null> {
+
+    const mapReceipt = (receipt: ITransactionReceipt) => {
+      try {
+        const [event, args] = getEventAndArgs(receipt, 'VoteProposal', 'Proposal.vote')
+        return new Vote(this.context, {
+          id: eventId(event),
+          amount: args[3], // _reputation
+          // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
+          createdAt: 0,
+          outcome,
+          proposal: {
+            id: this.id,
+            entity: this
+          },
+          voter: args[2] // _vote
+        })
+      } catch (e) {
+        // no vote was cast
+        return null
+      }
+    }
+
+    const errorHandler = async (error: Error) => {
+      const proposal = this
+      const votingMachine = await this.votingMachine()
+      const proposalDataFromVotingMachine = await votingMachine.proposals(proposal.id)
+
+      if (proposalDataFromVotingMachine.proposer === NULL_ADDRESS) {
+        return Error(`Error in vote(): unknown proposal with id ${proposal.id}`)
+      }
+
+      if (proposalDataFromVotingMachine.state === '2') {
+        const msg = `Error in vote(): proposal ${proposal.id} already executed`
+        return Error(msg)
+      }
+
+      // if everything seems fine, just return the original error
+      return error
+    }
+
+    const createTransaction = async (): Promise<ITransaction> => ({
+      contract: await this.votingMachine(),
+      method: 'vote',
+      args: [
+        this.id,  // proposalId
+        outcome, // a value between 0 to and the proposal number of choices.
+        amount.toString(), // amount of reputation to vote with . if _amount == 0 it will use all voter reputation.
+        NULL_ADDRESS
+      ]
+    })
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
+      })
+    )
+
+    return toIOperationObservable(observable)
+  }
 
 }

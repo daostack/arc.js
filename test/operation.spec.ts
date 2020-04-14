@@ -1,6 +1,7 @@
 import { ITransactionState, ITransactionUpdate } from '../src/operation'
-import { Proposal } from '../src/proposal'
+import { Proposal } from '../src'
 import { getTestAddresses, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
+import { IContributionRewardProposalState } from '../src/plugins/contributionReward/proposal'
 
 jest.setTimeout(20000)
 
@@ -20,9 +21,9 @@ describe('Operation', () => {
     }
 
     // collect the first 4 results of the observable in a a listOfUpdates array
-    const listOfUpdates: Array<ITransactionUpdate<Proposal>> = []
+    const listOfUpdates: Array<ITransactionUpdate<Proposal<IContributionRewardProposalState>>> = []
     dao.createProposal(options).subscribe(
-      (next: ITransactionUpdate<Proposal>) => listOfUpdates.push(next)
+      (next: ITransactionUpdate<Proposal<IContributionRewardProposalState>>) => listOfUpdates.push(next)
     )
 
     // wait for the transaction to be mined

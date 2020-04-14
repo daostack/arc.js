@@ -29,3 +29,20 @@ export type PluginName = keyof typeof Plugins
 export type ProposalName = keyof typeof Proposals
 
 export type ProposalTypeNames = keyof typeof Proposals | SchemeRegistrarProposalTypes
+
+export {
+  GenericScheme,
+  SchemeRegistrar,
+  ContributionReward,
+  ContributionRewardExt,
+  Competition,
+  GenericSchemeProposal,
+  SchemeRegistrarProposal,
+  ContributionRewardProposal,
+  CompetitionProposal,
+  ContributionRewardExtProposal
+}
+
+export * from './plugin'
+export * from './proposal'
+export * from './proposalPlugin'

@@ -3,12 +3,16 @@ import { Proposal, IProposalState } from "../proposal";
 import { Address, IApolloQueryOptions } from "../../types";
 import { Arc } from "../../arc";
 import { Plugin } from '../plugin'
-import { Observable } from "rxjs";
+import { Observable, from } from "rxjs";
 import gql from "graphql-tag";
 import { ContributionRewardProposal } from '../contributionReward/proposal';
 import { ContributionRewardExt } from './plugin';
+import { NULL_ADDRESS } from '../../utils';
+import { CONTRIBUTION_REWARD_DUMMY_VERSION, REDEEMER_CONTRACT_VERSIONS } from '../../settings';
+import { ITransaction, Operation, ITransactionReceipt, toIOperationObservable } from '../../operation';
+import { concatMap } from 'rxjs/operators';
 
-export interface IContributionRewardExtProposalState extends IProposalState { 
+export interface IContributionRewardExtProposalState extends IProposalState {
   beneficiary: Address
   externalTokenReward: BN
   externalToken: Address
@@ -29,7 +33,7 @@ export interface IContributionRewardExtProposalState extends IProposalState {
 
 export class ContributionRewardExtProposal extends Proposal<IContributionRewardExtProposalState> {
 
-  static itemMap (context: Arc, item: any): ContributionRewardProposal | null {
+  static itemMap(context: Arc, item: any): ContributionRewardProposal | null {
 
     if (item === null || item === undefined) return null
 
@@ -53,7 +57,7 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
       new BN(item.contributionReward.reputationChangeLeft) ||
       null
     )
-    
+
     const contributionRewardExt = ContributionRewardExt.itemMap(context, item) as ContributionRewardExt
     const contributionRewardExtProposal = new ContributionRewardExtProposal(context, item.id)
 
@@ -65,8 +69,8 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
       "ContributionRewardExt"
     )
 
-    if(baseState == null) return null
-    
+    if (baseState == null) return null
+
     const state: IContributionRewardExtProposalState = {
       ...baseState,
       alreadyRedeemedEthPeriods: Number(item.contributionReward.alreadyRedeemedEthPeriods),
@@ -111,4 +115,54 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
     return result
   }
 
+  public redeemerContract() {
+    for (const version of REDEEMER_CONTRACT_VERSIONS) {
+      try {
+        const contractInfo = this.context.getContractInfoByName('Redeemer', version)
+        return this.context.getContract(contractInfo.address)
+      } catch (err) {
+        if (!err.message.match(/no contract/i)) {
+          // if the contract cannot be found, try the next one
+          throw err
+        }
+      }
+    }
+    throw Error(`No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`)
+  }
+
+  public redeemRewards(beneficiary?: Address): Operation<boolean> {
+
+    const mapReceipt = (receipt: ITransactionReceipt) => true
+
+    const createTransaction = async (): Promise<ITransaction> => {
+
+      if (!beneficiary) {
+        beneficiary = NULL_ADDRESS
+      }
+
+      const state = await this.fetchState()
+      const pluginAddress = this.context.getContractInfoByName('ContributionReward', CONTRIBUTION_REWARD_DUMMY_VERSION).address
+      const method = 'redeemFromCRExt'
+      const args = [
+        pluginAddress,
+        state.votingMachine,
+        this.id,
+        beneficiary
+      ]
+
+      return {
+        contract: this.redeemerContract(),
+        method,
+        args
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt)
+      })
+    )
+
+    return toIOperationObservable(observable)
+  }
 }

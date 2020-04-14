@@ -1,10 +1,10 @@
 import BN = require('bn.js')
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { IContractInfo, Proposal } from '../src'
+import { IContractInfo, Proposal, ContributionReward, IProposalState, ContributionRewardProposal } from '../src'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { IProposalOutcome } from '../src/proposal'
+import { IProposalOutcome } from '../src'
 import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
 import { JsonRpcProvider } from 'ethers/providers'
@@ -160,11 +160,15 @@ export async function createAProposal(
     ...options
   }
 
-  const response = await (dao as DAO).createProposal(options).send()
-  const proposal = response.result as Proposal
+  const plugin = new ContributionReward(
+    dao.context, 
+    getTestAddresses(dao.context).base.ContributionReward
+  )
+  const response = await plugin.createProposal(options).send()
+  const proposal = new ContributionRewardProposal(dao.context, response.result.coreState)
   // wait for the proposal to be indexed
   let indexed = false
-  proposal.state().subscribe((next: any) => { if (next) { indexed = true } })
+  proposal.state({}).subscribe((next: any) => { if (next) { indexed = true } })
   await waitUntilTrue(() => indexed)
   return proposal
 }
@@ -192,7 +196,7 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
 }
 
 // Vote and vote and vote for proposal until it is accepted
-export async function voteToPassProposal(proposal: Proposal) {
+export async function voteToPassProposal(proposal: Proposal<IProposalState>) {
   const arc = proposal.context
   if (!arc.web3) throw new Error('Web3 provider not set')
   const accounts = await arc.web3.listAccounts()

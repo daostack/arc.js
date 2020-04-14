@@ -1,48 +1,56 @@
-import { Proposal, IProposalQueryOptions, IProposalBaseCreateOptions, IProposalState } from "./proposal"
-import { IApolloQueryOptions } from "../types";
 import { Observable } from "rxjs";
+import { IApolloQueryOptions } from "../types";
 import { Operation, toIOperationObservable, ITransaction, transactionErrorHandler, transactionResultHandler } from "../operation";
-import { Plugin, IPluginQueryOptions, IPluginState } from './plugin'
 import { Arc } from "../arc";
+import { Plugin, IPluginQueryOptions, IPluginState } from './plugin'
+import { Proposal, IProposalQueryOptions, IProposalBaseCreateOptions, IProposalState } from "./proposal"
 
-export abstract class ProposalPlugin<TPluginState extends IPluginState, TProposalState extends IProposalState> extends Plugin<TPluginState> {
+export abstract class ProposalPlugin<
+  TPluginState extends IPluginState,
+  TProposalState extends IProposalState,
+  TProposalCreateOptions extends IProposalBaseCreateOptions
+> extends Plugin<TPluginState> {
 
   protected abstract async createProposalTransaction(
-    options: IProposalBaseCreateOptions
+    options: TProposalCreateOptions
   ): Promise<ITransaction>
 
   //TODO: optional parameter 'options'?
-  protected abstract createProposalTransactionMap(options?: IProposalBaseCreateOptions): transactionResultHandler<Proposal<TProposalState>>
+  protected abstract createProposalTransactionMap(options?: TProposalCreateOptions): transactionResultHandler<Proposal<TProposalState>>
 
 
   //TODO: do we need this method? 
 
   // protected abstract createProposalErrorHandler(
-  //   options: IProposalBaseCreateOptions
+  //   options: TProposalCreateOptions
   // ): transactionErrorHandler
 
   //The old implementation in scheme.ts was:
   protected createProposalErrorHandler(
-    options: IProposalBaseCreateOptions
+    options: TProposalCreateOptions
   ): transactionErrorHandler {
     throw Error('this should never be called')
   }
 
-  public static search<TPluginState extends IPluginState, TProposalState extends IProposalState>(
+  public static search<
+    TPluginState extends IPluginState,
+    TProposalState extends IProposalState,
+    TProposalCreateOptions extends IProposalBaseCreateOptions
+  > (
     context: Arc,
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<ProposalPlugin<TPluginState, TProposalState>[]> {
+  ): Observable<ProposalPlugin<TPluginState, TProposalState, TProposalCreateOptions>[]> {
 
     const proposalPluginOptions = {
       ...options
       //TODO: query to get only Plugins that can create proposals
     }
 
-    return Plugin.search(context, proposalPluginOptions, apolloQueryOptions) as Observable<ProposalPlugin<TPluginState, TProposalState>[]>
+    return Plugin.search(context, proposalPluginOptions, apolloQueryOptions) as Observable<ProposalPlugin<TPluginState, TProposalState, TProposalCreateOptions>[]>
   }
 
-  public createProposal(options: IProposalBaseCreateOptions): Operation<Proposal<TProposalState>>  {
+  public createProposal(options: TProposalCreateOptions): Operation<Proposal<TProposalState>>  {
     const observable = Observable.create(async (observer: any) => {
       try {
         const createTransaction = await this.createProposalTransaction(options)

@@ -23,7 +23,7 @@ interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   value?: number
 }
 
-export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericSchemeProposalState> {
+export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericSchemeProposalState, IProposalCreateOptionsGS> {
 
   public static fragment = {
     name: 'GenericpluginParams',

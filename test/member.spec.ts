@@ -2,7 +2,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO, IDAOState } from '../src/dao'
 import { IMemberState, Member } from '../src/member'
-import { IProposalOutcome, Proposal } from '../src/proposal'
+import { IProposalOutcome, Proposal, IProposalState } from '../src'
 import { Stake } from '../src/stake'
 import { Address } from '../src/types'
 import { Vote } from '../src/vote'
@@ -33,7 +33,7 @@ describe('Member', () => {
   it('Member is instantiable', () => {
     const member = new Member(arc, Member.calculateId({
       address: defaultAccount,
-      contract: daoState.reputation.address
+      contract: daoState.reputation.entity.address
     }))
     expect(member).toBeInstanceOf(Member)
     const memberFromId = new Member(arc, '0xsomeId')
@@ -53,7 +53,7 @@ describe('Member', () => {
     const member = members[0]
     const memberState = await member.fetchState()
     const newMember = new Member(arc, Member.calculateId({
-      contract: daoState.reputation.address,
+      contract: daoState.reputation.entity.address,
       address: memberState.address
     }))
     const newMemberState = await newMember.fetchState()
@@ -61,9 +61,9 @@ describe('Member', () => {
   })
 
   it('Member proposals() works', async () => {
-    const member = new Member(arc, Member.calculateId({ address: defaultAccount, contract: daoState.reputation.address }))
-    let proposals: Proposal[] = []
-    member.proposals().subscribe((next: Proposal[]) => proposals = next)
+    const member = new Member(arc, Member.calculateId({ address: defaultAccount, contract: daoState.reputation.entity.address }))
+    let proposals: Proposal<IProposalState>[] = []
+    member.proposals().subscribe((next: Proposal<IProposalState>[]) => proposals = next)
     // wait until the proposal has been indexed
     await waitUntilTrue(() => proposals.length > 0)
 
@@ -74,7 +74,7 @@ describe('Member', () => {
   it('Member stakes() works', async () => {
     if (!arc.web3) throw new Error('Web3 provider not set')
     const stakerAccount = await arc.web3.getSigner(0).getAddress()
-    const member = new Member(arc, Member.calculateId({ address: stakerAccount, contract: daoState.reputation.address}))
+    const member = new Member(arc, Member.calculateId({ address: stakerAccount, contract: daoState.reputation.entity.address}))
     const proposal = await createAProposal()
     const stakingToken =  await proposal.stakingToken()
     // mint tokens with defaultAccount
@@ -104,7 +104,7 @@ describe('Member', () => {
   it('Member votes() works', async () => {
     const member = new Member(arc, Member.calculateId({
       address: defaultAccount,
-      contract: daoState.reputation.address
+      contract: daoState.reputation.entity.address
     }))
     const proposal = await createAProposal()
     const votes: Vote[][] = []
@@ -116,7 +116,7 @@ describe('Member', () => {
     const proposalIds: string[] = []
     await Promise.all(votes[votes.length - 1].map(async (vote) => {
       const voteState = await vote.fetchState()
-      proposalIds.push(voteState.proposal)
+      proposalIds.push(voteState.proposal.id)
     }))
     expect(proposalIds).toContain(proposal.id)
   })

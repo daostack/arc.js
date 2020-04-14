@@ -3,9 +3,13 @@ import { IProposalState, Proposal } from '../proposal'
 import { Arc } from '../../arc'
 import { ContributionReward } from './plugin'
 import { IApolloQueryOptions, Address } from '../../types'
-import { Observable } from 'rxjs'
+import { Observable, from } from 'rxjs'
 import gql from 'graphql-tag'
 import { Plugin } from '../plugin'
+import { concatMap } from 'rxjs/operators'
+import { toIOperationObservable, ITransaction, ITransactionReceipt, Operation } from '../../operation'
+import { NULL_ADDRESS } from '../../utils'
+import { REDEEMER_CONTRACT_VERSIONS } from '../../settings'
 
 
 export interface IContributionRewardProposalState extends IProposalState { 
@@ -138,6 +142,58 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
 
     const result = this.context.getObservableObject(this.context, query, itemMap, apolloQueryOptions) as Observable<IContributionRewardProposalState>
     return result
+  }
+
+  public redeemerContract() {
+    for (const version of REDEEMER_CONTRACT_VERSIONS) {
+      try {
+        const contractInfo = this.context.getContractInfoByName('Redeemer', version)
+        return this.context.getContract(contractInfo.address)
+      } catch (err) {
+        if (!err.message.match(/no contract/i)) {
+          // if the contract cannot be found, try the next one
+          throw err
+        }
+      }
+    }
+    throw Error(`No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`)
+  }
+
+  public redeemRewards(beneficiary?: Address): Operation<boolean> {
+
+    const mapReceipt = (receipt: ITransactionReceipt) => true
+
+    const createTransaction = async (): Promise<ITransaction> => {
+      if (!beneficiary) {
+        beneficiary = NULL_ADDRESS
+      }
+
+      const state = await this.fetchState()
+      const pluginState = await state.plugin.entity.fetchState()
+      const pluginAddress = pluginState.address
+      const method = 'redeem'
+      const args = [
+        pluginAddress,
+        state.votingMachine,
+        this.id,
+        state.dao.id,
+        beneficiary
+      ]
+
+      return {
+        contract: this.redeemerContract(),
+        method,
+        args
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt)
+      })
+    )
+
+    return toIOperationObservable(observable)
   }
 
 }
