@@ -61,16 +61,6 @@ export class DAO extends Entity<IDAOState> {
     }`
   }
 
-  constructor(context: Arc, idOrOpts: Address|IDAOState) {
-    super(context, idOrOpts)
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts.toLowerCase()
-    } else {
-      this.id = idOrOpts.address
-      this.setState(idOrOpts)
-    }
-  }
-
   public static search(
     context: Arc,
     options: IDAOQueryOptions = {},

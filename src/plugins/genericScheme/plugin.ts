@@ -25,18 +25,6 @@ interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
 
 export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericSchemeProposalState> {
 
-  constructor(context: Arc, idOrOpts: Address | IGenericSchemeState) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts as string
-      this.id = this.id.toLowerCase()
-    } else {
-      this.setState(idOrOpts)
-      this.id = idOrOpts.id
-    }
-  }
-
   public static fragment = {
     name: 'GenericpluginParams',
     fragment: gql` fragment GenericpluginParams on ControllerScheme {

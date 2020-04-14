@@ -50,17 +50,6 @@ export class Vote extends Entity<IVoteState> {
     }`
   }
 
-  constructor(context: Arc, idOrOpts: string|IVoteState) {
-    super(context, idOrOpts)
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      const opts = idOrOpts as IVoteState
-      this.id = opts.id
-      this.setState(opts)
-    }
-  }
-
   public static search(
     context: Arc,
     options: IVoteQueryOptions = {},

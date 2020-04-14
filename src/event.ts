@@ -43,17 +43,6 @@ export class Event extends Entity<IEventState> {
     }`
   }
 
-  constructor(context: Arc, idOrOpts: string | IEventState) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
-  }
-
   public static search(
     context: Arc,
     options: IEventQueryOptions = {},

@@ -49,19 +49,6 @@ export class Stake extends Entity<IStakeState> {
     }`
   }
 
-  constructor(
-    context: Arc,
-    idOrOpts: string|IStakeState
-  ) {
-    super(context, idOrOpts)
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts as IStakeState)
-    }
-  }
-
   public static search(
     context: Arc,
     options: IStakeQueryOptions = {},

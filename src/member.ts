@@ -49,16 +49,6 @@ export class Member extends Entity<IMemberState> {
     `
   }
 
-  constructor(context: Arc, idOrOpts: string|IMemberState) {
-    super(context, idOrOpts)
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts as string
-    } else {
-      const opts: IMemberState = idOrOpts
-      this.setState(opts)
-    }
-  }
-
   public static search(
     context: Arc,
     options: IMemberQueryOptions = {},

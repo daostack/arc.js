@@ -32,18 +32,6 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
 
 export class ContributionReward extends ProposalPlugin<IContributionRewardState, IContributionRewardProposalState> {
 
-  constructor(context: Arc, idOrOpts: Address | IContributionRewardState) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts as string
-      this.id = this.id.toLowerCase()
-    } else {
-      this.setState(idOrOpts)
-      this.id = idOrOpts.id
-    }
-  }
-
   public static fragment = {
     name: 'ContributionRewardParams',
     fragment: gql` fragment ContributionRewardParams on ControllerScheme {

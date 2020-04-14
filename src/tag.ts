@@ -34,19 +34,6 @@ export class Tag extends Entity<ITagState> {
     }`
   }
 
-  constructor(
-    context: Arc,
-    idOrOpts: string|ITagState
-  ) {
-    super(context, idOrOpts)
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
-    }
-  }
-
   public static search(
     context: Arc,
     options: ITagQueryOptions = {},

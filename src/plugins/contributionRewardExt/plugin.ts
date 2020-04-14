@@ -57,18 +57,6 @@ export class ContributionRewardExt extends ProposalPlugin<IContributionRewardExt
     }`
   }
 
-  constructor(context: Arc, idOrOpts: Address | IContributionRewardExtState) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts as string
-      this.id = this.id.toLowerCase()
-    } else {
-      this.setState(idOrOpts)
-      this.id = idOrOpts.id
-    }
-  }
-
   public static itemMap(arc: Arc, item: any): ContributionRewardExt | null {
     if (!item) {
       return null

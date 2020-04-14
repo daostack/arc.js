@@ -4,7 +4,7 @@ import { Arc } from "../../arc";
 import { Plugin } from '../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
-import { GenericScheme, IGenericSchemeState } from "./plugin";
+import { GenericScheme } from "./plugin";
 
 export interface IGenericSchemeProposalState extends IProposalState { 
   id: string

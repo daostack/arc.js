@@ -23,7 +23,7 @@ export abstract class Entity<TEntityState extends IEntityState> {
   ) {
     this.context = context
     if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
+      this.id = idOrOpts.toLowerCase()
     } else {
       this.id = idOrOpts.id
       this.setState(idOrOpts)

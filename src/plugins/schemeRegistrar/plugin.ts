@@ -25,18 +25,6 @@ export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
 
 export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISchemeRegistrarProposalState> {
 
-  constructor(context: Arc, idOrOpts: Address | ISchemeRegistrarState) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts as string
-      this.id = this.id.toLowerCase()
-    } else {
-      this.setState(idOrOpts)
-      this.id = idOrOpts.id
-    }
-  }
-
   public static fragment = {
     name: 'SchemeRegistrarParams',
     fragment: gql` fragment SchemeRegistrarParams on ControllerScheme {

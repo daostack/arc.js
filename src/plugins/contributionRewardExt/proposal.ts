@@ -5,7 +5,7 @@ import { Arc } from "../../arc";
 import { Plugin } from '../plugin'
 import { Observable } from "rxjs";
 import gql from "graphql-tag";
-import { IContributionRewardProposalState, ContributionRewardProposal } from '../contributionReward/proposal';
+import { ContributionRewardProposal } from '../contributionReward/proposal';
 import { ContributionRewardExt } from './plugin';
 
 export interface IContributionRewardExtProposalState extends IProposalState { 
