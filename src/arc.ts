@@ -1,6 +1,6 @@
 import BN = require('bn.js')
 import { Contract, Signer } from 'ethers'
-import { JsonRpcProvider } from 'ethers/providers'
+import { JsonRpcProvider, Web3Provider as EthersWeb3Provider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
@@ -67,7 +67,7 @@ export class Arc extends GraphNodeObserver {
     graphqlHttpProvider?: string
     graphqlWsProvider?: string
     ipfsProvider?: IPFSProvider
-    web3Provider?: string
+    web3Provider?: Web3Provider
     /** this function will be called before a query is sent to the graphql provider */
     graphqlPrefetchHook?: (query: any) => void
     /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
@@ -87,7 +87,13 @@ export class Arc extends GraphNodeObserver {
     this.ipfsProvider = options.ipfsProvider || ''
 
     if (options.web3Provider) {
-      this.web3 = new JsonRpcProvider(options.web3Provider)
+      this.web3Provider = options.web3Provider
+
+      if (typeof options.web3Provider === "string") {
+        this.web3 = new JsonRpcProvider(options.web3Provider)
+      } else {
+        this.web3 = new EthersWeb3Provider(options.web3Provider)
+      }
     }
 
     this.contractInfos = options.contractInfos || []
