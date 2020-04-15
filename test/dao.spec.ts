@@ -1,5 +1,5 @@
 import { first } from 'rxjs/operators'
-import { Arc, IProposalState } from '../src'
+import { Arc, IProposalState, IProposalCreateOptionsCR } from '../src'
 import { DAO } from '../src'
 import { IProposalStage, Proposal } from '../src'
 import { fromWei,
@@ -8,7 +8,8 @@ import { fromWei,
   newArc,
   newArcWithoutGraphql,
   toWei,
-  waitUntilTrue
+  waitUntilTrue,
+  createCRProposal
 } from './utils'
 import { BigNumber } from 'ethers/utils'
 
@@ -144,7 +145,7 @@ describe('DAO', () => {
 
   it('createProposal should work', async () => {
     const dao = await getTestDAO(arc)
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       ethReward: toWei('300'),
@@ -152,11 +153,12 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      plugin: getTestAddresses(arc).base.ContributionReward,
+      proposalType: "ContributionReward"
     }
 
-    const response = await dao.createProposal(options).send()
-    const proposal = response.result as Proposal<IProposalState>
+    const proposal = await createCRProposal(arc, getTestAddresses(arc).base.ContributionReward, options)
+
     let proposals: Proposal<IProposalState>[] = []
     const proposalIsIndexed = async () => {
       proposals = await Proposal.search(arc, {where: {id: proposal.id}}, { fetchPolicy: 'network-only'})
@@ -171,7 +173,7 @@ describe('DAO', () => {
   it.skip('createProposal should work without a graphql connection', async () => {
     const arcWithoutGraphql = await newArcWithoutGraphql()
     const dao = await getTestDAO(arcWithoutGraphql)
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       ethReward: toWei('300'),
@@ -179,10 +181,11 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      plugin: getTestAddresses(arc).base.ContributionReward,
+      proposalType: "ContributionReward"
     }
 
-    await dao.createProposal(options).send()
+    await createCRProposal(arc, getTestAddresses(arc).base.ContributionReward, options)
   })
 
   it('dao.plugins() should work', async () => {

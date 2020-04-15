@@ -1,8 +1,8 @@
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IProposalStage, Proposal } from '../src/proposal'
-import { IContributionReward } from '../src/schemes/contributionReward'
+import { Arc, IProposalCreateOptionsCR, ContributionRewardProposal, IContributionRewardProposalState } from '../src'
+import { DAO } from '../src'
+import { IProposalStage, Proposal } from '../src'
+import { ContributionReward } from '../src'
 
 import {
   fromWei,
@@ -11,7 +11,8 @@ import {
   ITestAddresses,
   newArc,
   toWei,
-  waitUntilTrue
+  waitUntilTrue,
+  createCRProposal
 } from './utils'
 
 jest.setTimeout(20000)
@@ -32,7 +33,7 @@ describe('Create a ContributionReward proposal', () => {
   })
 
   it('is properly indexed', async () => {
-    const options = {
+    const options: IProposalCreateOptionsCR  = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       ethReward: toWei('300'),
@@ -40,16 +41,16 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: testAddresses.base.ContributionReward
+      plugin: testAddresses.base.ContributionReward,
+      proposalType: "ContributionReward"
     }
 
-    const response = await dao.createProposal(options).send()
-    const proposal = response.result as Proposal
-    let proposals: Proposal[] = []
+    const proposal = await createCRProposal(arc, testAddresses.base.ContributionReward, options)
+    let proposals: ContributionRewardProposal[] = []
     const proposalIsIndexed = async () => {
       // we pass no-cache to make sure we hit the server on each request
       proposals = await Proposal.search(arc, { where: {id: proposal.id}}, { fetchPolicy: 'no-cache' })
-        .pipe(first()).toPromise()
+        .pipe(first()).toPromise() as ContributionRewardProposal[]
       return proposals.length > 0
     }
     await waitUntilTrue(proposalIsIndexed)
@@ -58,11 +59,10 @@ describe('Create a ContributionReward proposal', () => {
 
     const proposalState = await proposal.fetchState()
 
-    const contributionReward = proposalState.contributionReward as IContributionReward
-    expect(fromWei(contributionReward.externalTokenReward)).toEqual('0.0')
-    expect(fromWei(contributionReward.ethReward)).toEqual('300.0')
-    expect(fromWei(contributionReward.nativeTokenReward)).toEqual('1.0')
-    expect(fromWei(contributionReward.reputationReward)).toEqual('10.0')
+    expect(fromWei(proposalState.externalTokenReward)).toEqual('0.0')
+    expect(fromWei(proposalState.ethReward)).toEqual('300.0')
+    expect(fromWei(proposalState.nativeTokenReward)).toEqual('1.0')
+    expect(fromWei(proposalState.reputationReward)).toEqual('10.0')
     expect(fromWei(proposalState.stakesAgainst)).toEqual('100.0')
     expect(fromWei(proposalState.stakesFor)).toEqual('0.0')
 
@@ -77,7 +77,7 @@ describe('Create a ContributionReward proposal', () => {
       stage: IProposalStage.Queued
     })
 
-    expect(proposalState.contributionReward).toMatchObject({
+    expect(proposalState).toMatchObject({
       beneficiary: options.beneficiary
     })
 
@@ -85,7 +85,7 @@ describe('Create a ContributionReward proposal', () => {
   })
 
   it('saves title etc on ipfs', async () => {
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       description: 'Just eat them',
@@ -93,22 +93,22 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: testAddresses.base.ContributionReward,
+      plugin: testAddresses.base.ContributionReward,
+      proposalType: "ContributionReward",
       title: 'A modest proposal',
       url: 'http://swift.org/modest'
     }
 
-    const response = await dao.createProposal(options).send()
-    const proposal = response.result as Proposal
-    let proposals: Proposal[] = []
+    const proposal = await createCRProposal(arc, testAddresses.base.ContributionReward, options)
+    let proposals: ContributionRewardProposal[] = []
     const proposalIsIndexed = async () => {
       // we pass no-cache to make sure we hit the server on each request
       proposals = await Proposal.search(arc, {where: {id: proposal.id}}, { fetchPolicy: 'no-cache' })
-        .pipe(first()).toPromise()
+        .pipe(first()).toPromise() as ContributionRewardProposal[]
       return proposals.length > 0
     }
     await waitUntilTrue(proposalIsIndexed)
-    const proposal2 = await dao.proposal(proposal.id)
+    const proposal2 = await new ContributionRewardProposal(arc, proposal.id)
     const proposalState = await proposal2.fetchState()
     expect(proposalState.descriptionHash).toEqual('QmRg47CGnf8KgqTZheTejowoxt4SvfZFqi7KGzr2g163uL')
 
@@ -130,16 +130,17 @@ describe('Create a ContributionReward proposal', () => {
     arcWithoutIPFS.ipfsProvider = ''
     const contractAddresses = await getTestAddresses(arc)
     const anotherDAO = arcWithoutIPFS.dao(contractAddresses.dao.Avatar)
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: anotherDAO.id,
       description: 'Just eat them',
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       nativeTokenReward: toWei('1'),
-      scheme: testAddresses.base.ContributionReward,
+      plugin: testAddresses.base.ContributionReward,
       title: 'A modest proposal',
-      url: 'http://swift.org/modest'
+      url: 'http://swift.org/modest',
+      proposalType: "ContributionReward"
     }
 
     await expect(anotherDAO.createProposal(options).send()).rejects.toThrowError(

@@ -3,8 +3,8 @@ import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
 import {
   Arc,
-  Competition,
-  CompetitionScheme,
+  Competition as CompetitionPlugin,
+  CompetitionProposal,
   CompetitionSuggestion,
   CompetitionVote,
   DAO,
@@ -13,7 +13,7 @@ import {
   IProposalStage,
   IProposalState,
   Proposal,
-  Scheme,
+  Plugin,
   IProposalCreateOptionsComp
 } from '../src'
 import { getBlockTime } from '../src/utils'
@@ -31,7 +31,7 @@ jest.setTimeout(30000)
 describe('Competition Proposal', () => {
   let arc: Arc
   let dao: DAO
-  let contributionRewardExt: CompetitionScheme
+  let contributionRewardExt: CompetitionPlugin
   let contributionRewardExtAddress: string
   let address0: string
   let address1: string
@@ -65,13 +65,13 @@ describe('Competition Proposal', () => {
     const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
     const contributionRewardExtAddres = contributionRewardExtContract.address.toLowerCase()
     const contributionRewardExts = await arc
-      .schemes({ where: { address: contributionRewardExtAddres } }).pipe(first()).toPromise()
+      .plugins({ where: { address: contributionRewardExtAddres } }).pipe(first()).toPromise()
 
-    contributionRewardExt = contributionRewardExts[0] as CompetitionScheme
+    contributionRewardExt = contributionRewardExts[0] as CompetitionPlugin
 
     const contributionRewardExtState = await contributionRewardExt.fetchState()
     contributionRewardExtAddress = contributionRewardExtState.address
-    dao = new DAO(arc, contributionRewardExtState.dao)
+    dao = new DAO(arc, contributionRewardExtState.dao.entity.coreState)
 
     if (!arc.web3) throw new Error('Web3 provider not set')
     address0 = (await arc.web3.getSigner(0).getAddress()).toLowerCase()
@@ -82,7 +82,7 @@ describe('Competition Proposal', () => {
       rewardSplit?: number[],
       proposerIsAdmin?: boolean
     }  = {}) {
-    const scheme = new  CompetitionScheme(arc, contributionRewardExt.id)
+    const plugin = new  CompetitionPlugin(arc, contributionRewardExt.id)
     // make sure that the DAO has enough Ether to pay forthe reward
 
     if(!arc.web3) throw new Error('Web3 provider not set')
@@ -106,7 +106,7 @@ describe('Competition Proposal', () => {
       externalTokenReward,
       nativeTokenReward,
       numberOfVotesPerVoter: 3,
-      proposalType: 'competition',
+      proposalType: 'Competition',
       proposerIsAdmin: options.proposerIsAdmin,
       reputationReward,
       rewardSplit,
@@ -116,15 +116,15 @@ describe('Competition Proposal', () => {
     }
 
     // CREATE PROPOSAL
-    const tx = await scheme.createProposal(proposalOptions).send()
-    const proposal = tx.result as Proposal
+    const tx = await plugin.createCompetitionProposal(proposalOptions).send()
+    const proposal = new CompetitionProposal(arc, tx.result.coreState)
 
     // accept the proposal by voting for et
     await voteToPassProposal(proposal)
     await proposal.redeemRewards().send()
 
     // find the competition
-    const competitions = await scheme.competitions({ where: {id: proposal.id}}).pipe(first()).toPromise()
+    const competitions = await Proposal.search(arc, { where: {id: proposal.id}}).pipe(first()).toPromise() as CompetitionProposal[]
     const competition = competitions[0]
 
     // lets create some suggestions
@@ -174,8 +174,8 @@ describe('Competition Proposal', () => {
   }
 
   it('CompetitionSuggestion.calculateId works', async () => {
-    function calc(scheme: string, suggestionId: number) {
-      return CompetitionSuggestion.calculateId({ scheme, suggestionId })
+    function calc(plugin: string, suggestionId: number) {
+      return CompetitionSuggestion.calculateId({ plugin, suggestionId })
 
     }
     expect(calc('0xefc4d4e4ff5970c02572d90f8d580f534508f3377a17880e95c2ba9a6d670622', 8))
@@ -187,7 +187,7 @@ describe('Competition Proposal', () => {
   })
 
   it('create a competition proposal with starttime set to null', async () => {
-    const scheme = new CompetitionScheme(arc,contributionRewardExt.id)
+    const plugin = new CompetitionPlugin(arc,contributionRewardExt.id)
     // TODO: test error handling for all these params
     // - all args are present
     // - order of times
@@ -202,7 +202,7 @@ describe('Competition Proposal', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       numberOfVotesPerVoter: 3,
-      proposalType: 'competition',
+      proposalType: 'Competition',
       reputationReward,
       rewardSplit: [1, 2, 97],
       startTime: null,
@@ -211,13 +211,13 @@ describe('Competition Proposal', () => {
     }
 
     // CREATE PROPOSAL
-    const tx = await scheme.createProposal(proposalOptions).send()
-    const proposal1 = tx.result as Proposal
+    const tx = await plugin.createCompetitionProposal(proposalOptions).send()
+    const proposal1 = new CompetitionProposal(arc, tx.result.coreState)
     expect(proposal1).toBeInstanceOf(Proposal)
 
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
-    const sub = proposal1.state().subscribe((pState: IProposalState) => {
+    const sub = proposal1.state({}).subscribe((pState: IProposalState) => {
       states.push(pState)
     })
     await waitUntilTrue(() => !!lastState())
@@ -226,13 +226,13 @@ describe('Competition Proposal', () => {
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Queued
     })
-    expect((lastState().competition as ICompetitionProposalState).startTime).toBeDefined()
+    expect((lastState() as ICompetitionProposalState).startTime).toBeDefined()
   })
 
   it('Create a competition proposal, compete, win the competition..', async () => {
     // const scheme = new CompetitionScheme(contributionRewardExtState.id, arc)
-    expect(contributionRewardExt).toBeInstanceOf(CompetitionScheme)
-    const scheme = new CompetitionScheme(arc, contributionRewardExt.id)
+    expect(contributionRewardExt).toBeInstanceOf(CompetitionPlugin)
+    const plugin = new CompetitionPlugin(arc, contributionRewardExt.id)
 
     if(!arc.web3) throw new Error("Web3 provider not set")
 
@@ -262,7 +262,7 @@ describe('Competition Proposal', () => {
       externalTokenReward,
       nativeTokenReward,
       numberOfVotesPerVoter: 3,
-      proposalType: 'competition',
+      proposalType: 'Competition',
       reputationReward,
       rewardSplit: [1, 2, 97],
       startTime,
@@ -270,16 +270,16 @@ describe('Competition Proposal', () => {
       votingStartTime: addSeconds(startTime, 0)
     }
 
-    const schemeState = await scheme.fetchState()
+    const pluginState = await plugin.fetchState()
 
     // CREATE PROPOSAL
-    const tx = await scheme.createProposal(proposalOptions).send()
-    const proposal = tx.result as Proposal
+    const tx = await plugin.createCompetitionProposal(proposalOptions).send()
+    const proposal = new CompetitionProposal(arc, tx.result.coreState)
     expect(proposal).toBeInstanceOf(Proposal)
 
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
-    let sub = proposal.state().subscribe((pState: IProposalState) => {
+    let sub = proposal.state({}).subscribe((pState: IProposalState) => {
       states.push(pState)
     })
     await waitUntilTrue(() => !!lastState())
@@ -288,12 +288,12 @@ describe('Competition Proposal', () => {
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Queued
     })
-    expect(lastState().contributionReward).toMatchObject({
+    expect(lastState()).toMatchObject({
       alreadyRedeemedEthPeriods: 0,
       ethReward,
       nativeTokenReward
     })
-    expect(lastState().competition).toMatchObject({
+    expect(lastState()).toMatchObject({
       endTime: proposalOptions.endTime,
       numberOfVotesPerVoter: proposalOptions.numberOfVotesPerVoter,
       numberOfWinners: 3,
@@ -303,7 +303,7 @@ describe('Competition Proposal', () => {
       suggestionsEndTime: proposalOptions.suggestionsEndTime,
       votingStartTime: proposalOptions.votingStartTime
     })
-    expect(lastState().scheme).toMatchObject({
+    expect(lastState().plugin).toMatchObject({
       // TODO: this should be 'Competition'
       name: 'ContributionRewardExt'
       // name: 'Competition'
@@ -313,16 +313,16 @@ describe('Competition Proposal', () => {
     await voteToPassProposal(proposal)
 
     // check sanity for scheme
-    expect(schemeState.address).toEqual(lastState().scheme.address)
+    expect(pluginState.address).toEqual(lastState().plugin.entity.coreState.address)
 
     // redeem the proposal
     await proposal.redeemRewards().send()
 
     // find the competition
-    const competitions = await scheme.competitions({ where: { id: proposal.id } }).pipe(first()).toPromise()
+    const competitions = await Proposal.search(arc, { where: { id: proposal.id } }).pipe(first()).toPromise() as CompetitionProposal[]
     expect(competitions.length).toEqual(1)
     const competition = competitions[0]
-    expect(competition).toBeInstanceOf(Competition)
+    expect(competition).toBeInstanceOf(CompetitionProposal)
     expect(competition.id).toEqual(proposal.id)
 
     // lets create some suggestions
@@ -378,7 +378,7 @@ describe('Competition Proposal', () => {
         .pipe(first()).toPromise()).length)
       .toEqual(1)
     // // and lets vote for the first suggestion
-    const voteReceipt = await scheme.voteSuggestion({ suggestionId: suggestion2.suggestionId as number }).send()
+    const voteReceipt = await competition.voteSuggestion({ suggestionId: suggestion2.suggestionId as number }).send()
     const vote = voteReceipt.result
     // // the vote should be counted
     expect(vote).toBeInstanceOf(CompetitionVote)
@@ -432,10 +432,10 @@ describe('Competition Proposal', () => {
   it(`Rewards left are updated correctly`, async () => {
     // before any votes are cast, all suggesitons are winnners
     const { competition } = await createCompetition()
-    const proposal = new Proposal(arc, competition.id)
+    const proposal = new CompetitionProposal(arc, competition.id)
     let competitionState: any
 
-    const sub = proposal.state().subscribe(
+    const sub = proposal.state({}).subscribe(
       (state) => competitionState = state
     )
     await waitUntilTrue(() => !!competitionState)
@@ -667,10 +667,10 @@ describe('Competition Proposal', () => {
     const contributionRewardExtContract = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
     // find the corresponding scheme object
     const contributionRewardExts = await arc
-      .schemes({ where: { address: contributionRewardExtContract.address } }).pipe(first()).toPromise()
+      .plugins({ where: { address: contributionRewardExtContract.address } }).pipe(first()).toPromise()
     expect(contributionRewardExts.length).toEqual(1)
     const scheme = contributionRewardExts[0]
-    expect(scheme).toBeInstanceOf(CompetitionScheme)
+    expect(scheme).toBeInstanceOf(CompetitionPlugin)
   })
 
   it('Can create a propsal using dao.createProposal', async () => {
@@ -685,17 +685,18 @@ describe('Competition Proposal', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       numberOfVotesPerVoter: 3,
-      proposalType: 'competition',
+      proposalType: 'Competition',
       reputationReward: toWei('10'),
       rewardSplit: [10, 10, 80],
-      scheme: contributionRewardExtAddress,
+      plugin: contributionRewardExtAddress,
       startTime,
       suggestionsEndTime: addSeconds(startTime, 100),
       votingStartTime: addSeconds(startTime, 0)
     }
 
-    const tx = await dao.createProposal(proposalOptions).send()
-    const proposal = tx.result as Proposal
+    const plugin = new CompetitionPlugin(arc, contributionRewardExtAddress)
+    const tx = await plugin.createCompetitionProposal(proposalOptions).send()
+    const proposal = new CompetitionProposal(arc, tx.result.coreState)
     expect(proposal).toBeInstanceOf(Proposal)
   })
 
@@ -776,8 +777,8 @@ describe('Competition Proposal', () => {
             }
           }
         }
-        ${Proposal.fragments.ProposalFields}
-        ${Scheme.fragments.SchemeFields}
+        ${Proposal.baseFragment}
+        ${Plugin.baseFragment}
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
         `
   
@@ -790,7 +791,7 @@ describe('Competition Proposal', () => {
           .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
   
       const cachedSuggestionState = await cachedSuggestions[0]
-        .fetchState({ fetchPolicy: 'cache-only'})
+        .fetchState()
       expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
   
     })
@@ -804,7 +805,7 @@ describe('Competition Proposal', () => {
       expect(suggestions.length).toBeGreaterThan(0)
   
       // add some exiting data to the cache to seeif we can mess things up
-      await arc.proposal(competition.id).state().pipe(first()).toPromise()
+      await new CompetitionProposal(arc, competition.id).state({}).pipe(first()).toPromise()
   
       // construct our superquery that will fill the cache
       const query = gql`query {
@@ -819,8 +820,8 @@ describe('Competition Proposal', () => {
             }
           }
         }
-        ${Proposal.fragments.ProposalFields}
-        ${Scheme.fragments.SchemeFields}
+        ${Proposal.baseFragment}
+        ${Plugin.baseFragment}
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
         `
   
@@ -869,8 +870,8 @@ describe('Competition Proposal', () => {
             }
           }
         }
-        ${Proposal.fragments.ProposalFields}
-        ${Scheme.fragments.SchemeFields}
+        ${Proposal.baseFragment}
+        ${Plugin.baseFragment}
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
         ${CompetitionVote.fragments.CompetitionVoteFields}
       `

@@ -1,18 +1,19 @@
 import { IProposalState, Proposal } from "../proposal"
 import { IEntityRef } from "../../entity"
 import { Arc, IApolloQueryOptions } from "../../arc"
-import { secondSinceEpochToDate } from "../../utils"
+import { secondSinceEpochToDate, NULL_ADDRESS } from "../../utils"
 import { Address } from "../../types"
 import { Observable, from } from "rxjs"
 import gql from "graphql-tag"
 import { CompetitionVote } from "./vote"
 import { ITransactionReceipt, getEventArgs, ITransaction, toIOperationObservable, Operation } from "../../operation"
-import { CompetitionSuggestion } from "./suggestion"
+import { CompetitionSuggestion, ICompetitionSuggestionQueryOptions } from "./suggestion"
 import { DAO } from "../../dao"
 import { first, concatMap } from "rxjs/operators"
 import { Competition } from "./plugin"
 import { Plugin } from "../plugin"
 import { IContributionRewardExtState } from "../contributionRewardExt/plugin"
+import { CONTRIBUTION_REWARD_DUMMY_VERSION, REDEEMER_CONTRACT_VERSIONS } from "../../settings"
 
 export interface ICompetitionProposalState extends IProposalState { 
   id: string
@@ -131,6 +132,66 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
     if(!this.coreState) throw new Error("Cannot get plugin state if competitionProposal's coreState is not set")
 
     return await this.coreState.plugin.entity.fetchState({}, true) as IContributionRewardExtState
+  }
+
+  public redeemerContract() {
+    for (const version of REDEEMER_CONTRACT_VERSIONS) {
+      try {
+        const contractInfo = this.context.getContractInfoByName('Redeemer', version)
+        return this.context.getContract(contractInfo.address)
+      } catch (err) {
+        if (!err.message.match(/no contract/i)) {
+          // if the contract cannot be found, try the next one
+          throw err
+        }
+      }
+    }
+    throw Error(`No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`)
+  }
+
+  public suggestions(
+    options: ICompetitionSuggestionQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<CompetitionSuggestion[]> {
+    if (!options.where) { options.where = {} }
+    options.where.proposal = this.id
+    return CompetitionSuggestion.search(this.context, options, apolloQueryOptions)
+  }
+
+  public redeemRewards(beneficiary?: Address): Operation<boolean> {
+
+    const mapReceipt = (receipt: ITransactionReceipt) => true
+
+    const createTransaction = async (): Promise<ITransaction> => {
+      if (!beneficiary) {
+        beneficiary = NULL_ADDRESS
+      }
+
+      const state = await this.fetchState()
+      const pluginAddress = this.context.getContractInfoByName('ContributionReward', CONTRIBUTION_REWARD_DUMMY_VERSION).address
+      const method = 'redeem'
+      const args = [
+        pluginAddress,
+        state.votingMachine,
+        this.id,
+        state.dao.id,
+        beneficiary
+      ]
+
+      return {
+        contract: this.redeemerContract(),
+        method,
+        args
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt)
+      })
+    )
+
+    return toIOperationObservable(observable)
   }
 
   public createSuggestion(options: {

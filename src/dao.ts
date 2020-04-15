@@ -164,13 +164,13 @@ export class DAO extends Entity<IDAOState> {
   public plugins(
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<ProposalPlugin<IPluginState, IProposalState>[]> {
+  ): Observable<ProposalPlugin<IPluginState, IProposalState, IProposalBaseCreateOptions>[]> {
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
     return ProposalPlugin.search(this.context, options, apolloQueryOptions)
   }
 
-  public async plugin(options: IPluginQueryOptions): Promise<ProposalPlugin<IPluginState, IProposalState>> {
+  public async plugin(options: IPluginQueryOptions): Promise<ProposalPlugin<IPluginState, IProposalState, IProposalBaseCreateOptions>> {
     const plugins = await this.plugins(options).pipe(first()).toPromise()
     if (plugins.length === 1) {
       return plugins[0]

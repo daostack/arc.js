@@ -17,7 +17,7 @@ import { ProposalTypeNames, Proposals } from './'
 import { utils } from 'ethers'
 import { DocumentNode } from 'graphql'
 import { ITransactionReceipt, Operation, getEventAndArgs, ITransaction, toIOperationObservable } from '../operation'
-import { concatMap } from 'rxjs/operators'
+import { concatMap, first } from 'rxjs/operators'
 
 export enum IProposalOutcome {
   None,
@@ -80,7 +80,7 @@ export interface IProposalBaseCreateOptions {
   tags?: string[]
   plugin?: Address
   url?: string
-  proposalType?: ProposalTypeNames
+  proposalType: ProposalTypeNames
 }
 
 export interface IProposalState {
@@ -446,6 +446,88 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     return this.context.getContract(state.votingMachine)
   }
 
+  public stakingToken() {
+    return this.context.GENToken()
+  }
+
+  public stake(outcome: IProposalOutcome, amount: BN): Operation<Stake> {
+
+    const mapReceipt = (receipt: ITransactionReceipt) => {
+
+      const [event, args] = getEventAndArgs(receipt, 'Stake', 'Proposal.stake')
+
+      return new Stake(this.context, {
+        id: eventId(event),
+        amount: args[3], // _amount
+        // createdAt is "about now", but we cannot calculate the data that will be indexed by the subgraph
+        createdAt: undefined,
+        outcome,
+        proposal: {
+          id: this.id,
+          entity: this
+        },
+        staker: args[2] // _staker
+      })
+    }
+
+    const errorHandler = async (error: Error) => {
+      const proposal = this
+      const votingMachine = await this.votingMachine()
+      const proposalState = await votingMachine.proposals(proposal.id)
+      const stakingToken = this.stakingToken()
+      if (proposalState.proposer === NULL_ADDRESS) {
+        return new Error(`Unknown proposal with id ${proposal.id}`)
+      }
+      // staker has sufficient balance
+      const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
+      const balance = new BN(await stakingToken.contract().balanceOf(defaultAccount))
+      const amountBN = new BN(amount)
+      if (balance.lt(amountBN)) {
+        const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}
+          (balance is ${balance.toString()})`
+        return new Error(msg)
+      }
+
+      // staker has approved the token spend
+      const allowance = new BN(await stakingToken.contract().allowance(
+        defaultAccount, votingMachine.address
+      ))
+      if (allowance.lt(amountBN)) {
+        return new Error(
+          `Staker has insufficient allowance to stake ${amount.toString()}
+            (allowance for ${votingMachine.address} is ${allowance.toString()})`
+        )
+      }
+
+      if (!!error.message.match(/event was found/)) {
+        if (proposalState.state === IProposalStage.Boosted) {
+          return new Error(`Staking failed because the proposal is boosted`)
+        }
+      }
+
+      // if we have found no known error, we return the original error
+      return error
+    }
+
+    const createTransaction = async (): Promise<ITransaction> => ({
+      contract: await this.votingMachine(),
+      method: 'stake',
+      args: [
+        this.id,  // proposalId
+        outcome, // a value between 0 to and the proposal number of choices.
+        amount.toString() // the amount of tokens to stake
+      ]
+    })
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
+      })
+    )
+
+    return toIOperationObservable(observable)
+  }
+
   public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {
     if (!options.where) { options.where = {} }
     options.where.proposal = this.id
@@ -465,6 +547,40 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     if (!options.where) { options.where = {} }
     options.where.proposal = this.id
     return Reward.search(this.context, options, apolloQueryOptions)
+  }
+
+  public execute(): Operation<undefined> {
+
+    const mapReceipt = (receipt: ITransactionReceipt) => undefined
+
+    const errorHandler = async (err: Error) => {
+      const votingMachine = await this.votingMachine()
+      const proposalDataFromVotingMachine = await votingMachine.proposals(this.id)
+
+      if (proposalDataFromVotingMachine.callbacks === NULL_ADDRESS) {
+        const msg = `Error in proposal.execute(): A proposal with id ${this.id} does not exist`
+        return Error(msg)
+      } else if (proposalDataFromVotingMachine.state === '2') {
+        const msg = `Error in proposal.execute(): proposal ${this.id} already executed`
+        return Error(msg)
+      }
+
+      return err
+    }
+
+    const createTransaction = async (): Promise<ITransaction> => ({
+      contract: await this.votingMachine(),
+      method: 'execute',
+      args: [ this.id ]
+    })
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
+      })
+    )
+
+    return toIOperationObservable(observable)
   }
 
   public vote(outcome: IProposalOutcome, amount: number = 0): Operation<Vote | null> {

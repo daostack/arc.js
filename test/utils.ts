@@ -9,6 +9,7 @@ import { Reputation } from '../src/reputation'
 import { Address } from '../src/types'
 import { JsonRpcProvider } from 'ethers/providers'
 import { utils } from 'ethers'
+import { IProposalCreateOptionsCR } from '../src/plugins/contributionReward/plugin'
 
 const path = require('path')
 
@@ -171,6 +172,16 @@ export async function createAProposal(
   proposal.state({}).subscribe((next: any) => { if (next) { indexed = true } })
   await waitUntilTrue(() => indexed)
   return proposal
+}
+
+export async function createCRProposal(
+  context: Arc,
+  pluginId: Address,
+  options: IProposalCreateOptionsCR
+) {
+  const plugin = new ContributionReward(context, pluginId)
+  const response = await plugin.createProposal(options).send()
+  return new ContributionRewardProposal(context, response.result.coreState)
 }
 
 export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {

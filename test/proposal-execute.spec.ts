@@ -1,10 +1,10 @@
 import BN = require('bn.js')
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { IProposalOutcome, IProposalStage, IProposalState, Proposal } from '../src/proposal'
+import { IProposalOutcome, IProposalStage, IProposalState, Proposal, ContributionRewardProposal, IProposalCreateOptionsCR } from '../src'
 import { advanceTime, createAProposal, fromWei, getTestAddresses, getTestDAO,
   ITestAddresses, newArc, toWei,
-  voteToPassProposal, waitUntilTrue } from './utils'
+  voteToPassProposal, waitUntilTrue, createCRProposal } from './utils'
 
 jest.setTimeout(40000)
 
@@ -12,13 +12,13 @@ describe('Proposal execute()', () => {
   let arc: Arc
   let addresses: ITestAddresses
   let dao: DAO
-  let executedProposal: Proposal
+  let executedProposal: ContributionRewardProposal
 
   beforeAll(async () => {
     arc = await newArc()
     addresses = await getTestAddresses(arc)
     dao = await getTestDAO()
-    executedProposal = await dao.proposal(addresses.test.executedProposalId)
+    executedProposal = new ContributionRewardProposal(arc, addresses.test.executedProposalId)
   })
 
   it('runs correctly through the stages', async () => {
@@ -29,9 +29,9 @@ describe('Proposal execute()', () => {
     }
     const accounts = await arc.web3.listAccounts()
     const state = await executedProposal.fetchState()
-    const schemeAddress = state.scheme.address
+    const plguinAddress = state.plugin.id
 
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary,
       dao: dao.id,
       ethReward: toWei('4'),
@@ -39,16 +39,17 @@ describe('Proposal execute()', () => {
       externalTokenReward: toWei('3'),
       nativeTokenReward: toWei('2'),
       reputationReward: toWei('1'),
-      scheme: schemeAddress
+      plugin: plguinAddress,
+      proposalType: "ContributionReward"
     }
 
     let proposalState: IProposalState
     const proposalStates: IProposalState[] = []
     const lastState = () => proposalStates[proposalStates.length - 1]
 
-    const proposal = (await dao.createProposal(options).send()).result as Proposal
+    const proposal = await createCRProposal(arc, plguinAddress, options)
 
-    proposal.state().subscribe(
+    proposal.state({}).subscribe(
       (next: IProposalState) => {
         if (next) {
           proposalStates.push(next)
@@ -102,12 +103,9 @@ describe('Proposal execute()', () => {
 
   it('throws a meaningful error if the proposal does not exist', async () => {
     // a non-existing proposal
-    const proposal = new Proposal(
+    const proposal = new ContributionRewardProposal(
       arc,
-      '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
-      // dao.address,
-      // executedProposal.schemeAddress,
-      // executedProposal.votingMachineAddress,
+      '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2'
     )
     await expect(proposal.execute().send()).rejects.toThrow(
       // TODO: uncomment when Ethers.js supports revert reasons, see thread:
@@ -123,7 +121,7 @@ describe('Proposal execute()', () => {
     const proposalStates: IProposalState[] = []
     const lastState = () => proposalStates[proposalStates.length - 1]
     const proposal = await createAProposal(dao,  { ethReward: new BN(0)})
-    proposal.state().subscribe((state: IProposalState) => {
+    proposal.state({}).subscribe((state: IProposalState) => {
       proposalStates.push(state)
     })
     // calling "execute" immediately will have no effect, because the proposal is not

@@ -1,14 +1,14 @@
 import BN from 'bn.js'
 import { Address } from "../../types";
-import { IProposalBaseCreateOptions } from "../proposal";
+import { IProposalBaseCreateOptions, Proposal } from "../proposal";
 import { Arc, IApolloQueryOptions } from "../../arc";
-import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs } from "../../operation";
+import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs, toIOperationObservable, Operation } from "../../operation";
 import { Observable } from "rxjs";
 import { ICompetitionSuggestionQueryOptions, CompetitionSuggestion } from './suggestion';
 import { IVoteQueryOptions } from '../../vote';
 import { getBlockTime, dateToSecondsSinceEpoch, NULL_ADDRESS } from '../../utils';
 import { CompetitionVote } from './vote';
-import { CompetitionProposal } from './proposal';
+import { CompetitionProposal, ICompetitionProposalState } from './proposal';
 import { IContributionRewardExtState, ContributionRewardExt } from '../contributionRewardExt/plugin';
 
 export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
@@ -125,6 +125,26 @@ export class Competition extends ContributionRewardExt {
         proposerIsAdmin
       ]
     }
+  }
+
+  public createCompetitionProposal(options: IProposalCreateOptionsComp): Operation<Proposal<ICompetitionProposalState>>  {
+    const observable = Observable.create(async (observer: any) => {
+      try {
+        const createTransaction = await this.createCompetitionProposalTransaction(options)
+        const map = this.createCompetitionProposalTransactionMap()
+        const errHandler = this.createCompetitionProposalErrorHandler(options)
+        const sendTransactionObservable = this.context.sendTransaction(
+          createTransaction, map, errHandler
+        )
+        const sub = sendTransactionObservable.subscribe(observer)
+        return () => sub.unsubscribe()
+      } catch (e) {
+        observer.error(e)
+        return
+      }
+    })
+
+    return toIOperationObservable(observable)
   }
 
   public createCompetitionProposalTransactionMap(): transactionResultHandler<CompetitionProposal> {

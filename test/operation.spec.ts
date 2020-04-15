@@ -1,5 +1,5 @@
 import { ITransactionState, ITransactionUpdate } from '../src/operation'
-import { Proposal } from '../src'
+import { Proposal, IProposalCreateOptionsCR, ContributionReward } from '../src'
 import { getTestAddresses, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
 import { IContributionRewardProposalState } from '../src/plugins/contributionReward/proposal'
 
@@ -10,19 +10,22 @@ describe('Operation', () => {
   it('returns the correct sequence of states', async () => {
     const dao = await getTestDAO()
     const arc = dao.context
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      plugin: getTestAddresses(arc).base.ContributionReward,
+      proposalType: "ContributionReward"
     }
+
+    const plugin = new ContributionReward(arc, getTestAddresses(arc).base.ContributionReward)
 
     // collect the first 4 results of the observable in a a listOfUpdates array
     const listOfUpdates: Array<ITransactionUpdate<Proposal<IContributionRewardProposalState>>> = []
-    dao.createProposal(options).subscribe(
+    plugin.createProposal(options).subscribe(
       (next: ITransactionUpdate<Proposal<IContributionRewardProposalState>>) => listOfUpdates.push(next)
     )
 

@@ -1,4 +1,4 @@
-import { IProposalOutcome } from '../src/proposal'
+import { IProposalOutcome } from '../src'
 import { Reward } from '../src/reward'
 import { Vote } from '../src/vote'
 import { createAProposal,
