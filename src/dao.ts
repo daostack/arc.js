@@ -1,7 +1,7 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
-import { Observable } from 'rxjs'
-import { concatMap, first, map } from 'rxjs/operators'
+import { Observable, from } from 'rxjs'
+import { first, map } from 'rxjs/operators'
 import { Arc } from './arc'
 import { IApolloQueryOptions } from './graphnode'
 import { toIOperationObservable } from './operation'
@@ -11,7 +11,7 @@ import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 import { IEntityRef, Entity } from './entity'
-import { IPluginQueryOptions, IPluginState } from './plugins/plugin'
+import { IPluginQueryOptions, IPluginState, Plugin } from './plugins/plugin'
 import { ProposalPlugin } from './plugins/proposalPlugin'
 import { Reward, IRewardQueryOptions } from './reward'
 import { Reputation } from './reputation'
@@ -260,23 +260,8 @@ export class DAO extends Entity<IDAOState> {
       throw Error(`dao.createProposal(options): options must include an address for "plugin"`)
     }
 
-    const pluginsQuery = this.plugins(
-      { where: {
-        address: options.plugin,
-        dao: options.dao
-      }}
-    )
-
-    const observable = pluginsQuery.pipe(
-      first(),
-      concatMap((plugins) => {
-        if (plugins && plugins.length > 0) {
-          return plugins[0].createProposal(options)
-        } else {
-          throw Error(`No plugin with address ${options.plugin} is registered with dao ${options.dao}`)
-        }
-      }
-    ))
+    const pluginId = Plugin.calculateId({ daoAddress: options.dao, contractAddress: options.plugin })
+    const observable = from(this.plugin({ where: { id: pluginId }}))
 
     return toIOperationObservable(observable)
   }

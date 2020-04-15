@@ -3,10 +3,11 @@ import { Entity, IEntityRef } from '../entity'
 import gql from 'graphql-tag'
 import { Arc } from '../arc'
 import { Observable } from 'rxjs'
-import { createGraphQlQuery } from '../utils'
+import { createGraphQlQuery, concat, hexStringToUint8Array } from '../utils'
 import { Plugins } from '.'
 import { DAO } from '../dao'
 import { DocumentNode } from 'graphql'
+import { utils } from 'ethers'
 
 export interface IPluginState {
   id: string
@@ -111,5 +112,13 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       itemMap,
       apolloQueryOptions
     ) as Observable<Plugin<TPluginState>[]>
+  }
+
+  public static calculateId(opts: { daoAddress: Address, contractAddress: Address}): string {
+    const seed = concat(
+      hexStringToUint8Array(opts.daoAddress.toLowerCase()),
+      hexStringToUint8Array(opts.contractAddress.toLowerCase())
+    )
+    return utils.keccak256(seed)
   }
 }
