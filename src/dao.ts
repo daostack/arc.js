@@ -1,7 +1,7 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable, from } from 'rxjs'
-import { first, map } from 'rxjs/operators'
+import { first, map, concatMap } from 'rxjs/operators'
 import { Arc } from './arc'
 import { IApolloQueryOptions } from './graphnode'
 import { toIOperationObservable } from './operation'
@@ -261,8 +261,11 @@ export class DAO extends Entity<IDAOState> {
     }
 
     const pluginId = Plugin.calculateId({ daoAddress: options.dao, contractAddress: options.plugin })
-    const observable = from(this.plugin({ where: { id: pluginId }}))
+    const proposalObservable = from(this.plugin({ where: { id: pluginId }})).pipe(
+      first(),
+      concatMap((plugin) => plugin.createProposal(options))
+    )
 
-    return toIOperationObservable(observable)
+    return toIOperationObservable(proposalObservable)
   }
 }

@@ -28,7 +28,7 @@ import { isAddress } from './utils'
 import { IPFSClient } from './ipfsClient'
 import { IEventQueryOptions, Event } from './event'
 import { IPluginQueryOptions, Plugin, IPluginState } from './plugins/plugin'
-import { Plugins, Proposals, PluginName, ProposalName } from './plugins'
+import { Plugins, PluginName } from './plugins'
 
 /**
  * The Arc class holds all configuration.
