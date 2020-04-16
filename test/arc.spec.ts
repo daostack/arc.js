@@ -1,14 +1,12 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
-import { Proposal } from '../src'
 import { Plugin } from '../src'
 import { Arc } from '../src'
 import { REDEEMER_CONTRACT_VERSIONS } from '../src'
 import { Address } from '../src/types'
 import {
   fromWei,
-  getTestAddresses,
   newArc,
   newArcWithoutEthereum,
   newArcWithoutGraphql,

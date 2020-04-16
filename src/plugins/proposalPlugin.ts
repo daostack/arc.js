@@ -1,9 +1,20 @@
-import { Observable } from "rxjs";
-import { IApolloQueryOptions } from "../types";
-import { Operation, toIOperationObservable, ITransaction, transactionErrorHandler, transactionResultHandler } from "../operation";
-import { Arc } from "../arc";
-import { Plugin, IPluginQueryOptions, IPluginState } from './plugin'
-import { Proposal, IProposalQueryOptions, IProposalBaseCreateOptions, IProposalState } from "./proposal"
+import { Observable } from 'rxjs'
+import {
+  Arc,
+  IApolloQueryOptions,
+  Operation,
+  toIOperationObservable,
+  ITransaction,
+  transactionErrorHandler,
+  transactionResultHandler,
+  Plugin,
+  IPluginQueryOptions,
+  IPluginState,
+  Proposal,
+  IProposalQueryOptions,
+  IProposalBaseCreateOptions,
+  IProposalState
+} from '../index'
 
 export abstract class ProposalPlugin<
   TPluginState extends IPluginState,

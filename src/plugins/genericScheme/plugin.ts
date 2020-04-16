@@ -18,7 +18,7 @@ export interface IGenericSchemeState extends IPluginState {
   }
 }
 
-interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
+export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   callData?: string
   value?: number
 }

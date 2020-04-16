@@ -2,22 +2,25 @@ import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable, from } from 'rxjs'
 import { first, map, concatMap } from 'rxjs/operators'
-import { Arc } from './arc'
-import { IApolloQueryOptions } from './graphnode'
-import { toIOperationObservable } from './operation'
-import { IProposalQueryOptions, Proposal, IProposalBaseCreateOptions } from './plugins/proposal'
-import { IStakeQueryOptions, Stake } from './stake'
+
+import {
+  Arc,
+  IVoteQueryOptions, Vote,
+  IEntityRef, Entity,
+  IPluginQueryOptions, Plugin,
+  ProposalPlugin,
+  Reward, IRewardQueryOptions,
+  Reputation,
+  Token,
+  IMemberQueryOptions, Member,
+  AnyProposal, AnyProposalPlugin,
+  IStakeQueryOptions, Stake,
+  IProposalQueryOptions, Proposal, IProposalBaseCreateOptions,
+  toIOperationObservable,
+  IApolloQueryOptions,
+  createGraphQlQuery, isAddress
+} from './index'
 import { Address, ICommonQueryOptions } from './types'
-import { createGraphQlQuery, isAddress } from './utils'
-import { IVoteQueryOptions, Vote } from './vote'
-import { IEntityRef, Entity } from './entity'
-import { IPluginQueryOptions, Plugin } from './plugins/plugin'
-import { ProposalPlugin } from './plugins/proposalPlugin'
-import { Reward, IRewardQueryOptions } from './reward'
-import { Reputation } from './reputation'
-import { Token } from './token'
-import { IMemberQueryOptions, Member } from './member'
-import { AnyProposal, AnyProposalPlugin } from './plugins'
 
 export interface IDAOState {
   id: Address,

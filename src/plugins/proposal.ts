@@ -1,23 +1,24 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable, from } from 'rxjs'
-import { IEntityRef, Entity } from '../entity'
-import { IApolloQueryOptions, Address, ICommonQueryOptions } from '../types'
-import { Plugin, IPluginState } from './plugin'
-import { IGenesisProtocolParams, mapGenesisProtocolParams } from '../genesisProtocol'
-import { Arc } from '../arc'
-import { createGraphQlQuery, isAddress, realMathToNumber, hexStringToUint8Array, concat, eventId, NULL_ADDRESS } from '../utils'
-import { IObservable } from '../graphnode'
-import { IVoteQueryOptions, Vote } from '../vote'
-import { Stake, IStakeQueryOptions } from '../stake'
-import { Queue, IQueueState } from '../queue'
-import { IRewardQueryOptions, Reward } from '../reward'
-import { DAO } from '../dao'
-import { ProposalTypeNames, Proposals } from './'
 import { utils } from 'ethers'
 import { DocumentNode } from 'graphql'
-import { ITransactionReceipt, Operation, getEventAndArgs, ITransaction, toIOperationObservable } from '../operation'
 import { concatMap, first } from 'rxjs/operators'
+
+import {
+  Arc,
+  IEntityRef, Entity,
+  DAO, IRewardQueryOptions, Reward,
+  Plugin,
+  Queue, IQueueState,
+  IVoteQueryOptions, Vote,
+  Stake, IStakeQueryOptions,
+  ProposalTypeNames, Proposals, AnyProposal, AnyPlugin,
+  ITransactionReceipt, Operation, getEventAndArgs, ITransaction, toIOperationObservable, IObservable,
+  createGraphQlQuery, isAddress, realMathToNumber, hexStringToUint8Array, concat, eventId, NULL_ADDRESS,
+  IGenesisProtocolParams, mapGenesisProtocolParams
+} from '../index'
+import { IApolloQueryOptions, Address, ICommonQueryOptions } from '../types'
 
 export enum IProposalOutcome {
   None,

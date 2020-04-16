@@ -6,8 +6,7 @@ import {
 import { TransactionResponse } from 'ethers/providers'
 import { Observable, Observer } from 'rxjs'
 import { first, take } from 'rxjs/operators'
-import { Arc } from './arc'
-import { Logger } from './logger'
+import { Arc, Logger } from './index'
 
 export interface ITransaction {
   contract: Contract
