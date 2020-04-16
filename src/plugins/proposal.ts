@@ -89,7 +89,7 @@ export interface IProposalState {
   dao: IEntityRef<DAO>
   votingMachine: Address
   //TODO: plugin instance inside itself? or other type of plugin?
-  plugin: IEntityRef<Plugin<IPluginState>>
+  plugin: IEntityRef<AnyPlugin>
   closingAt: Number
   createdAt: Number | Date
   descriptionHash?: string
@@ -99,7 +99,7 @@ export interface IProposalState {
   organizationId: string
   paramsHash: string
   //TODO: Stores proposal instance inside itself? Or is this another proposaltype?
-  proposal: IEntityRef<Proposal<IProposalState>>
+  proposal: IEntityRef<AnyProposal>
   proposer: Address
   resolvedAt: Number
   tags?: string[]
@@ -313,7 +313,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     return utils.keccak256(seed)
   }
 
-  protected static itemMapToBaseState<TPlugin extends Plugin<IPluginState>, TProposal extends Proposal<IProposalState>>(
+  protected static itemMapToBaseState<TPlugin extends AnyPlugin, TProposal extends AnyProposal>(
     context: Arc,
     item: any,
     plugin: TPlugin,

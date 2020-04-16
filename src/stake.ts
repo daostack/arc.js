@@ -2,11 +2,11 @@ import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { Arc, IApolloQueryOptions } from './arc'
-import { IProposalOutcome, Proposal, IProposalState} from './plugins/proposal'
+import { IProposalOutcome } from './plugins/proposal'
 import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { Entity, IEntityRef } from './entity'
-import { Proposals } from './plugins'
+import { Proposals, AnyProposal } from './plugins'
 
 export interface IStakeState {
   id: string
@@ -15,7 +15,7 @@ export interface IStakeState {
   outcome: IProposalOutcome
   amount: BN // amount staked
   //TODO: Any type of proposal?
-  proposal: IEntityRef<Proposal<IProposalState>>
+  proposal: IEntityRef<AnyProposal>
 }
 
 export interface IStakeQueryOptions extends ICommonQueryOptions {

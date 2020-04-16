@@ -207,7 +207,7 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
 }
 
 // Vote and vote and vote for proposal until it is accepted
-export async function voteToPassProposal(proposal: Proposal<IProposalState>) {
+export async function voteToPassProposal(proposal: AnyProposal) {
   const arc = proposal.context
   if (!arc.web3) throw new Error('Web3 provider not set')
   const accounts = await arc.web3.listAccounts()

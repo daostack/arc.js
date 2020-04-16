@@ -2,11 +2,11 @@ import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { Arc, IApolloQueryOptions } from './arc'
-import { IProposalOutcome, Proposal, IProposalState } from './plugins/proposal'
+import { IProposalOutcome } from './plugins/proposal'
 import { Address, Date, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { Entity, IEntityRef } from './entity'
-import { Proposals } from './plugins'
+import { Proposals, AnyProposal } from './plugins'
 
 export interface IVoteState {
   id: string
@@ -15,7 +15,7 @@ export interface IVoteState {
   outcome: IProposalOutcome
   amount: BN // amount of reputation that was voted with
   //TODO: Any type of proposal?
-  proposal: IEntityRef<Proposal<IProposalState>>
+  proposal: IEntityRef<AnyProposal>
   dao?: Address
 }
 

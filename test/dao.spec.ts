@@ -1,5 +1,5 @@
 import { first } from 'rxjs/operators'
-import { Arc, IProposalState, IProposalCreateOptionsCR } from '../src'
+import { Arc, IProposalCreateOptionsCR, AnyProposal } from '../src'
 import { DAO } from '../src'
 import { IProposalStage, Proposal } from '../src'
 import { fromWei,
@@ -159,7 +159,7 @@ describe('DAO', () => {
 
     const proposal = await createCRProposal(arc, getTestAddresses(arc).base.ContributionReward, options)
 
-    let proposals: Proposal<IProposalState>[] = []
+    let proposals: AnyProposal[] = []
     const proposalIsIndexed = async () => {
       proposals = await Proposal.search(arc, {where: {id: proposal.id}}, { fetchPolicy: 'network-only'})
         .pipe(first()).toPromise()

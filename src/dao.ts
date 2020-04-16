@@ -5,18 +5,19 @@ import { first, map, concatMap } from 'rxjs/operators'
 import { Arc } from './arc'
 import { IApolloQueryOptions } from './graphnode'
 import { toIOperationObservable } from './operation'
-import { IProposalQueryOptions, Proposal, IProposalBaseCreateOptions, IProposalState } from './plugins/proposal'
+import { IProposalQueryOptions, Proposal, IProposalBaseCreateOptions } from './plugins/proposal'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 import { IEntityRef, Entity } from './entity'
-import { IPluginQueryOptions, IPluginState, Plugin } from './plugins/plugin'
+import { IPluginQueryOptions, Plugin } from './plugins/plugin'
 import { ProposalPlugin } from './plugins/proposalPlugin'
 import { Reward, IRewardQueryOptions } from './reward'
 import { Reputation } from './reputation'
 import { Token } from './token'
 import { IMemberQueryOptions, Member } from './member'
+import { AnyProposal, AnyProposalPlugin } from './plugins'
 
 export interface IDAOState {
   id: Address,
@@ -164,13 +165,13 @@ export class DAO extends Entity<IDAOState> {
   public plugins(
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<ProposalPlugin<IPluginState, IProposalState, IProposalBaseCreateOptions>[]> {
+  ): Observable<AnyProposalPlugin[]> {
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
     return ProposalPlugin.search(this.context, options, apolloQueryOptions)
   }
 
-  public async plugin(options: IPluginQueryOptions): Promise<ProposalPlugin<IPluginState, IProposalState, IProposalBaseCreateOptions>> {
+  public async plugin(options: IPluginQueryOptions): Promise<AnyProposalPlugin> {
     const plugins = await this.plugins(options).pipe(first()).toPromise()
     if (plugins.length === 1) {
       return plugins[0]
@@ -218,7 +219,7 @@ export class DAO extends Entity<IDAOState> {
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Proposal<IProposalState>[]> {
+  ): Observable<AnyProposal[]> {
     if (!options.where) {
       options.where = {}
     }

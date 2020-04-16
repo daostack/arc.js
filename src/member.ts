@@ -6,13 +6,14 @@ import { map } from 'rxjs/operators'
 import { Arc, IApolloQueryOptions } from './arc'
 import { DAO } from './dao'
 import { toIOperationObservable } from './operation'
-import { IProposalQueryOptions, Proposal, IProposalState } from './plugins/proposal'
+import { IProposalQueryOptions, Proposal } from './plugins/proposal'
 import { Reward } from './reward'
 import { IStakeQueryOptions, Stake } from './stake'
 import { Address, ICommonQueryOptions } from './types'
 import { concat, createGraphQlQuery, hexStringToUint8Array, isAddress } from './utils'
 import { IVoteQueryOptions, Vote } from './vote'
 import { Entity, IEntityRef } from './entity'
+import { AnyProposal } from './plugins'
 
 export interface IMemberState {
   id: string
@@ -185,8 +186,8 @@ export class Member extends Entity<IMemberState> {
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable < Proposal<IProposalState>[] > {
-    const observable = Observable.create(async (observer: Observer<Proposal<IProposalState>[]>) => {
+  ): Observable < AnyProposal[] > {
+    const observable = Observable.create(async (observer: Observer<AnyProposal[]>) => {
       const state = await this.fetchState()
       if (!options.where) { options.where = {} }
       options.where.proposer = state.address

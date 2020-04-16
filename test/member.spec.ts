@@ -2,7 +2,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO, IDAOState } from '../src/dao'
 import { IMemberState, Member } from '../src/member'
-import { IProposalOutcome, Proposal, IProposalState } from '../src'
+import { IProposalOutcome, AnyProposal } from '../src'
 import { Stake } from '../src/stake'
 import { Address } from '../src/types'
 import { Vote } from '../src/vote'
@@ -62,8 +62,8 @@ describe('Member', () => {
 
   it('Member proposals() works', async () => {
     const member = new Member(arc, Member.calculateId({ address: defaultAccount, contract: daoState.reputation.entity.address }))
-    let proposals: Proposal<IProposalState>[] = []
-    member.proposals().subscribe((next: Proposal<IProposalState>[]) => proposals = next)
+    let proposals: AnyProposal[] = []
+    member.proposals().subscribe((next: AnyProposal[]) => proposals = next)
     // wait until the proposal has been indexed
     await waitUntilTrue(() => proposals.length > 0)
 

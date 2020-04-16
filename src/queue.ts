@@ -6,15 +6,15 @@ import { DAO } from './dao'
 import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
 import { Entity, IEntityRef } from './entity'
-import { Plugin, IPluginState } from './plugins/plugin'
-import { Plugins } from './plugins'
+import { Plugin } from './plugins/plugin'
+import { Plugins, AnyPlugin } from './plugins'
 
 export interface IQueueState {
   dao: DAO
   id: string
   name: string
   //TODO: any type of plugin or a specific type?
-  plugin: IEntityRef<Plugin<IPluginState>>
+  plugin: IEntityRef<AnyPlugin>
   threshold: number
   votingMachine: Address
 }
