@@ -3,17 +3,28 @@ import { utils } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { Arc, IApolloQueryOptions } from './arc'
-import { DAO } from './dao'
-import { toIOperationObservable } from './operation'
-import { IProposalQueryOptions, Proposal } from './plugins/proposal'
-import { Reward } from './reward'
-import { IStakeQueryOptions, Stake } from './stake'
+import {
+  Arc,
+  IApolloQueryOptions,
+  DAO,
+  toIOperationObservable,
+  IProposalQueryOptions,
+  Proposal,
+  IStakeQueryOptions,
+  Stake,
+  concat,
+  createGraphQlQuery,
+  hexStringToUint8Array,
+  isAddress,
+  Reward,
+  IVoteQueryOptions,
+  Vote,
+  Entity,
+  IEntityRef,
+  AnyProposal
+} from './index'
+
 import { Address, ICommonQueryOptions } from './types'
-import { concat, createGraphQlQuery, hexStringToUint8Array, isAddress } from './utils'
-import { IVoteQueryOptions, Vote } from './vote'
-import { Entity, IEntityRef } from './entity'
-import { AnyProposal } from './plugins'
 
 export interface IMemberState {
   id: string

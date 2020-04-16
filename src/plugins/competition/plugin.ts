@@ -1,15 +1,30 @@
 import BN from 'bn.js'
-import { Address } from "../../types";
-import { IProposalBaseCreateOptions, Proposal } from "../proposal";
-import { Arc, IApolloQueryOptions } from "../../arc";
-import { ITransaction, transactionResultHandler, transactionErrorHandler, ITransactionReceipt, getEventArgs, toIOperationObservable, Operation } from "../../operation";
 import { Observable } from "rxjs";
-import { ICompetitionSuggestionQueryOptions, CompetitionSuggestion } from './suggestion';
-import { IVoteQueryOptions } from '../../vote';
-import { getBlockTime, dateToSecondsSinceEpoch, NULL_ADDRESS } from '../../utils';
-import { CompetitionVote } from './vote';
-import { CompetitionProposal, ICompetitionProposalState } from './proposal';
-import { IContributionRewardExtState, ContributionRewardExt } from '../contributionRewardExt/plugin';
+import {
+  Arc,
+  IApolloQueryOptions,
+  IProposalBaseCreateOptions,
+  Proposal,
+  ITransaction,
+  transactionResultHandler,
+  transactionErrorHandler,
+  ITransactionReceipt,
+  getEventArgs,
+  toIOperationObservable,
+  Operation,
+  ICompetitionSuggestionQueryOptions,
+  CompetitionSuggestion,
+  IVoteQueryOptions,
+  getBlockTime,
+  dateToSecondsSinceEpoch,
+  NULL_ADDRESS,
+  CompetitionVote,
+  CompetitionProposal,
+  ICompetitionProposalState,
+  IContributionRewardExtState,
+  ContributionRewardExt
+} from "../../index";
+import { Address } from "../../types";
 
 export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   endTime: Date,

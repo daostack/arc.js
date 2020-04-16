@@ -4,7 +4,7 @@ import { utils } from 'ethers'
 import { JsonRpcProvider } from 'ethers/providers'
 import * as WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
-import { ITransactionEvent } from './operation'
+import { ITransactionEvent } from './index'
 import { Address, ICommonQueryOptions } from './types'
 
 const checkAddress = (address: string) => {

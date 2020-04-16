@@ -1,10 +1,14 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { Arc, IApolloQueryOptions } from './arc'
+import {
+  Arc,
+  IApolloQueryOptions,
+  createGraphQlQuery,
+  isAddress,
+  Entity
+} from './index'
 import { Address, ICommonQueryOptions } from './types'
-import { createGraphQlQuery, isAddress } from './utils'
-import { Entity } from './entity'
 
 export interface IRewardState {
   id: string,

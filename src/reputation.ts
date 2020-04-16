@@ -3,13 +3,19 @@ import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { Arc, IApolloQueryOptions } from './arc'
-import { ITransactionReceipt, Operation } from './operation'
-import { REPUTATION_CONTRACT_VERSION } from './settings'
+import {
+  Arc,
+  IApolloQueryOptions,
+  REPUTATION_CONTRACT_VERSION,
+  createGraphQlQuery,
+  isAddress,
+  Entity,
+  IEntityRef,
+  DAO,
+  Operation,
+  ITransactionReceipt
+} from './index'
 import { Address, ICommonQueryOptions } from './types'
-import { createGraphQlQuery, isAddress } from './utils'
-import { Entity, IEntityRef } from './entity'
-import { DAO } from './dao'
 
 export interface IReputationState {
   id: Address

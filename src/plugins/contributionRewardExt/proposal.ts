@@ -1,16 +1,22 @@
-import BN from 'bn.js'
-import { Proposal, IProposalState } from "../proposal";
-import { Address, IApolloQueryOptions } from "../../types";
-import { Arc } from "../../arc";
-import { Plugin } from '../plugin'
 import { Observable, from } from "rxjs";
 import gql from "graphql-tag";
-import { ContributionRewardProposal } from '../contributionReward/proposal';
-import { ContributionRewardExt } from './plugin';
-import { NULL_ADDRESS } from '../../utils';
-import { CONTRIBUTION_REWARD_DUMMY_VERSION, REDEEMER_CONTRACT_VERSIONS } from '../../settings';
-import { ITransaction, Operation, ITransactionReceipt, toIOperationObservable } from '../../operation';
 import { concatMap } from 'rxjs/operators';
+import BN from 'bn.js'
+import {
+  Proposal,
+  IProposalState,
+  Arc,
+  Plugin,
+  ContributionRewardProposal,
+  ContributionRewardExt,
+  NULL_ADDRESS,CONTRIBUTION_REWARD_DUMMY_VERSION,
+  REDEEMER_CONTRACT_VERSIONS,
+  ITransaction, Operation,
+  ITransactionReceipt,
+  toIOperationObservable
+} from "../../index";
+import { Address, IApolloQueryOptions } from "../../types";
+
 
 export interface IContributionRewardExtProposalState extends IProposalState {
   beneficiary: Address

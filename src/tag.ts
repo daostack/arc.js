@@ -1,10 +1,15 @@
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { Arc, IApolloQueryOptions } from './arc'
+import {
+  Arc,
+  IApolloQueryOptions,
+  createGraphQlQuery,
+  Entity,
+  IEntityRef,
+  Proposals,
+  AnyProposal
+} from './index'
 import { ICommonQueryOptions } from './types'
-import { createGraphQlQuery } from './utils'
-import { Entity, IEntityRef } from './entity'
-import { Proposals, AnyProposal } from './plugins'
 
 export interface ITagState {
   id: string

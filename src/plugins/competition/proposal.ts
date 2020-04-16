@@ -1,19 +1,30 @@
-import { IProposalState, Proposal } from "../proposal"
-import { IEntityRef } from "../../entity"
-import { Arc, IApolloQueryOptions } from "../../arc"
-import { secondSinceEpochToDate, NULL_ADDRESS } from "../../utils"
-import { Address } from "../../types"
 import { Observable, from } from "rxjs"
 import gql from "graphql-tag"
-import { CompetitionVote } from "./vote"
-import { ITransactionReceipt, getEventArgs, ITransaction, toIOperationObservable, Operation } from "../../operation"
-import { CompetitionSuggestion, ICompetitionSuggestionQueryOptions } from "./suggestion"
-import { DAO } from "../../dao"
 import { first, concatMap } from "rxjs/operators"
-import { Competition } from "./plugin"
-import { Plugin } from "../plugin"
-import { IContributionRewardExtState } from "../contributionRewardExt/plugin"
-import { CONTRIBUTION_REWARD_DUMMY_VERSION, REDEEMER_CONTRACT_VERSIONS } from "../../settings"
+import {
+  IProposalState,
+  Proposal,
+  IEntityRef,
+  Arc,
+  IApolloQueryOptions,
+  secondSinceEpochToDate,
+  NULL_ADDRESS,
+  CompetitionVote,
+  ITransactionReceipt,
+  getEventArgs,
+  ITransaction,
+  toIOperationObservable,
+  Operation,
+  CompetitionSuggestion,
+  ICompetitionSuggestionQueryOptions,
+  DAO,
+  Competition,
+  Plugin,
+  IContributionRewardExtState,
+  CONTRIBUTION_REWARD_DUMMY_VERSION,
+  REDEEMER_CONTRACT_VERSIONS
+} from "../../index"
+import { Address } from "../../types"
 
 export interface ICompetitionProposalState extends IProposalState { 
   id: string

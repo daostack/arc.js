@@ -1,12 +1,18 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { Arc, IApolloQueryOptions } from './arc'
-import { IProposalOutcome } from './plugins/proposal'
+import {
+  Arc,
+  IApolloQueryOptions,
+  IProposalOutcome,
+  createGraphQlQuery,
+  isAddress,
+  Entity,
+  IEntityRef,
+  Proposals,
+  AnyProposal
+} from './index'
 import { Address, ICommonQueryOptions } from './types'
-import { createGraphQlQuery, isAddress } from './utils'
-import { Entity, IEntityRef } from './entity'
-import { Proposals, AnyProposal } from './plugins'
 
 export interface IStakeState {
   id: string

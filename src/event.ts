@@ -1,9 +1,12 @@
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { Arc, IApolloQueryOptions } from './arc'
+import {
+  Arc,
+  IApolloQueryOptions,
+  createGraphQlQuery,
+  Entity
+} from './index'
 import { Address, ICommonQueryOptions } from './types'
-import { createGraphQlQuery } from './utils'
-import { Entity } from './entity'
 
 export interface IEventState {
   id: string

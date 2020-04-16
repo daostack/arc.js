@@ -1,5 +1,5 @@
 import BN = require('bn.js')
-import { realMathToNumber } from './utils'
+import { realMathToNumber } from './index'
 
 export interface IGenesisProtocolParams {
   activationTime: number

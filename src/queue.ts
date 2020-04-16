@@ -1,13 +1,20 @@
 import BN = require('bn.js')
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { Arc, IApolloQueryOptions } from './arc'
-import { DAO } from './dao'
+import {
+  Arc,
+  IApolloQueryOptions,
+  DAO,
+  createGraphQlQuery,
+  isAddress,
+  realMathToNumber,
+  Entity,
+  IEntityRef,
+  Plugin,
+  Plugins,
+  AnyPlugin
+} from './index'
 import { Address, ICommonQueryOptions } from './types'
-import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
-import { Entity, IEntityRef } from './entity'
-import { Plugin } from './plugins/plugin'
-import { Plugins, AnyPlugin } from './plugins'
 
 export interface IQueueState {
   dao: DAO

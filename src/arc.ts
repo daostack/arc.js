@@ -5,9 +5,6 @@ import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { DAO, IDAOQueryOptions } from './dao'
-import { GraphNodeObserver, IApolloQueryOptions } from './graphnode'
-export { IApolloQueryOptions } from './graphnode'
 import { Logger } from './logger'
 import {
   ITransaction,
@@ -15,20 +12,33 @@ import {
   Operation,
   sendTransaction,
   transactionErrorHandler,
-  transactionResultHandler
-} from './operation'
-import { IProposalQueryOptions, Proposal } from './plugins/proposal'
-import { IRewardQueryOptions, Reward } from './reward'
-import { ABI_DIR } from './settings'
-import { IStakeQueryOptions, Stake } from './stake'
-import { ITagQueryOptions, Tag } from './tag'
-import { Token } from './token'
+  transactionResultHandler,
+  GraphNodeObserver,
+  IApolloQueryOptions,
+  DAO,
+  IDAOQueryOptions,
+  IProposalQueryOptions,
+  Proposal,
+  IRewardQueryOptions,
+  Reward,
+  IStakeQueryOptions,
+  Stake,
+  ITagQueryOptions,
+  Tag,
+  IEventQueryOptions,
+  Event,
+  ABI_DIR,
+  Token,
+  isAddress,
+  IPluginQueryOptions,
+  Plugin,
+  Plugins,
+  PluginName,
+  AnyPlugin,
+  AnyProposal
+} from './index'
 import { Address, IPFSProvider, Web3Provider } from './types'
-import { isAddress } from './utils'
 import { IPFSClient } from './ipfsClient'
-import { IEventQueryOptions, Event } from './event'
-import { IPluginQueryOptions, Plugin } from './plugins/plugin'
-import { Plugins, PluginName, AnyPlugin, AnyProposal } from './plugins'
 
 /**
  * The Arc class holds all configuration.

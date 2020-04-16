@@ -1,15 +1,23 @@
 import BN from 'bn.js'
-import { Entity, IEntityRef } from "../../entity"
-import { Arc } from "../../arc"
 import gql from "graphql-tag"
-import { hexStringToUint8Array, concat, createGraphQlQuery, secondSinceEpochToDate } from "../../utils"
 import { utils } from "ethers"
-import { Address, IApolloQueryOptions, ICommonQueryOptions } from "../../types"
 import { Observable } from "rxjs"
-import { toIOperationObservable, Operation } from '../../operation'
 import { first, concatMap } from 'rxjs/operators'
-import { CompetitionVote, ICompetitionVoteQueryOptions } from './vote'
-import { CompetitionProposal } from './proposal'
+import {
+  Entity,
+  IEntityRef,
+  Arc,
+  hexStringToUint8Array,
+  concat,
+  createGraphQlQuery,
+  secondSinceEpochToDate,
+  toIOperationObservable,
+  Operation,
+  CompetitionVote,
+  ICompetitionVoteQueryOptions,
+  CompetitionProposal
+} from "../../index"
+import { Address, IApolloQueryOptions, ICommonQueryOptions } from "../../types"
 
 export interface ICompetitionSuggestionState {
   id: string

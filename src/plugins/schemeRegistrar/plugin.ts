@@ -1,13 +1,20 @@
-import { Address, IApolloQueryOptions } from "../../types"
-import { IPluginState, Plugin } from "../plugin"
-import { IGenesisProtocolParams, mapGenesisProtocolParams } from "../../genesisProtocol"
-import { IProposalBaseCreateOptions } from "../proposal"
-import { ProposalPlugin } from "../proposalPlugin"
-import { Arc } from "../../arc"
 import gql from "graphql-tag"
 import { Observable } from "rxjs"
-import { ITransaction, ITransactionReceipt, getEventArgs } from "../../operation"
-import { SchemeRegistrarProposal, ISchemeRegistrarProposalState } from "./proposal"
+import {
+  ITransaction,
+  ITransactionReceipt,
+  getEventArgs,
+  SchemeRegistrarProposal,
+  ISchemeRegistrarProposalState,
+  ProposalPlugin,
+  IProposalBaseCreateOptions,
+  IGenesisProtocolParams,
+  mapGenesisProtocolParams,
+  IPluginState,
+  Plugin,
+  Arc
+} from "../../index"
+import { Address, IApolloQueryOptions } from "../../types"
 
 export interface ISchemeRegistrarState extends IPluginState {
   pluginParams: {

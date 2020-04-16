@@ -1,13 +1,19 @@
-import { Address, ICommonQueryOptions, IApolloQueryOptions } from '../types'
-import { Entity, IEntityRef } from '../entity'
+
 import gql from 'graphql-tag'
-import { Arc } from '../arc'
 import { Observable } from 'rxjs'
-import { createGraphQlQuery, concat, hexStringToUint8Array } from '../utils'
-import { Plugins } from './index'
-import { DAO } from '../dao'
 import { DocumentNode } from 'graphql'
 import { utils } from 'ethers'
+import {
+  DAO,
+  Plugins,
+  createGraphQlQuery,
+  concat,
+  hexStringToUint8Array,
+  Arc,
+  Entity,
+  IEntityRef
+} from '../index'
+import { Address, ICommonQueryOptions, IApolloQueryOptions } from '../types'
 
 export interface IPluginState {
   id: string
