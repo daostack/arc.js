@@ -16,6 +16,7 @@ import BN from 'bn.js'
 import { createAProposal,
   fromWei,
   getTestAddresses,
+  getTestScheme,
   ITestAddresses,
   newArc,
   toWei,
@@ -39,9 +40,9 @@ describe('Proposal', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = await getTestAddresses(arc)
-    const { Avatar, executedProposalId, queuedProposalId, preBoostedProposalId } = addresses.test
-    dao = arc.dao(Avatar.toLowerCase())
+    addresses = await getTestAddresses()
+    const { executedProposalId, queuedProposalId, preBoostedProposalId } = addresses
+    dao = arc.dao(addresses.dao.Avatar.toLowerCase())
     // check if the executedProposalId indeed has the correct state
     executedProposal = new ContributionRewardProposal(arc, executedProposalId)
     await executedProposal.fetchState()
@@ -174,15 +175,16 @@ describe('Proposal', () => {
       periodLength: 0,
       periods: 1,
       reputationReward: toWei('10'),
-      plugin: getTestAddresses(arc).base.ContributionReward,
+      scheme: getTestScheme("ContributionReward")
       proposalType: "ContributionReward"
     }
 
     const proposal = await createCRProposal(arc, getTestAddresses(arc).base.ContributionReward, options)
 
-    const proposalState = await proposal.fetchState()
     // the state is null because the proposal has not been indexed yet
-    expect(proposalState).toEqual(null)
+    await expect(proposal.fetchState()).rejects.toThrow(
+      /No proposal with id/i
+    )
   })
 
   it('Check queued proposal state is correct', async () => {
@@ -303,6 +305,7 @@ describe('Proposal', () => {
     const proposal = await createAProposal()
     // vote with several accounts
     await voteToPassProposal(proposal)
+    await new Promise((resolve) => setTimeout(() => resolve(), 1000))
     const votes = await proposal.votes({}, { fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     expect(votes.length).toBeGreaterThanOrEqual(1)
     // @ts-ignore

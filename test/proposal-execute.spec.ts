@@ -16,7 +16,7 @@ describe('Proposal execute()', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = await getTestAddresses(arc)
+    addresses = await getTestAddresses()
     dao = await getTestDAO()
     executedProposal = new ContributionRewardProposal(arc, addresses.test.executedProposalId)
   })
@@ -108,9 +108,7 @@ describe('Proposal execute()', () => {
       '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2'
     )
     await expect(proposal.execute().send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/no proposal/i*/
+      /no proposal/i
     )
   })
 
@@ -143,7 +141,8 @@ describe('Proposal execute()', () => {
     await expect(proposal.execute().send()).rejects.toThrow(
       // TODO: uncomment when Ethers.js supports revert reasons, see thread:
       // https://github.com/ethers-io/ethers.js/issues/446
-      /*/already executed/i*/
+      // /already executed/i
+      /transaction: revert/i
     )
 
     // check the state

@@ -5,6 +5,7 @@ import { IProposalStage, Proposal } from '../src'
 import { fromWei,
   getTestAddresses,
   getTestDAO,
+  getTestScheme,
   newArc,
   newArcWithoutGraphql,
   toWei,
@@ -12,6 +13,7 @@ import { fromWei,
   createCRProposal
 } from './utils'
 import { BigNumber } from 'ethers/utils'
+import { IProposalCreateOptionsCR } from '../src/schemes/contributionReward'
 
 jest.setTimeout(20000)
 
@@ -121,6 +123,11 @@ describe('DAO', () => {
   })
 
   //TODO: dao.proposals test eliminated
+  it('dao.proposal() should work', async () => {
+    const dao = await getTestDAO()
+    const proposal = await dao.proposal(getTestAddresses().executedProposalId)
+    expect(proposal).toBeInstanceOf(Proposal)
+  })
 
   it('dao.proposals() should work', async () => {
     const dao = await getTestDAO()
@@ -155,6 +162,7 @@ describe('DAO', () => {
       reputationReward: toWei('10'),
       plugin: getTestAddresses(arc).base.ContributionReward,
       proposalType: "ContributionReward"
+      scheme: getTestScheme("ContributionReward")
     }
 
     const proposal = await createCRProposal(arc, getTestAddresses(arc).base.ContributionReward, options)
@@ -183,6 +191,7 @@ describe('DAO', () => {
       reputationReward: toWei('10'),
       plugin: getTestAddresses(arc).base.ContributionReward,
       proposalType: "ContributionReward"
+      scheme: getTestScheme("ContributionReward")
     }
 
     await createCRProposal(arc, getTestAddresses(arc).base.ContributionReward, options)
@@ -199,10 +208,9 @@ describe('DAO', () => {
 
   it('dao.ethBalance() should work', async () => {
     const dao = await getTestDAO()
-    const previousBalance = await dao.ethBalance().pipe(first()).toPromise()
+    const previousBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     if(!arc.web3) throw new Error("Web3 provider not set")
-    //const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
 
     await arc.web3.getSigner().sendTransaction({
       gasLimit: 4000000,
@@ -210,7 +218,8 @@ describe('DAO', () => {
       to: dao.id,
       value: new BigNumber(toWei('1').toString()).toHexString()
     })
-    const newBalance = await dao.ethBalance().pipe(first()).toPromise()
+
+    const newBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     expect(Number(fromWei(newBalance.sub(previousBalance)))).toBe(1)
   })

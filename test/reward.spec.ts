@@ -12,12 +12,10 @@ import { IProposalCreateOptionsCR } from '../src'
 describe('Reward', () => {
 
   let arc: Arc
-  let testAddresses: ITestAddresses
   let dao: DAO
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = getTestAddresses(arc)
     dao = await getTestDAO()
   })
 
@@ -39,6 +37,7 @@ describe('Reward', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
+      scheme: getTestScheme("ContributionReward")
       plugin: testAddresses.base.ContributionReward,
       proposalType: "ContributionReward"
     }

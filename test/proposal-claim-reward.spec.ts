@@ -19,7 +19,7 @@ describe('Claim rewards', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = getTestAddresses(arc)
+    testAddresses = getTestAddresses()
     dao = await getTestDAO()
   })
 
@@ -41,7 +41,7 @@ describe('Claim rewards', () => {
       value: new BigNumber(ethReward.toString()).toHexString()
     })
 
-    const daoBalance = await arc.web3.getBalance(dao.id)
+    const daoBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     const daoEthBalance = new BN(daoBalance.toString())
     expect(Number(daoEthBalance.toString())).toBeGreaterThanOrEqual(Number(ethReward.toString()))
@@ -53,7 +53,7 @@ describe('Claim rewards', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward,
       reputationReward,
-      plugin: testAddresses.base.ContributionReward,
+      scheme: getTestScheme("ContributionReward")
       proposalType: "ContributionReward"
     }
 
@@ -97,21 +97,21 @@ describe('Claim rewards', () => {
 
   it('works for external token', async () => {
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    const externalTokenAddress = testAddresses.base.GEN
     const externalTokenReward = new BN(12345)
 
-    await arc.GENToken().transfer(dao.id, externalTokenReward).send()
+    const gen = arc.GENToken()
+    await gen.transfer(dao.id, externalTokenReward).send()
     const daoBalance =  await firstResult(arc.GENToken().balanceOf(dao.id))
     expect(Number(daoBalance.toString())).toBeGreaterThanOrEqual(Number(externalTokenReward.toString()))
     const options: IProposalCreateOptionsCR = {
       beneficiary,
       dao: dao.id,
       ethReward: new BN(0),
-      externalTokenAddress,
+      externalTokenAddress: gen.address,
       externalTokenReward,
       nativeTokenReward: new BN(0),
       reputationReward: new BN(0),
-      plugin: testAddresses.base.ContributionReward,
+      scheme: getTestScheme("ContributionReward")
       proposalType: "ContributionReward"
     }
 
@@ -153,13 +153,11 @@ describe('Claim rewards', () => {
   // TODO: If GenericScheme does not exist anymore, which one goes here?
   // it('works with non-CR proposal', async () => {
 
-  //   const version = '0.0.1-rc.32'
-  //   testAddresses = getTestAddresses(arc)
-  //   // dao = await getTestDAO()
-  //   const ugenericSchemes = await arc.plugins({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
-  //   const ugenericScheme = ugenericSchemes[0] as Plugin
-  //   const ugenericSchemeState = await ugenericScheme.fetchState()
-  //   dao  = new DAO(arc, ugenericSchemeState.dao)
+    testAddresses = getTestAddresses()
+    const genericSchemes = await arc.schemes({where: {name: "GenericScheme" }}).pipe(first()).toPromise()
+    const genericScheme = genericSchemes[0]
+    const genericSchemeState = await genericScheme.state().pipe(first()).toPromise()
+    dao  = new DAO(arc, genericSchemeState.dao)
 
   //   const beneficiary = await arc.getAccount().pipe(first()).toPromise()
   //   const stakeAmount = new BN(123456789)
@@ -168,15 +166,15 @@ describe('Claim rewards', () => {
 
   //   if(!arc.web3) throw new Error("Web3 provider not set")
 
-  //   const actionMock = new Contract(testAddresses.test.ActionMock.toString(), actionMockABI, arc.web3.getSigner())
-  //   const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
+    const actionMock = new Contract(testAddresses.organs.ActionMock, actionMockABI, arc.web3.getSigner())
+    const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
-  //   const proposal = await createAProposal(dao, {
-  //     callData,
-  //     scheme: ugenericSchemeState.address,
-  //     schemeToRegister: actionMock.address,
-  //     value: 0
-  //   })
+    const proposal = await createAProposal(dao, {
+      callData,
+      scheme: genericSchemeState.address,
+      contractToCall: actionMock.address,
+      value: 0
+    })
 
   //   const proposalState = await proposal.fetchState()
   //   await arc.GENToken().approveForStaking(proposalState.votingMachine, stakeAmount).send()

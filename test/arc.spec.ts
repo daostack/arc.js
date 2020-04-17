@@ -187,7 +187,7 @@ describe('Arc ', () => {
     const arc = await newArc()
     const proposals = await arc.proposals().pipe(first()).toPromise()
     expect(typeof proposals).toEqual(typeof [])
-    expect(proposals.length).toBeGreaterThanOrEqual(6)
+    expect(proposals.length).toBeGreaterThanOrEqual(4)
   })
 
   it('arc.plugin() should work', async () => {

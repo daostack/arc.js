@@ -65,9 +65,7 @@ describe('Stake on a ContributionReward', () => {
       .mint(accounts[2], toWei('100').toString())
     proposal.context.defaultAccount = accounts[2]
     await expect(proposal.stake(IProposalOutcome.Pass, toWei('100')).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/insufficient allowance/i*/
+      /insufficient allowance/i
     )
   })
 
@@ -75,9 +73,7 @@ describe('Stake on a ContributionReward', () => {
     const proposal = await createAProposal(dao)
     proposal.context.defaultAccount = accounts[4]
     await expect(proposal.stake(IProposalOutcome.Pass, toWei('10000000')).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/insufficient balance/i*/
+      /insufficient balance/i
     )
   })
 
@@ -90,9 +86,7 @@ describe('Stake on a ContributionReward', () => {
 
     proposal.context.defaultAccount = accounts[2]
     await expect(proposal.stake(IProposalOutcome.Pass, new BN(10000000)).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/No proposal/i*/
+      /No proposal/i
     )
   })
 
@@ -104,12 +98,9 @@ describe('Stake on a ContributionReward', () => {
     }
     const boostedProposal = boostedProposals[0]
     const state = await boostedProposal.fetchState()
-    console.log(state)
     expect(state.stage).toEqual(IProposalStage.Boosted)
     await expect(boostedProposal.stake(IProposalOutcome.Pass, new BN(10000000)).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/boosted/i*/
+      /boosted/i
     )
   })
 
