@@ -1,4 +1,4 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { IContractInfo } from '../src/arc'
 import { realMathToNumber } from '../src/utils'
 import { advanceTimeAndBlock, getContractAddressesFromMigration, newArc } from './utils'

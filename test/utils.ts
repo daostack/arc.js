@@ -1,4 +1,4 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { IContractInfo, Proposal, ContributionReward, IProposalState, ContributionRewardProposal } from '../src'

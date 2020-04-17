@@ -1,4 +1,4 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { utils } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'

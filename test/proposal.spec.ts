@@ -2,15 +2,14 @@ import { first} from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IExecutionState,
-  IProposalCreateOptions,
   IProposalOutcome,
   IProposalStage,
   IProposalState,
-  IProposalType,
-  Proposal } from '../src/proposal'
-import { IContributionReward } from '../src/schemes/contributionReward'
+  Proposal, 
+  ContributionRewardProposal} from '../src'
+import { ContributionReward } from '../src'
 
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { createAProposal,
   fromWei,
   getTestAddresses,
@@ -30,9 +29,9 @@ describe('Proposal', () => {
   let arc: Arc
   let addresses: ITestAddresses
   let dao: DAO
-  let executedProposal: Proposal
-  let queuedProposal: Proposal
-  let preBoostedProposal: Proposal
+  let executedProposal: ContributionRewardProposal
+  let queuedProposal: ContributionRewardProposal
+  let preBoostedProposal: ContributionRewardProposal
 
   beforeAll(async () => {
     arc = await newArc()
@@ -40,9 +39,12 @@ describe('Proposal', () => {
     const { Avatar, executedProposalId, queuedProposalId, preBoostedProposalId } = addresses.test
     dao = arc.dao(Avatar.toLowerCase())
     // check if the executedProposalId indeed has the correct state
-    executedProposal = await dao.proposal(executedProposalId)
-    queuedProposal = await dao.proposal(queuedProposalId)
-    preBoostedProposal = await dao.proposal(preBoostedProposalId)
+    executedProposal = new ContributionRewardProposal(arc, executedProposalId)
+    await executedProposal.fetchState()
+    queuedProposal = new ContributionRewardProposal(arc, queuedProposalId)
+    await queuedProposal.fetchState()
+    preBoostedProposal = new ContributionRewardProposal(arc, preBoostedProposalId)
+    await preBoostedProposal.fetchState()
   })
 
   it('get list of proposals', async () => {
@@ -96,7 +98,7 @@ describe('Proposal', () => {
 
   it('proposal.search() accepts type argument', async () => {
     let ls: Proposal[]
-    ls = await Proposal.search(arc, { where: {type: IProposalType.ContributionReward}}).pipe(first()).toPromise()
+    ls = await Proposal.search(arc, { where: {type: "ContributionReward"}}).pipe(first()).toPromise()
     expect(ls.length).toBeGreaterThan(0)
     ls = await Proposal.search(arc, { where: {type: IProposalType.GenericScheme}}).pipe(first()).toPromise()
     expect(ls.length).toBeGreaterThan(0)

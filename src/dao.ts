@@ -1,4 +1,4 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import gql from 'graphql-tag'
 import { Observable, from } from 'rxjs'
 import { first, map, concatMap } from 'rxjs/operators'

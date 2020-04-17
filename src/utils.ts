@@ -1,8 +1,8 @@
 import { Observable as ZenObservable } from 'apollo-link'
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { utils } from 'ethers'
 import { JsonRpcProvider } from 'ethers/providers'
-import * as WebSocket from 'isomorphic-ws'
+import WebSocket from 'isomorphic-ws';
 import { Observable, Observer } from 'rxjs'
 import { ITransactionEvent } from './index'
 import { Address, ICommonQueryOptions } from './types'

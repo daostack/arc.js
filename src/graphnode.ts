@@ -8,7 +8,7 @@ import { WebSocketLink } from 'apollo-link-ws'
 import { getMainDefinition } from 'apollo-utilities'
 import gql from 'graphql-tag'
 import fetch from 'isomorphic-fetch'
-import * as WebSocket from 'isomorphic-ws'
+import WebSocket from 'isomorphic-ws';
 import { Observable, Observer } from 'rxjs'
 import { catchError, filter, first, map } from 'rxjs/operators'
 import { Logger } from './logger'

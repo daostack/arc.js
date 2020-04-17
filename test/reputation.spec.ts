@@ -1,4 +1,4 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { first} from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { Reputation } from '../src/reputation'

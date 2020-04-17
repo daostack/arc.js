@@ -172,11 +172,11 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       return null
     }
 
-    let redeemedAt = null
+    let redeemedAt: Date | null = null
     if (item.redeemedAt !== null) {
       redeemedAt = secondSinceEpochToDate(item.redeemedAt)
     }
-    let positionInWinnerList = null
+    let positionInWinnerList: number | null = null
     if (item.positionInWinnerList !== null) {
       positionInWinnerList = Number(item.positionInWinnerList)
     }

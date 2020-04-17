@@ -1,7 +1,7 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { IProposalOutcome, Proposal } from '../src/proposal'
+import { IProposalOutcome, Proposal, ContributionRewardProposal } from '../src/'
 import { Vote } from '../src/vote'
 import { createAProposal, firstResult,
   getTestAddresses, getTestDAO, ITestAddresses,
@@ -14,14 +14,15 @@ describe('Vote on a ContributionReward', () => {
   let arc: Arc
   let addresses: ITestAddresses
   let dao: DAO
-  let executedProposal: Proposal
+  let executedProposal: ContributionRewardProposal
 
   beforeAll(async () => {
     arc = await newArc()
     addresses = await getTestAddresses(arc)
     dao = await getTestDAO()
     const { executedProposalId} = addresses.test
-    executedProposal = await dao.proposal(executedProposalId)
+    executedProposal = new ContributionRewardProposal(arc, executedProposalId)
+    await executedProposal.fetchState()
   })
 
   it('works and gets indexed', async () => {
@@ -80,7 +81,7 @@ describe('Vote on a ContributionReward', () => {
 
   it('throws a meaningful error if the proposal does not exist', async () => {
     // a non-existing proposal
-    const proposal = new Proposal(
+    const proposal = new ContributionRewardProposal(
       arc,
       '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
     )

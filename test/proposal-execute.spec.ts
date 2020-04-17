@@ -1,4 +1,4 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IProposalOutcome, IProposalStage, IProposalState, Proposal, ContributionRewardProposal, IProposalCreateOptionsCR } from '../src'

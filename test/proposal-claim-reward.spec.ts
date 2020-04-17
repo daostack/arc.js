@@ -3,7 +3,7 @@ import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IProposalOutcome, IProposalStage, IProposalState, Proposal, ContributionReward, IProposalCreateOptionsCR } from '../src'
 
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION, newArc,
   toWei, voteToPassProposal, waitUntilTrue, createCRProposal } from './utils'
 import { BigNumber } from 'ethers/utils'

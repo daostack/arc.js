@@ -1,4 +1,4 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { Contract, Signer } from 'ethers'
 import { JsonRpcProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'

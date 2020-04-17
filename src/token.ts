@@ -1,4 +1,4 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'

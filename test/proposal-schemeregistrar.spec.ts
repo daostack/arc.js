@@ -2,7 +2,6 @@ import { Arc } from '../src/arc'
 import {
   IProposalStage,
   IProposalState,
-  ProposalTypeNames,
   Proposal,
   SchemeRegistrarProposal,
   ISchemeRegistrarProposalState,
@@ -10,7 +9,7 @@ import {
   } from '../src'
 import { Plugin } from '../src'
 import { SchemeRegistrar } from '../src'
-import { createAProposal, firstResult, getTestAddresses, getTestDAO,
+import { firstResult, getTestAddresses, getTestDAO,
   newArc, voteToPassProposal, waitUntilTrue } from './utils'
 import { Wallet } from 'ethers'
 
