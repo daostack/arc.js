@@ -95,7 +95,6 @@ export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericS
         numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        paramsHash: item.paramsHash,
         pluginParams: genericpluginParams,
         version: item.version
       }

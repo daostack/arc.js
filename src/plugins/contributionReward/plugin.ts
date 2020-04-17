@@ -101,7 +101,6 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
         numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        paramsHash: item.paramsHash,
         pluginParams: contributionRewardParams,
         version: item.version
       }

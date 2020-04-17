@@ -13,7 +13,6 @@ import {
 export interface ISchemeRegistrarProposalState extends IProposalState { 
   id: string
   schemeToRegister: Address
-  schemeToRegisterParamsHash: string
   schemeToRegisterPermission: string
   schemeToRemove: string
   decision: number
@@ -32,7 +31,6 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
         schemeRegistrar {
           id
           schemeToRegister
-          schemeToRegisterParamsHash
           schemeToRegisterPermission
           schemeToRemove
           decision
@@ -85,7 +83,6 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       schemeRegistered: item.schemeRegistrar.schemeRegistered,
       schemeRemoved: item.schemeRegistrar.schemeRemoved,
       schemeToRegister: item.schemeRegistrar.schemeToRegister,
-      schemeToRegisterParamsHash: item.schemeRegistrar.schemeToRegisterParamsHash,
       schemeToRegisterPermission: item.schemeRegistrar.schemeToRegisterPermission,
       schemeToRemove: item.schemeRegistrar.schemeToRemove
     }

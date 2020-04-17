@@ -24,7 +24,6 @@ export interface IPluginState {
   address: Address
   dao: IEntityRef<DAO>
   name: string
-  paramsHash: string
   version: string
   canDelegateCall: boolean
   canUpgradeController: boolean
@@ -45,7 +44,6 @@ export interface IPluginQueryOptions extends ICommonQueryOptions {
     dao?: Address
     id?: string
     name?: string
-    paramsHash?: string
     [key: string]: any
   }
 }
@@ -64,7 +62,6 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       canRegisterSchemes
       canUpgradeController
       canManageGlobalConstraints
-      paramsHash
       numberOfQueuedProposals
       numberOfPreBoostedProposals
       numberOfBoostedProposals
@@ -100,7 +97,6 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
             address
             name
             dao { id }
-            paramsHash
             version
             contributionRewardExtParams {
               id

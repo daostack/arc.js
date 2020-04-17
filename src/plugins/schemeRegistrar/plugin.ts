@@ -108,7 +108,6 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
         numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        paramsHash: item.paramsHash,
         pluginParams: schemeRegistrarParams,
         version: item.version
       }
