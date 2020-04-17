@@ -4,9 +4,10 @@ import {
   Arc,
   IApolloQueryOptions,
   createGraphQlQuery,
-  Entity
+  Entity,
+  Address,
+  ICommonQueryOptions
 } from './index'
-import { Address, ICommonQueryOptions } from './types'
 
 export interface IEventState {
   id: string

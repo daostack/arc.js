@@ -10,9 +10,11 @@ import {
   Entity,
   IEntityRef,
   Proposals,
-  AnyProposal
+  AnyProposal,
+  Address,
+  Date,
+  ICommonQueryOptions
 } from './index'
-import { Address, Date, ICommonQueryOptions } from './types'
 
 export interface IVoteState {
   id: string

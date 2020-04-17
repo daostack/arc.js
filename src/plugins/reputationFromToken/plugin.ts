@@ -3,10 +3,10 @@ import { concatMap } from 'rxjs/operators'
 import {
   ITransaction,
   Operation,
-  toIOperationObservable
+  toIOperationObservable,
+  Address,
+  AnyPlugin
 } from '../../index'
-import { Address } from '../../types'
-import { AnyPlugin } from '..'
 
 export class ReputationFromTokenScheme {
 

@@ -1,6 +1,7 @@
 
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
+import { first } from 'rxjs/operators'
 import { DocumentNode } from 'graphql'
 import { utils } from 'ethers'
 import {
@@ -12,10 +13,11 @@ import {
   Arc,
   Entity,
   IEntityRef,
-  ReputationFromTokenScheme
+  ReputationFromTokenScheme,
+  Address,
+  ICommonQueryOptions,
+  IApolloQueryOptions
 } from '../index'
-import { Address, ICommonQueryOptions, IApolloQueryOptions } from '../types'
-import { first } from 'rxjs/operators'
 
 export interface IPluginState {
   id: string

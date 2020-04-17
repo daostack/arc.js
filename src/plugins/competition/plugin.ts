@@ -1,5 +1,5 @@
 import BN from 'bn.js'
-import { Observable } from "rxjs";
+import { Observable } from 'rxjs'
 import {
   Arc,
   IApolloQueryOptions,
@@ -22,9 +22,9 @@ import {
   CompetitionProposal,
   ICompetitionProposalState,
   IContributionRewardExtState,
-  ContributionRewardExt
-} from "../../index";
-import { Address } from "../../types";
+  ContributionRewardExt,
+  Address
+} from '../../index'
 
 export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   endTime: Date,

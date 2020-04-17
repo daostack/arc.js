@@ -2,25 +2,35 @@ import BN from 'bn.js'
 import gql from 'graphql-tag'
 import { Observable, from } from 'rxjs'
 import { first, map, concatMap } from 'rxjs/operators'
-
 import {
   Arc,
-  IVoteQueryOptions, Vote,
-  IEntityRef, Entity,
-  IPluginQueryOptions, Plugin,
+  IVoteQueryOptions,
+  Vote,
+  IEntityRef,
+  Entity,
+  IPluginQueryOptions,
+  Plugin,
   ProposalPlugin,
-  Reward, IRewardQueryOptions,
+  Reward,
+  IRewardQueryOptions,
   Reputation,
   Token,
-  IMemberQueryOptions, Member,
-  AnyProposal, AnyProposalPlugin,
-  IStakeQueryOptions, Stake,
-  IProposalQueryOptions, Proposal, IProposalBaseCreateOptions,
+  IMemberQueryOptions,
+  Member,
+  AnyProposal,
+  AnyProposalPlugin,
+  IStakeQueryOptions,
+  Stake,
+  IProposalQueryOptions,
+  Proposal,
+  IProposalBaseCreateOptions,
   toIOperationObservable,
   IApolloQueryOptions,
-  createGraphQlQuery, isAddress
+  createGraphQlQuery,
+  isAddress,
+  Address,
+  ICommonQueryOptions
 } from './index'
-import { Address, ICommonQueryOptions } from './types'
 
 export interface IDAOState {
   id: Address,

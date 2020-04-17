@@ -1,15 +1,20 @@
 import BN from 'bn.js'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { IContractInfo, Proposal, ContributionReward, IProposalState, ContributionRewardProposal, AnyProposal } from '../src'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IProposalOutcome } from '../src'
-import { Reputation } from '../src/reputation'
-import { Address } from '../src/types'
 import { JsonRpcProvider } from 'ethers/providers'
 import { utils } from 'ethers'
-import { IProposalCreateOptionsCR } from '../src/plugins/contributionReward/plugin'
+import {
+  Arc,
+  DAO,
+  IProposalOutcome,
+  Reputation,
+  Address,
+  IContractInfo,
+  ContributionReward,
+  ContributionRewardProposal,
+  AnyProposal,
+  IProposalCreateOptionsCR
+} from '../src'
 
 const path = require('path')
 

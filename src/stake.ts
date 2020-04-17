@@ -10,9 +10,10 @@ import {
   Entity,
   IEntityRef,
   Proposals,
-  AnyProposal
+  AnyProposal,
+  Address,
+  ICommonQueryOptions
 } from './index'
-import { Address, ICommonQueryOptions } from './types'
 
 export interface IStakeState {
   id: string

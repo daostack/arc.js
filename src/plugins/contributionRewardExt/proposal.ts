@@ -1,6 +1,6 @@
-import { Observable, from } from "rxjs";
-import gql from "graphql-tag";
-import { concatMap } from 'rxjs/operators';
+import { Observable, from } from 'rxjs'
+import gql from 'graphql-tag'
+import { concatMap } from 'rxjs/operators'
 import BN from 'bn.js'
 import {
   Proposal,
@@ -13,10 +13,10 @@ import {
   REDEEMER_CONTRACT_VERSIONS,
   ITransaction, Operation,
   ITransactionReceipt,
-  toIOperationObservable
-} from "../../index";
-import { Address, IApolloQueryOptions } from "../../types";
-
+  toIOperationObservable,
+  Address,
+  IApolloQueryOptions
+} from '../../index'
 
 export interface IContributionRewardExtProposalState extends IProposalState {
   beneficiary: Address

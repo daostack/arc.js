@@ -21,10 +21,10 @@ import {
   Vote,
   Entity,
   IEntityRef,
-  AnyProposal
+  AnyProposal,
+  Address,
+  ICommonQueryOptions
 } from './index'
-
-import { Address, ICommonQueryOptions } from './types'
 
 export interface IMemberState {
   id: string

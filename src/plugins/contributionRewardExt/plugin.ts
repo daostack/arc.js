@@ -1,6 +1,6 @@
 import BN from 'bn.js'
-import gql from "graphql-tag"
-import { Observable } from "rxjs"
+import gql from 'graphql-tag'
+import { Observable } from 'rxjs'
 import {
   IPluginState,
   Plugin,
@@ -14,9 +14,10 @@ import {
   getEventArgs,
   NULL_ADDRESS,
   ContributionRewardExtProposal,
-  IContributionRewardExtProposalState
-} from "../../index"
-import { IApolloQueryOptions, Address } from "../../types"
+  IContributionRewardExtProposalState,
+  IApolloQueryOptions,
+  Address
+} from '../../index'
 
 export interface IContributionRewardExtState extends IPluginState {
   pluginParams: {

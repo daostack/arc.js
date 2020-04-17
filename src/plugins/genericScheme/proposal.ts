@@ -1,13 +1,14 @@
-import { Observable } from "rxjs";
-import gql from "graphql-tag";
+import { Observable } from 'rxjs'
+import gql from 'graphql-tag'
 import {
   Arc,
   Plugin,
   Proposal,
   IProposalState,
-  GenericScheme
-} from "../../index";
-import { Address, IApolloQueryOptions } from "../../types";
+  GenericScheme,
+  Address,
+  IApolloQueryOptions
+} from '../../index'
 
 export interface IGenericSchemeProposalState extends IProposalState { 
   id: string

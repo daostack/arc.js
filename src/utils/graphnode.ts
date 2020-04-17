@@ -11,8 +11,7 @@ import fetch from 'isomorphic-fetch'
 import WebSocket from 'isomorphic-ws';
 import { Observable, Observer } from 'rxjs'
 import { catchError, filter, first, map } from 'rxjs/operators'
-import { Logger } from './logger'
-import { zenToRxjsObservable, Arc } from './index'
+import { Logger, zenToRxjsObservable, Arc } from '../index'
 
 export interface IApolloQueryOptions {
   fetchPolicy?: 'cache-first' | 'network-only' | 'cache-only' | 'no-cache' | 'standby',

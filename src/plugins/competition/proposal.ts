@@ -1,6 +1,6 @@
-import { Observable, from } from "rxjs"
-import gql from "graphql-tag"
-import { first, concatMap } from "rxjs/operators"
+import { Observable, from } from 'rxjs'
+import gql from 'graphql-tag'
+import { first, concatMap } from 'rxjs/operators'
 import {
   IProposalState,
   Proposal,
@@ -22,9 +22,9 @@ import {
   Plugin,
   IContributionRewardExtState,
   CONTRIBUTION_REWARD_DUMMY_VERSION,
-  REDEEMER_CONTRACT_VERSIONS
-} from "../../index"
-import { Address } from "../../types"
+  REDEEMER_CONTRACT_VERSIONS,
+  Address
+} from '../../index'
 
 export interface ICompetitionProposalState extends IProposalState { 
   id: string

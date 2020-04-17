@@ -4,21 +4,43 @@ import { Observable, from } from 'rxjs'
 import { utils } from 'ethers'
 import { DocumentNode } from 'graphql'
 import { concatMap, first } from 'rxjs/operators'
-
 import {
   Arc,
-  IEntityRef, Entity,
-  DAO, IRewardQueryOptions, Reward,
+  IEntityRef,
+  Entity,
+  DAO,
+  IRewardQueryOptions,
+  Reward,
   Plugin,
-  Queue, IQueueState,
-  IVoteQueryOptions, Vote,
-  Stake, IStakeQueryOptions,
-  ProposalTypeNames, Proposals, AnyProposal, AnyPlugin,
-  ITransactionReceipt, Operation, getEventAndArgs, ITransaction, toIOperationObservable, IObservable,
-  createGraphQlQuery, isAddress, realMathToNumber, hexStringToUint8Array, concat, eventId, NULL_ADDRESS,
-  IGenesisProtocolParams, mapGenesisProtocolParams
+  Queue,
+  IQueueState,
+  IVoteQueryOptions,
+  Vote,
+  Stake,
+  IStakeQueryOptions,
+  ProposalTypeNames,
+  Proposals,
+  AnyProposal,
+  AnyPlugin,
+  ITransactionReceipt,
+  Operation,
+  getEventAndArgs,
+  ITransaction,
+  toIOperationObservable,
+  IObservable,
+  createGraphQlQuery,
+  isAddress,
+  realMathToNumber,
+  hexStringToUint8Array,
+  concat,
+  eventId,
+  NULL_ADDRESS,
+  IGenesisProtocolParams,
+  mapGenesisProtocolParams,
+  IApolloQueryOptions,
+  Address,
+  ICommonQueryOptions
 } from '../index'
-import { IApolloQueryOptions, Address, ICommonQueryOptions } from '../types'
 
 export enum IProposalOutcome {
   None,

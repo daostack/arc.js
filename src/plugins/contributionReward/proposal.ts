@@ -13,9 +13,10 @@ import {
   ITransactionReceipt,
   Operation,
   NULL_ADDRESS,
-  REDEEMER_CONTRACT_VERSIONS
+  REDEEMER_CONTRACT_VERSIONS,
+  IApolloQueryOptions,
+  Address
 } from '../../index'
-import { IApolloQueryOptions, Address } from '../../types'
 
 export interface IContributionRewardProposalState extends IProposalState { 
   beneficiary: Address

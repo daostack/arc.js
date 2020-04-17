@@ -13,9 +13,10 @@ import {
   IEntityRef,
   DAO,
   Operation,
-  ITransactionReceipt
+  ITransactionReceipt,
+  Address,
+  ICommonQueryOptions
 } from './index'
-import { Address, ICommonQueryOptions } from './types'
 
 export interface IReputationState {
   id: Address

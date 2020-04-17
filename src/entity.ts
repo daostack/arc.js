@@ -1,7 +1,10 @@
-import { Observable } from "rxjs"
+import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { IApolloQueryOptions, Address } from "./types"
-import { Arc } from "./index"
+import {
+  Arc,
+  IApolloQueryOptions,
+  Address
+} from './index'
 
 interface IEntityState {
   id: string

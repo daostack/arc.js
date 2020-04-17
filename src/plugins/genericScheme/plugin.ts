@@ -1,6 +1,6 @@
 
-import gql from "graphql-tag";
-import { Observable } from "rxjs";
+import gql from 'graphql-tag'
+import { Observable } from 'rxjs'
 import {
   IPluginState,
   Plugin,
@@ -14,10 +14,10 @@ import {
   ITransactionReceipt,
   getEventArgs,
   GenericSchemeProposal,
-  IGenericSchemeProposalState
-} from "../../index";
-import { IApolloQueryOptions, Address } from "../../types";
-
+  IGenericSchemeProposalState,
+  IApolloQueryOptions,
+  Address
+} from '../../index'
 
 export interface IGenericSchemeState extends IPluginState {
   pluginParams: {

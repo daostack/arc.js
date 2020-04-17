@@ -7,9 +7,9 @@ import {
   Entity,
   IEntityRef,
   Proposals,
-  AnyProposal
+  AnyProposal,
+  ICommonQueryOptions
 } from './index'
-import { ICommonQueryOptions } from './types'
 
 export interface ITagState {
   id: string

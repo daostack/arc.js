@@ -5,9 +5,11 @@ import {
   Arc,
   createGraphQlQuery,
   secondSinceEpochToDate,
-  Entity
+  Entity,
+  Address,
+  IApolloQueryOptions,
+  ICommonQueryOptions
 } from '../../index'
-import { Address, IApolloQueryOptions, ICommonQueryOptions } from "../../types"
 
 export interface ICompetitionVoteState {
   id: string

@@ -1,5 +1,5 @@
-import gql from "graphql-tag"
-import { Observable } from "rxjs"
+import gql from 'graphql-tag'
+import { Observable } from 'rxjs'
 import {
   ITransaction,
   ITransactionReceipt,
@@ -12,9 +12,10 @@ import {
   mapGenesisProtocolParams,
   IPluginState,
   Plugin,
-  Arc
-} from "../../index"
-import { Address, IApolloQueryOptions } from "../../types"
+  Arc,
+  Address,
+  IApolloQueryOptions
+} from '../../index'
 
 export interface ISchemeRegistrarState extends IPluginState {
   pluginParams: {

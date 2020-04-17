@@ -12,9 +12,10 @@ import {
   IEntityRef,
   Plugin,
   Plugins,
-  AnyPlugin
+  AnyPlugin,
+  Address,
+  ICommonQueryOptions
 } from './index'
-import { Address, ICommonQueryOptions } from './types'
 
 export interface IQueueState {
   dao: DAO

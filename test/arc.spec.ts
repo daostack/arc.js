@@ -1,10 +1,12 @@
 import BN from 'bn.js'
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
-import { Plugin } from '../src'
-import { Arc } from '../src'
-import { REDEEMER_CONTRACT_VERSIONS } from '../src'
-import { Address } from '../src/types'
+import {
+  Arc,
+  Plugin,
+  REDEEMER_CONTRACT_VERSIONS,
+  Address
+} from '../src'
 import {
   fromWei,
   newArc,

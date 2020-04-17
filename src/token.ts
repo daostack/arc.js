@@ -3,8 +3,17 @@ import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { Arc, IApolloQueryOptions, DAOTOKEN_CONTRACT_VERSION, createGraphQlQuery, isAddress, Entity } from './index'
-import { Address, Hash, ICommonQueryOptions } from './types'
+import {
+  Arc,
+  IApolloQueryOptions,
+  DAOTOKEN_CONTRACT_VERSION,
+  createGraphQlQuery,
+  isAddress,
+  Entity,
+  Address,
+  Hash,
+  ICommonQueryOptions
+} from './index'
 
 export interface ITokenState {
   id: Address

@@ -1,7 +1,7 @@
 import BN from 'bn.js'
-import gql from "graphql-tag"
-import { utils } from "ethers"
-import { Observable } from "rxjs"
+import gql from 'graphql-tag'
+import { utils } from 'ethers'
+import { Observable } from 'rxjs'
 import { first, concatMap } from 'rxjs/operators'
 import {
   Entity,
@@ -15,9 +15,11 @@ import {
   Operation,
   CompetitionVote,
   ICompetitionVoteQueryOptions,
-  CompetitionProposal
-} from "../../index"
-import { Address, IApolloQueryOptions, ICommonQueryOptions } from "../../types"
+  CompetitionProposal,
+  Address,
+  IApolloQueryOptions,
+  ICommonQueryOptions
+} from '../../index'
 
 export interface ICompetitionSuggestionState {
   id: string

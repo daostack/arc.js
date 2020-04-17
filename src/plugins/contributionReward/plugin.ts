@@ -1,8 +1,9 @@
 import BN from 'bn.js'
-import { Observable } from "rxjs";
-import gql from "graphql-tag";;
+import { Observable } from 'rxjs'
+import gql from 'graphql-tag'
 import {
-  IProposalBaseCreateOptions,ProposalPlugin,
+  IProposalBaseCreateOptions,
+  ProposalPlugin,
   Arc,
   GenericSchemeProposal,
   IGenesisProtocolParams,
@@ -14,10 +15,10 @@ import {
   ITransactionReceipt,
   getEventArgs,
   NULL_ADDRESS,
-  IContributionRewardProposalState
-} from "../../index";
-import { Address, IApolloQueryOptions } from "../../types";
-
+  IContributionRewardProposalState,
+  Address,
+  IApolloQueryOptions
+} from '../../index'
 
 export interface IContributionRewardState extends IPluginState {
   pluginParams: {

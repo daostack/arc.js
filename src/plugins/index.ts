@@ -1,16 +1,22 @@
-import { GenericScheme } from "./genericScheme/plugin"
-import { SchemeRegistrar } from "./schemeRegistrar/plugin"
-import { GenericSchemeProposal } from "./genericScheme/proposal"
-import { SchemeRegistrarProposal, SchemeRegistrarProposalTypes} from "./schemeRegistrar/proposal"
-import { ContributionRewardProposal } from "./contributionReward/proposal"
-import { CompetitionProposal } from "./competition/proposal"
-import { ContributionRewardExtProposal } from "./contributionRewardExt/proposal"
-import { ContributionReward } from './contributionReward/plugin'
-import { ContributionRewardExt } from "./contributionRewardExt/plugin"
-import { Competition } from "./competition/plugin"
-import { Proposal, IProposalState, IProposalBaseCreateOptions } from "./proposal"
-import { Plugin, IPluginState } from "./plugin"
-import { ProposalPlugin } from "./proposalPlugin"
+import {
+  ProposalPlugin,
+  Plugin,
+  IPluginState,
+  Proposal,
+  IProposalState,
+  IProposalBaseCreateOptions,
+  Competition,
+  ContributionRewardExt,
+  ContributionReward,
+  ContributionRewardExtProposal,
+  CompetitionProposal,
+  ContributionRewardProposal,
+  SchemeRegistrarProposal,
+  SchemeRegistrarProposalTypes,
+  GenericSchemeProposal,
+  SchemeRegistrar,
+  GenericScheme
+} from '../index'
 
 export const Plugins = {
   GenericScheme,

@@ -6,9 +6,10 @@ import {
   IApolloQueryOptions,
   createGraphQlQuery,
   isAddress,
-  Entity
+  Entity,
+  Address,
+  ICommonQueryOptions
 } from './index'
-import { Address, ICommonQueryOptions } from './types'
 
 export interface IRewardState {
   id: string,

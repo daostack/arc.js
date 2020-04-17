@@ -5,7 +5,6 @@ import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { Logger } from './logger'
 import {
   ITransaction,
   ITransactionReceipt,
@@ -35,10 +34,13 @@ import {
   Plugins,
   PluginName,
   AnyPlugin,
-  AnyProposal
+  AnyProposal,
+  Address,
+  IPFSProvider,
+  Web3Provider,
+  IPFSClient,
+  Logger
 } from './index'
-import { Address, IPFSProvider, Web3Provider } from './types'
-import { IPFSClient } from './ipfsClient'
 
 /**
  * The Arc class holds all configuration.
