@@ -4,7 +4,6 @@ import {
   IProposalStage,
   IProposalState,
   Proposal,
-  IPluginState,
   GenericScheme,
   GenericSchemeProposal,
   LATEST_ARC_VERSION

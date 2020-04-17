@@ -6,7 +6,6 @@ import { map } from 'rxjs/operators'
 import {
   Arc,
   IApolloQueryOptions,
-  REPUTATION_CONTRACT_VERSION,
   createGraphQlQuery,
   isAddress,
   Entity,
@@ -139,8 +138,7 @@ export class Reputation extends Entity<IReputationState> {
   }
 
   public contract() {
-    const abi = this.context.getABI({abiName: 'Reputation', version: REPUTATION_CONTRACT_VERSION})
-    return this.context.getContract(this.address, abi)
+    return this.context.getContract(this.address)
   }
 
   public mint(beneficiary: Address, amount: BN): Operation<undefined> {

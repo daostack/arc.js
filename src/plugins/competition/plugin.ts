@@ -62,10 +62,6 @@ export class Competition extends ContributionRewardExt {
   public static isCompetitionPlugin(arc: Arc, item: any) {
     if (item.contributionRewardExtParams) {
       const contractInfo = arc.getContractInfo(item.contributionRewardExtParams.rewarder)
-      const versionNumber = Number(contractInfo.version.split('rc.')[1])
-      if (versionNumber < 39) {
-        throw Error(`Competition contracts of version < 0.0.1-rc.39 are not supported`)
-      }
       return contractInfo.name === 'Competition'
     } else {
       return false

@@ -135,8 +135,7 @@ export class Token extends Entity<ITokenState> {
   }
 
   public contract() {
-    const abi = this.context.getABI({abiName: `DAOToken`, version: DAOTOKEN_CONTRACT_VERSION})
-    return this.context.getContract(this.address, abi)
+    return this.context.getContract(this.address)
   }
 
   public balanceOf(owner: string): Observable<BN> {
