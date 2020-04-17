@@ -15,7 +15,7 @@ import {
   AnyProposal,
   IProposalCreateOptionsCR,
   LATEST_ARC_VERSION,
-  ProposalTypeNames
+  PluginName
 } from '../src'
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
@@ -70,7 +70,7 @@ export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAdd
   return require('@daostack/test-env-experimental/daos.json').demo[version]
 }
 
-export function getTestScheme(name: ProposalTypeNames): Address {
+export function getTestScheme(name: PluginName): Address {
   const scheme = getTestAddresses().dao.Schemes.find(
     scheme => scheme.name === name
   )

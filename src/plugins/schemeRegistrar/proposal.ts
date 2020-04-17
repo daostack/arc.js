@@ -5,6 +5,7 @@ import {
   Plugin,
   SchemeRegistrar,
   Proposal,
+  ProposalName,
   IProposalState,
   Address,
   IApolloQueryOptions
@@ -19,8 +20,6 @@ export interface ISchemeRegistrarProposalState extends IProposalState {
   schemeRegistered: boolean
   schemeRemoved: boolean
 }
-
-export type SchemeRegistrarProposalTypes = 'SchemeRegistrarAdd' | 'SchemeRegistrarEdit' | 'SchemeRegistrarRemove'
 
 export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalState> {
 
@@ -48,7 +47,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
 
     if (item === null || item === undefined) return null
 
-    let type: SchemeRegistrarProposalTypes
+    let type: ProposalName
 
     if (item.schemeRegistrar.schemeToRegister) {
       // TODO: this is failing bc of https://github.com/daostack/subgraph/issues/224

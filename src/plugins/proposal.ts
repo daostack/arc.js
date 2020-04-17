@@ -18,8 +18,8 @@ import {
   Vote,
   Stake,
   IStakeQueryOptions,
-  ProposalTypeNames,
   Proposals,
+  ProposalName,
   AnyProposal,
   AnyPlugin,
   ITransactionReceipt,
@@ -90,7 +90,7 @@ export interface IProposalQueryOptions extends ICommonQueryOptions {
     stage_in?: IProposalStage[]
     plugin?: Address
     orderBy?: ProposalQuerySortOptions
-    type?: ProposalTypeNames
+    type?: ProposalName
     [key: string]: any | undefined
   }
 }
@@ -103,7 +103,7 @@ export interface IProposalBaseCreateOptions {
   tags?: string[]
   plugin?: Address
   url?: string
-  proposalType: ProposalTypeNames
+  proposalType: ProposalName
 }
 
 export interface IProposalState {
@@ -129,7 +129,7 @@ export interface IProposalState {
   title?: string
   totalRepWhenCreated: BN
   totalRepWhenExecuted: BN
-  type: ProposalTypeNames
+  type: ProposalName
   url?: string
   votesFor: BN
   votesAgainst: BN
@@ -341,7 +341,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     item: any,
     plugin: TPlugin,
     proposal: TProposal,
-    type: ProposalTypeNames
+    type: ProposalName
   ) : IProposalState | null{
     if (item === null || item === undefined) {
       // no proposal was found - we return null

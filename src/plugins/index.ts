@@ -12,7 +12,6 @@ import {
   CompetitionProposal,
   ContributionRewardProposal,
   SchemeRegistrarProposal,
-  SchemeRegistrarProposalTypes,
   GenericSchemeProposal,
   SchemeRegistrar,
   GenericScheme,
@@ -31,21 +30,26 @@ export const Plugins = {
   Competition
 }
 
+export type PluginName = keyof typeof Plugins
+
 export const Proposals = {
   GenericScheme: GenericSchemeProposal,
-  SchemeRegistrar: SchemeRegistrarProposal,
   ContributionReward: ContributionRewardProposal,
   Competition: CompetitionProposal,
-  ContributionRewardExt: ContributionRewardExtProposal
+  ContributionRewardExt: ContributionRewardExtProposal,
+  SchemeRegistrarAdd: SchemeRegistrarProposal,
+  SchemeRegistrarEdit: SchemeRegistrarProposal,
+  SchemeRegistrarRemove: SchemeRegistrarProposal
 }
 
-export type ProposalCreateOptions = IProposalCreateOptionsCRExt | IProposalCreateOptionsGS |
-IProposalCreateOptionsSR | IProposalCreateOptionsComp | IProposalCreateOptionsCR
-
-export type PluginName = keyof typeof Plugins
 export type ProposalName = keyof typeof Proposals
 
-export type ProposalTypeNames = keyof typeof Proposals | SchemeRegistrarProposalTypes
+export type ProposalCreateOptions =
+  IProposalCreateOptionsCRExt |
+  IProposalCreateOptionsGS |
+  IProposalCreateOptionsSR |
+  IProposalCreateOptionsComp |
+  IProposalCreateOptionsCR
 
 export type AnyProposal = Proposal<IProposalState>
 export type AnyPlugin = Plugin<IPluginState>
