@@ -2,7 +2,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import {  Reward, IRewardState } from '../src/reward'
-import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei, createCRProposal } from './utils'
+import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei, createCRProposal, getTestScheme } from './utils'
 import { getAddress } from 'ethers/utils'
 import { IProposalCreateOptionsCR } from '../src'
 
@@ -37,8 +37,7 @@ describe('Reward', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: getTestScheme("ContributionReward")
-      plugin: testAddresses.base.ContributionReward,
+      plugin: getTestScheme("ContributionReward"),
       proposalType: "ContributionReward"
     }
 

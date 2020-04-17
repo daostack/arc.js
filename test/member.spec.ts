@@ -4,7 +4,7 @@ import { DAO, IDAOState } from '../src/dao'
 import { IMemberState, Member } from '../src/member'
 import { IProposalOutcome, AnyProposal } from '../src'
 import { Stake } from '../src/stake'
-import { Address } from '../src/types'
+import { Address } from '../src/'
 import { Vote } from '../src/vote'
 import { createAProposal, fromWei,
   getTestDAO, newArc, toWei, waitUntilTrue } from './utils'

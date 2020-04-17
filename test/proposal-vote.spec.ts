@@ -20,9 +20,9 @@ describe('Vote on a ContributionReward', () => {
     arc = await newArc()
     addresses = await getTestAddresses()
     dao = await getTestDAO()
+    const { executedProposalId } = addresses
     executedProposal = new ContributionRewardProposal(arc, executedProposalId)
     await executedProposal.fetchState()
-    const { executedProposalId } = addresses
   })
 
   it('works and gets indexed', async () => {

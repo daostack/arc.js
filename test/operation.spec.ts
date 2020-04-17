@@ -1,6 +1,6 @@
-import { ITransactionState, ITransactionUpdate } from '../src/operation'
+import { ITransactionState, ITransactionUpdate } from '../src/'
 import { Proposal, IProposalCreateOptionsCR, ContributionReward } from '../src'
-import { getTestAddresses, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
+import { getTestAddresses, getTestDAO, mineANewBlock, toWei, waitUntilTrue, getTestScheme } from './utils'
 import { IContributionRewardProposalState } from '../src/plugins/contributionReward/proposal'
 
 jest.setTimeout(20000)
@@ -17,11 +17,11 @@ describe('Operation', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: getTestScheme("ContributionReward")
+      plugin: getTestScheme("ContributionReward"),
       proposalType: "ContributionReward"
     }
 
-    const plugin = new ContributionReward(arc, getTestAddresses(arc).base.ContributionReward)
+    const plugin = new ContributionReward(arc, getTestScheme("ContributionReward"))
 
     // collect the first 4 results of the observable in a a listOfUpdates array
     const listOfUpdates: Array<ITransactionUpdate<Proposal<IContributionRewardProposalState>>> = []

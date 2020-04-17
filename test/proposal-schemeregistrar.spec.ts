@@ -10,7 +10,7 @@ import {
 import { Plugin } from '../src'
 import { SchemeRegistrar } from '../src'
 import { firstResult, getTestAddresses, getTestDAO,
-  newArc, voteToPassProposal, waitUntilTrue } from './utils'
+  newArc, voteToPassProposal, waitUntilTrue, getTestScheme } from './utils'
 import { Wallet } from 'ethers'
 
 jest.setTimeout(60000)
@@ -36,12 +36,12 @@ describe('Proposal', () => {
       descriptionHash: '',
       parametersHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       permissions: '0x0000001f',
-      scheme: getTestScheme("SchemeRegistrar"),
+      plugin: getTestScheme("SchemeRegistrar"),
       schemeToRegister,
       proposalType: "SchemeRegistrarAdd"
     }
 
-    const plugin = new SchemeRegistrar(arc, getTestAddresses(arc).base.SchemeRegistrar)
+    const plugin = new SchemeRegistrar(arc, getTestScheme("SchemeRegistrar"))
 
     const tx = await plugin.createProposal(options).send()
     const proposalToAdd = new SchemeRegistrarProposal(arc, tx.result.coreState)
@@ -94,7 +94,7 @@ describe('Proposal', () => {
       descriptionHash: '',
       parametersHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       permissions: '0x0000001f',
-      scheme: getTestScheme("SchemeRegistrar"),
+      plugin: getTestScheme("SchemeRegistrar"),
       schemeToRegister: schemeToRegister.toLowerCase(),
       proposalType: "SchemeRegistrarEdit"
     }
@@ -125,7 +125,7 @@ describe('Proposal', () => {
 
     const removeProposalOptions: IProposalCreateOptionsSR = {
       dao: dao.id,
-      plugin: getTestAddresses(arc).base.SchemeRegistrar,
+      plugin: getTestScheme("SchemeRegistrar"),
       schemeToRegister,
       proposalType: "SchemeRegistrarRemove"
     }

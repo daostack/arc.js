@@ -1,6 +1,6 @@
 import { first} from 'rxjs/operators'
 import { Arc, Token  } from '../src'
-import { Address } from '../src/types'
+import { Address } from '../src/'
 import BN from 'bn.js'
 import { fromWei, getTestAddresses, ITestAddresses,
    newArc, toWei, waitUntilTrue } from './utils'

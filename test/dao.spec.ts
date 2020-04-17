@@ -13,7 +13,6 @@ import { fromWei,
   createCRProposal
 } from './utils'
 import { BigNumber } from 'ethers/utils'
-import { IProposalCreateOptionsCR } from '../src/schemes/contributionReward'
 
 jest.setTimeout(20000)
 
@@ -122,13 +121,6 @@ describe('DAO', () => {
     expect(Number(fromWei(memberState.reputation))).toBeGreaterThan(0)
   })
 
-  //TODO: dao.proposals test eliminated
-  it('dao.proposal() should work', async () => {
-    const dao = await getTestDAO()
-    const proposal = await dao.proposal(getTestAddresses().executedProposalId)
-    expect(proposal).toBeInstanceOf(Proposal)
-  })
-
   it('dao.proposals() should work', async () => {
     const dao = await getTestDAO()
     const proposals = await dao.proposals().pipe(first()).toPromise()
@@ -160,12 +152,11 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      plugin: getTestAddresses(arc).base.ContributionReward,
+      plugin: getTestScheme("ContributionReward"),
       proposalType: "ContributionReward"
-      scheme: getTestScheme("ContributionReward")
     }
 
-    const proposal = await createCRProposal(arc, getTestAddresses(arc).base.ContributionReward, options)
+    const proposal = await createCRProposal(arc, options)
 
     let proposals: AnyProposal[] = []
     const proposalIsIndexed = async () => {
@@ -189,12 +180,11 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      plugin: getTestAddresses(arc).base.ContributionReward,
+      plugin: getTestScheme("ContributionReward"),
       proposalType: "ContributionReward"
-      scheme: getTestScheme("ContributionReward")
     }
 
-    await createCRProposal(arc, getTestAddresses(arc).base.ContributionReward, options)
+    await createCRProposal(arc, options)
   })
 
   it('dao.plugins() should work', async () => {

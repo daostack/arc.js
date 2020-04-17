@@ -4,7 +4,6 @@ import { JsonRpcProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
-import { map } from 'rxjs/operators'
 import {
   ITransaction,
   ITransactionReceipt,

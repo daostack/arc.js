@@ -61,7 +61,7 @@ describe('Competition Proposal', () => {
     arc = await newArc()
     // we'll get a `ContributionRewardExt` contract
     const contributionRewardExts = await arc
-      .schemes({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
+      .plugins({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
 
     contributionRewardExt = contributionRewardExts[0] as CompetitionPlugin
 
@@ -649,7 +649,7 @@ describe('Competition Proposal', () => {
   it('CompetionScheme is recognized', async () => {
     // we'll get a `ContributionRewardExt` contract that has a Compietion contract as a rewarder
     const contributionRewardExts = await arc
-      .schemes({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
+      .plugins({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
     expect(contributionRewardExts.length).toEqual(1)
     const scheme = contributionRewardExts[0]
     expect(scheme).toBeInstanceOf(CompetitionPlugin)

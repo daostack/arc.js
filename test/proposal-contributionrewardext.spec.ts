@@ -28,7 +28,7 @@ describe('ContributionReward Ext', () => {
 
     // we'll get a `ContributionRewardExt` contract
     const contributionRewardExts = await arc
-      .schemes({where: {name: "ContributionRewardExt"}}).pipe(first()).toPromise()
+      .plugins({where: {name: "ContributionRewardExt"}}).pipe(first()).toPromise()
 
     const contributionRewardExt = contributionRewardExts[0] as ContributionRewardExt
     const contributionRewardExtState = await contributionRewardExt.fetchState()

@@ -1,14 +1,14 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { IProposalOutcome, IProposalStage, IProposalState, Proposal, ContributionReward, IProposalCreateOptionsCR } from '../src'
+import { IProposalOutcome, IProposalStage, IProposalState, Proposal, ContributionReward, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericScheme, GenericSchemeProposal } from '../src'
 
 import BN from 'bn.js'
-import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION, newArc,
-  toWei, voteToPassProposal, waitUntilTrue, createCRProposal } from './utils'
+import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, newArc,
+  toWei, voteToPassProposal, waitUntilTrue, createCRProposal, getTestScheme } from './utils'
 import { BigNumber } from 'ethers/utils'
 import { Contract, ethers } from 'ethers'
-import { Plugin, ContributionRewardProposal } from '../src'
+import { ContributionRewardProposal } from '../src'
 
 jest.setTimeout(60000)
 
@@ -53,11 +53,11 @@ describe('Claim rewards', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward,
       reputationReward,
-      scheme: getTestScheme("ContributionReward")
+      plugin: getTestScheme("ContributionReward"),
       proposalType: "ContributionReward"
     }
 
-    const proposal = await createCRProposal(arc, testAddresses.base.ContributionReward, options)
+    const proposal = await createCRProposal(arc, options)
 
     // vote for the proposal
     await voteToPassProposal(proposal)
@@ -111,11 +111,11 @@ describe('Claim rewards', () => {
       externalTokenReward,
       nativeTokenReward: new BN(0),
       reputationReward: new BN(0),
-      scheme: getTestScheme("ContributionReward")
+      plugin: getTestScheme("ContributionReward"),
       proposalType: "ContributionReward"
     }
 
-    const proposal = await createCRProposal(arc, testAddresses.base.ContributionReward, options)
+    const proposal = await createCRProposal(arc, options)
 
     // vote for the proposal with all the votest
     await voteToPassProposal(proposal)
@@ -146,58 +146,59 @@ describe('Claim rewards', () => {
   })
 
   it('redeemRewards should also work for expired proposals', async () => {
-     const proposal = new ContributionRewardProposal(arc, testAddresses.test.queuedProposalId)
+     const proposal = new ContributionRewardProposal(arc, testAddresses.queuedProposalId)
      await proposal.redeemRewards().send()
   })
 
-  // TODO: If GenericScheme does not exist anymore, which one goes here?
-  // it('works with non-CR proposal', async () => {
+  it('works with non-CR proposal', async () => {
 
     testAddresses = getTestAddresses()
-    const genericSchemes = await arc.schemes({where: {name: "GenericScheme" }}).pipe(first()).toPromise()
-    const genericScheme = genericSchemes[0]
-    const genericSchemeState = await genericScheme.state().pipe(first()).toPromise()
-    dao  = new DAO(arc, genericSchemeState.dao)
+    const genericSchemes = await arc.plugins({where: {name: "GenericScheme" }}).pipe(first()).toPromise()
+    const genericScheme = genericSchemes[0] as GenericScheme
+    const genericSchemeState = await genericScheme.state({}).pipe(first()).toPromise()
+    dao  = new DAO(arc, genericSchemeState.dao.id)
 
-  //   const beneficiary = await arc.getAccount().pipe(first()).toPromise()
-  //   const stakeAmount = new BN(123456789)
-  //   await arc.GENToken().transfer(dao.id, stakeAmount).send()
-  //   const actionMockABI = arc.getABI(undefined, 'ActionMock', LATEST_ARC_VERSION)
+    const beneficiary = await arc.getAccount().pipe(first()).toPromise()
+    const stakeAmount = new BN(123456789)
+    await arc.GENToken().transfer(dao.id, stakeAmount).send()
+    const actionMockABI = arc.getABI({abiName: 'ActionMock', version: LATEST_ARC_VERSION})
 
-  //   if(!arc.web3) throw new Error("Web3 provider not set")
+    if(!arc.web3) throw new Error("Web3 provider not set")
 
-    const actionMock = new Contract(testAddresses.organs.ActionMock, actionMockABI, arc.web3.getSigner())
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
-    const proposal = await createAProposal(dao, {
+    const tx = await genericScheme.createProposal({
       callData,
-      scheme: genericSchemeState.address,
-      contractToCall: actionMock.address,
+      dao: dao.id,
+      proposalType: "GenericScheme",
+      plugin: genericSchemeState.address,
       value: 0
+    }).send()
+
+    const proposal = new GenericSchemeProposal(arc, tx.result.coreState)
+
+    const proposalState = await proposal.fetchState()
+    await arc.GENToken().approveForStaking(proposalState.votingMachine, stakeAmount).send()
+    await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
+
+    // vote for the proposal with all the votest
+    await voteToPassProposal(proposal)
+    // check if prposal is indeed accepted etc
+    const states: IProposalState[] = []
+    proposal.state({}).subscribe(((next) => states.push(next)))
+    const lastState = () => states[states.length - 1]
+
+    await waitUntilTrue(() => {
+      return lastState() && lastState().stage === IProposalStage.Executed
     })
 
-  //   const proposalState = await proposal.fetchState()
-  //   await arc.GENToken().approveForStaking(proposalState.votingMachine, stakeAmount).send()
-  //   await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
+    if(!beneficiary) throw new Error("Beneficiary not set")
 
-  //   // vote for the proposal with all the votest
-  //   await voteToPassProposal(proposal)
-  //   // check if prposal is indeed accepted etc
-  //   const states: IProposalState[] = []
-  //   proposal.state().subscribe(((next) => states.push(next)))
-  //   const lastState = () => states[states.length - 1]
+    const prevBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
+    await proposal.redeemRewards(beneficiary).send()
+    const newBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
+    expect(newBalance.sub(prevBalance).toString()).toEqual(stakeAmount.toString())
 
-  //   await waitUntilTrue(() => {
-  //     return lastState() && lastState().stage === IProposalStage.Executed
-  //   })
-
-  //   if(!beneficiary) throw new Error("Beneficiary not set")
-
-  //   const prevBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
-  //   await proposal.redeemRewards(beneficiary).send()
-  //   const newBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
-  //   expect(newBalance.sub(prevBalance).toString()).toEqual(stakeAmount.toString())
-
-  // })
+  })
 
 })

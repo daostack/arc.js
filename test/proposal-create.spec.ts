@@ -39,11 +39,11 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: getTestScheme("ContributionReward")
+      plugin: getTestScheme("ContributionReward"),
       proposalType: "ContributionReward"
     }
 
-    const proposal = await createCRProposal(arc, testAddresses.base.ContributionReward, options)
+    const proposal = await createCRProposal(arc, options)
     let proposals: ContributionRewardProposal[] = []
     const proposalIsIndexed = async () => {
       // we pass no-cache to make sure we hit the server on each request
@@ -91,13 +91,13 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: getTestScheme("ContributionReward"),
+      plugin: getTestScheme("ContributionReward"),
       proposalType: "ContributionReward",
       title: 'A modest proposal',
       url: 'http://swift.org/modest'
     }
 
-    const proposal = await createCRProposal(arc, testAddresses.base.ContributionReward, options)
+    const proposal = await createCRProposal(arc, options)
     let proposals: ContributionRewardProposal[] = []
     const proposalIsIndexed = async () => {
       // we pass no-cache to make sure we hit the server on each request
@@ -135,7 +135,7 @@ describe('Create a ContributionReward proposal', () => {
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       nativeTokenReward: toWei('1'),
-      scheme: getTestScheme("ContributionReward"),
+      plugin: getTestScheme("ContributionReward"),
       title: 'A modest proposal',
       url: 'http://swift.org/modest',
       proposalType: "ContributionReward"

@@ -1,7 +1,7 @@
 import { ApolloClient } from 'apollo-client'
 import gql from 'graphql-tag'
 import { Arc } from '../src/arc'
-import { createApolloClient } from '../src/graphnode'
+import { createApolloClient } from '../src/'
 import { getContractAddressesFromMigration, graphqlHttpProvider, graphqlWsProvider, mintSomeReputation, waitUntilTrue } from './utils'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 

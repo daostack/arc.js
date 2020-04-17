@@ -2,7 +2,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { IProposalStage, AnyPlugin, ContributionReward, SchemeRegistrar, GenericScheme, ContributionRewardProposal } from '../src'
 import { IPluginState, Plugin } from '../src'
-import { firstResult, getTestAddresses, getTestDAO,  ITestAddresses, newArc } from './utils'
+import { firstResult, getTestAddresses, getTestDAO,  ITestAddresses, newArc, getTestScheme } from './utils'
 
 jest.setTimeout(20000)
 
@@ -16,7 +16,7 @@ describe('Scheme', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = await getTestAddresses(arc)
+    testAddresses = await getTestAddresses()
   })
 
   it('Schemes are searchable', async () => {
@@ -76,7 +76,7 @@ describe('Scheme', () => {
     const scheme = result[0] as ContributionReward
     const state = await scheme.fetchState()
     expect(state).toMatchObject({
-      address: testAddresses.base.ContributionReward.toLowerCase(),
+      address: getTestScheme("ContributionReward").toLowerCase(),
       id: scheme.id,
       name: 'ContributionReward'
     })
@@ -91,7 +91,7 @@ describe('Scheme', () => {
     const plugin = result[0] as SchemeRegistrar
     const state = await plugin.fetchState()
     expect(state).toMatchObject({
-      address: testAddresses.base.SchemeRegistrar.toLowerCase(),
+      address: getTestScheme("SchemeRegistrar").toLowerCase(),
       id: plugin.id,
       name: 'SchemeRegistrar'
     })
@@ -127,7 +127,7 @@ describe('Scheme', () => {
   })
 
   it('state() should be equal to proposal.state().scheme', async () => {
-    const { queuedProposalId } = testAddresses.test
+    const { queuedProposalId } = testAddresses
     const proposal = new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
     const plugins = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
@@ -136,7 +136,7 @@ describe('Scheme', () => {
   })
 
   it('numberOfProposals counts are correct', async () =>  {
-    const { queuedProposalId } = testAddresses.test
+    const { queuedProposalId } = testAddresses
     const proposal = new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
     const plugins = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))

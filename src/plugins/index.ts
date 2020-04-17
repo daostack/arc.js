@@ -15,7 +15,12 @@ import {
   SchemeRegistrarProposalTypes,
   GenericSchemeProposal,
   SchemeRegistrar,
-  GenericScheme
+  GenericScheme,
+  IProposalCreateOptionsCRExt,
+  IProposalCreateOptionsGS,
+  IProposalCreateOptionsSR,
+  IProposalCreateOptionsComp,
+  IProposalCreateOptionsCR
 } from '../index'
 
 export const Plugins = {
@@ -33,6 +38,9 @@ export const Proposals = {
   Competition: CompetitionProposal,
   ContributionRewardExt: ContributionRewardExtProposal
 }
+
+export type ProposalCreateOptions = IProposalCreateOptionsCRExt | IProposalCreateOptionsGS |
+IProposalCreateOptionsSR | IProposalCreateOptionsComp | IProposalCreateOptionsCR
 
 export type PluginName = keyof typeof Plugins
 export type ProposalName = keyof typeof Proposals

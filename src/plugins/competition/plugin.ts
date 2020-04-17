@@ -184,4 +184,17 @@ export class Competition extends ContributionRewardExt {
     }
   }
 
+  public async ethBalance(): Promise<Observable<BN>> {
+    let state
+
+    if (!this.coreState) {
+      state = await this.fetchState()
+    } else {
+      state = this.coreState
+    }
+
+    const contributionRewardExt = this.context.getContract(state.address)
+    return this.context.ethBalance(await contributionRewardExt.vault())
+  }
+
 }

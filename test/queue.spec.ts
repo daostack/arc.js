@@ -52,7 +52,7 @@ describe('Queue', () => {
   })
 
   it('Queue.state() should be equal to proposal.state().queue', async () => {
-    const { queuedProposalId } = addresses.test
+    const { queuedProposalId } = addresses
     const proposal = await new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
     const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.entity.dao)

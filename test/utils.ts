@@ -13,7 +13,9 @@ import {
   ContributionReward,
   ContributionRewardProposal,
   AnyProposal,
-  IProposalCreateOptionsCR
+  IProposalCreateOptionsCR,
+  LATEST_ARC_VERSION,
+  ProposalTypeNames
 } from '../src'
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
@@ -21,8 +23,6 @@ export const graphqlHttpMetaProvider: string = 'http://127.0.0.1:8000/subgraphs'
 export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/daostack'
 export const web3Provider: string = 'http://127.0.0.1:8545'
 export const ipfsProvider: string = 'http://127.0.0.1:5001/api/v0'
-
-export { LATEST_ARC_VERSION }
 
 export { BN }
 
@@ -70,7 +70,7 @@ export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAdd
   return require('@daostack/test-env-experimental/daos.json').demo[version]
 }
 
-export function getTestScheme(name: string): Address {
+export function getTestScheme(name: ProposalTypeNames): Address {
   const scheme = getTestAddresses().dao.Schemes.find(
     scheme => scheme.name === name
   )
@@ -150,6 +150,7 @@ export async function createAProposal(
     dao = await getTestDAO()
   }
   options = {
+    dao,
     beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
     ethReward: toWei('300'),
     externalTokenAddress: undefined,
@@ -158,13 +159,14 @@ export async function createAProposal(
     periodLength: 0,
     periods: 1,
     reputationReward: toWei('10'),
-    scheme: getTestScheme("ContributionReward"),
+    plugin: getTestScheme("ContributionReward"),
+    proposalType: "ContributionReward",
     ...options
   }
 
   const plugin = new ContributionReward(
     dao.context, 
-    getTestAddresses(dao.context).base.ContributionReward
+    getTestScheme("ContributionReward")
   )
   const response = await plugin.createProposal(options).send()
   const proposal = new ContributionRewardProposal(dao.context, response.result.coreState)
@@ -177,8 +179,8 @@ export async function createAProposal(
 
 export async function createCRProposal(
   context: Arc,
-  pluginId: Address,
-  options: IProposalCreateOptionsCR
+  options: IProposalCreateOptionsCR,
+  pluginId: Address = getTestScheme("ContributionReward")
 ) {
   const plugin = new ContributionReward(context, pluginId)
   const response = await plugin.createProposal(options).send()

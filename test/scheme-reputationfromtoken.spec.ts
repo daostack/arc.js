@@ -14,7 +14,7 @@ describe('Scheme', () => {
   })
 
   it('Redeem Works', async () => {
-    const schemes = await arc.schemes({ where: {name: "ReputationFromToken"}})
+    const plugins = await arc.plugins({ where: {name: "ReputationFromToken"}})
       .pipe(first()).toPromise()
     const plugin = plugins[0]
     expect(plugin.ReputationFromToken).not.toBeFalsy()

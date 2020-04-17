@@ -35,12 +35,12 @@ describe('Event', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: getTestScheme("ContributionReward"),
+      plugin: getTestScheme("ContributionReward"),
       title: 'a-title',
       proposalType: "ContributionReward"
     }
 
-    const proposal = await createCRProposal(arc, testAddresses.base.ContributionReward, options)
+    const proposal = await createCRProposal(arc, options)
 
     expect(proposal).toBeDefined()
 

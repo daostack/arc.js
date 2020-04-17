@@ -2,7 +2,7 @@ import BN from 'bn.js'
 import { first} from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { Reputation } from '../src/reputation'
-import { Address } from '../src/types'
+import { Address } from '../src/'
 import { getTestAddresses, newArc, toWei, waitUntilTrue, ITestAddresses } from './utils'
 
 jest.setTimeout(20000)

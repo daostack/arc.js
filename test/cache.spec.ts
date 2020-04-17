@@ -2,7 +2,7 @@ import { getMainDefinition } from 'apollo-utilities'
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
 import { Member, Proposal, GenericScheme, Stake, Plugin } from '../src'
-import { createApolloClient } from '../src/graphnode'
+import { createApolloClient } from '../src/'
 import { Vote } from '../src/vote'
 import { graphqlHttpProvider, graphqlWsProvider, newArc } from './utils'
 

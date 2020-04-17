@@ -6,7 +6,6 @@ import { first } from 'rxjs/operators'
 import {
   Arc,
   IApolloQueryOptions,
-  DAOTOKEN_CONTRACT_VERSION,
   createGraphQlQuery,
   isAddress,
   Entity,

@@ -175,11 +175,11 @@ describe('Proposal', () => {
       periodLength: 0,
       periods: 1,
       reputationReward: toWei('10'),
-      scheme: getTestScheme("ContributionReward")
+      plugin: getTestScheme("ContributionReward"),
       proposalType: "ContributionReward"
     }
 
-    const proposal = await createCRProposal(arc, getTestAddresses(arc).base.ContributionReward, options)
+    const proposal = await createCRProposal(arc, options)
 
     // the state is null because the proposal has not been indexed yet
     await expect(proposal.fetchState()).rejects.toThrow(

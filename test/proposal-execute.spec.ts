@@ -18,7 +18,7 @@ describe('Proposal execute()', () => {
     arc = await newArc()
     addresses = await getTestAddresses()
     dao = await getTestDAO()
-    executedProposal = new ContributionRewardProposal(arc, addresses.test.executedProposalId)
+    executedProposal = new ContributionRewardProposal(arc, addresses.executedProposalId)
   })
 
   it('runs correctly through the stages', async () => {
@@ -47,7 +47,7 @@ describe('Proposal execute()', () => {
     const proposalStates: IProposalState[] = []
     const lastState = () => proposalStates[proposalStates.length - 1]
 
-    const proposal = await createCRProposal(arc, plguinAddress, options)
+    const proposal = await createCRProposal(arc, options)
 
     proposal.state({}).subscribe(
       (next: IProposalState) => {

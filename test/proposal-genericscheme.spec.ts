@@ -6,9 +6,10 @@ import {
   Proposal,
   IPluginState,
   GenericScheme,
-  GenericSchemeProposal
+  GenericSchemeProposal,
+  LATEST_ARC_VERSION
   } from '../src'
-import { createAProposal, getTestAddresses, ITestAddresses, LATEST_ARC_VERSION,
+import { getTestAddresses, ITestAddresses,
   newArc, voteToPassProposal, waitUntilTrue } from './utils'
 import { Contract, ethers } from 'ethers'
 

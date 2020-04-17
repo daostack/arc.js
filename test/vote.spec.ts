@@ -1,6 +1,6 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
-import { IProposalOutcome} from '../src/proposal'
+import { IProposalOutcome, ContributionRewardProposal} from '../src/'
 import { Vote } from '../src/vote'
 import { createAProposal, getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
 import { getAddress } from 'ethers/utils'
@@ -24,7 +24,10 @@ describe('vote', () => {
       createdAt: 0,
       id: '0x1234id',
       outcome: IProposalOutcome.Fail,
-      proposal: '0x12445proposalId',
+      proposal: {
+        id:'0x12445proposalId',
+        entity: new ContributionRewardProposal(arc, '0x12445proposalId')
+      },
       voter: '0x124votes'
     })
     expect(vote).toBeInstanceOf(Vote)
