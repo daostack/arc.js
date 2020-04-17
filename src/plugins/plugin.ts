@@ -11,9 +11,11 @@ import {
   hexStringToUint8Array,
   Arc,
   Entity,
-  IEntityRef
+  IEntityRef,
+  ReputationFromTokenScheme
 } from '../index'
 import { Address, ICommonQueryOptions, IApolloQueryOptions } from '../types'
+import { first } from 'rxjs/operators'
 
 export interface IPluginState {
   id: string
@@ -72,6 +74,8 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       .map(plugin => '...' + plugin.fragment.name).join('\n')}
   `
 
+  public ReputationFromToken: ReputationFromTokenScheme | null = null
+  
   public static search<TPluginState extends IPluginState>(
     context: Arc,
     options: IPluginQueryOptions = {},
@@ -126,5 +130,14 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       hexStringToUint8Array(opts.contractAddress.toLowerCase())
     )
     return utils.keccak256(seed)
+  }
+
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise <TPluginState> {
+    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    if (state.name ===  'ReputationFromToken') {
+      this.ReputationFromToken = new ReputationFromTokenScheme(this)
+    }
+    this.setState(state)
+    return state
   }
 }

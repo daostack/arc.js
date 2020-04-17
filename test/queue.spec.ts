@@ -3,6 +3,7 @@ import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { Queue } from '../src/queue'
 import { getTestAddresses, getTestDAO, ITestAddresses,  newArc } from './utils'
+import { ContributionRewardProposal } from '../src'
 
 jest.setTimeout(20000)
 
@@ -52,9 +53,9 @@ describe('Queue', () => {
 
   it('Queue.state() should be equal to proposal.state().queue', async () => {
     const { queuedProposalId } = addresses.test
-    const proposal = await dao.proposal(queuedProposalId)
+    const proposal = await new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
-    const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.dao)
+    const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.entity.dao)
     const queueState = await queue.fetchState()
     expect(proposalState.queue).toEqual(queueState)
   })

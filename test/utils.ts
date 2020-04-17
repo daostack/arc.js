@@ -1,7 +1,7 @@
 import BN from 'bn.js'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { IContractInfo, Proposal, ContributionReward, IProposalState, ContributionRewardProposal } from '../src'
+import { IContractInfo, Proposal, ContributionReward, IProposalState, ContributionRewardProposal, AnyProposal } from '../src'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IProposalOutcome } from '../src'

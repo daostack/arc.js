@@ -55,12 +55,12 @@ export interface IProposalQueryOptions extends ICommonQueryOptions {
     active?: boolean
     boosted?: boolean
     dao?: Address
-    expiresInQueueAt?: Date
-    expiresInQueueAt_gte?: Date
-    expiresInQueueAt_lte?: Date
-    expiresInQueueAt_gt?: Date
-    executedAfter?: Date
-    executedBefore?: Date
+    expiresInQueueAt?: Date | number
+    expiresInQueueAt_gte?: Date | number
+    expiresInQueueAt_lte?: Date | number
+    expiresInQueueAt_gt?: Date | number
+    executedAfter?: Date | number
+    executedBefore?: Date| number
     id?: string
     proposer?: Address
     proposalId?: string
@@ -91,18 +91,18 @@ export interface IProposalState {
   votingMachine: Address
   //TODO: plugin instance inside itself? or other type of plugin?
   plugin: IEntityRef<AnyPlugin>
-  closingAt: Number
-  createdAt: Number | Date
+  closingAt: number
+  createdAt: number | Date
   descriptionHash?: string
   description?: string
   name: string,
-  executedAt: Number
+  executedAt: number
   organizationId: string
   paramsHash: string
   //TODO: Stores proposal instance inside itself? Or is this another proposaltype?
   proposal: IEntityRef<AnyProposal>
   proposer: Address
-  resolvedAt: Number
+  resolvedAt: number
   tags?: string[]
   title?: string
   totalRepWhenCreated: BN
@@ -117,17 +117,17 @@ export interface IProposalState {
 
   // Genesis Protocol Proposal
   queue: IEntityRef<Queue>
-  quietEndingPeriodBeganAt: Number
+  quietEndingPeriodBeganAt: number
   stage: IProposalStage
   accountsWithUnclaimedRewards: Address[]
-  boostedAt: Number
+  boostedAt: number
   upstakeNeededToPreBoost: BN
   stakesFor: BN
   stakesAgainst: BN
-  preBoostedAt: Number
+  preBoostedAt: number
   genesisProtocolParams: IGenesisProtocolParams
   executionState: IExecutionState
-  expiresInQueueAt: Number
+  expiresInQueueAt: number
   downStakeNeededToQueue: BN
   confidenceThreshold: number
 }

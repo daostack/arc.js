@@ -15,12 +15,12 @@ describe('Scheme', () => {
   })
 
   it('version 0.0.1-rc.32', async () => {
-    const schemeContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.32')
-    const schemes = await arc.schemes({ where: {address: schemeContractInfo.address}})
+    const pluginContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.32')
+    const plugins = await arc.plugins({ where: {address: pluginContractInfo.address}})
       .pipe(first()).toPromise()
-    const scheme = schemes[0]
-    expect(scheme.ReputationFromToken).not.toBeFalsy()
-    const reputationFromToken = scheme.ReputationFromToken as ReputationFromTokenScheme
+    const plugin = plugins[0]
+    expect(plugin.ReputationFromToken).not.toBeFalsy()
+    const reputationFromToken = plugin.ReputationFromToken as ReputationFromTokenScheme
 
     if(!arc.web3) throw new Error("Web3 provider not set")
     const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
@@ -30,11 +30,11 @@ describe('Scheme', () => {
     expect(redemptionPromise).rejects.toThrow()
   })
   it('version 0.0.1-rc.34', async () => {
-    const schemeContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.34')
-    const schemes = await arc.schemes({ where: {address: schemeContractInfo.address}})
+    const pluginContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.34')
+    const plugins = await arc.plugins({ where: {address: pluginContractInfo.address}})
       .pipe(first()).toPromise()
-    const scheme = schemes[0]
-    const reputationFromToken = scheme.ReputationFromToken as ReputationFromTokenScheme
+    const plugin = plugins[0]
+    const reputationFromToken = plugin.ReputationFromToken as ReputationFromTokenScheme
 
     if(!arc.web3) throw new Error("Web3 provider not set")
     const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
@@ -56,11 +56,11 @@ describe('Scheme', () => {
    })
 
   it('getAgreementHash works', async () => {
-    const schemeContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.34')
-    const schemes = await arc.schemes({ where: {address: schemeContractInfo.address}})
+    const pluginContractInfo = arc.getContractInfoByName('ReputationFromToken', '0.0.1-rc.34')
+    const plugins = await arc.plugins({ where: {address: pluginContractInfo.address}})
       .pipe(first()).toPromise()
-    const scheme = schemes[0]
-    const reputationFromToken = scheme.ReputationFromToken as ReputationFromTokenScheme
+    const plugin = plugins[0]
+    const reputationFromToken = plugin.ReputationFromToken as ReputationFromTokenScheme
     expect(await reputationFromToken.getAgreementHash()).toEqual(agreementHash)
 
   })

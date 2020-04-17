@@ -2,8 +2,9 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import {  Reward, IRewardState } from '../src/reward'
-import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei } from './utils'
+import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei, createCRProposal } from './utils'
 import { getAddress } from 'ethers/utils'
+import { IProposalCreateOptionsCR } from '../src'
 
 /**
  * Reward test
@@ -30,16 +31,19 @@ describe('Reward', () => {
 
     // create a proposal with some rewards
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    const state = await dao.createProposal({
+
+    const options: IProposalCreateOptionsCR = {
       beneficiary,
       dao: dao.id,
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: testAddresses.base.ContributionReward
-    }).send()
-    const proposal = state.result
+      plugin: testAddresses.base.ContributionReward,
+      proposalType: "ContributionReward"
+    }
+
+    const proposal = await createCRProposal(arc, testAddresses.base.ContributionReward, options)
 
     expect(proposal).toBeDefined()
 

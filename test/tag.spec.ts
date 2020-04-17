@@ -1,5 +1,5 @@
 import { first} from 'rxjs/operators'
-import { Arc, DAO, Proposal, Tag } from '../src'
+import { Arc, DAO, Proposal, Tag, ContributionRewardProposal, AnyProposal } from '../src'
 import { createAProposal, getTestDAO, newArc } from './utils'
 
 jest.setTimeout(20000)
@@ -28,14 +28,14 @@ describe('Tag', () => {
 
   it('Tags are saved on a proposal', async () => {
     const proposal = await createAProposal(dao, { tags })
-    const proposalState = await (new Proposal(arc, proposal.id)).fetchState()
+    const proposalState = await (new ContributionRewardProposal(arc, proposal.id)).fetchState()
     expect(proposalState.tags).toEqual(tags)
   })
 
   it('proposals are searchable by tag', async () => {
     const proposal = await createAProposal(dao, { tags })
     const proposals = await Proposal.search(arc, { where: { tags_contains: ['tag1']}}).pipe(first()).toPromise()
-    expect(proposals.map((p: Proposal) => p.id)).toContain(proposal.id)
+    expect(proposals.map((p: AnyProposal) => p.id)).toContain(proposal.id)
   })
 
   it('Tags are searchable', async () => {
