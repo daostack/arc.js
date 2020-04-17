@@ -132,12 +132,17 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     return utils.keccak256(seed)
   }
 
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise <TPluginState> {
-    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-    if (state.name ===  'ReputationFromToken') {
-      this.ReputationFromToken = new ReputationFromTokenScheme(this)
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}, refetch?: boolean): Promise <TPluginState> {
+
+    if(this.coreState === undefined || refetch) {
+      const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+      if (state.name ===  'ReputationFromToken') {
+        this.ReputationFromToken = new ReputationFromTokenScheme(this)
+      }
+      this.setState(state)
+      return state
     }
-    this.setState(state)
-    return state
+    
+    return this.coreState
   }
 }
