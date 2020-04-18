@@ -18,6 +18,7 @@ import {
   IApolloQueryOptions,
   Address
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export interface IGenericSchemeState extends IPluginState {
   pluginParams: {

@@ -35,11 +35,11 @@ export abstract class Entity<TEntityState extends IEntityState> {
 
   abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<TEntityState>
 
-  setState(entityState: TEntityState): void {
+  protected setState(entityState: TEntityState): void {
     this.coreState = entityState
   }
 
-  async fetchState(apolloQueryOptions: IApolloQueryOptions = {}, refetch?: boolean): Promise<TEntityState> {
+  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}, refetch?: boolean): Promise<TEntityState> {
 
     if(this.coreState === undefined || refetch) {
       const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
