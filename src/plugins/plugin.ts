@@ -52,26 +52,33 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
 
   public static fragment: { name: string, fragment: DocumentNode } | undefined
 
-  public static baseFragment: DocumentNode = gql`
-    fragment PluginFields on ControllerScheme {
-      id
-      address
-      name
-      dao { id }
-      canDelegateCall
-      canRegisterSchemes
-      canUpgradeController
-      canManageGlobalConstraints
-      numberOfQueuedProposals
-      numberOfPreBoostedProposals
-      numberOfBoostedProposals
-      version
-      ${Object.values(Plugins).filter(plugin => plugin.fragment)
-        .map(plugin => '...' + plugin.fragment.name).join('\n')}
+  public static get baseFragment(): DocumentNode {
+    if (!this._baseFragment) {
+      this._baseFragment = gql`
+        fragment PluginFields on ControllerScheme {
+          id
+          address
+          name
+          dao { id }
+          canDelegateCall
+          canRegisterSchemes
+          canUpgradeController
+          canManageGlobalConstraints
+          numberOfQueuedProposals
+          numberOfPreBoostedProposals
+          numberOfBoostedProposals
+          version
+          ${Object.values(Plugins).filter(plugin => plugin.fragment)
+            .map(plugin => '...' + plugin.fragment.name).join('\n')}
+        }
+        ${Object.values(Plugins).filter(plugin => plugin.fragment)
+          .map(plugin => '...' + plugin.fragment.name).join('\n')}
+      `
     }
-    ${Object.values(Plugins).filter(plugin => plugin.fragment)
-      .map(plugin => '...' + plugin.fragment.name).join('\n')}
-  `
+
+    return this._baseFragment
+  }
+  private static _baseFragment: DocumentNode | undefined
 
   public ReputationFromToken: ReputationFromTokenScheme | null = null
   

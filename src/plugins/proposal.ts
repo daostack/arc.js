@@ -158,82 +158,88 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
 
   public static fragment: { name: string, fragment: DocumentNode } | undefined
 
-  public static baseFragment: DocumentNode = gql`fragment ProposalFields on Proposal {
-      id
-      accountsWithUnclaimedRewards
-      boostedAt
-      closingAt
-      confidenceThreshold
-      createdAt
-      dao {
+  public static get baseFragment(): DocumentNode {
+    if (!this._baseFragment) {
+      this._baseFragment = gql`fragment ProposalFields on Proposal {
         id
-        schemes {
+        accountsWithUnclaimedRewards
+        boostedAt
+        closingAt
+        confidenceThreshold
+        createdAt
+        dao {
           id
-          address
+          schemes {
+            id
+            address
+          }
         }
-      }
-      description
-      descriptionHash
-      executedAt
-      executionState
-      expiresInQueueAt
-      genesisProtocolParams {
-        id
-        activationTime
-        boostedVotePeriodLimit
-        daoBountyConst
-        limitExponentValue
-        minimumDaoBounty
-        preBoostedVotePeriodLimit
-        proposingRepReward
-        queuedVotePeriodLimit
-        queuedVoteRequiredPercentage
-        quietEndingPeriod
-        thresholdConst
-        votersReputationLossRatio
-      }
-      gpRewards {
-        id
-      }
-      scheme {
-        ...PluginFields
-      }
-      gpQueue {
-        id
-        threshold
+        description
+        descriptionHash
+        executedAt
+        executionState
+        expiresInQueueAt
+        genesisProtocolParams {
+          id
+          activationTime
+          boostedVotePeriodLimit
+          daoBountyConst
+          limitExponentValue
+          minimumDaoBounty
+          preBoostedVotePeriodLimit
+          proposingRepReward
+          queuedVotePeriodLimit
+          queuedVoteRequiredPercentage
+          quietEndingPeriod
+          thresholdConst
+          votersReputationLossRatio
+        }
+        gpRewards {
+          id
+        }
+        scheme {
+          ...PluginFields
+        }
+        gpQueue {
+          id
+          threshold
+          votingMachine
+        }
+        organizationId
+        preBoostedAt
+        proposer
+        quietEndingPeriodBeganAt
+        
+        stage
+        # stakes { id }
+        stakesFor
+        stakesAgainst
+        tags {
+          id
+        }
+        totalRepWhenCreated
+        totalRepWhenExecuted
+        title
+        url
+        # votes { id }
+        votesAgainst
+        votesFor
         votingMachine
+        winningOutcome
+        ${Object.values(Proposals)
+          .filter(proposal => proposal.fragment)
+          .map(proposal => '...' + proposal.fragment?.name).join('\n')}
       }
-      organizationId
-      preBoostedAt
-      proposer
-      quietEndingPeriodBeganAt
-      
-      stage
-      # stakes { id }
-      stakesFor
-      stakesAgainst
-      tags {
-        id
-      }
-      totalRepWhenCreated
-      totalRepWhenExecuted
-      title
-      url
-      # votes { id }
-      votesAgainst
-      votesFor
-      votingMachine
-      winningOutcome
       ${Object.values(Proposals)
         .filter(proposal => proposal.fragment)
-        .map(proposal => '...' + proposal.fragment?.name).join('\n')}
+        .map(proposal => '...' + proposal.fragment?.fragment).join('\n')}
+      
+      ${Plugin.baseFragment}`
     }
-    ${Object.values(Proposals)
-      .filter(proposal => proposal.fragment)
-      .map(proposal => '...' + proposal.fragment?.fragment).join('\n')}
-    
-    ${Plugin.baseFragment}
-  `
+
+    return this._baseFragment
+  }
+  private static _baseFragment: DocumentNode | undefined;
 
   public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<TProposalState>
 
