@@ -6,7 +6,7 @@ import {
   Plugin,
   REDEEMER_CONTRACT_VERSIONS,
   Address
-} from '../src'
+} from '../'
 import {
   fromWei,
   newArc,
