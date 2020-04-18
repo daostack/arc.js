@@ -10,6 +10,7 @@ import {
   Address,
   IApolloQueryOptions
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export interface ISchemeRegistrarProposalState extends IProposalState { 
   id: string
@@ -23,22 +24,30 @@ export interface ISchemeRegistrarProposalState extends IProposalState {
 
 export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalState> {
 
-  public static fragment = {
-    name: 'SchemeRegistrarProposalFields',
-    fragment: gql`
-      fragment SchemeRegistrarProposalFields on Proposal {
-        schemeRegistrar {
-          id
-          schemeToRegister
-          schemeToRegisterPermission
-          schemeToRemove
-          decision
-          schemeRegistered
-          schemeRemoved
-        }
+  protected static _fragment: { name: string, fragment: DocumentNode } | undefined
+
+  public static get fragment () {
+    if(!this._fragment){
+      this._fragment = {
+        name: 'SchemeRegistrarProposalFields',
+        fragment: gql`
+          fragment SchemeRegistrarProposalFields on Proposal {
+            schemeRegistrar {
+              id
+              schemeToRegister
+              schemeToRegisterPermission
+              schemeToRemove
+              decision
+              schemeRegistered
+              schemeRemoved
+            }
+          }
+        `
       }
-    `
-  }
+    }
+
+    return this._fragment
+  } 
 
   protected static itemMap (
     context: Arc,

@@ -16,6 +16,7 @@ import {
   Address,
   IApolloQueryOptions
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export interface ISchemeRegistrarState extends IPluginState {
   pluginParams: {
@@ -33,43 +34,52 @@ export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
 
 export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISchemeRegistrarProposalState, IProposalCreateOptionsSR> {
 
-  public static fragment = {
-    name: 'SchemeRegistrarParams',
-    fragment: gql` fragment SchemeRegistrarParams on ControllerScheme {
-      schemeRegistrarParams {
-        votingMachine
-        voteRemoveParams {
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-        voteRegisterParams {
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-      }`
+  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+
+  public static get fragment () {
+   if(!this._fragment){
+    this._fragment = {
+      name: 'SchemeRegistrarParams',
+      fragment: gql` fragment SchemeRegistrarParams on ControllerScheme {
+        schemeRegistrarParams {
+          votingMachine
+          voteRemoveParams {
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
+          }
+          voteRegisterParams {
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
+          }
+        }`
+    }
   }
+
+  return this._fragment
+
+}
 
   public static itemMap(arc: Arc, item: any): SchemeRegistrar | null {
     if (!item) {

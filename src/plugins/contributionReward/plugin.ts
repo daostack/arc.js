@@ -19,6 +19,7 @@ import {
   Address,
   IApolloQueryOptions
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export interface IContributionRewardState extends IPluginState {
   pluginParams: {
@@ -40,30 +41,37 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
 
 export class ContributionReward extends ProposalPlugin<IContributionRewardState, IContributionRewardProposalState, IProposalCreateOptionsCR> {
 
-  public static fragment = {
-    name: 'ContributionRewardParams',
-    fragment: gql` fragment ContributionRewardParams on ControllerScheme {
-    contributionRewardParams {
-      id
-      votingMachine
-      voteParams {
+  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+
+  public static get fragment () {
+   if(!this._fragment){
+    this._fragment = {
+      name: 'ContributionRewardParams',
+      fragment: gql` fragment ContributionRewardParams on ControllerScheme {
+      contributionRewardParams {
         id
-        queuedVoteRequiredPercentage
-        queuedVotePeriodLimit
-        boostedVotePeriodLimit
-        preBoostedVotePeriodLimit
-        thresholdConst
-        limitExponentValue
-        quietEndingPeriod
-        proposingRepReward
-        votersReputationLossRatio
-        minimumDaoBounty
-        daoBountyConst
-        activationTime
-        voteOnBehalf
-      }
-    }`
+        votingMachine
+        voteParams {
+          id
+          queuedVoteRequiredPercentage
+          queuedVotePeriodLimit
+          boostedVotePeriodLimit
+          preBoostedVotePeriodLimit
+          thresholdConst
+          limitExponentValue
+          quietEndingPeriod
+          proposingRepReward
+          votersReputationLossRatio
+          minimumDaoBounty
+          daoBountyConst
+          activationTime
+          voteOnBehalf
+        }
+      }`
+    }
   }
+  return this._fragment
+}
 
   public static itemMap(arc: Arc, item: any): ContributionReward | null {
     if (!item) {

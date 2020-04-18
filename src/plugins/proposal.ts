@@ -232,7 +232,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       }
       ${Object.values(Proposals)
         .filter(proposal => proposal.fragment)
-        .map(proposal => '...' + proposal.fragment?.fragment).join('\n')}
+        .map(proposal => proposal.fragment?.fragment).join('\n')}
       
       ${Plugin.baseFragment}`
     }

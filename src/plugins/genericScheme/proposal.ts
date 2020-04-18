@@ -17,6 +17,7 @@ import {
   REDEEMER_CONTRACT_VERSIONS
 } from '../../index'
 import { concatMap } from 'rxjs/operators'
+import { DocumentNode } from 'graphql'
 
 export interface IGenericSchemeProposalState extends IProposalState { 
   id: string
@@ -28,20 +29,29 @@ export interface IGenericSchemeProposalState extends IProposalState {
 
 export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState> {
 
-  public static fragment = {
-    name: 'GenericSchemeProposalFields',
-    fragment: gql`
-      fragment GenericSchemeProposalFields on Proposal {
-        genericScheme {
-          id
-          contractToCall
-          callData
-          executed
-          returnValue
+  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+
+  public static get fragment () {
+    if(!this._fragment){
+      this._fragment = {
+      name: 'GenericSchemeProposalFields',
+      fragment: gql`
+        fragment GenericSchemeProposalFields on Proposal {
+          genericScheme {
+            id
+            contractToCall
+            callData
+            executed
+            returnValue
+          }
         }
-      }
-    `
+      `
+    }
   }
+  
+  return this._fragment
+  
+}
 
   static itemMap (context: Arc, item: any): GenericSchemeProposal | null {
 

@@ -34,29 +34,38 @@ export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
 
 export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericSchemeProposalState, IProposalCreateOptionsGS> {
 
-  public static fragment = {
-    name: 'GenericpluginParams',
-    fragment: gql` fragment GenericpluginParams on ControllerScheme {
-    genericpluginParams {
-      votingMachine
-      contractToCall
-      voteParams {
-        queuedVoteRequiredPercentage
-        queuedVotePeriodLimit
-        boostedVotePeriodLimit
-        preBoostedVotePeriodLimit
-        thresholdConst
-        limitExponentValue
-        quietEndingPeriod
-        proposingRepReward
-        votersReputationLossRatio
-        minimumDaoBounty
-        daoBountyConst
-        activationTime
-        voteOnBehalf
-      }
-    }`
+  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+
+  public static get fragment () {
+   if(!this._fragment){
+    this._fragment = {
+      name: 'GenericpluginParams',
+      fragment: gql` fragment GenericpluginParams on ControllerScheme {
+      genericpluginParams {
+        votingMachine
+        contractToCall
+        voteParams {
+          queuedVoteRequiredPercentage
+          queuedVotePeriodLimit
+          boostedVotePeriodLimit
+          preBoostedVotePeriodLimit
+          thresholdConst
+          limitExponentValue
+          quietEndingPeriod
+          proposingRepReward
+          votersReputationLossRatio
+          minimumDaoBounty
+          daoBountyConst
+          activationTime
+          voteOnBehalf
+        }
+      }`
+    }
   }
+
+  return this._fragment
+
+}
 
   public static itemMap(arc: Arc, item: any): GenericScheme | null {
     if (!item) {

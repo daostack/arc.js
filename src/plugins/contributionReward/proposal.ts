@@ -17,6 +17,7 @@ import {
   IApolloQueryOptions,
   Address
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export interface IContributionRewardProposalState extends IProposalState { 
   beneficiary: Address
@@ -39,31 +40,39 @@ export interface IContributionRewardProposalState extends IProposalState {
 
 export class ContributionRewardProposal extends Proposal<IContributionRewardProposalState> {
 
-  public static fragment = {
-    name: 'ContributionRewardProposalFields',
-    fragment: gql`
-      fragment ContributionRewardProposalFields on Proposal {
-        contributionReward {
-          id
-          beneficiary
-          ethReward
-          ethRewardLeft
-          externalToken
-          externalTokenReward
-          externalTokenRewardLeft
-          nativeTokenReward
-          nativeTokenRewardLeft
-          periods
-          periodLength
-          reputationReward
-          reputationChangeLeft
-          alreadyRedeemedReputationPeriods
-          alreadyRedeemedExternalTokenPeriods
-          alreadyRedeemedNativeTokenPeriods
-          alreadyRedeemedEthPeriods
-        }
+  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+
+  public static get fragment () {
+    if(!this._fragment){
+      this._fragment = {
+        name: 'ContributionRewardProposalFields',
+        fragment: gql`
+          fragment ContributionRewardProposalFields on Proposal {
+            contributionReward {
+              id
+              beneficiary
+              ethReward
+              ethRewardLeft
+              externalToken
+              externalTokenReward
+              externalTokenRewardLeft
+              nativeTokenReward
+              nativeTokenRewardLeft
+              periods
+              periodLength
+              reputationReward
+              reputationChangeLeft
+              alreadyRedeemedReputationPeriods
+              alreadyRedeemedExternalTokenPeriods
+              alreadyRedeemedNativeTokenPeriods
+              alreadyRedeemedEthPeriods
+            }
+          }
+        `
       }
-    `
+    }
+    
+    return this._fragment
   }
 
   static itemMap (context: Arc, item: any): ContributionRewardProposal | null {

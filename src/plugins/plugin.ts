@@ -72,7 +72,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
             .map(plugin => '...' + plugin.fragment.name).join('\n')}
         }
         ${Object.values(Plugins).filter(plugin => plugin.fragment)
-          .map(plugin => '...' + plugin.fragment.name).join('\n')}
+          .map(plugin => plugin.fragment.fragment).join('\n')}
       `
     }
 

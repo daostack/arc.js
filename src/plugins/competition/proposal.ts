@@ -25,6 +25,7 @@ import {
   REDEEMER_CONTRACT_VERSIONS,
   Address
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export interface ICompetitionProposalState extends IProposalState { 
   id: string
@@ -47,30 +48,39 @@ export interface ICompetitionProposalState extends IProposalState {
 
 export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
-  public static fragment = {
-    name: 'CompetitionProposalFields',
-    fragment: gql`
-      fragment CompetitionProposalFields on Proposal {
-        competition {
-          id
-          admin
-          endTime
-          contract
-          suggestionsEndTime
-          createdAt
-          numberOfWinningSuggestions
-          numberOfVotesPerVoters
-          numberOfWinners
-          rewardSplit
-          snapshotBlock
-          startTime
-          totalSuggestions
-          totalVotes
-          votingStartTime
-  
+  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+
+  public static get fragment () {
+   if(!this._fragment){
+    this._fragment = {
+      name: 'CompetitionProposalFields',
+      fragment: gql`
+        fragment CompetitionProposalFields on Proposal {
+          competition {
+            id
+            admin
+            endTime
+            contract
+            suggestionsEndTime
+            createdAt
+            numberOfWinningSuggestions
+            numberOfVotesPerVoters
+            numberOfWinners
+            rewardSplit
+            snapshotBlock
+            startTime
+            totalSuggestions
+            totalVotes
+            votingStartTime
+    
+          }
         }
-      }
-    `
+      `
+    }
+   }
+
+   return this._fragment
+     
   }
 
   static itemMap (context: Arc, item: any): CompetitionProposal | null {
