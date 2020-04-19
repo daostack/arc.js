@@ -29,7 +29,8 @@ import {
   createGraphQlQuery,
   isAddress,
   Address,
-  ICommonQueryOptions
+  ICommonQueryOptions,
+  AnyPlugin
 } from './index'
 
 export interface IDAOState {
@@ -178,14 +179,32 @@ export class DAO extends Entity<IDAOState> {
   public plugins(
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<AnyPlugin[]> {
+    if (!options.where) { options.where = {}}
+    options.where.dao = this.id
+    return Plugin.search(this.context, options, apolloQueryOptions)
+  }
+
+  public proposalPlugins(
+    options: IPluginQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<AnyProposalPlugin[]> {
     if (!options.where) { options.where = {}}
     options.where.dao = this.id
     return ProposalPlugin.search(this.context, options, apolloQueryOptions)
   }
 
-  public async plugin(options: IPluginQueryOptions): Promise<AnyProposalPlugin> {
+  public async plugin(options: IPluginQueryOptions): Promise<AnyPlugin> {
     const plugins = await this.plugins(options).pipe(first()).toPromise()
+    if (plugins.length === 1) {
+      return plugins[0]
+    } else {
+      throw Error('Could not find a unique plugin satisfying these options')
+    }
+  }
+
+  public async proposalPlugin(options: IPluginQueryOptions): Promise<AnyProposalPlugin> {
+    const plugins = await this.proposalPlugins(options).pipe(first()).toPromise()
     if (plugins.length === 1) {
       return plugins[0]
     } else {
@@ -275,7 +294,7 @@ export class DAO extends Entity<IDAOState> {
     }
 
     const pluginId = Plugin.calculateId({ daoAddress: options.dao, contractAddress: options.plugin })
-    const proposalObservable = from(this.plugin({ where: { id: pluginId }})).pipe(
+    const proposalObservable = from(this.proposalPlugin({ where: { id: pluginId }})).pipe(
       first(),
       concatMap((plugin) => plugin.createProposal(options))
     )

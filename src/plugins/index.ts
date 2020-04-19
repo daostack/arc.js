@@ -30,6 +30,10 @@ export const Plugins = {
   Competition
 }
 
+export const ProposalPlugins = {
+  ...Plugins
+}
+
 export type PluginName = keyof typeof Plugins
 
 export const Proposals = {
