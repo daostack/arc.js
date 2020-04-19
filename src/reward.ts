@@ -10,6 +10,7 @@ import {
   Address,
   ICommonQueryOptions
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface IRewardState {
   id: string,
@@ -93,7 +94,7 @@ export class Reward extends Entity<IRewardState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    let query
+    let query: DocumentNode
     if (proposalId) {
       query = gql`query RewardSearchFromProposal
       {
@@ -109,13 +110,13 @@ export class Reward extends Entity<IRewardState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any) => {
+        (context: Arc, r: any, query: DocumentNode) => {
           if (r === null) {
             return []
           }
           const rewards = r.gpRewards
 
-          const itemMap = (item: any) => Reward.itemMap(context, item)
+          const itemMap = (item: any) => Reward.itemMap(context, item, query)
           return rewards.map(itemMap)
         },
         apolloQueryOptions
@@ -139,7 +140,12 @@ export class Reward extends Entity<IRewardState> {
     ) as Observable<Reward[]>
   }
 
-  public static itemMap(context: Arc, item: any): Reward {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): Reward {
+
+    if(item === null) {
+      throw Error(`Reward ItemMap failed. Query: ${query.loc?.source.body}`)
+    }
+
     return new Reward(context, {
       beneficiary: item.beneficiary,
       createdAt: item.createdAt,

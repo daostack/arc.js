@@ -8,6 +8,7 @@ import {
   Address,
   ICommonQueryOptions
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface IEventState {
   id: string
@@ -71,7 +72,12 @@ export class Event extends Entity<IEventState> {
     ) as Observable<Event[]>
   }
 
-  public static itemMap(context: Arc, item: any): Event {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): Event {
+
+    if(item === null) {
+      throw Error(`Event ItemMap failed. Query: ${query.loc?.source.body}`)
+    }
+
     return new Event(context, {
       dao: item.dao.id,
       data: JSON.parse(item.data),

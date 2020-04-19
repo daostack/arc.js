@@ -113,12 +113,12 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       }`
     }
 
-    const itemMap = (context: Arc, item: any): Plugin<TPluginState> | null => {
+    const itemMap = (context: Arc, item: any, query: DocumentNode): Plugin<TPluginState> | null => {
       if (!options.where) {
         options.where = {}
       }
 
-      return Plugins[item.name].itemMap(context, item)
+      return Plugins[item.name].itemMap(context, item, query)
     }
 
     return context.getObservableList(

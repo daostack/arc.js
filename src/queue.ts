@@ -16,6 +16,7 @@ import {
   Address,
   ICommonQueryOptions
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface IQueueState {
   dao: DAO
@@ -94,15 +95,14 @@ export class Queue extends Entity<IQueueState> {
       }
     `
 
-    const itemMap = (context: Arc, item: any): Queue|null => new Queue(context, item.id, new DAO(context, item.dao.id))
+    const itemMap = (context: Arc, item: any, query: DocumentNode): Queue|null => new Queue(context, item.id, new DAO(context, item.dao.id))
 
     return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<Queue[]>
   }
 
-  public static itemMap(context: Arc, item: any): Queue {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): Queue {
     if (!item) {
-      //TODO: How to get ID for this error msg?
-      throw Error(`No gpQueue with id was found`)
+      throw Error(`Queue ItemMap failed. Query: ${query.loc?.source.body}`)
     }
     const threshold = realMathToNumber(new BN(item.threshold))
     const plugin = new Plugins[item.scheme.name](context, item.scheme.id)

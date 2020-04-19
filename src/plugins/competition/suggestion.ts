@@ -20,6 +20,7 @@ import {
   IApolloQueryOptions,
   ICommonQueryOptions
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export interface ICompetitionSuggestionState {
   id: string
@@ -131,12 +132,12 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any) => {
+        (context: Arc, r: any, query: DocumentNode) => {
           if (r === null) { // no such proposal was found
             return []
           }
           const itemMap = (item: any) =>
-            new CompetitionSuggestion(context, CompetitionSuggestion.mapItemToObject(context, item) as ICompetitionSuggestionState)
+            new CompetitionSuggestion(context, CompetitionSuggestion.mapItemToObject(context, item, query) as ICompetitionSuggestionState)
 
           return r.suggestions.map(itemMap)
         },
@@ -169,9 +170,9 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     return utils.keccak256(seed)
   }
 
-  private static mapItemToObject(context: Arc, item: any): ICompetitionSuggestionState | null {
+  private static mapItemToObject(context: Arc, item: any, query: DocumentNode): ICompetitionSuggestionState | null {
     if (item === null) {
-      return null
+      throw Error(`Competition Suggestion ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
     let redeemedAt: Date | null = null

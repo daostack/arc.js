@@ -1,6 +1,6 @@
 import { defaultDataIdFromObject, InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient, ApolloQueryResult } from 'apollo-client'
-import { ApolloLink, FetchResult, Observable as ZenObservable, split } from 'apollo-link'
+import { ApolloLink, FetchResult, Observable as ZenObservable, split, DocumentNode } from 'apollo-link'
 import { onError } from 'apollo-link-error'
 import { HttpLink } from 'apollo-link-http'
 import { RetryLink } from 'apollo-link-retry'
@@ -289,7 +289,7 @@ export class GraphNodeObserver {
   public getObservableList(
     context: Arc,
     query: any,
-    itemMap: (context: Arc, o: object) => object | null = (o) => o,
+    itemMap: (context: Arc, o: object, query: DocumentNode) => object | null,
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
@@ -300,7 +300,7 @@ export class GraphNodeObserver {
         }
         return r.data[entity]
       }),
-      map((rs: object[]) => rs.map((item: Object) => itemMap(context, item)).filter((x) => x !== null))
+      map((rs: object[]) => rs.map((item: Object) => itemMap(context, item, query)).filter((x) => x !== null))
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable
@@ -346,7 +346,7 @@ export class GraphNodeObserver {
   public getObservableObject(
     context: Arc,
     query: any,
-    itemMap: (context: Arc, o: object) => object | null = (o) => o,
+    itemMap: (context: Arc, o: object, query: DocumentNode) => object | null,
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
@@ -358,7 +358,7 @@ export class GraphNodeObserver {
         }
         return r.data[entity]
       }),
-      map((object: Object) => itemMap(context, object))
+      map((object: Object) => itemMap(context, object, query))
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable

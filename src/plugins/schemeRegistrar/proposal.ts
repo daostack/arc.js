@@ -51,10 +51,14 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
 
   protected static itemMap (
     context: Arc,
-    item: any
+    item: any,
+    query: DocumentNode
   ): ISchemeRegistrarProposalState | null {
 
-    if (item === null || item === undefined) return null
+    if (item === null || item === undefined) {
+      console.log(`SchemeRegistrar Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      return null
+    }
 
     let type: ProposalName
 
@@ -72,7 +76,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       throw Error(`Unknown proposal type: schemeRegistrar without a scheme to register or to remove`)
     }
     
-    const schemeRegistrar = SchemeRegistrar.itemMap(context, item) as SchemeRegistrar
+    const schemeRegistrar = SchemeRegistrar.itemMap(context, item.scheme, query) as SchemeRegistrar
     const schemeRegistrarProposal = new SchemeRegistrarProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(

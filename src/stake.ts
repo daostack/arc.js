@@ -14,6 +14,7 @@ import {
   Address,
   ICommonQueryOptions
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface IStakeState {
   id: string
@@ -85,7 +86,7 @@ export class Stake extends Entity<IStakeState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    let query
+    let query: DocumentNode
 
     if (proposalId && !options.where.id) {
       query = gql`query ProposalStakesSearchFromProposal
@@ -106,12 +107,12 @@ export class Stake extends Entity<IStakeState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any) => {
+        (context: Arc, r: any, query: DocumentNode) => {
           if (r === null) { // no such proposal was found
             return []
           }
           const stakes = r.stakes
-          const itemMap = (item: any) => Stake.itemMap(context, item)
+          const itemMap = (item: any) => Stake.itemMap(context, item, query)
           return stakes.map(itemMap)
         },
         apolloQueryOptions
@@ -135,10 +136,9 @@ export class Stake extends Entity<IStakeState> {
     }
   }
 
-  public static itemMap = (context: Arc, item: any): Stake => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): Stake => {
     if (item === null) {
-      //TODO: How to get ID for this error msg?
-      throw Error(`Could not find a Stake with id`)
+      throw Error(`Stake ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
     let outcome: IProposalOutcome = IProposalOutcome.Pass

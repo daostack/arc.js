@@ -83,13 +83,17 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
      
   }
 
-  static itemMap (context: Arc, item: any): CompetitionProposal | null {
+  static itemMap (context: Arc, item: any, query: DocumentNode): CompetitionProposal | null {
 
-    if (item === null || item === undefined) return null
+    if (item === null || item === undefined) {
+      console.log(`Competition Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      return null
+    }
     
     if (!item.contributionReward) throw new Error(`Unexpected proposal state: competition is set, but contributionReward is not`)
-    
-    const competition = Competition.itemMap(context, item) as Competition
+ 
+    const competition = Competition.itemMap(context, item.scheme, query) as Competition
+
     const competitionProposal = new CompetitionProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(

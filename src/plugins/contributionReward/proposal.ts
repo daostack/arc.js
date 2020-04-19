@@ -75,7 +75,7 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
     return this._fragment
   }
 
-  static itemMap (context: Arc, item: any): ContributionRewardProposal | null {
+  static itemMap (context: Arc, item: any, query: DocumentNode): ContributionRewardProposal | null {
 
     if (item === null || item === undefined) return null
 
@@ -100,7 +100,7 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
       null
     )
     
-    const contributionReward = ContributionReward.itemMap(context, item) as ContributionReward
+    const contributionReward = ContributionReward.itemMap(context, item.scheme, query) as ContributionReward
     const contributionRewardProposal = new ContributionRewardProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -153,9 +153,7 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (item: any) => ContributionRewardProposal.itemMap(this.context, item)
-
-    const result = this.context.getObservableObject(this.context, query, itemMap, apolloQueryOptions) as Observable<IContributionRewardProposalState>
+    const result = this.context.getObservableObject(this.context, query, ContributionRewardProposal.itemMap, apolloQueryOptions) as Observable<IContributionRewardProposalState>
     return result
   }
 

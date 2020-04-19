@@ -10,6 +10,7 @@ import {
   AnyProposal,
   ICommonQueryOptions
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface ITagState {
   id: string
@@ -60,7 +61,7 @@ export class Tag extends Entity<ITagState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    let query
+    let query: DocumentNode
 
     if (proposalId) {
       query = gql`query TagsSearchFromProposal
@@ -81,11 +82,11 @@ export class Tag extends Entity<ITagState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any) => {
+        (context: Arc, r: any, query: DocumentNode) => {
           if (r === null) { // no such proposal was found
             return []
           }
-          const itemMap = (item: any) => Tag.itemMap(context, item)
+          const itemMap = (item: any) => Tag.itemMap(context, item, query)
           return r.tags.map(itemMap)
         },
         apolloQueryOptions
@@ -109,10 +110,9 @@ export class Tag extends Entity<ITagState> {
     }
   }
 
-  public static itemMap = (context: Arc, item: any): Tag => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): Tag => {
     if (item === null) {
-      //TODO: How to get ID for this error msg?
-      throw Error(`Could not find a Tag with id`)
+      throw Error(`Tag ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
     return new Tag(context, {

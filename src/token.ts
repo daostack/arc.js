@@ -13,6 +13,7 @@ import {
   Hash,
   ICommonQueryOptions
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface ITokenState {
   id: Address
@@ -98,15 +99,14 @@ export class Token extends Entity<ITokenState> {
     return context.getObservableList(
       context,
       query,
-      (context: Arc, r: any) => new Token(context, r.id),
+      (context: Arc, r: any, query: DocumentNode) => new Token(context, r.id),
       apolloQueryOptions
     ) as Observable<Token[]>
   }
 
-  public static itemMap = (context: Arc, item: any): Token => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): Token => {
     if (item === null) {
-      //TODO: How to get ID for this error msg?
-      throw Error(`Could not find a token contract with address`)
+      throw Error(`Token ItemMap failed. Query: ${query.loc?.source.body}`)
     }
     return new Token(context, {
       id: item.id,

@@ -25,6 +25,7 @@ import {
   Address,
   ICommonQueryOptions
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface IMemberState {
   id: string
@@ -104,10 +105,9 @@ export class Member extends Entity<IMemberState> {
       }
   }
 
-  public static itemMap(context: Arc, item: any): Member {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): Member {
     if (item === null || item === undefined || item.id === undefined) {
-      //TODO: How to get ID for this error msg?
-      throw Error(`No member with id was found`)
+      throw Error(`Member ItemMap failed. Query: ${query.loc?.source.body}`)
     }
     return new Member(context, {
       id: item.id,
@@ -170,7 +170,7 @@ export class Member extends Entity<IMemberState> {
     return this.context.getObservableObject(
       this.context,
       query,
-      (context: Arc, items: any) => {
+      (context: Arc, items: any, query: DocumentNode) => {
         if(items.length) {
           if(!this.coreState){
             throw new Error("Member state is not set")
@@ -179,7 +179,7 @@ export class Member extends Entity<IMemberState> {
           return new Member(context, this.coreState)
         }
         
-        return Member.itemMap(context, items[0])
+        return Member.itemMap(context, items[0], query)
       },
       apolloQueryOptions
     ) as Observable<IMemberState>

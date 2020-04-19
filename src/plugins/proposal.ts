@@ -305,7 +305,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       return context.getObservableList(
         context,
         query,
-        (context: Arc, r: any) => Proposals[r.scheme.name].itemMap(context, r),
+        (context: Arc, r: any, query: DocumentNode) => Proposals[r.scheme.name].itemMap(context, r, query),
         apolloQueryOptions
       ) as IObservable<Proposal<TProposalState>[]>
     } else {
@@ -328,7 +328,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       return context.getObservableList(
         context,
         query,
-        (context: Arc, r: any) => new Proposals[r.scheme.name](context, r),
+        (context: Arc, r: any, query: DocumentNode) => Proposals[r.scheme.name].itemMap(context, r, query),
         apolloQueryOptions
       ) as IObservable<Proposal<TProposalState>[]>
     }

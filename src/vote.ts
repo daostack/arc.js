@@ -15,6 +15,7 @@ import {
   Date,
   ICommonQueryOptions
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface IVoteState {
   id: string
@@ -90,7 +91,7 @@ export class Vote extends Entity<IVoteState> {
       }
     }
 
-    let query
+    let query: DocumentNode
 
     // if we are searching for votes of a specific proposal (a common case), we
     // will structure the query so that votes are stored in the cache together with the proposal
@@ -114,12 +115,12 @@ export class Vote extends Entity<IVoteState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any) => {
+        (context: Arc, r: any, query: DocumentNode) => {
           if (r === null) { // no such proposal was found
             return []
           }
           const votes = r.votes
-          const itemMap = (item: any) => Vote.itemMap(context, item)
+          const itemMap = (item: any) => Vote.itemMap(context, item, query)
           return votes.map(itemMap)
         },
         apolloQueryOptions
@@ -144,10 +145,9 @@ export class Vote extends Entity<IVoteState> {
     }
   }
 
-  public static itemMap = (context: Arc, item: any): Vote => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): Vote => {
     if (item === null) {
-      //TODO: How to get ID for this error msg?
-      throw Error(`Could not find a Vote with id`)
+      throw Error(`Vote ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
     let outcome: IProposalOutcome = IProposalOutcome.Pass

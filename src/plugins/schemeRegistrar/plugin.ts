@@ -81,8 +81,9 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
 
 }
 
-  public static itemMap(arc: Arc, item: any): SchemeRegistrar | null {
+  public static itemMap(arc: Arc, item: any, query: DocumentNode): SchemeRegistrar | null {
     if (!item) {
+      throw Error(`SchemeRegistrar Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

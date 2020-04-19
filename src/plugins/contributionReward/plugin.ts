@@ -73,8 +73,9 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
   return this._fragment
 }
 
-  public static itemMap(arc: Arc, item: any): ContributionReward | null {
+  public static itemMap(arc: Arc, item: any, query: DocumentNode): ContributionReward | null {
     if (!item) {
+      console.log(`ContributionReward Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

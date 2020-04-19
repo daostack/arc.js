@@ -16,6 +16,7 @@ import {
   Address,
   ICommonQueryOptions
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface IReputationState {
   id: Address
@@ -80,15 +81,14 @@ export class Reputation extends Entity<IReputationState> {
     return context.getObservableList(
       context,
       query,
-      (context: Arc, r: any) => new Reputation(context, r.id),
+      (context: Arc, r: any, query: DocumentNode) => new Reputation(context, r.id),
       apolloQueryOptions
     )
   }
 
-  public static itemMap = (context: Arc, item: any): Reputation => {
-    //TODO: How to get ID for this error msg?
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): Reputation => {
     if (item === null) {
-      throw Error(`Could not find a reputation contract with address`)
+      throw Error(`Reputation ItemMap failed. Query: ${query.loc?.source.body}`)
     }
     return new Reputation(context, {
       id: item.id,

@@ -32,6 +32,7 @@ import {
   ICommonQueryOptions,
   AnyPlugin
 } from './index'
+import { DocumentNode } from 'graphql'
 
 export interface IDAOState {
   id: Address,
@@ -115,8 +116,8 @@ export class DAO extends Entity<IDAOState> {
       }`
     }
 
-    const itemMap = (context: Arc, item: any) => 
-      apolloQueryOptions.fetchAllData? DAO.itemMap(context, item) : new DAO(context, item.id)
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => 
+      apolloQueryOptions.fetchAllData? DAO.itemMap(context, item, query) : new DAO(context, item.id)
 
     return context.getObservableList(
       context,
@@ -126,10 +127,9 @@ export class DAO extends Entity<IDAOState> {
     )
   }
 
-  public static itemMap = (context: Arc, item: any): DAO => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): DAO => {
     if (item === null) {
-      //TODO: How to get ID for this error msg?
-      throw Error(`Could not find a DAO with id`)
+      throw Error(`DAO ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
     return new DAO(context, {

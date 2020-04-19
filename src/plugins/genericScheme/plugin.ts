@@ -68,8 +68,9 @@ export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericS
 
 }
 
-  public static itemMap(arc: Arc, item: any): GenericScheme | null {
+  public static itemMap(arc: Arc, item: any, query: DocumentNode): GenericScheme | null {
     if (!item) {
+      console.log(`GenericScheme Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

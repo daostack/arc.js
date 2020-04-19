@@ -17,6 +17,7 @@ import {
   Address,
   IApolloQueryOptions
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export interface IContributionRewardExtProposalState extends IProposalState {
   beneficiary: Address
@@ -39,9 +40,12 @@ export interface IContributionRewardExtProposalState extends IProposalState {
 
 export class ContributionRewardExtProposal extends Proposal<IContributionRewardExtProposalState> {
 
-  static itemMap(context: Arc, item: any): ContributionRewardProposal | null {
+  static itemMap(context: Arc, item: any, query: DocumentNode): ContributionRewardProposal | null {
 
-    if (item === null || item === undefined) return null
+    if (item === null || item === undefined) {
+      console.log(`ContributionRewardExt Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      return null
+    }
 
     const ethRewardLeft = (
       item.contributionReward.ethRewardLeft !== null &&
@@ -64,7 +68,7 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
       null
     )
 
-    const contributionRewardExt = ContributionRewardExt.itemMap(context, item) as ContributionRewardExt
+    const contributionRewardExt = ContributionRewardExt.itemMap(context, item.scheme, query) as ContributionRewardExt
     const contributionRewardExtProposal = new ContributionRewardExtProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(

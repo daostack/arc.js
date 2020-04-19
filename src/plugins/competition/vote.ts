@@ -10,6 +10,7 @@ import {
   IApolloQueryOptions,
   ICommonQueryOptions
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export interface ICompetitionVoteState {
   id: string
@@ -67,11 +68,11 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any) => {
+        (context: Arc, r: any, query: DocumentNode) => {
           if (r === null) { // no such proposal was found
             return []
           }
-          const itemMap = (item: any) => CompetitionVote.itemMap(context, item)
+          const itemMap = (item: any) => CompetitionVote.itemMap(context, item, query)
           return r.votes.map(itemMap)
         },
         apolloQueryOptions
@@ -96,7 +97,11 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
     }
   }
 
-  public static itemMap(context: Arc, item: any): CompetitionVote {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): CompetitionVote {
+
+    if(item === null) {
+      throw Error(`Competition Vote ItemMap failed. Query: ${query.loc?.source.body}`)
+    }
 
     return new CompetitionVote(context, {
       createdAt: secondSinceEpochToDate(item.createdAt),
