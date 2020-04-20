@@ -7,6 +7,7 @@ do
     break
   else
     echo "Waiting on Subgraph..."
+    docker-compose logs graph-node
     sleep 2
   fi
 done
