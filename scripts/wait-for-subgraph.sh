@@ -8,6 +8,7 @@ do
   else
     echo "Waiting on Subgraph..."
     docker-compose logs graph-node
+    docker-compose logs postgres
     sleep 2
   fi
 done
