@@ -252,6 +252,14 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
   ): Observable<Proposal<TProposalState>[]> {
     let where = ''
 
+    const itemMap = (context: Arc, r: any, query: DocumentNode) => {
+      const state: IProposalState = Proposals[r.scheme.name].itemMap(context, r, query)
+
+      if(!state) return null
+
+      return new Proposals[r.scheme.name](context, state)
+    }
+
     if (!options.where) { options.where = {} }
 
     for (const key of Object.keys(options.where)) {
@@ -331,7 +339,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     return context.getObservableList(
       context,
       query,
-      (context: Arc, r: any, query: DocumentNode) => Proposals[r.scheme.name].itemMap(context, r, query),
+      itemMap,
       apolloQueryOptions
     ) as IObservable<Proposal<TProposalState>[]>
   }

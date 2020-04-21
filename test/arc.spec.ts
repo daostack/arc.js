@@ -183,7 +183,7 @@ describe('Arc ', () => {
 
   it('arc.proposals() should work', async () => {
     const arc = await newArc()
-    const proposals = await arc.proposals(undefined, { fetchAllData: true}).pipe(first()).toPromise()
+    const proposals = await arc.proposals().pipe(first()).toPromise()
     expect(typeof proposals).toEqual(typeof [])
     expect(proposals.length).toBeGreaterThanOrEqual(4)
   })
@@ -197,7 +197,7 @@ describe('Arc ', () => {
 
   it('arc.plugins() should work', async () => {
     const arc = await newArc()
-    const plugins = await arc.plugins(undefined, { fetchAllData: true}).pipe(first()).toPromise()
+    const plugins = await arc.plugins().pipe(first()).toPromise()
     expect(plugins.length).toBeGreaterThan(0)
   })
 

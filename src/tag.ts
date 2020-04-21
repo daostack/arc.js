@@ -47,6 +47,11 @@ export class Tag extends Entity<ITagState> {
     if (!options.where) { options.where = {}}
     let where = ''
 
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
+      const state = Tag.itemMap(context, item, query)
+      return new Tag(context, state)
+    }
+
     const proposalId = options.where.proposal
     // if we are searching for stakes on a specific proposal (a common case), we
     // will structure the query so that stakes are stored in the cache together wit the proposal
@@ -86,7 +91,10 @@ export class Tag extends Entity<ITagState> {
           if (r === null) { // no such proposal was found
             return []
           }
-          const itemMap = (item: any) => Tag.itemMap(context, item, query)
+          const itemMap = (item: any) => {
+            const state = Tag.itemMap(context, item, query)
+            return new Tag(context, state)
+          }
           return r.tags.map(itemMap)
         },
         apolloQueryOptions
@@ -104,7 +112,7 @@ export class Tag extends Entity<ITagState> {
       return context.getObservableList(
         context,
         query,
-        Tag.itemMap,
+        itemMap,
         apolloQueryOptions
       ) as Observable<Tag[]>
     }

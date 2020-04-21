@@ -73,6 +73,11 @@ export class Reward extends Entity<IRewardState> {
     let where = ''
     if (!options.where) { options.where = {}}
 
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
+      const state = Reward.itemMap(context, item, query)
+      return new Reward(context, state)
+    }
+
     const proposalId = options.where.proposal
     // if we are searching for stakes on a specific proposal (a common case), we
     // will structure the query so that stakes are stored in the cache together wit the proposal
@@ -116,7 +121,11 @@ export class Reward extends Entity<IRewardState> {
           }
           const rewards = r.gpRewards
 
-          const itemMap = (item: any) => Reward.itemMap(context, item, query)
+          const itemMap = (item: any) => {
+            const state = Reward.itemMap(context, item, query)
+            return new Reward(context, state)
+          }
+
           return rewards.map(itemMap)
         },
         apolloQueryOptions
@@ -135,7 +144,7 @@ export class Reward extends Entity<IRewardState> {
     return context.getObservableList(
       context,
       query,
-      Reward.itemMap,
+      itemMap,
       apolloQueryOptions
     ) as Observable<Reward[]>
   }

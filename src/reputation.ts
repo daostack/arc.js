@@ -81,7 +81,7 @@ export class Reputation extends Entity<IReputationState> {
     return context.getObservableList(
       context,
       query,
-      (context: Arc, r: any, query: DocumentNode) => new Reputation(context, r.id),
+      (context: Arc, r: any, _query: DocumentNode) => new Reputation(context, r.id),
       apolloQueryOptions
     )
   }

@@ -115,6 +115,11 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionSuggestion[]> {
 
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
+      const state = CompetitionSuggestion.itemMap(context, item, query)
+      return new CompetitionSuggestion(context, state)
+    }
+
     let query
 
     // if we are looing for the suggestions of a particular proposal, we prime the cache..
@@ -137,7 +142,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
             return []
           }
           const itemMap = (item: any) =>
-            new CompetitionSuggestion(context, CompetitionSuggestion.itemMap(context, item, query) as ICompetitionSuggestionState)
+            new CompetitionSuggestion(context, CompetitionSuggestion.itemMap(context, item, query))
 
           return r.suggestions.map(itemMap)
         },
@@ -156,7 +161,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       return context.getObservableList(
         context,
         query,
-        CompetitionSuggestion.itemMap,
+        itemMap,
         apolloQueryOptions
       ) as Observable<CompetitionSuggestion[]>
     }
@@ -170,7 +175,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     return utils.keccak256(seed)
   }
 
-  private static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionSuggestionState | null {
+  private static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionSuggestionState {
     if (item === null) {
       throw Error(`Competition Suggestion ItemMap failed. Query: ${query.loc?.source.body}`)
     }

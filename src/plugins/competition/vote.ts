@@ -50,6 +50,11 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionVote[]> {
     if (!options.where) { options.where = {} }
+
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
+      const state = CompetitionVote.itemMap(context, item, query)
+      return new CompetitionVote(context, state)
+    }
     
     let query
     if (options.where.suggestion && !options.where.id) {
@@ -72,7 +77,7 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
           if (r === null) { // no such proposal was found
             return []
           }
-          const itemMap = (item: any) => CompetitionVote.itemMap(context, item, query)
+          const itemMap = (item: any) => new CompetitionVote(context, CompetitionVote.itemMap(context, item, query))
           return r.votes.map(itemMap)
         },
         apolloQueryOptions
@@ -91,7 +96,7 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
       return context.getObservableList(
         context,
         query,
-        CompetitionVote.itemMap,
+        itemMap,
         apolloQueryOptions
       ) as Observable<CompetitionVote[]>
     }

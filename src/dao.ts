@@ -101,23 +101,32 @@ export class DAO extends Entity<IDAOState> {
     }
 
     let query
-    if (apolloQueryOptions.fetchAllData === true) {
+    if (apolloQueryOptions.fetchAllData === false) {
+
+      query = gql`query SearchDaoIds {
+        daos ${createGraphQlQuery(options, where)} {
+          id
+        }
+      }`
+
+    } else {
       query = gql`query SearchDaosWithAllData {
         daos ${createGraphQlQuery(options, where)} {
           ...DAOFields
           }
         }
         ${DAO.fragments.DAOFields}`
-    } else {
-      query = gql`query SearchDaoIds {
-        daos ${createGraphQlQuery(options, where)} {
-          id
-        }
-      }`
     }
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode) => 
-      apolloQueryOptions.fetchAllData? DAO.itemMap(context, item, query) : new DAO(context, item.id)
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
+      if(apolloQueryOptions.fetchAllData === false){
+        return new DAO(context, item.id)
+      }
+
+      const state = DAO.itemMap(context, item, query)
+      return new DAO(context, state)
+    }
+      
 
     return context.getObservableList(
       context,

@@ -66,6 +66,12 @@ export class Vote extends Entity<IVoteState> {
   ): Observable <Vote[]> {
     if (!options.where) { options.where = {}}
     const proposalId = options.where.proposal
+
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
+      const state = Vote.itemMap(context, item, query)
+      return new Vote(context, state)
+    }
+
     // if we are searching for votes of a specific proposal (a common case), we
     // will structure the query so that votes are stored in the cache together wit the proposal
     if (proposalId) {
@@ -120,7 +126,10 @@ export class Vote extends Entity<IVoteState> {
             return []
           }
           const votes = r.votes
-          const itemMap = (item: any) => Vote.itemMap(context, item, query)
+          const itemMap = (item: any) => {
+            const state = Vote.itemMap(context, item, query)
+            return new Vote(context, state)
+          }
           return votes.map(itemMap)
         },
         apolloQueryOptions
@@ -139,7 +148,7 @@ export class Vote extends Entity<IVoteState> {
       return context.getObservableList(
         context,
         query,
-        Vote.itemMap,
+        itemMap,
         apolloQueryOptions
       ) as Observable<Vote[]>
     }

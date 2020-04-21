@@ -68,7 +68,14 @@ export class Member extends Entity<IMemberState> {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Member[]> {
     if (!options.where) { options.where = {}}
+
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
+      const state = Member.itemMap(context, item, query)
+      return new Member(context, state)
+    }
+
     if (options.where.id) {
+      //TODO: check what is the return of this
       return new Member(context, options.where.id).state().pipe(map((r: any) => [r]))
     } else {
       let where = ''
@@ -99,7 +106,7 @@ export class Member extends Entity<IMemberState> {
       return context.getObservableList(
           context,
           query,
-          Member.itemMap,
+          itemMap,
           apolloQueryOptions
         )
       }

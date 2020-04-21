@@ -65,6 +65,11 @@ export class Stake extends Entity<IStakeState> {
     if (!options.where) { options.where = {}}
     let where = ''
 
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
+      const state = Stake.itemMap(context, item, query)
+      return new Stake(context, state)
+    }
+
     const proposalId = options.where.proposal
     // if we are searching for stakes on a specific proposal (a common case), we
     // will structure the query so that stakes are stored in the cache together wit the proposal
@@ -112,7 +117,10 @@ export class Stake extends Entity<IStakeState> {
             return []
           }
           const stakes = r.stakes
-          const itemMap = (item: any) => Stake.itemMap(context, item, query)
+          const itemMap = (item: any) => {
+            const state = Stake.itemMap(context, item, query)
+            return new Stake(context, state)
+          }
           return stakes.map(itemMap)
         },
         apolloQueryOptions
@@ -130,7 +138,7 @@ export class Stake extends Entity<IStakeState> {
       return context.getObservableList(
         context,
         query,
-        Stake.itemMap,
+        itemMap,
         apolloQueryOptions
       ) as Observable<Stake[]>
     }

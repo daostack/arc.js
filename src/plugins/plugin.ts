@@ -107,7 +107,11 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
         return null
       }
 
-      return Plugins[item.name].itemMap(context, item, query)
+      const state: IPluginState = Plugins[item.name].itemMap(context, item, query)
+
+      if(!state) return null
+
+      return new Plugins[item.name](context, state)
     }
 
     return context.getObservableList(

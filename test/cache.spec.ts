@@ -37,7 +37,7 @@ describe('apolloClient caching checks', () => {
     expect(p).rejects.toThrow()
 
     // now get all the DAOs with defailed data
-    await arc.daos({}, { fetchAllData: true }).pipe(first()).toPromise()
+    await arc.daos().pipe(first()).toPromise()
     // now we have all data in the cache - and we can get the whole state from the cache without error
     await arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
   })
@@ -51,7 +51,7 @@ describe('apolloClient caching checks', () => {
     expect(p).rejects.toThrow()
 
     // now get all the DAOs with defailed data
-    await Proposal.search(arc, {}, { fetchAllData: true }).pipe(first()).toPromise()
+    await Proposal.search(arc).pipe(first()).toPromise()
     // now we have all data in the cache - and we can get the whole state from the cache without error
     await proposal.state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
   })
@@ -70,7 +70,7 @@ describe('apolloClient caching checks', () => {
 
   it('pre-fetching ProposalVotes works', async () => {
     // find a proposal in a scheme that has > 1 votes
-    let proposals = await Proposal.search(arc, {}, { fetchAllData: true }).pipe(first()).toPromise()
+    let proposals = await Proposal.search(arc).pipe(first()).toPromise()
     // @ts-ignore
     proposals = proposals.filter((p) => p.coreState.votesCount.length > 1)
     const proposal = proposals[0]
@@ -139,7 +139,7 @@ describe('apolloClient caching checks', () => {
 
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(0)
-    const daos = await arc.daos({}, { subscribe: false, fetchAllData: true}).pipe(first()).toPromise()
+    const daos = await arc.daos({}, { subscribe: false }).pipe(first()).toPromise()
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(1)
     const dao = daos[0]

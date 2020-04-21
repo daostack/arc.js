@@ -54,6 +54,11 @@ export class Event extends Entity<IEventState> {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Event[]> {
 
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
+      const state = Event.itemMap(context, item, query)
+      return new Event(context, state)
+    }
+
     let query
     query = gql`query EventSearch
       {
@@ -67,12 +72,12 @@ export class Event extends Entity<IEventState> {
     return context.getObservableList(
       context,
       query,
-      Event.itemMap,
+      itemMap,
       apolloQueryOptions
     ) as Observable<Event[]>
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IEventState {
+  public static itemMap(_context: Arc, item: any, query: DocumentNode): IEventState {
 
     if(item === null) {
       throw Error(`Event ItemMap failed. Query: ${query.loc?.source.body}`)

@@ -60,6 +60,7 @@ export class Queue extends Entity<IQueueState> {
   ): Observable<Queue[]> {
     if (!options.where) { options.where = {} }
     let where = ''
+
     for (const key of Object.keys(options.where)) {
       if (options[key] === undefined) {
         continue
@@ -94,7 +95,7 @@ export class Queue extends Entity<IQueueState> {
       }
     `
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode): Queue|null => new Queue(context, item.id, new DAO(context, item.dao.id))
+    const itemMap = (context: Arc, item: any, query: DocumentNode) => new Queue(context, item.id, new DAO(context, item.dao.id))
 
     return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<Queue[]>
   }

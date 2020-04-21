@@ -44,7 +44,7 @@ describe('DAO', () => {
 
   it('fetchAllData in DAO.search works', async () => {
     let result: DAO[]
-    result = await DAO.search(arc, {}, { fetchAllData: true}).pipe(first()).toPromise()
+    result = await DAO.search(arc).pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(1)
   })
 
