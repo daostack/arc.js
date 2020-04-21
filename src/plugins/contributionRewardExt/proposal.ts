@@ -7,7 +7,6 @@ import {
   IProposalState,
   Arc,
   Plugin,
-  ContributionRewardProposal,
   ContributionRewardExt,
   NULL_ADDRESS,CONTRIBUTION_REWARD_DUMMY_VERSION,
   REDEEMER_CONTRACT_VERSIONS,
@@ -40,7 +39,7 @@ export interface IContributionRewardExtProposalState extends IProposalState {
 
 export class ContributionRewardExtProposal extends Proposal<IContributionRewardExtProposalState> {
 
-  static itemMap(context: Arc, item: any, query: DocumentNode): ContributionRewardProposal | null {
+  static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtProposalState | null {
 
     if (item === null || item === undefined) {
       console.log(`ContributionRewardExt Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
@@ -68,7 +67,11 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
       null
     )
 
-    const contributionRewardExt = ContributionRewardExt.itemMap(context, item.scheme, query) as ContributionRewardExt
+    const contributionRewardExtState = ContributionRewardExt.itemMap(context, item.scheme, query)
+
+    if(!contributionRewardExtState) return null
+
+    const contributionRewardExt =  new ContributionRewardExt(context, contributionRewardExtState)
     const contributionRewardExtProposal = new ContributionRewardExtProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -81,7 +84,7 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
 
     if (baseState == null) return null
 
-    const state: IContributionRewardExtProposalState = {
+    return {
       ...baseState,
       alreadyRedeemedEthPeriods: Number(item.contributionReward.alreadyRedeemedEthPeriods),
       alreadyRedeemedExternalTokenPeriods: Number(item.contributionReward.alreadyRedeemedExternalTokenPeriods),
@@ -100,8 +103,6 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
       reputationChangeLeft,
       reputationReward: new BN(item.contributionReward.reputationReward)
     }
-
-    return new ContributionRewardExtProposal(context, state)
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<IContributionRewardExtProposalState> {

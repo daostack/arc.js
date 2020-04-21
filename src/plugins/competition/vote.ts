@@ -97,20 +97,20 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
     }
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): CompetitionVote {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionVoteState {
 
     if(item === null) {
       throw Error(`Competition Vote ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
-    return new CompetitionVote(context, {
+    return {
       createdAt: secondSinceEpochToDate(item.createdAt),
       id: item.id,
       proposal: item.proposal.id,
       reputation: item.reputation,
       suggestion: item.suggestion.id,
       voter: item.voter
-    })
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionVoteState> {

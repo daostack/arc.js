@@ -145,7 +145,7 @@ export class Vote extends Entity<IVoteState> {
     }
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): Vote => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): IVoteState => {
     if (item === null) {
       throw Error(`Vote ItemMap failed. Query: ${query.loc?.source.body}`)
     }
@@ -159,7 +159,7 @@ export class Vote extends Entity<IVoteState> {
       throw new Error(`Unexpected value for proposalVote.outcome: ${item.outcome}`)
     }
 
-    return new Vote(context, {
+    return {
       amount: new BN(item.reputation || 0),
       createdAt: item.createdAt,
       dao: item.dao.id,
@@ -170,7 +170,7 @@ export class Vote extends Entity<IVoteState> {
         entity: new Proposals[item.proposal.scheme.name](context, item.proposal.id)
       },
       voter: item.voter
-    })
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IVoteState> {

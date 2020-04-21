@@ -86,11 +86,11 @@ export class Reputation extends Entity<IReputationState> {
     )
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): Reputation => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): IReputationState => {
     if (item === null) {
       throw Error(`Reputation ItemMap failed. Query: ${query.loc?.source.body}`)
     }
-    return new Reputation(context, {
+    return {
       id: item.id,
       address: item.id,
       dao: {
@@ -98,7 +98,7 @@ export class Reputation extends Entity<IReputationState> {
         entity: new DAO(context, item.dao.id)
       },
       totalSupply: new BN(item.totalSupply)
-    })
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IReputationState> {

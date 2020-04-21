@@ -127,12 +127,12 @@ export class DAO extends Entity<IDAOState> {
     )
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): DAO => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): IDAOState => {
     if (item === null) {
       throw Error(`DAO ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
-    return new DAO(context, {
+    return {
       address: item.id,
       id: item.id,
       memberCount: Number(item.reputationHoldersCount),
@@ -153,7 +153,7 @@ export class DAO extends Entity<IDAOState> {
       tokenName: item.nativeToken.name,
       tokenSymbol: item.nativeToken.symbol,
       tokenTotalSupply: item.nativeToken.totalSupply
-    })
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IDAOState> {

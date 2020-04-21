@@ -76,7 +76,7 @@ export class ContributionRewardExt extends ProposalPlugin<
   return this._fragment
 }
 
-  public static itemMap(arc: Arc, item: any, query: DocumentNode): ContributionRewardExt | null {
+  public static itemMap(arc: Arc, item: any, query: DocumentNode): IContributionRewardExtState | null {
     if (!item) {
       console.log(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
@@ -102,7 +102,7 @@ export class ContributionRewardExt extends ProposalPlugin<
       votingMachine: item.contributionRewardExtParams.votingMachine
     }
     
-    return new ContributionRewardExt(arc, {
+    return {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
@@ -117,7 +117,6 @@ export class ContributionRewardExt extends ProposalPlugin<
         pluginParams: contributionRewardExtParams,
         version: item.version
       }
-    )
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IContributionRewardExtState> {

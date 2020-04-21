@@ -140,13 +140,13 @@ export class Reward extends Entity<IRewardState> {
     ) as Observable<Reward[]>
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): Reward {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IRewardState {
 
     if(item === null) {
       throw Error(`Reward ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
-    return new Reward(context, {
+    return {
       beneficiary: item.beneficiary,
       createdAt: item.createdAt,
       daoBountyForStaker: new BN(item.daoBountyForStaker),
@@ -160,7 +160,7 @@ export class Reward extends Entity<IRewardState> {
       tokenAddress: item.tokenAddress,
       tokensForStaker: new BN(item.tokensForStaker),
       tokensForStakerRedeemedAt: Number(item.tokensForStakerRedeemedAt)
-    })
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IRewardState> {

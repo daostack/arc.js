@@ -72,13 +72,13 @@ export class Event extends Entity<IEventState> {
     ) as Observable<Event[]>
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): Event {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IEventState {
 
     if(item === null) {
       throw Error(`Event ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
-    return new Event(context, {
+    return {
       dao: item.dao.id,
       data: JSON.parse(item.data),
       id: item.id,
@@ -86,7 +86,7 @@ export class Event extends Entity<IEventState> {
       timestamp: item.timestamp,
       type: item.type,
       user: item.user
-    })
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable < IEventState > {

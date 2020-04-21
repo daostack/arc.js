@@ -75,7 +75,7 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
     return this._fragment
   }
 
-  static itemMap (context: Arc, item: any, query: DocumentNode): ContributionRewardProposal | null {
+  static itemMap (context: Arc, item: any, query: DocumentNode): IContributionRewardProposalState | null {
 
     if (item === null || item === undefined) return null
 
@@ -100,7 +100,11 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
       null
     )
     
-    const contributionReward = ContributionReward.itemMap(context, item.scheme, query) as ContributionReward
+    const contributionRewardState = ContributionReward.itemMap(context, item.scheme, query)
+
+    if(!contributionRewardState) return null
+
+    const contributionReward = new ContributionReward(context, contributionRewardState)
     const contributionRewardProposal = new ContributionRewardProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -113,7 +117,7 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
 
     if(baseState == null) return null
     
-    const state: IContributionRewardProposalState = {
+    return {
       ...baseState,
       alreadyRedeemedEthPeriods: Number(item.contributionReward.alreadyRedeemedEthPeriods),
       alreadyRedeemedExternalTokenPeriods: Number(item.contributionReward.alreadyRedeemedExternalTokenPeriods),
@@ -132,8 +136,6 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
       reputationChangeLeft,
       reputationReward: new BN(item.contributionReward.reputationReward)
     }
-
-    return new ContributionRewardProposal(context, state)
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<IContributionRewardProposalState> {

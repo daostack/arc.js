@@ -76,7 +76,11 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       throw Error(`Unknown proposal type: schemeRegistrar without a scheme to register or to remove`)
     }
     
-    const schemeRegistrar = SchemeRegistrar.itemMap(context, item.scheme, query) as SchemeRegistrar
+    const schemeRegistrarState = SchemeRegistrar.itemMap(context, item.scheme, query)
+
+    if(!schemeRegistrarState) return null
+
+    const schemeRegistrar = new SchemeRegistrar(context, schemeRegistrarState)
     const schemeRegistrarProposal = new SchemeRegistrarProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(

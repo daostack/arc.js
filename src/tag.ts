@@ -110,12 +110,12 @@ export class Tag extends Entity<ITagState> {
     }
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): Tag => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): ITagState => {
     if (item === null) {
       throw Error(`Tag ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
-    return new Tag(context, {
+    return {
       id: item.id,
       numberOfProposals: Number(item.numberOfProposals),
       proposals: item.proposals.map((proposal: any) => {
@@ -124,7 +124,7 @@ export class Tag extends Entity<ITagState> {
           entity: new Proposals[proposal.scheme.name](context, proposal.id)
         }
       })
-    })
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITagState> {

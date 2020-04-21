@@ -137,7 +137,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
             return []
           }
           const itemMap = (item: any) =>
-            new CompetitionSuggestion(context, CompetitionSuggestion.mapItemToObject(context, item, query) as ICompetitionSuggestionState)
+            new CompetitionSuggestion(context, CompetitionSuggestion.itemMap(context, item, query) as ICompetitionSuggestionState)
 
           return r.suggestions.map(itemMap)
         },
@@ -156,7 +156,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       return context.getObservableList(
         context,
         query,
-        CompetitionSuggestion.mapItemToObject,
+        CompetitionSuggestion.itemMap,
         apolloQueryOptions
       ) as Observable<CompetitionSuggestion[]>
     }
@@ -170,7 +170,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     return utils.keccak256(seed)
   }
 
-  private static mapItemToObject(context: Arc, item: any, query: DocumentNode): ICompetitionSuggestionState | null {
+  private static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionSuggestionState | null {
     if (item === null) {
       throw Error(`Competition Suggestion ItemMap failed. Query: ${query.loc?.source.body}`)
     }
@@ -214,7 +214,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
     `
 
-    return this.context.getObservableObject(this.context, query, CompetitionSuggestion.mapItemToObject, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, CompetitionSuggestion.itemMap, apolloQueryOptions)
   }
 
   public async fetchState(): Promise<ICompetitionSuggestionState> {

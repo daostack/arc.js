@@ -83,7 +83,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
      
   }
 
-  static itemMap (context: Arc, item: any, query: DocumentNode): CompetitionProposal | null {
+  static itemMap (context: Arc, item: any, query: DocumentNode): ICompetitionProposalState | null {
 
     if (item === null || item === undefined) {
       console.log(`Competition Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
@@ -92,8 +92,11 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
     
     if (!item.contributionReward) throw new Error(`Unexpected proposal state: competition is set, but contributionReward is not`)
  
-    const competition = Competition.itemMap(context, item.scheme, query) as Competition
+    const competitionState = Competition.itemMap(context, item.scheme, query)
 
+    if(!competitionState) return null
+    
+    const competition = new Competition(context, competitionState)
     const competitionProposal = new CompetitionProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -106,7 +109,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
     if(baseState == null) return null
     
-    const state: ICompetitionProposalState = {
+    return {
       ...baseState,
       admin: item.competition.admin,
       contract: item.competition.contract,
@@ -128,8 +131,6 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       totalVotes: Number(item.competition.totalVotes),
       votingStartTime: secondSinceEpochToDate(item.competition.votingStartTime)
     }
-
-    return new CompetitionProposal(context, state)
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<ICompetitionProposalState> {

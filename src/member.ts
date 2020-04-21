@@ -105,11 +105,11 @@ export class Member extends Entity<IMemberState> {
       }
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): Member {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IMemberState {
     if (item === null || item === undefined || item.id === undefined) {
       throw Error(`Member ItemMap failed. Query: ${query.loc?.source.body}`)
     }
-    return new Member(context, {
+    return {
       id: item.id,
       address: item.address,
       dao: {
@@ -118,7 +118,7 @@ export class Member extends Entity<IMemberState> {
       },
       contract: item.contract,
       reputation: new BN(item.balance)
-    })
+    }
   }
 
   public static calculateId(opts: { contract: Address, address: Address}): string {
@@ -239,11 +239,11 @@ export class Member extends Entity<IMemberState> {
   public setState(opts: IMemberState) {
     isAddress(opts.address)
     
-    if(!opts.contract) throw new Error("Contract not defined in options")
+    if(opts.contract) {
+      this.id = Member.calculateId({ contract: opts.contract, address: opts.address})
+    }
     
     if(!opts.dao) throw new Error("DAO not defined in options")
-
-    this.id = Member.calculateId({ contract: opts.contract, address: opts.address})
 
     const daoId = opts.dao.id.toLowerCase()
 

@@ -69,7 +69,7 @@ export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericS
 
 }
 
-  public static itemMap(arc: Arc, item: any, query: DocumentNode): GenericScheme | null {
+  public static itemMap(arc: Arc, item: any, query: DocumentNode): IGenericSchemeState | null {
     if (!item) {
       console.log(`GenericScheme Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
@@ -95,7 +95,7 @@ export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericS
       votingMachine: item.genericpluginParams.votingMachine
     }
     
-    return new GenericScheme(arc, {
+    return {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
@@ -110,7 +110,6 @@ export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericS
         pluginParams: genericpluginParams,
         version: item.version
       }
-    )
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IGenericSchemeState> {

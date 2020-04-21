@@ -2,8 +2,8 @@ import { first } from 'rxjs/operators'
 import { Arc, IProposalCreateOptionsCR, AnyProposal } from '../src'
 import { DAO } from '../src'
 import { IProposalStage, Proposal } from '../src'
-import { fromWei,
-  getTestAddresses,
+import { 
+  fromWei,
   getTestDAO,
   getTestScheme,
   newArc,
@@ -73,7 +73,6 @@ describe('DAO', () => {
     const state = await dao.fetchState()
     expect(Object.keys(state)).toEqual([
       'address',
-      'dao',
       'id',
       'memberCount',
       'name',
@@ -97,7 +96,7 @@ describe('DAO', () => {
     expect.assertions(1)
     const dao = new DAO(arc, '0xfake')
     await expect(dao.state().toPromise()).rejects.toThrow(
-      'Could not find a DAO with id 0xfake'
+      /DAO ItemMap failed/
     )
   })
 

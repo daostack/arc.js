@@ -97,7 +97,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode): Plugin<TPluginState> | null => {
+    const itemMap = (context: Arc, item: any, query: DocumentNode): TPluginState | null => {
       if (!options.where) {
         options.where = {}
       }

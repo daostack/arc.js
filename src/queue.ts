@@ -19,10 +19,9 @@ import {
 import { DocumentNode } from 'graphql'
 
 export interface IQueueState {
-  dao: DAO
+  dao: IEntityRef<DAO>
   id: string
   name: string
-  //TODO: any type of plugin or a specific type?
   plugin: IEntityRef<AnyPlugin>
   threshold: number
   votingMachine: Address
@@ -100,15 +99,18 @@ export class Queue extends Entity<IQueueState> {
     return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<Queue[]>
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): Queue {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IQueueState {
     if (!item) {
       throw Error(`Queue ItemMap failed. Query: ${query.loc?.source.body}`)
     }
     const threshold = realMathToNumber(new BN(item.threshold))
     const plugin = new Plugins[item.scheme.name](context, item.scheme.id)
     const dao = new DAO(context, item.dao.id)
-    return new Queue(context, {
-      dao,
+    return {
+      dao: {
+        id: dao.id,
+        entity: dao
+      },
       id: item.id,
       name: plugin.name,
       plugin: {
@@ -117,7 +119,7 @@ export class Queue extends Entity<IQueueState> {
       },
       threshold,
       votingMachine: item.votingMachine
-    }, dao)
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IQueueState> {

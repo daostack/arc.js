@@ -104,18 +104,18 @@ export class Token extends Entity<ITokenState> {
     ) as Observable<Token[]>
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): Token => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): ITokenState => {
     if (item === null) {
       throw Error(`Token ItemMap failed. Query: ${query.loc?.source.body}`)
     }
-    return new Token(context, {
+    return {
       id: item.id,
       address: item.id,
       name: item.name,
       owner: item.dao.id,
       symbol: item.symbol,
       totalSupply: new BN(item.totalSupply)
-    })
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITokenState> {

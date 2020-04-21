@@ -53,14 +53,18 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
   
 }
 
-  static itemMap (context: Arc, item: any, query: DocumentNode): GenericSchemeProposal | null {
+  static itemMap (context: Arc, item: any, query: DocumentNode): IGenericSchemeProposalState | null {
 
     if (item === null || item === undefined) {
       console.log(`GenericScheme Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
     
-    const genericScheme = GenericScheme.itemMap(context, item.scheme, query) as GenericScheme
+    const genericSchemeState = GenericScheme.itemMap(context, item.scheme, query)
+
+    if(genericSchemeState === null) return null
+
+    const genericScheme = new GenericScheme(context, genericSchemeState)
     const genericSchemeProposal = new GenericSchemeProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -73,7 +77,7 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
 
     if(baseState === null) return null
     
-    const state: IGenericSchemeProposalState = {
+    return {
       ...baseState,
       callData: item.genericScheme.callData,
       contractToCall: item.genericScheme.contractToCall,
@@ -81,7 +85,6 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
       returnValue: item.genericScheme.returnValue
     }
 
-    return new GenericSchemeProposal(context, state)
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<IGenericSchemeProposalState> {

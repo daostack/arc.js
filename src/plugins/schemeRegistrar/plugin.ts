@@ -82,9 +82,9 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
 
 }
 
-  public static itemMap(arc: Arc, item: any, query: DocumentNode): SchemeRegistrar | null {
+  public static itemMap(arc: Arc, item: any, query: DocumentNode): ISchemeRegistrarState | null {
     if (!item) {
-      throw Error(`SchemeRegistrar Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      console.log(`SchemeRegistrar Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 
@@ -108,7 +108,7 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
       votingMachine: item.schemeRegistrarParams.votingMachine
     }
     
-    return new SchemeRegistrar(arc, {
+    return {
         address: item.address,
         canDelegateCall: item.canDelegateCall,
         canManageGlobalConstraints: item.canManageGlobalConstraints,
@@ -123,7 +123,6 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
         pluginParams: schemeRegistrarParams,
         version: item.version
       }
-    )
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ISchemeRegistrarState> {

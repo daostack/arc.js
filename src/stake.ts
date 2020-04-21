@@ -136,7 +136,7 @@ export class Stake extends Entity<IStakeState> {
     }
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): Stake => {
+  public static itemMap = (context: Arc, item: any, query: DocumentNode): IStakeState => {
     if (item === null) {
       throw Error(`Stake ItemMap failed. Query: ${query.loc?.source.body}`)
     }
@@ -150,7 +150,7 @@ export class Stake extends Entity<IStakeState> {
       throw new Error(`Unexpected value for proposalStakes.outcome: ${item.outcome}`)
     }
 
-    return new Stake(context, {
+    return {
       amount: new BN(item.amount),
       createdAt: item.createdAt,
       id: item.id,
@@ -160,7 +160,7 @@ export class Stake extends Entity<IStakeState> {
         entity: new Proposals[item.proposal.scheme.name](context, item.proposal.id)
       },
       staker: item.staker
-    })
+    }
     
   }
 

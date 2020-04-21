@@ -288,20 +288,46 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       }
     }
 
-    const query = gql`query ProposalsSearchAllData
-      {
-        proposals ${createGraphQlQuery(options, where)} {
-          ...ProposalFields
-          votes {
+    let query: DocumentNode
+
+    if (apolloQueryOptions.fetchAllData === false) {
+
+      query = gql`query ProposalSearchPartialData
+        {
+          proposals ${createGraphQlQuery(options, where)} {
             id
-          }
-          stakes {
-            id
+            dao {
+              id
+            }
+            votingMachine
+            scheme {
+              id
+              address
+              name
+            }
           }
         }
-      }
-      ${Proposal.baseFragment}
-    `
+      `
+
+    } else {
+      
+      query = gql`query ProposalsSearchAllData
+        {
+          proposals ${createGraphQlQuery(options, where)} {
+            ...ProposalFields
+            votes {
+              id
+            }
+            stakes {
+              id
+            }
+          }
+        }
+        ${Proposal.baseFragment}
+      `
+
+    }
+
     return context.getObservableList(
       context,
       query,
