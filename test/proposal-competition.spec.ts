@@ -26,7 +26,7 @@ import {
 } from './utils'
 import { BigNumber } from 'ethers/utils'
 
-jest.setTimeout(30000)
+jest.setTimeout(40000)
 
 describe('Competition Proposal', () => {
   let arc: Arc
@@ -311,6 +311,9 @@ describe('Competition Proposal', () => {
     // check sanity for scheme
     expect(schemeState.address).toEqual(lastState().scheme.address)
 
+    const beforeBalanceBigNum = await arc.web3.getBalance(address1)
+    const balanceBefore = new BN(beforeBalanceBigNum.toString())
+
     // redeem the proposal
     await proposal.fetchState()
     await proposal.redeemRewards().send()
@@ -408,15 +411,15 @@ describe('Competition Proposal', () => {
     await expect(suggestion1.redeem().send()).rejects.toThrow(
       /competition is still on/i
     )
-    await advanceTimeAndBlock(2000)
+    await advanceTimeAndBlock(4000)
 
     if(!arc.web3) throw new Error('Web3 provider not set')
 
     // get the current balance of addres1 (who we will send the rewards to)
 
-    const beforeBalanceBigNum = await arc.web3.getBalance(address1)
-    const balanceBefore = new BN(beforeBalanceBigNum.toString())
-    await suggestion1.redeem().send()
+    try {
+      await suggestion1.redeem().send()
+    } catch (err) { }
 
     const afterBalanceBigNum = await arc.web3.getBalance(address1)
     const balanceAfter = new BN(afterBalanceBigNum.toString())
