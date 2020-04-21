@@ -69,7 +69,8 @@ export class ContributionRewardExt extends ProposalPlugin<
           voteOnBehalf
         }
         rewarder
-      }`
+      }
+    }`
     }
   }
   return this._fragment

@@ -53,6 +53,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
   public static fragment: { name: string, fragment: DocumentNode } | undefined
 
   public static get baseFragment(): DocumentNode {
+
     if (!this._baseFragment) {
       this._baseFragment = gql`
         fragment PluginFields on ControllerScheme {
@@ -72,7 +73,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
             .map(plugin => '...' + plugin.fragment.name).join('\n')}
         }
         ${Object.values(Plugins).filter(plugin => plugin.fragment)
-          .map(plugin => plugin.fragment.fragment).join('\n')}
+          .map(plugin => plugin.fragment.fragment.loc?.source.body).join('\n')}
       `
     }
 
@@ -87,35 +88,23 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Plugin<TPluginState>[]> {
-    let query
-    if (apolloQueryOptions.fetchAllData === true) {
-      query = gql`query SchemeSearchAllData {
+    const query = gql`query SchemeSearchAllData {
         controllerSchemes ${createGraphQlQuery(options)}
         {
           ...PluginFields
         }
       }
-      ${Plugin.baseFragment}`
-    } else {
-      query = gql`query SchemeSearch {
-        controllerSchemes ${createGraphQlQuery(options)}
-        {
-            id
-            address
-            name
-            dao { id }
-            version
-            contributionRewardExtParams {
-              id
-              rewarder
-            }
-        }
-      }`
-    }
+      ${Plugin.baseFragment}
+    `
 
     const itemMap = (context: Arc, item: any, query: DocumentNode): Plugin<TPluginState> | null => {
       if (!options.where) {
         options.where = {}
+      }
+
+      if(!Object.keys(Plugins).includes(item.name)) {
+        console.log(`Plugin name '${item.name}' not supported. ItemMap will return null.`)
+        return null
       }
 
       return Plugins[item.name].itemMap(context, item, query)

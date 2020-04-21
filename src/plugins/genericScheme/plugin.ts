@@ -42,7 +42,7 @@ export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericS
     this._fragment = {
       name: 'GenericpluginParams',
       fragment: gql` fragment GenericpluginParams on ControllerScheme {
-      genericpluginParams {
+      genericSchemeParams {
         votingMachine
         contractToCall
         voteParams {
@@ -60,7 +60,8 @@ export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericS
           activationTime
           voteOnBehalf
         }
-      }`
+      }
+    }`
     }
   }
 

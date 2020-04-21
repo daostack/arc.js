@@ -6,7 +6,7 @@ import {
   Plugin,
   REDEEMER_CONTRACT_VERSIONS,
   Address
-} from '../src'
+} from '../src/index'
 import {
   fromWei,
   newArc,
@@ -181,11 +181,9 @@ describe('Arc ', () => {
     expect(Object.keys(arc.observedAccounts).length).toEqual(0)
   })
 
-  //TODO: arc.proposal eliminated
-
   it('arc.proposals() should work', async () => {
     const arc = await newArc()
-    const proposals = await arc.proposals().pipe(first()).toPromise()
+    const proposals = await arc.proposals(undefined, { fetchAllData: true}).pipe(first()).toPromise()
     expect(typeof proposals).toEqual(typeof [])
     expect(proposals.length).toBeGreaterThanOrEqual(4)
   })
@@ -197,9 +195,9 @@ describe('Arc ', () => {
     expect(plugin).toBeInstanceOf(Plugin)
   })
 
-  it('arc.schemes() should work', async () => {
+  it('arc.plugins() should work', async () => {
     const arc = await newArc()
-    const plugins = await arc.plugins().pipe(first()).toPromise()
+    const plugins = await arc.plugins(undefined, { fetchAllData: true}).pipe(first()).toPromise()
     expect(plugins.length).toBeGreaterThan(0)
   })
 

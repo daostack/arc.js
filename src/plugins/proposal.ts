@@ -11,7 +11,6 @@ import {
   DAO,
   IRewardQueryOptions,
   Reward,
-  Plugin,
   Queue,
   IQueueState,
   IVoteQueryOptions,
@@ -41,6 +40,7 @@ import {
   Address,
   ICommonQueryOptions
 } from '../index'
+import { Plugin } from './plugin'
 
 export enum IProposalOutcome {
   None,
@@ -159,6 +159,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
   public static fragment: { name: string, fragment: DocumentNode } | undefined
 
   public static get baseFragment(): DocumentNode {
+
     if (!this._baseFragment) {
       this._baseFragment = gql`fragment ProposalFields on Proposal {
         id
@@ -232,9 +233,10 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       }
       ${Object.values(Proposals)
         .filter(proposal => proposal.fragment)
-        .map(proposal => proposal.fragment?.fragment).join('\n')}
-      
-      ${Plugin.baseFragment}`
+        .map(proposal => proposal.fragment?.fragment.loc?.source.body).join('\n')}
+
+      ${Plugin.baseFragment}
+`
     }
 
     return this._baseFragment
@@ -285,53 +287,27 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
         }
       }
     }
-    let query
 
-    if (apolloQueryOptions.fetchAllData === true) {
-      query = gql`query ProposalsSearchAllData
-        {
-          proposals ${createGraphQlQuery(options, where)} {
-            ...ProposalFields
-            votes {
-              id
-            }
-            stakes {
-              id
-            }
-          }
-        }
-        ${Proposal.baseFragment}
-      `
-      return context.getObservableList(
-        context,
-        query,
-        (context: Arc, r: any, query: DocumentNode) => Proposals[r.scheme.name].itemMap(context, r, query),
-        apolloQueryOptions
-      ) as IObservable<Proposal<TProposalState>[]>
-    } else {
-      query = gql`query ProposalSearchPartialData
-        {
-          proposals ${createGraphQlQuery(options, where)} {
+    const query = gql`query ProposalsSearchAllData
+      {
+        proposals ${createGraphQlQuery(options, where)} {
+          ...ProposalFields
+          votes {
             id
-            dao {
-              id
-            }
-            votingMachine
-            scheme {
-              id
-              address
-              name
-            }
+          }
+          stakes {
+            id
           }
         }
-      `
-      return context.getObservableList(
-        context,
-        query,
-        (context: Arc, r: any, query: DocumentNode) => Proposals[r.scheme.name].itemMap(context, r, query),
-        apolloQueryOptions
-      ) as IObservable<Proposal<TProposalState>[]>
-    }
+      }
+      ${Proposal.baseFragment}
+    `
+    return context.getObservableList(
+      context,
+      query,
+      (context: Arc, r: any, query: DocumentNode) => Proposals[r.scheme.name].itemMap(context, r, query),
+      apolloQueryOptions
+    ) as IObservable<Proposal<TProposalState>[]>
   }
 
   public static calculateId(address: Address, proposalCount: number) {
@@ -355,11 +331,11 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       return null
     }
 
-    let name = item.name
+    let name = item.scheme.name
     if (!name) {
 
       try {
-        name = context.getContractInfo(item.address).name
+        name = context.getContractInfo(item.scheme.address).name
       } catch (err) {
         if (err.message.match(/no contract/ig)) {
           // continue
@@ -404,7 +380,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     const queueState: IQueueState = {
       dao: item.dao.id,
       id: gpQueue.id,
-      name: plugin.coreState? plugin.coreState.name: '',
+      name,
       plugin: {
         id: plugin.id,
         entity: plugin

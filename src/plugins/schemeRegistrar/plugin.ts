@@ -73,7 +73,8 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
             activationTime
             voteOnBehalf
           }
-        }`
+        }
+      }`
     }
   }
 

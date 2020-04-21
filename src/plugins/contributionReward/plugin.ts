@@ -67,7 +67,8 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
           activationTime
           voteOnBehalf
         }
-      }`
+      }
+    }`
     }
   }
   return this._fragment

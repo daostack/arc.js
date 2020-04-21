@@ -72,7 +72,7 @@ describe('apolloClient caching checks', () => {
     // find a proposal in a scheme that has > 1 votes
     let proposals = await Proposal.search(arc, {}, { fetchAllData: true }).pipe(first()).toPromise()
     // @ts-ignore
-    proposals = proposals.filter((p) => p.coreState.votes.length > 1)
+    proposals = proposals.filter((p) => p.coreState.votesCount.length > 1)
     const proposal = proposals[0]
     // @ts-ignore
     const vote = new Vote(arc, proposals[0].coreState.votes[0])
