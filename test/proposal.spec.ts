@@ -99,12 +99,6 @@ describe('Proposal', () => {
     let ls: Proposal[]
     ls = await Proposal.search(arc, { where: {type: IProposalType.ContributionReward}}).pipe(first()).toPromise()
     expect(ls.length).toBeGreaterThan(0)
-    ls = await Proposal.search(arc, { where: {type: IProposalType.GenericScheme}}).pipe(first()).toPromise()
-    expect(ls.length).toBeGreaterThan(0)
-    ls = await Proposal.search(arc, { where: {type: IProposalType.SchemeRegistrarAdd}}).pipe(first()).toPromise()
-    // expect(ls.length).toEqual(0)
-    ls = await Proposal.search(arc, { where: {type: IProposalType.SchemeRegistrarRemove}}).pipe(first()).toPromise()
-    // expect(ls.length).toEqual(0)
   })
 
   it('proposal.search ignores case in address', async () => {
