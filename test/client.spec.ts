@@ -45,8 +45,10 @@ describe('apolloClient', () => {
     client = getClient()
     const query = gql`
       subscription {
-        daos {
-          id
+        reputationMints {
+          contract
+          amount
+          address
         }
       }
     `
@@ -66,6 +68,9 @@ describe('apolloClient', () => {
           throw err
         }
       )
+
+    await mintSomeReputation()
+    await mintSomeReputation()
 
     // we should have received two reputation events
     await waitUntilTrue(() => cntr >= 2 )
