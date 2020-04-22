@@ -4,7 +4,6 @@ import { first, concatMap } from 'rxjs/operators'
 import {
   IProposalState,
   Proposal,
-  IEntityRef,
   Arc,
   IApolloQueryOptions,
   secondSinceEpochToDate,
@@ -26,6 +25,7 @@ import {
   Address
 } from '../../index'
 import { DocumentNode } from 'graphql'
+import { ContributionRewardExt } from '../contributionRewardExt'
 
 export interface ICompetitionProposalState extends IProposalState { 
   id: string
@@ -38,7 +38,6 @@ export interface ICompetitionProposalState extends IProposalState {
   votingStartTime: Date
   suggestionsEndTime: Date
   numberOfVotesPerVoter: number
-  plugin: IEntityRef<Competition>
   snapshotBlock: number
   createdAt: Date
   totalVotes: number
@@ -92,7 +91,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
     
     if (!item.contributionReward) throw new Error(`Unexpected proposal state: competition is set, but contributionReward is not`)
  
-    const competitionState = Competition.itemMap(context, item.scheme, query)
+    const competitionState = ContributionRewardExt.itemMap(context, item.scheme, query)
 
     if(!competitionState) return null
     

@@ -1,6 +1,6 @@
 import { ITransactionState, ITransactionUpdate } from '../src/'
 import { Proposal, IProposalCreateOptionsCR, ContributionReward } from '../src'
-import { getTestAddresses, getTestDAO, mineANewBlock, toWei, waitUntilTrue, getTestScheme } from './utils'
+import { getTestDAO, mineANewBlock, toWei, waitUntilTrue, getTestScheme } from './utils'
 import { IContributionRewardProposalState } from '../src/plugins/contributionReward/proposal'
 
 jest.setTimeout(20000)

@@ -45,7 +45,7 @@ describe('Member', () => {
     const member = members[0]
     const memberState = await member.fetchState()
     expect(Number(memberState.reputation)).toBeGreaterThan(0)
-    expect(memberState.dao).toBe(dao.id.toLowerCase())
+    expect(memberState.dao.id).toBe(dao.id.toLowerCase())
   })
 
   it('Member is usable without knowing id or contract', async () => {
@@ -77,12 +77,14 @@ describe('Member', () => {
     const member = new Member(arc, Member.calculateId({ address: stakerAccount, contract: daoState.reputation.entity.address}))
     const proposal = await createAProposal()
     const stakingToken =  await proposal.stakingToken()
+
     // mint tokens with defaultAccount
     await stakingToken.mint(stakerAccount, toWei('10000')).send()
     // switch the defaultAccount to a fresh one
 
     stakingToken.context.defaultAccount = stakerAccount
     const votingMachine = await proposal.votingMachine()
+
     await stakingToken.approveForStaking(votingMachine.address, toWei('1000')).send()
 
     await proposal.stake(IProposalOutcome.Pass, toWei('99')).send()
@@ -91,9 +93,13 @@ describe('Member', () => {
       (next: Stake[]) => { stakes = next }
     )
     // wait until the proposal has been indexed
+
+    console.log(stakes)
+
     await waitUntilTrue(() => stakes.length > 0)
 
     expect(stakes.length).toBeGreaterThan(0)
+
     const stakeState = await stakes[0].fetchState()
     expect(stakeState.staker).toEqual(stakerAccount.toLowerCase())
     expect(fromWei(stakeState.amount)).toEqual('99.0')

@@ -5,7 +5,6 @@ import {
   Operation,
   toIOperationObservable,
   ITransaction,
-  transactionErrorHandler,
   transactionResultHandler,
   Plugin,
   IPluginQueryOptions,
@@ -36,13 +35,6 @@ export abstract class ProposalPlugin<
   //   options: TProposalCreateOptions
   // ): transactionErrorHandler
 
-  //The old implementation in scheme.ts was:
-  protected createProposalErrorHandler(
-    options: TProposalCreateOptions
-  ): transactionErrorHandler {
-    throw Error('this should never be called')
-  }
-
   public static search<
     TPluginState extends IPluginState,
     TProposalState extends IProposalState,
@@ -66,9 +58,8 @@ export abstract class ProposalPlugin<
       try {
         const createTransaction = await this.createProposalTransaction(options)
         const map = this.createProposalTransactionMap()
-        const errHandler = this.createProposalErrorHandler(options)
         const sendTransactionObservable = this.context.sendTransaction(
-          createTransaction, map, errHandler
+          createTransaction, map
         )
         const sub = sendTransactionObservable.subscribe(observer)
         return () => sub.unsubscribe()

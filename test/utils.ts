@@ -168,11 +168,12 @@ export async function createAProposal(
     dao.context, 
     getTestScheme("ContributionReward")
   )
+
   const response = await plugin.createProposal(options).send()
 
-  if(!response.result || !response.result.coreState) throw new Error('Response yielded no results')
+  if(!response.result) throw new Error('Response yielded no results')
 
-  const proposal = new ContributionRewardProposal(dao.context, response.result.coreState)
+  const proposal = new ContributionRewardProposal(dao.context, response.result.id)
 
   // wait for the proposal to be indexed
   let indexed = false
@@ -189,9 +190,9 @@ export async function createCRProposal(
   const plugin = new ContributionReward(context, pluginId)
   const response = await plugin.createProposal(options).send()
 
-  if(!response.result || !response.result.coreState) throw new Error('Response yielded no results')
+  if(!response.result) throw new Error('Response yielded no results')
 
-  return new ContributionRewardProposal(context, response.result.coreState)
+  return new ContributionRewardProposal(context, response.result.id)
 }
 
 export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {

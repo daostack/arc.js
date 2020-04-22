@@ -1,6 +1,6 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
-import { IProposalStage, AnyPlugin, ContributionReward, SchemeRegistrar, GenericScheme, ContributionRewardProposal } from '../src'
+import { IProposalStage, AnyPlugin, ContributionReward, SchemeRegistrar, GenericScheme, ContributionRewardProposal, IContributionRewardState } from '../src'
 import { IPluginState, Plugin } from '../src'
 import { firstResult, getTestAddresses, getTestDAO,  ITestAddresses, newArc, getTestScheme } from './utils'
 
@@ -40,6 +40,10 @@ describe('Scheme', () => {
       const state = await item.fetchState()
       pluginStates.push(state)
     }))
+
+    //TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it. 
+    // Its interface is unknown. This test is failing because of this
+
     expect((pluginStates.map((r) => r.name)).sort()).toEqual([
       'ContributionReward',
       'DAOFactoryInstance',
@@ -112,9 +116,9 @@ describe('Scheme', () => {
     const { queuedProposalId } = testAddresses
     const proposal = new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
-    const plugins = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
-    const schemeState = await firstResult(plugins[0].state())
-    expect(schemeState).toMatchObject(proposalState.plugin.entity.coreState)
+    const plugins: ContributionReward[] = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
+    const schemeState: IContributionRewardState = await firstResult(plugins[0].state())
+    expect(schemeState).toMatchObject(proposalState.plugin.entity.coreState as IContributionRewardState)
   })
 
   it('numberOfProposals counts are correct', async () =>  {
@@ -135,6 +139,9 @@ describe('Scheme', () => {
       .pipe(first()).toPromise()
     expect(schemeState.numberOfBoostedProposals).toEqual(boostedProposals.length)
   })
+
+  //TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it. 
+  // Its interface is unknown. This test is failing because of this
 
   it('paging and sorting works', async () => {
     const ls1 = await Plugin.search(arc, { first: 3, orderBy: 'address' }).pipe(first()).toPromise()

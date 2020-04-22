@@ -5,7 +5,6 @@ import {
   IProposalBaseCreateOptions,
   ProposalPlugin,
   Arc,
-  GenericSchemeProposal,
   IGenesisProtocolParams,
   mapGenesisProtocolParams,
   IPluginState,
@@ -17,7 +16,8 @@ import {
   NULL_ADDRESS,
   IContributionRewardProposalState,
   Address,
-  IApolloQueryOptions
+  IApolloQueryOptions,
+  ContributionRewardProposal
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -140,7 +140,6 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
       contract: this.context.getContract(options.plugin),
       method: 'proposeContributionReward',
       args: [
-        options.dao,
         options.descriptionHash || '',
         options.reputationReward && options.reputationReward.toString() || 0,
         [
@@ -158,9 +157,9 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
 
   public createProposalTransactionMap(): transactionResultHandler<any> {
     return async (receipt: ITransactionReceipt) => {
-      const args = getEventArgs(receipt, 'NewCallProposal', 'GenericScheme.createProposal')
+      const args = getEventArgs(receipt, 'NewContributionProposal', 'ContributionReward.createProposal')
       const proposalId = args[1]
-      return new GenericSchemeProposal(this.context, proposalId)
+      return new ContributionRewardProposal(this.context, proposalId)
     }
   }
   

@@ -70,10 +70,10 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
           numberOfBoostedProposals
           version
           ${Object.values(Plugins).filter(plugin => plugin.fragment)
-            .map(plugin => '...' + plugin.fragment.name).join('\n')}
+            .map(plugin => '...' + plugin.fragment?.name).join('\n')}
         }
         ${Object.values(Plugins).filter(plugin => plugin.fragment)
-          .map(plugin => plugin.fragment.fragment.loc?.source.body).join('\n')}
+          .map(plugin => plugin.fragment?.fragment.loc?.source.body).join('\n')}
       `
     }
 

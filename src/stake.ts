@@ -49,6 +49,7 @@ export class Stake extends Entity<IStakeState> {
       proposal {
         id
         scheme {
+          id
           name
         }
       }
@@ -99,6 +100,7 @@ export class Stake extends Entity<IStakeState> {
           proposal (id: "${proposalId}") {
             id
             scheme {
+              id
               name
             }
             stakes ${createGraphQlQuery(options, where)} {

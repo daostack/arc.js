@@ -22,10 +22,21 @@ import {
   CompetitionProposal,
   ICompetitionProposalState,
   IContributionRewardExtState,
-  ContributionRewardExt,
-  Address
+  ProposalPlugin,
+  Address,
+  Plugin,
+  IPluginState,
+  IGenesisProtocolParams
 } from '../../index'
+import gql from 'graphql-tag'
 
+export interface ICompetitionState extends IPluginState {
+  pluginParams: {
+    votingMachine: Address
+    voteParams: IGenesisProtocolParams
+    rewarder: Address
+  }
+}
 export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   endTime: Date,
   reputationReward?: BN
@@ -41,7 +52,32 @@ export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   votingStartTime: Date
 }
 
-export class Competition extends ContributionRewardExt {
+export class Competition extends ProposalPlugin<
+  ICompetitionState,
+  ICompetitionProposalState,
+  IProposalCreateOptionsComp
+> {
+
+  public state(apolloQueryOptions: IApolloQueryOptions) {
+    const query = gql`query ProposalState
+      {
+        proposal(id: "${this.id}") {
+          ...ProposalFields
+          votes {
+            id
+          }
+          stakes {
+            id
+          }
+        }
+      }
+      ${Proposal.baseFragment}
+      ${Plugin.baseFragment}
+    `
+
+    const result = this.context.getObservableObject(this.context, query, CompetitionProposal.itemMap, apolloQueryOptions) as Observable<ICompetitionState>
+    return result
+  }
 
   public static getCompetitionContract(arc: Arc, state: IContributionRewardExtState) {
     if (state === null) {
@@ -138,12 +174,12 @@ export class Competition extends ContributionRewardExt {
     }
   }
 
-  public createCompetitionProposal(options: IProposalCreateOptionsComp): Operation<Proposal<ICompetitionProposalState>>  {
+  public createProposal(options: IProposalCreateOptionsComp): Operation<Proposal<ICompetitionProposalState>>  {
     const observable = Observable.create(async (observer: any) => {
       try {
-        const createTransaction = await this.createCompetitionProposalTransaction(options)
-        const map = this.createCompetitionProposalTransactionMap()
-        const errHandler = this.createCompetitionProposalErrorHandler(options)
+        const createTransaction = await this.createProposalTransaction(options)
+        const map = this.createProposalTransactionMap()
+        const errHandler = this.createProposalErrorHandler(options)
         const sendTransactionObservable = this.context.sendTransaction(
           createTransaction, map, errHandler
         )
@@ -158,7 +194,7 @@ export class Competition extends ContributionRewardExt {
     return toIOperationObservable(observable)
   }
 
-  public createCompetitionProposalTransactionMap(): transactionResultHandler<CompetitionProposal> {
+  public createProposalTransactionMap(): transactionResultHandler<CompetitionProposal> {
     return (receipt: ITransactionReceipt) => {
       const args = getEventArgs(receipt, 'NewCompetitionProposal', 'Competition.createProposal')
       const proposalId = args[0]
@@ -166,7 +202,7 @@ export class Competition extends ContributionRewardExt {
     }
   }
 
-  public createCompetitionProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
+  public createProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
     return async (err) => {
       if (err.message.match(/startTime should be greater than proposing time/ig)) {
         if (!this.context.web3) {
@@ -179,6 +215,67 @@ export class Competition extends ContributionRewardExt {
       }
     }
   }
+
+  protected async createProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
+    const context = this.context
+    const schemeState = await this.fetchState()
+    if (!schemeState) {
+      throw Error(`No scheme was found with this id: ${this.id}`)
+    }
+
+    const contract = Competition.getCompetitionContract(this.context, schemeState)
+
+    // check sanity -- is the competition contract actually c
+    const contributionRewardExtAddress = await contract.contributionRewardExt()
+    if (contributionRewardExtAddress.toLowerCase() !== schemeState.address) {
+      throw Error(`This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${schemeState.address}`)
+    }
+
+    options.descriptionHash = await context.saveIPFSData(options)
+    if (!options.rewardSplit) {
+      throw Error(`Rewardsplit was not given..`)
+    } else {
+      if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
+        throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b)})`)
+      }
+    }
+    // * @param _rewardSplit an array of precentages which specify how to split the rewards
+    // *         between the winning suggestions
+    // * @param _competitionParams competition parameters :
+    // *         _competitionParams[0] - competition startTime
+    // *         _competitionParams[1] - _votingStartTime competition voting start time
+    // *         _competitionParams[2] - _endTime competition end time
+    // *         _competitionParams[3] - _maxNumberOfVotesPerVoter on how many suggestions a voter can vote
+    // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
+    // *         _competitionParams[4] - _suggestionsEndTime suggestion submition end time
+
+    const competitionParams = [
+      (options.startTime && dateToSecondsSinceEpoch(options.startTime)) || 0,
+      dateToSecondsSinceEpoch(options.votingStartTime) || 0,
+      dateToSecondsSinceEpoch(options.endTime) || 0,
+      options.numberOfVotesPerVoter.toString() || 0,
+      dateToSecondsSinceEpoch(options.suggestionsEndTime) || 0
+    ]
+    const proposerIsAdmin = !!options.proposerIsAdmin
+
+    return {
+      contract,
+      method: 'proposeCompetition',
+      args: [
+        options.descriptionHash || '',
+        options.reputationReward && options.reputationReward.toString() || 0,
+        [
+          options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
+          options.ethReward && options.ethReward.toString() || 0,
+          options.externalTokenReward && options.externalTokenReward.toString() || 0
+        ],
+        options.externalTokenAddress || NULL_ADDRESS,
+        options.rewardSplit,
+        competitionParams,
+        proposerIsAdmin
+      ]
+    }
+}
 
   public async ethBalance(): Promise<Observable<BN>> {
     let state

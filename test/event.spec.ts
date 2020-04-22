@@ -1,6 +1,6 @@
 import { first } from 'rxjs/operators'
-import { Arc, DAO, Event, IEventState, Proposal, ContributionRewardProposal, ContributionReward, IProposalCreateOptionsCR } from '../src'
-import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei, waitUntilTrue, createCRProposal } from './utils'
+import { Arc, DAO, Event, IEventState, IProposalCreateOptionsCR } from '../src'
+import { getTestDAO, newArc, toWei, waitUntilTrue, createCRProposal, getTestScheme } from './utils'
 
 jest.setTimeout(20000)
 
