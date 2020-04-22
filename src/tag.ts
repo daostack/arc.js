@@ -33,6 +33,7 @@ export class Tag extends Entity<ITagState> {
       proposals { 
         id
         scheme {
+          id
           name
         }
       }
@@ -74,6 +75,7 @@ export class Tag extends Entity<ITagState> {
           proposal (id: "${proposalId}") {
             id
             scheme {
+              id
               name
             }
             tags ${createGraphQlQuery(options, where)} {

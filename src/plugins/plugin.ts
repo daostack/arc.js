@@ -134,9 +134,6 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
 
     if(this.coreState === undefined || refetch) {
       const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-      if (state.name ===  'ReputationFromToken') {
-        this.ReputationFromToken = new ReputationFromTokenScheme(this)
-      }
       this.setState(state)
       return state
     }

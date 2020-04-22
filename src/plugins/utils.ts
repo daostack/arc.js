@@ -22,7 +22,7 @@ import {
   IProposalCreateOptionsCR
 } from '../index'
 
-export const Plugins = {
+export const ProposalPlugins = {
   GenericScheme,
   SchemeRegistrar,
   ContributionReward,
@@ -30,8 +30,8 @@ export const Plugins = {
   Competition
 }
 
-export const ProposalPlugins = {
-  ...Plugins
+export const Plugins = {
+  ...ProposalPlugins
 }
 
 export type PluginName = keyof typeof Plugins

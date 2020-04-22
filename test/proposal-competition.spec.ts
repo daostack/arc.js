@@ -112,7 +112,7 @@ describe('Competition Proposal', () => {
     }
 
     // CREATE PROPOSAL
-    const tx = await plugin.createCompetitionProposal(proposalOptions).send()
+    const tx = await plugin.createProposal(proposalOptions).send()
     const proposal = new CompetitionProposal(arc, tx.result.coreState)
 
     // accept the proposal by voting for et
@@ -207,7 +207,7 @@ describe('Competition Proposal', () => {
     }
 
     // CREATE PROPOSAL
-    const tx = await plugin.createCompetitionProposal(proposalOptions).send()
+    const tx = await plugin.createProposal(proposalOptions).send()
     const proposal1 = new CompetitionProposal(arc, tx.result.coreState)
     expect(proposal1).toBeInstanceOf(Proposal)
 
@@ -269,7 +269,7 @@ describe('Competition Proposal', () => {
     const pluginState = await plugin.fetchState()
 
     // CREATE PROPOSAL
-    const tx = await plugin.createCompetitionProposal(proposalOptions).send()
+    const tx = await plugin.createProposal(proposalOptions).send()
     const proposal = new CompetitionProposal(arc, tx.result.coreState)
     expect(proposal).toBeInstanceOf(Proposal)
 
@@ -677,7 +677,7 @@ describe('Competition Proposal', () => {
     }
 
     const plugin = new CompetitionPlugin(arc, contributionRewardExtAddress)
-    const tx = await plugin.createCompetitionProposal(proposalOptions).send()
+    const tx = await plugin.createProposal(proposalOptions).send()
     const proposal = new CompetitionProposal(arc, tx.result.coreState)
     expect(proposal).toBeInstanceOf(Proposal)
   })

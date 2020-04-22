@@ -139,7 +139,7 @@ export async function getTestDAO(arc?: Arc, version: string = LATEST_ARC_VERSION
     const msg = `Expected to find ".test.avatar" in the migration file, found ${addresses} instead`
     throw Error(msg)
   }
-  return arc.dao(addresses.dao.Avatar)
+  return new DAO(arc, addresses.dao.Avatar)
 }
 
 export async function createAProposal(

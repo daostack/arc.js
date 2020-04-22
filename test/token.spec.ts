@@ -29,7 +29,7 @@ describe('Token', () => {
   it('get the token state', async () => {
     const token = new Token(arc, address)
     const state = await token.fetchState()
-    expect(Object.keys(state)).toEqual(['address', 'name', 'owner', 'symbol', 'totalSupply'])
+    expect(Object.keys(state)).toEqual(['id', 'address', 'name', 'owner', 'symbol', 'totalSupply'])
     const expected = {
        address: address.toLowerCase(),
        owner: addresses.dao.Avatar.toLowerCase()
@@ -41,7 +41,7 @@ describe('Token', () => {
     expect.assertions(1)
     const token = new Token(arc, '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
     await expect(token.state().toPromise()).rejects.toThrow(
-      'Could not find a token contract with address 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
+      /Token ItemMap failed/
     )
   })
 
@@ -108,6 +108,7 @@ describe('Token', () => {
     expect(lastAllowance()).toMatchObject(amount)
   })
 
+  //TODO: this indeed throws but differently
   it('get balance of a non-existing token', async () => {
     const token = new Token(arc, '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
     const promise = token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')

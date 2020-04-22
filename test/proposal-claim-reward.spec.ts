@@ -1,13 +1,11 @@
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IProposalOutcome, IProposalStage, IProposalState, Proposal, ContributionReward, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericScheme, GenericSchemeProposal } from '../src'
+import { Arc, DAO, IProposalOutcome, IProposalStage, IProposalState, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericScheme, GenericSchemeProposal } from '../src'
 
 import BN from 'bn.js'
 import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, newArc,
   toWei, voteToPassProposal, waitUntilTrue, createCRProposal, getTestScheme } from './utils'
 import { BigNumber } from 'ethers/utils'
-import { Contract, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import { ContributionRewardProposal } from '../src'
 
 jest.setTimeout(60000)
@@ -156,6 +154,7 @@ describe('Claim rewards', () => {
     const genericSchemes = await arc.plugins({where: {name: "GenericScheme" }}).pipe(first()).toPromise()
     const genericScheme = genericSchemes[0] as GenericScheme
     const genericSchemeState = await genericScheme.state({}).pipe(first()).toPromise()
+
     dao  = new DAO(arc, genericSchemeState.dao.id)
 
     const beneficiary = await arc.getAccount().pipe(first()).toPromise()
@@ -175,9 +174,13 @@ describe('Claim rewards', () => {
       value: 0
     }).send()
 
-    const proposal = new GenericSchemeProposal(arc, tx.result.coreState)
+    if(!tx.result) throw new Error('Response yielded no result')
 
+    const proposal = new GenericSchemeProposal(arc, tx.result.id)
+
+    //TODO: query for state failing
     const proposalState = await proposal.fetchState()
+
     await arc.GENToken().approveForStaking(proposalState.votingMachine, stakeAmount).send()
     await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
 

@@ -35,7 +35,7 @@ describe('Reputation', () => {
     const reputation = new Reputation(arc, address)
     expect(reputation).toBeInstanceOf(Reputation)
     const state = await reputation.fetchState()
-    expect(Object.keys(state)).toEqual(['address', 'dao', 'totalSupply'])
+    expect(Object.keys(state)).toEqual(['id','address', 'dao', 'totalSupply'])
     const expected = {
        address: address.toLowerCase()
     }
@@ -46,7 +46,7 @@ describe('Reputation', () => {
     expect.assertions(1)
     const reputation = new Reputation(arc, '0xe74f3c49c162c00ac18b022856e1a4ecc8947c42')
     await expect(reputation.state().toPromise()).rejects.toThrow(
-      'Could not find a reputation contract with address 0xe74f3c49c162c00ac18b022856e1a4ecc8947c42'
+      /Reputation ItemMap failed/
     )
   })
 

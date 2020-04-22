@@ -1,9 +1,6 @@
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { Queue } from '../src/queue'
 import { getTestAddresses, getTestDAO, ITestAddresses,  newArc } from './utils'
-import { ContributionRewardProposal } from '../src'
+import { ContributionRewardProposal, Arc, DAO, Queue } from '../src'
 
 jest.setTimeout(20000)
 
@@ -57,7 +54,9 @@ describe('Queue', () => {
     const proposalState = await proposal.fetchState()
     const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.entity.dao)
     const queueState = await queue.fetchState()
-    expect(proposalState.queue).toEqual(queueState)
+
+    //TODO: this comparison is extremely long and error prone because it stringifies entities (EntityRefs were only IDs here before)
+    expect(proposalState.queue.entity).toEqual(queueState)
   })
 
   it('paging and sorting works', async () => {

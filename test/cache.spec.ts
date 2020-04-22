@@ -71,15 +71,21 @@ describe('apolloClient caching checks', () => {
   it('pre-fetching ProposalVotes works', async () => {
     // find a proposal in a scheme that has > 1 votes
     let proposals = await Proposal.search(arc).pipe(first()).toPromise()
-    // @ts-ignore
-    proposals = proposals.filter((p) => p.coreState.votesCount.length > 1)
+    
+    proposals = proposals.filter((p) => {
+      
+      if(!p.coreState) throw new Error('Proposal coreState should not be null')
+
+      return p.coreState.votes.length > 1
+    })
     const proposal = proposals[0]
-    // @ts-ignore
-    const vote = new Vote(arc, proposals[0].coreState.votes[0])
+
+    if(!proposals[0].coreState) throw new Error('Proposal coreState should not be null')
+
+    const vote = proposals[0].coreState.votes[0].entity
     const voteState = await vote.fetchState()
     const voterAddress = voteState.voter
     const proposalState = await proposal.fetchState()
-    //TODO: What kind of plugin is this one?
     const plugin = new GenericScheme(arc, proposalState.plugin.id)
 
     // now we have our objects, reset the cache

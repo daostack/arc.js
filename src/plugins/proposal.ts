@@ -131,6 +131,7 @@ export interface IProposalState {
   totalRepWhenExecuted: BN
   type: ProposalName
   url?: string
+  votes: IEntityRef<Vote>[]
   votesFor: BN
   votesAgainst: BN
   votesCount: number
@@ -222,7 +223,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
         totalRepWhenExecuted
         title
         url
-        # votes { id }
+        votes { id }
         votesAgainst
         votesFor
         votingMachine
@@ -278,7 +279,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
           if (Proposals[value] === undefined) {
             throw Error(`Unknown value for "type" in proposals query: ${value}`)
           }
-          const apolloKey = Proposals[value][0].toLowerCase() + Proposals[value].slice(1)
+          const apolloKey = value[0].toLowerCase() + value.slice(1)
           where += `${apolloKey}_not: null\n`
         }
       } else if (Array.isArray(options.where[key])) {
@@ -471,6 +472,12 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       type,
       upstakeNeededToPreBoost,
       url: item.url,
+      votes: item.votes.map((vote: any) => { 
+        return { 
+          id: vote.id,
+          entity: new Vote(context, vote.id)
+        }
+      }),
       voteOnBehalf: item.voteOnBehalf,
       votesAgainst: new BN(item.votesAgainst),
       votesCount: item.votes.length,

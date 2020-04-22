@@ -191,7 +191,6 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
         pluginAddress,
         state.votingMachine,
         this.id,
-        state.dao.id,
         beneficiary
       ]
 

@@ -51,6 +51,7 @@ export class Vote extends Entity<IVoteState> {
       proposal {
         id
         scheme {
+          id
           name
         }
       }
@@ -108,6 +109,7 @@ export class Vote extends Entity<IVoteState> {
           proposal (id: "${proposalId}") {
             id
             scheme {
+              id
               name
             }
             votes ${createGraphQlQuery({ where: { ...options.where, proposal: undefined}}, where)} {
