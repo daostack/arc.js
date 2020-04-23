@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ISchemeQueryOptions](ischemequeryoptions.md)
+[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [ISchemeQueryOptions](ischemequeryoptions.md)
 
 # Interface: ISchemeQueryOptions
 
@@ -34,7 +34,7 @@
 
 *Overrides [ICommonQueryOptions](icommonqueryoptions.md).[first](icommonqueryoptions.md#optional-first)*
 
-*Defined in [src/types.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L17)*
+*Defined in [src/types.ts:17](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L17)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 *Overrides [ICommonQueryOptions](icommonqueryoptions.md).[orderBy](icommonqueryoptions.md#optional-orderby)*
 
-*Defined in [src/types.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L18)*
+*Defined in [src/types.ts:18](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L18)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 *Overrides [ICommonQueryOptions](icommonqueryoptions.md).[orderDirection](icommonqueryoptions.md#optional-orderdirection)*
 
-*Defined in [src/types.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L19)*
+*Defined in [src/types.ts:19](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L19)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 *Overrides [ICommonQueryOptions](icommonqueryoptions.md).[skip](icommonqueryoptions.md#optional-skip)*
 
-*Defined in [src/types.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L16)*
+*Defined in [src/types.ts:16](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L16)*
 
 ___
 
@@ -80,10 +80,10 @@ ___
 
 *Overrides [ICommonQueryOptions](icommonqueryoptions.md).[where](icommonqueryoptions.md#optional-where)*
 
-*Defined in [src/schemes/base.ts:74](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L74)*
+*Defined in [src/schemes/base.ts:66](https://github.com/daostack/client/blob/6c661ff/src/schemes/base.ts#L66)*
 
-*Defined in [src/schemes/base.ts:89](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L89)*
+*Defined in [src/schemes/base.ts:80](https://github.com/daostack/client/blob/6c661ff/src/schemes/base.ts#L80)*
 
-*Defined in [src/scheme.ts:76](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L76)*
+*Defined in [src/scheme.ts:73](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L73)*
 
-*Defined in [src/scheme.ts:91](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L91)*
+*Defined in [src/scheme.ts:87](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L87)*

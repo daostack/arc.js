@@ -1,6 +1,6 @@
-[@daostack/client - v0.2.64](README.md) › [Globals](globals.md)
+[@daostack/client - v2.0.0-experimental.1](README.md) › [Globals](globals.md)
 
-# @daostack/client - v0.2.64
+# @daostack/client - v2.0.0-experimental.1
 
 [![Build Status](https://travis-ci.com/daostack/client.svg?token=aXt9zApRNkfx8zDMypWx&branch=master)](https://travis-ci.com/daostack/client)
 

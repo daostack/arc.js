@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Reputation](reputation.md)
+[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [Reputation](reputation.md)
 
 # Class: Reputation
 
@@ -37,7 +37,7 @@
 
 \+ **new Reputation**(`context`: [Arc](arc.md), `id`: [Address](../globals.md#address)): *[Reputation](reputation.md)*
 
-*Defined in [src/reputation.ts:68](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L68)*
+*Defined in [src/reputation.ts:67](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L67)*
 
 **Parameters:**
 
@@ -54,7 +54,7 @@ Name | Type |
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [src/reputation.ts:68](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L68)*
+*Defined in [src/reputation.ts:67](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L67)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/reputation.ts:69](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L69)*
+*Defined in [src/reputation.ts:69](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L69)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **id**: *[Address](../globals.md#address)*
 
-*Defined in [src/reputation.ts:69](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L69)*
+*Defined in [src/reputation.ts:69](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L69)*
 
 ## Methods
 
@@ -78,7 +78,7 @@ ___
 
 ▸ **contract**(): *Contract‹›*
 
-*Defined in [src/reputation.ts:123](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L123)*
+*Defined in [src/reputation.ts:126](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L126)*
 
 **Returns:** *Contract‹›*
 
@@ -86,9 +86,15 @@ ___
 
 ###  fetchState
 
-▸ **fetchState**(): *Promise‹[IReputationState](../interfaces/ireputationstate.md)›*
+▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IReputationState](../interfaces/ireputationstate.md)›*
 
-*Defined in [src/reputation.ts:97](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L97)*
+*Defined in [src/reputation.ts:98](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L98)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`apolloQueryOptions` | [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md) |  {} |
 
 **Returns:** *Promise‹[IReputationState](../interfaces/ireputationstate.md)›*
 
@@ -98,7 +104,7 @@ ___
 
 ▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[Operation](../globals.md#operation)‹undefined›*
 
-*Defined in [src/reputation.ts:128](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L128)*
+*Defined in [src/reputation.ts:130](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L130)*
 
 **Parameters:**
 
@@ -115,7 +121,7 @@ ___
 
 ▸ **reputationOf**(`address`: [Address](../globals.md#address)): *Observable‹BN›*
 
-*Defined in [src/reputation.ts:99](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L99)*
+*Defined in [src/reputation.ts:102](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L102)*
 
 **Parameters:**
 
@@ -131,7 +137,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IReputationState](../interfaces/ireputationstate.md)›*
 
-*Defined in [src/reputation.ts:73](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L73)*
+*Defined in [src/reputation.ts:74](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L74)*
 
 **Parameters:**
 
@@ -147,7 +153,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IReputationQueryOptions](../interfaces/ireputationqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Reputation](reputation.md)[]›*
 
-*Defined in [src/reputation.ts:32](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L32)*
+*Defined in [src/reputation.ts:31](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L31)*
 
 Reputation.search(context, options) searches for reputation entities
 

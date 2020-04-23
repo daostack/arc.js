@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IContractInfo](icontractinfo.md)
+[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IContractInfo](icontractinfo.md)
 
 # Interface: IContractInfo
 
@@ -21,7 +21,7 @@
 
 • **address**: *[Address](../globals.md#address)*
 
-*Defined in [src/arc.ts:471](https://github.com/dorgtech/client/blob/19b4373/src/arc.ts#L471)*
+*Defined in [src/arc.ts:461](https://github.com/daostack/client/blob/6c661ff/src/arc.ts#L461)*
 
 ___
 
@@ -29,7 +29,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/arc.ts:469](https://github.com/dorgtech/client/blob/19b4373/src/arc.ts#L469)*
+*Defined in [src/arc.ts:459](https://github.com/daostack/client/blob/6c661ff/src/arc.ts#L459)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [src/arc.ts:472](https://github.com/dorgtech/client/blob/19b4373/src/arc.ts#L472)*
+*Defined in [src/arc.ts:462](https://github.com/daostack/client/blob/6c661ff/src/arc.ts#L462)*
 
 ___
 
@@ -45,4 +45,4 @@ ___
 
 • **version**: *string*
 
-*Defined in [src/arc.ts:470](https://github.com/dorgtech/client/blob/19b4373/src/arc.ts#L470)*
+*Defined in [src/arc.ts:460](https://github.com/daostack/client/blob/6c661ff/src/arc.ts#L460)*
