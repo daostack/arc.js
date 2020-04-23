@@ -19,6 +19,7 @@ import {
   Address
 } from '../../index'
 import { DocumentNode } from 'graphql'
+import { DAO } from '../../dao'
 
 export interface IContributionRewardExtState extends IPluginState {
   pluginParams: {
@@ -76,7 +77,7 @@ export class ContributionRewardExt extends ProposalPlugin<
   return this._fragment
 }
 
-  public static itemMap(arc: Arc, item: any, query: DocumentNode): IContributionRewardExtState | null {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtState | null {
     if (!item) {
       console.log(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
@@ -86,7 +87,7 @@ export class ContributionRewardExt extends ProposalPlugin<
     if (!name) {
 
       try {
-        name = arc.getContractInfo(item.address).name
+        name = context.getContractInfo(item.address).name
       } catch (err) {
         if (err.message.match(/no contract/ig)) {
           // continue
@@ -108,7 +109,10 @@ export class ContributionRewardExt extends ProposalPlugin<
         canManageGlobalConstraints: item.canManageGlobalConstraints,
         canRegisterPlugins: item.canRegisterSchemes,
         canUpgradeController: item.canUpgradeController,
-        dao: item.dao.id,
+        dao: {
+          id: item.dao.id,
+          entity: new DAO(context, item.dao.id)
+        },
         id: item.id,
         name,
         numberOfBoostedProposals: Number(item.numberOfBoostedProposals),

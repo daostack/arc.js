@@ -1,7 +1,5 @@
 import BN from 'bn.js'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IProposalOutcome, IProposalStage, IProposalState, Proposal, ContributionRewardProposal, IProposalCreateOptionsCR } from '../src'
+import { IProposalOutcome, DAO, Arc, IProposalStage, IProposalState, ContributionRewardProposal, IProposalCreateOptionsCR } from '../src'
 import { advanceTime, createAProposal, fromWei, getTestAddresses, getTestDAO,
   ITestAddresses, newArc, toWei,
   voteToPassProposal, waitUntilTrue, createCRProposal } from './utils'
@@ -20,6 +18,8 @@ describe('Proposal execute()', () => {
     dao = await getTestDAO()
     executedProposal = new ContributionRewardProposal(arc, addresses.executedProposalId)
   })
+
+  //TODO: it says contract address is invalid
 
   it('runs correctly through the stages', async () => {
 
@@ -57,6 +57,8 @@ describe('Proposal execute()', () => {
       },
       (error: Error) => { throw error }
     )
+
+    console.log(proposal)
 
     // wait until the propsal is indexed
     await waitUntilTrue(() => proposalStates.length > 0)

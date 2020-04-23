@@ -1,4 +1,5 @@
 import { first } from 'rxjs/operators'
+import { inspect } from 'util'
 import { getTestAddresses, getTestDAO, ITestAddresses,  newArc } from './utils'
 import { ContributionRewardProposal, Arc, DAO, Queue } from '../src'
 
@@ -55,8 +56,9 @@ describe('Queue', () => {
     const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.entity.dao)
     const queueState = await queue.fetchState()
 
-    //TODO: this comparison is extremely long and error prone because it stringifies entities (EntityRefs were only IDs here before)
-    expect(proposalState.queue.entity).toEqual(queueState)
+    if(!proposalState.queue.entity.coreState) throw new Error("Proposal's queue coreState not defined")
+
+    expect(inspect(proposalState.queue.entity.coreState)).toBe(inspect(queueState))
   })
 
   it('paging and sorting works', async () => {
@@ -71,4 +73,5 @@ describe('Queue', () => {
     const ls3 = await Queue.search(arc, {  orderBy: 'id', orderDirection: 'desc'}).pipe(first()).toPromise()
     expect(ls3[0].id >= ls3[1].id).toBeTruthy()
   })
+
 })

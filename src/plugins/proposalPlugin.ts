@@ -57,7 +57,7 @@ export abstract class ProposalPlugin<
     const observable = Observable.create(async (observer: any) => {
       try {
         const createTransaction = await this.createProposalTransaction(options)
-        const map = this.createProposalTransactionMap()
+        const map = this.createProposalTransactionMap(options)
         const sendTransactionObservable = this.context.sendTransaction(
           createTransaction, map
         )

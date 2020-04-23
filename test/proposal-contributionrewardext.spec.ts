@@ -47,7 +47,10 @@ describe('ContributionReward Ext', () => {
       //TODO: proposer?
       proposer: ''
     }).send()
-    let proposal = new ContributionRewardExtProposal(arc, tx.result.coreState)
+
+    if(!tx.result) throw new Error("Create proposal yielded no results")
+
+    let proposal = new ContributionRewardExtProposal(arc, tx.result.id)
     expect(proposal).toBeInstanceOf(Proposal)
 
     const states: IProposalState[] = []

@@ -14,9 +14,9 @@ import {
   IProposalState,
   Proposal,
   Plugin,
-  IProposalCreateOptionsComp
+  IProposalCreateOptionsComp,
+  getBlockTime
 } from '../src'
-import { getBlockTime } from '../src/utils'
 import {
   advanceTimeAndBlock,
   newArc,
@@ -67,6 +67,10 @@ describe('Competition Proposal', () => {
 
     const contributionRewardExtState = await contributionRewardExt.fetchState()
     contributionRewardExtAddress = contributionRewardExtState.address
+    await contributionRewardExtState.dao.entity.fetchState()
+
+    if(!contributionRewardExtState.dao.entity.coreState) throw new Error("Dao coreState not defined")
+
     dao = new DAO(arc, contributionRewardExtState.dao.entity.coreState)
 
     if (!arc.web3) throw new Error('Web3 provider not set')
@@ -79,6 +83,7 @@ describe('Competition Proposal', () => {
       proposerIsAdmin?: boolean
     }  = {}) {
     const plugin = new  CompetitionPlugin(arc, contributionRewardExt.id)
+
     // make sure that the DAO has enough Ether to pay forthe reward
 
     if(!arc.web3) throw new Error('Web3 provider not set')
@@ -112,12 +117,19 @@ describe('Competition Proposal', () => {
     }
 
     // CREATE PROPOSAL
+
+    //TODO: this actually creates a CRExt proposal, not a competition one. Therefore, its fetchState itemMapper fails.
     const tx = await plugin.createProposal(proposalOptions).send()
-    const proposal = new CompetitionProposal(arc, tx.result.coreState)
+
+    if(!tx.result) throw new Error("Create proposal yielded no results")
+
+    const proposal = new CompetitionProposal(arc, tx.result.id)
 
     // accept the proposal by voting for et
     await voteToPassProposal(proposal)
     await proposal.redeemRewards().send()
+
+    //TODO: the scheme name in the following query is ContributionRewardExt, therefore thats the ItemMapper called.
 
     // find the competition
     const competitions = await Proposal.search(arc, { where: {id: proposal.id}}).pipe(first()).toPromise() as CompetitionProposal[]
@@ -144,6 +156,7 @@ describe('Competition Proposal', () => {
     const suggestion3 = receipt3.result as CompetitionSuggestion
     const receipt4 = await competition.createSuggestion(suggestion4Options).send()
     const suggestion4 = receipt4.result as CompetitionSuggestion
+
     // wait until suggestions are properly indexed
     let suggestionIds: string[] = []
     const sub = competition.suggestions()
@@ -208,7 +221,10 @@ describe('Competition Proposal', () => {
 
     // CREATE PROPOSAL
     const tx = await plugin.createProposal(proposalOptions).send()
-    const proposal1 = new CompetitionProposal(arc, tx.result.coreState)
+
+    if(!tx.result) throw new Error("Create proposal yielded no results")
+
+    const proposal1 = new CompetitionProposal(arc, tx.result.id)
     expect(proposal1).toBeInstanceOf(Proposal)
 
     const states: IProposalState[] = []
@@ -270,7 +286,10 @@ describe('Competition Proposal', () => {
 
     // CREATE PROPOSAL
     const tx = await plugin.createProposal(proposalOptions).send()
-    const proposal = new CompetitionProposal(arc, tx.result.coreState)
+
+    if(!tx.result) throw new Error("Create proposal yielded no results")
+
+    const proposal = new CompetitionProposal(arc, tx.result.id)
     expect(proposal).toBeInstanceOf(Proposal)
 
     const states: IProposalState[] = []
@@ -308,8 +327,12 @@ describe('Competition Proposal', () => {
     // accept the proposal by voting for et
     await voteToPassProposal(proposal)
 
+    const lastStatePlugin = lastState().plugin.entity
+
+    if(!lastStatePlugin.coreState) throw new Error('Plugin coreState not defined')
+
     // check sanity for scheme
-    expect(pluginState.address).toEqual(lastState().plugin.entity.coreState.address)
+    expect(pluginState.address).toEqual(lastStatePlugin.coreState.address)
 
     // redeem the proposal
     await proposal.fetchState()
@@ -678,7 +701,10 @@ describe('Competition Proposal', () => {
 
     const plugin = new CompetitionPlugin(arc, contributionRewardExtAddress)
     const tx = await plugin.createProposal(proposalOptions).send()
-    const proposal = new CompetitionProposal(arc, tx.result.coreState)
+
+    if(!tx.result) throw new Error('Create proposal yielded no results')
+
+    const proposal = new CompetitionProposal(arc, tx.result.id)
     expect(proposal).toBeInstanceOf(Proposal)
   })
 

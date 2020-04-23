@@ -1,9 +1,6 @@
 import BN from 'bn.js'
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IProposalOutcome, IProposalStage, Proposal, ContributionRewardProposal } from '../src/'
-import { Stake } from '../src/stake'
+import { Stake, Arc, DAO, IProposalOutcome, IProposalStage, ContributionRewardProposal } from '../src/'
 import { createAProposal,
   // getTestAddresses,
   getTestDAO,

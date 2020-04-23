@@ -1,6 +1,5 @@
 import BN from 'bn.js'
-import { IContractInfo } from '../src/arc'
-import { realMathToNumber } from '../src/utils'
+import { IContractInfo, realMathToNumber } from '../src'
 import { advanceTimeAndBlock, getContractAddressesFromMigration, newArc } from './utils'
 
 /**

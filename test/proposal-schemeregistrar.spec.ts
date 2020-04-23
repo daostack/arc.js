@@ -1,15 +1,16 @@
-import { Arc } from '../src/arc'
+
 import {
+  Arc,
   IProposalStage,
   IProposalState,
   Proposal,
   SchemeRegistrarProposal,
   ISchemeRegistrarProposalState,
-  IProposalCreateOptionsSR
+  IProposalCreateOptionsSR,
+  Plugin,
+  SchemeRegistrar
   } from '../src'
-import { Plugin } from '../src'
-import { SchemeRegistrar } from '../src'
-import { firstResult, getTestAddresses, getTestDAO,
+import { firstResult, getTestDAO,
   newArc, voteToPassProposal, waitUntilTrue, getTestScheme } from './utils'
 import { Wallet } from 'ethers'
 
@@ -44,7 +45,10 @@ describe('Proposal', () => {
     const plugin = new SchemeRegistrar(arc, getTestScheme("SchemeRegistrar"))
 
     const tx = await plugin.createProposal(options).send()
-    const proposalToAdd = new SchemeRegistrarProposal(arc, tx.result.coreState)
+
+    if(!tx.result) throw new Error("Create proposal yielded no results")
+
+    const proposalToAdd = new SchemeRegistrarProposal(arc, tx.result.id)
 
     proposalToAdd.state({}).subscribe((pState: IProposalState) => {
       proposalToAddStates.push(pState)
@@ -101,7 +105,9 @@ describe('Proposal', () => {
 
     const editTx = await registeredPlugins[0].createProposal(editProposalOptions).send()
 
-    const proposalToEdit = new SchemeRegistrarProposal(arc, editTx.result.coreState)
+    if(!editTx.result) throw new Error("Create proposal yielded no results")
+
+    const proposalToEdit = new SchemeRegistrarProposal(arc, editTx.result.id)
     const proposalToEditStates: IProposalState[]  = []
     proposalToEdit.state({}).subscribe((pState: IProposalState) => {
       proposalToEditStates.push(pState)
@@ -131,7 +137,10 @@ describe('Proposal', () => {
     }
 
     const removeTx = await plugin.createProposal(removeProposalOptions).send()
-    const proposalToRemove = new SchemeRegistrarProposal(arc, removeTx.result.coreState)
+
+    if(!removeTx.result) throw new Error("Create proposal yielded no results")
+
+    const proposalToRemove = new SchemeRegistrarProposal(arc, removeTx.result.id)
 
     expect(proposalToRemove).toBeInstanceOf(Proposal)
 

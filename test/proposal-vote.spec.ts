@@ -1,7 +1,7 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { IProposalOutcome, Proposal, ContributionRewardProposal } from '../src/'
+import { IProposalOutcome, ContributionRewardProposal } from '../src/'
 import { Vote } from '../src/vote'
 import { createAProposal, firstResult,
   getTestAddresses, getTestDAO, ITestAddresses,
@@ -46,7 +46,7 @@ describe('Vote on a ContributionReward', () => {
     expect(votes.length).toEqual(1)
     const vote = votes[0]
     const voteState = await vote.fetchState()
-    expect(voteState.proposal).toEqual(proposal.id)
+    expect(voteState.proposal.id).toEqual(proposal.id)
     expect(voteState.outcome).toEqual(IProposalOutcome.Pass)
   })
 

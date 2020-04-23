@@ -196,7 +196,10 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       id: item.id,
       isWinner: positionInWinnerList !== null,
       positionInWinnerList,
-      proposal: item.proposal.id,
+      proposal: {
+        id: item.proposal.id,
+        entity: new CompetitionProposal(context, item.proposal.id)
+      },
       redeemedAt,
       rewardPercentage: Number(item.rewardPercentage),
       suggester: item.suggester,

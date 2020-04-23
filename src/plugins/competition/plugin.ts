@@ -26,9 +26,12 @@ import {
   Address,
   Plugin,
   IPluginState,
-  IGenesisProtocolParams
+  IGenesisProtocolParams,
+  mapGenesisProtocolParams,
+  DAO
 } from '../../index'
 import gql from 'graphql-tag'
+import { DocumentNode } from 'graphql'
 
 export interface ICompetitionState extends IPluginState {
   pluginParams: {
@@ -58,25 +61,50 @@ export class Competition extends ProposalPlugin<
   IProposalCreateOptionsComp
 > {
 
-  public state(apolloQueryOptions: IApolloQueryOptions) {
-    const query = gql`query ProposalState
-      {
-        proposal(id: "${this.id}") {
-          ...ProposalFields
-          votes {
-            id
-          }
-          stakes {
-            id
-          }
+  public static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionState | null {
+    if (!item) {
+      console.log(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      return null
+    }
+
+    let name = item.name
+    if (!name) {
+
+      try {
+        name = context.getContractInfo(item.address).name
+      } catch (err) {
+        if (err.message.match(/no contract/ig)) {
+          // continue
+        } else {
+          throw err
         }
       }
-      ${Proposal.baseFragment}
-      ${Plugin.baseFragment}
-    `
+    }
 
-    const result = this.context.getObservableObject(this.context, query, CompetitionProposal.itemMap, apolloQueryOptions) as Observable<ICompetitionState>
-    return result
+    const contributionRewardExtParams = item.contributionRewardExtParams && {
+      rewarder: item.contributionRewardExtParams.rewarder,
+      voteParams: mapGenesisProtocolParams(item.contributionRewardExtParams.voteParams),
+      votingMachine: item.contributionRewardExtParams.votingMachine
+    }
+    
+    return {
+        address: item.address,
+        canDelegateCall: item.canDelegateCall,
+        canManageGlobalConstraints: item.canManageGlobalConstraints,
+        canRegisterPlugins: item.canRegisterSchemes,
+        canUpgradeController: item.canUpgradeController,
+        dao: {
+          id: item.dao.id,
+          entity: new DAO(context, item.dao.id)
+        },
+        id: item.id,
+        name,
+        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
+        pluginParams: contributionRewardExtParams,
+        version: item.version
+      }
   }
 
   public static getCompetitionContract(arc: Arc, state: IContributionRewardExtState) {
@@ -96,12 +124,25 @@ export class Competition extends ProposalPlugin<
   }
 
   public static isCompetitionPlugin(arc: Arc, item: any) {
-    if (item.contributionRewardExtParams) {
-      const contractInfo = arc.getContractInfo(item.contributionRewardExtParams.rewarder)
+    if (item.pluginParams) {
+      const contractInfo = arc.getContractInfo(item.pluginParams.rewarder)
       return contractInfo.name === 'Competition'
     } else {
       return false
     }
+  }
+
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionState> {
+    const query = gql`query SchemeStateById
+      {
+        controllerScheme (id: "${this.id}") {
+          ...PluginFields
+        }
+      }
+      ${Plugin.baseFragment}
+    `
+
+    return this.context.getObservableObject(this.context, query, Competition.itemMap, apolloQueryOptions) as Observable<ICompetitionState>
   }
 
   public suggestions(

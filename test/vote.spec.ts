@@ -1,7 +1,5 @@
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { IProposalOutcome, ContributionRewardProposal} from '../src/'
-import { Vote } from '../src/vote'
+import { IProposalOutcome, ContributionRewardProposal, Arc, Vote } from '../src/'
 import { createAProposal, getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
 import { getAddress } from 'ethers/utils'
 

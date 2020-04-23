@@ -1,8 +1,7 @@
 import { first } from 'rxjs/operators'
-import { Arc, IProposalCreateOptionsCR, ContributionRewardProposal, IContributionRewardProposalState } from '../src'
+import { Arc, IProposalCreateOptionsCR, ContributionRewardProposal } from '../src'
 import { DAO } from '../src'
 import { IProposalStage, Proposal } from '../src'
-import { ContributionReward } from '../src'
 
 import {
   fromWei,

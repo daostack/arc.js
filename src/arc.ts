@@ -324,6 +324,7 @@ export class Arc extends GraphNodeObserver {
    * @return   a web3 contract instance
    */
   public getContract(address: Address, abi?: any[]): Contract {
+
     if (!abi) {
       abi = this.getABI({ address })
     }

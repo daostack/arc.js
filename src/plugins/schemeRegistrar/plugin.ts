@@ -161,9 +161,7 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
           contract: this.context.getContract(options.plugin),
           method: 'proposeScheme',
           args: [
-            options.dao,
             options.schemeToRegister,
-            options.parametersHash,
             options.permissions,
             options.descriptionHash
           ]

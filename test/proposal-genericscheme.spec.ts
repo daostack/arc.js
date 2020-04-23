@@ -8,9 +8,8 @@ import {
   GenericSchemeProposal,
   LATEST_ARC_VERSION
   } from '../src'
-import { getTestAddresses, ITestAddresses,
-  newArc, voteToPassProposal, waitUntilTrue } from './utils'
-import { Contract, ethers } from 'ethers'
+import { newArc, voteToPassProposal, waitUntilTrue, getTestScheme } from './utils'
+import { ethers } from 'ethers'
 
 jest.setTimeout(60000)
 
@@ -19,11 +18,9 @@ jest.setTimeout(60000)
  */
 describe('Proposal', () => {
   let arc: Arc
-  let testAddresses: ITestAddresses
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = getTestAddresses()
   })
 
   it('Check proposal state is correct', async () => {
@@ -39,7 +36,6 @@ describe('Proposal', () => {
 
     if(!arc.web3) throw new Error('Web3 provider not set')
 
-    const actionMock = new Contract(testAddresses.organs.ActionMock.toString(), actionMockABI, arc.web3.getSigner())
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
     const plugins = await dao.plugins({ where: {name: 'GenericScheme' }}).pipe(first()).toPromise() as GenericScheme[]
@@ -49,10 +45,13 @@ describe('Proposal', () => {
       dao: dao.id,
       callData,
       value: 0,
-      proposalType: "GenericScheme"
+      proposalType: "GenericScheme",
+      plugin: getTestScheme('GenericScheme')
     }).send()
 
-    const proposal = new GenericSchemeProposal(arc, tx.result.coreState)
+    if(!tx.result) throw new Error('Create proposal yielded no result')
+
+    const proposal = new GenericSchemeProposal(arc, tx.result.id)
 
     expect(proposal).toBeInstanceOf(Proposal)
 
@@ -60,7 +59,8 @@ describe('Proposal', () => {
       states.push(pState)
     })
 
-    await waitUntilTrue(() => states.length > 0)
+    //TODO: the first time, the state returns null, changed > 0 to > 1
+    await waitUntilTrue(() => states.length > 1)
 
     expect(lastState()).toMatchObject({
       callData,

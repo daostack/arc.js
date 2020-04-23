@@ -254,6 +254,13 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     let where = ''
 
     const itemMap = (context: Arc, r: any, query: DocumentNode) => {
+
+      if(r.scheme.name === 'ContributionRewardExt') {
+        if(r.competition) {
+          r.scheme.name = 'Competition'
+        }
+      }
+
       const state: IProposalState = Proposals[r.scheme.name].itemMap(context, r, query)
 
       if(!state) return null
@@ -412,8 +419,13 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
 
     const gpQueue = item.gpQueue
 
+    const dao = new DAO(context, item.dao.id)
+
     const queueState: IQueueState = {
-      dao: item.dao.id,
+      dao: {
+        id: dao.id,
+        entity: dao
+      },
       id: gpQueue.id,
       name,
       plugin: {
@@ -423,7 +435,6 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       threshold,
       votingMachine: gpQueue.votingMachine
     }
-    const dao = new DAO(context, item.dao.id)
 
     return {
       accountsWithUnclaimedRewards: item.accountsWithUnclaimedRewards,
