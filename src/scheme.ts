@@ -20,7 +20,6 @@ import * as ContributionRewardExt from './schemes/contributionRewardExt'
 import * as GenericScheme from './schemes/genericScheme'
 import { ReputationFromTokenScheme } from './schemes/reputationFromToken'
 import * as SchemeRegistrar from './schemes/schemeRegistrar'
-import * as UGenericScheme from './schemes/uGenericScheme'
 import { Address, ICommonQueryOptions } from './types'
 import { createGraphQlQuery } from './utils'
 
@@ -29,7 +28,6 @@ export interface ISchemeState {
   address: Address
   dao: Address
   name: string
-  paramsHash: string
   version: string
   canDelegateCall: boolean
   canRegisterSchemes: boolean
@@ -46,7 +44,6 @@ export interface ISchemeState {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
-  uGenericSchemeParams?: IGenericSchemeParams
   schemeParams?: IGenericSchemeParams | IContributionRewardParams | IContributionRewardExtParams | ISchemeRegisterParams
 }
 
@@ -82,7 +79,6 @@ export interface ISchemeQueryOptions extends ICommonQueryOptions {
     dao?: Address
     id?: string
     name?: string
-    paramsHash?: string
     [key: string]: any
   }
 }
@@ -97,7 +93,6 @@ export interface ISchemeQueryOptions extends ICommonQueryOptions {
     dao?: Address
     id?: string
     name?: string
-    paramsHash?: string
     [key: string]: any
   }
 }
@@ -135,7 +130,6 @@ export class Scheme extends SchemeBase  {
             address
             name
             dao { id }
-            paramsHash
             version
             contributionRewardExtParams {
               id
@@ -163,7 +157,6 @@ export class Scheme extends SchemeBase  {
           numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
           numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
           numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-          paramsHash: item.paramsHash,
           version: item.version
         })
       } else {
@@ -179,7 +172,6 @@ export class Scheme extends SchemeBase  {
           numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
           numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
           numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-          paramsHash: item.paramsHash,
           version: item.version
         })
         return scheme
@@ -220,11 +212,6 @@ export class Scheme extends SchemeBase  {
         }
       }
     }
-    const uGenericSchemeParams = item.uGenericSchemeParams && {
-      contractToCall: item.uGenericSchemeParams.contractToCall,
-      voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
-      votingMachine: item.uGenericSchemeParams.votingMachine
-    }
     const contributionRewardParams = item.contributionRewardParams && {
       voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
       votingMachine: item.contributionRewardParams.votingMachine
@@ -245,8 +232,8 @@ export class Scheme extends SchemeBase  {
       votingMachine: item.genericSchemeParams.votingMachine
     }
     const schemeParams = (
-      uGenericSchemeParams || contributionRewardParams ||
-      schemeRegistrarParams || genericSchemeParams || contributionRewardExtParams
+      contributionRewardParams || schemeRegistrarParams ||
+      genericSchemeParams || contributionRewardExtParams
     )
     return {
       address: item.address,
@@ -263,10 +250,8 @@ export class Scheme extends SchemeBase  {
       numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
       numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
       numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-      paramsHash: item.paramsHash,
       schemeParams,
       schemeRegistrarParams,
-      uGenericSchemeParams,
       version: item.version
     }
   }
@@ -353,26 +338,11 @@ export class Scheme extends SchemeBase  {
             }
             break
           }
-          case 'UGenericScheme': {
-            const opts = options as UGenericScheme.IProposalCreateOptionsGS
-            transaction = await UGenericScheme.createProposalTransaction(this.context, opts)
-            map = UGenericScheme.createProposalTransactionMap(this.context, opts)
-            break
-          }
           case 'GenericScheme': {
-            const versionNumber = Number(state.version.split('rc.')[1])
-            if (versionNumber < 23) {
-              // the pre-24 " GenericScheme" contracts have beeen renamed to UGenericScheme
-              const opts = options as UGenericScheme.IProposalCreateOptionsGS
-              transaction = await UGenericScheme.createProposalTransaction(this.context, opts)
-              map = UGenericScheme.createProposalTransactionMap(this.context, opts)
-              break
-            } else {
-              const opts = options as GenericScheme.IProposalCreateOptionsGS
-              transaction = await GenericScheme.createProposalTransaction(this.context, opts)
-              map = GenericScheme.createProposalTransactionMap(this.context, opts)
-              break
-            }
+            const opts = options as GenericScheme.IProposalCreateOptionsGS
+            transaction = await GenericScheme.createProposalTransaction(this.context, opts)
+            map = GenericScheme.createProposalTransactionMap(this.context, opts)
+            break
           }
           case 'SchemeRegistrar': {
             const opts = options as SchemeRegistrar.IProposalCreateOptionsSR

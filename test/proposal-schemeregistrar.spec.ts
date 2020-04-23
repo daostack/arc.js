@@ -7,7 +7,7 @@ import {
   } from '../src/proposal'
 import { Scheme } from '../src/scheme'
 import { ISchemeRegistrar } from '../src/schemes/schemeRegistrar'
-import { createAProposal, firstResult, getTestAddresses, getTestDAO,
+import { createAProposal, firstResult, getTestDAO, getTestScheme,
   newArc, voteToPassProposal, waitUntilTrue } from './utils'
 import { Wallet } from 'ethers'
 
@@ -33,7 +33,7 @@ describe('Proposal', () => {
       descriptionHash: '',
       parametersHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       permissions: '0x0000001f',
-      scheme: getTestAddresses(arc).base.SchemeRegistrar,
+      scheme: getTestScheme("SchemeRegistrar"),
       schemeToRegister,
       proposalType: IProposalType.SchemeRegistrarAdd
     })
@@ -48,7 +48,6 @@ describe('Proposal', () => {
       schemeRegistered: null,
       schemeRemoved: null,
       schemeToRegister,
-      schemeToRegisterParamsHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       schemeToRegisterPermission: '0x0000001f',
       schemeToRemove: null
     })
@@ -84,7 +83,7 @@ describe('Proposal', () => {
       descriptionHash: '',
       parametersHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       permissions: '0x0000001f',
-      scheme: getTestAddresses(arc).base.SchemeRegistrar,
+      scheme: getTestScheme("SchemeRegistrar"),
       schemeToRegister: schemeToRegister.toLowerCase(),
       proposalType: IProposalType.SchemeRegistrarEdit
     })
@@ -102,7 +101,6 @@ describe('Proposal', () => {
       schemeRegistered: null,
       schemeRemoved: null,
       schemeToRegister,
-      schemeToRegisterParamsHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       schemeToRegisterPermission: '0x0000001f',
       schemeToRemove: null
     })
@@ -110,7 +108,7 @@ describe('Proposal', () => {
 
     // we now uregister the new scheme
     const proposalToRemove = await createAProposal(dao, {
-      scheme: getTestAddresses(arc).base.SchemeRegistrar,
+      scheme: getTestScheme("SchemeRegistrar"),
       schemeToRegister,
       proposalType: IProposalType.SchemeRegistrarRemove
     })
@@ -129,7 +127,6 @@ describe('Proposal', () => {
       schemeRegistered: null,
       schemeRemoved: null,
       schemeToRegister: null,
-      schemeToRegisterParamsHash: null,
       schemeToRegisterPermission: null,
       schemeToRemove: schemeToRegister.toLowerCase()
     })
@@ -145,7 +142,6 @@ describe('Proposal', () => {
       decision: '1',
       schemeRegistered: null,
       schemeRemoved: true,
-      schemeToRegisterParamsHash: null,
       schemeToRegisterPermission: null,
       schemeToRemove: schemeToRegister.toLowerCase()
     })

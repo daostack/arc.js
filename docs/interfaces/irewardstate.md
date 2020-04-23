@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IRewardState](irewardstate.md)
+[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IRewardState](irewardstate.md)
 
 # Interface: IRewardState
 
@@ -30,7 +30,7 @@
 
 • **beneficiary**: *[Address](../globals.md#address)*
 
-*Defined in [src/reward.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L11)*
+*Defined in [src/reward.ts:11](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L11)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **createdAt**: *Date*
 
-*Defined in [src/reward.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L12)*
+*Defined in [src/reward.ts:12](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L12)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **daoBountyForStaker**: *BN*
 
-*Defined in [src/reward.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L16)*
+*Defined in [src/reward.ts:16](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L16)*
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • **daoBountyForStakerRedeemedAt**: *number*
 
-*Defined in [src/reward.ts:22](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L22)*
+*Defined in [src/reward.ts:22](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L22)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/reward.ts:10](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L10)*
+*Defined in [src/reward.ts:10](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L10)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **proposalId**: *string*
 
-*Defined in [src/reward.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L13)*
+*Defined in [src/reward.ts:13](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L13)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • **reputationForProposer**: *BN*
 
-*Defined in [src/reward.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L17)*
+*Defined in [src/reward.ts:17](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L17)*
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 • **reputationForProposerRedeemedAt**: *number*
 
-*Defined in [src/reward.ts:21](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L21)*
+*Defined in [src/reward.ts:21](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L21)*
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 • **reputationForVoter**: *BN*
 
-*Defined in [src/reward.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L14)*
+*Defined in [src/reward.ts:14](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L14)*
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • **reputationForVoterRedeemedAt**: *number*
 
-*Defined in [src/reward.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L19)*
+*Defined in [src/reward.ts:19](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L19)*
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 • **tokenAddress**: *[Address](../globals.md#address)*
 
-*Defined in [src/reward.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L18)*
+*Defined in [src/reward.ts:18](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L18)*
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 • **tokensForStaker**: *BN*
 
-*Defined in [src/reward.ts:15](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L15)*
+*Defined in [src/reward.ts:15](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L15)*
 
 ___
 
@@ -126,4 +126,4 @@ ___
 
 • **tokensForStakerRedeemedAt**: *number*
 
-*Defined in [src/reward.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/reward.ts#L20)*
+*Defined in [src/reward.ts:20](https://github.com/daostack/client/blob/6c661ff/src/reward.ts#L20)*

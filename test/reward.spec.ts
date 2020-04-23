@@ -2,7 +2,7 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import {  Reward, IRewardState } from '../src/reward'
-import { getTestAddresses, getTestDAO, ITestAddresses, newArc, toWei } from './utils'
+import { getTestDAO, getTestScheme, newArc, toWei } from './utils'
 import { getAddress } from 'ethers/utils'
 
 /**
@@ -11,12 +11,10 @@ import { getAddress } from 'ethers/utils'
 describe('Reward', () => {
 
   let arc: Arc
-  let testAddresses: ITestAddresses
   let dao: DAO
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = getTestAddresses(arc)
     dao = await getTestDAO()
   })
 
@@ -37,7 +35,7 @@ describe('Reward', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: testAddresses.base.ContributionReward
+      scheme: getTestScheme("ContributionReward")
     }).send()
     const proposal = state.result
 

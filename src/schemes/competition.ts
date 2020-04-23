@@ -127,11 +127,6 @@ export class CompetitionScheme extends SchemeBase {
           }
         }
       }
-      const uGenericSchemeParams = item.uGenericSchemeParams && {
-        contractToCall: item.uGenericSchemeParams.contractToCall,
-        voteParams: mapGenesisProtocolParams(item.uGenericSchemeParams.voteParams),
-        votingMachine: item.uGenericSchemeParams.votingMachine
-      }
       const contributionRewardParams = item.contributionRewardParams && {
         voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
         votingMachine: item.contributionRewardParams.votingMachine
@@ -152,8 +147,8 @@ export class CompetitionScheme extends SchemeBase {
         votingMachine: item.genericSchemeParams.votingMachine
       }
       const schemeParams = (
-        uGenericSchemeParams || contributionRewardParams ||
-        schemeRegistrarParams || genericSchemeParams || contributionRewardExtParams
+        contributionRewardParams || schemeRegistrarParams ||
+        genericSchemeParams || contributionRewardExtParams
       )
       return {
         address: item.address,
@@ -170,10 +165,8 @@ export class CompetitionScheme extends SchemeBase {
         numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
         numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
         numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        paramsHash: item.paramsHash,
         schemeParams,
         schemeRegistrarParams,
-        uGenericSchemeParams,
         version: item.version
       }
     }
@@ -320,6 +313,24 @@ export class CompetitionScheme extends SchemeBase {
     )
 
     return toIOperationObservable(observable)
+  }
+
+  /**
+   * get (an observable of) the Ether balance of the Competition from the web3Provider
+   *
+   * @return an observable stream of BN number instances
+   */
+  public async ethBalance(): Promise<Observable<BN>> {
+    let state
+
+    if (!this.coreState) {
+      state = await this.fetchState()
+    } else {
+      state = this.coreState
+    }
+
+    const contributionRewardExt = this.context.getContract(state.address)
+    return this.context.ethBalance(await contributionRewardExt.vault())
   }
 
   /**
@@ -543,6 +554,7 @@ export interface ICompetitionSuggestionQueryOptions extends ICommonQueryOptions 
     positionInWinnerList_not?: number | null
   }
 }
+
 export class CompetitionSuggestion implements IStateful<ICompetitionSuggestionState> {
 
   public static fragments = {
@@ -908,10 +920,6 @@ export function getCompetitionContract(arc: Arc, schemeState: ISchemeState) {
 export function isCompetitionScheme(arc: Arc, item: any) {
   if (item.contributionRewardExtParams) {
     const contractInfo = arc.getContractInfo(item.contributionRewardExtParams.rewarder)
-    const versionNumber = Number(contractInfo.version.split('rc.')[1])
-    if (versionNumber < 39) {
-      throw Error(`Competition contracts of version < 0.0.1-rc.39 are not supported`)
-    }
     return contractInfo.name === 'Competition'
   } else {
     return false

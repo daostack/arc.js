@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ReputationFromTokenScheme](reputationfromtokenscheme.md)
+[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [ReputationFromTokenScheme](reputationfromtokenscheme.md)
 
 # Class: ReputationFromTokenScheme
 
@@ -28,7 +28,7 @@
 
 \+ **new ReputationFromTokenScheme**(`scheme`: [SchemeBase](schemebase.md)): *[ReputationFromTokenScheme](reputationfromtokenscheme.md)*
 
-*Defined in [src/schemes/reputationFromToken.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/schemes/reputationFromToken.ts#L14)*
+*Defined in [src/schemes/reputationFromToken.ts:14](https://github.com/daostack/client/blob/6c661ff/src/schemes/reputationFromToken.ts#L14)*
 
 **Parameters:**
 
@@ -44,7 +44,7 @@ Name | Type |
 
 • **scheme**: *[SchemeBase](schemebase.md)*
 
-*Defined in [src/schemes/reputationFromToken.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/schemes/reputationFromToken.ts#L16)*
+*Defined in [src/schemes/reputationFromToken.ts:16](https://github.com/daostack/client/blob/6c661ff/src/schemes/reputationFromToken.ts#L16)*
 
 ## Methods
 
@@ -52,7 +52,7 @@ Name | Type |
 
 ▸ **getAgreementHash**(): *Promise‹string›*
 
-*Defined in [src/schemes/reputationFromToken.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/schemes/reputationFromToken.ts#L20)*
+*Defined in [src/schemes/reputationFromToken.ts:20](https://github.com/daostack/client/blob/6c661ff/src/schemes/reputationFromToken.ts#L20)*
 
 **Returns:** *Promise‹string›*
 
@@ -62,7 +62,7 @@ ___
 
 ▸ **getContract**(): *Promise‹Contract‹››*
 
-*Defined in [src/schemes/reputationFromToken.ts:60](https://github.com/dorgtech/client/blob/19b4373/src/schemes/reputationFromToken.ts#L60)*
+*Defined in [src/schemes/reputationFromToken.ts:45](https://github.com/daostack/client/blob/6c661ff/src/schemes/reputationFromToken.ts#L45)*
 
 **Returns:** *Promise‹Contract‹››*
 
@@ -70,15 +70,14 @@ ___
 
 ###  redeem
 
-▸ **redeem**(`beneficiary`: [Address](../globals.md#address), `agreementHash?`: undefined | string): *[Operation](../globals.md#operation)‹undefined›*
+▸ **redeem**(`beneficiary`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹undefined›*
 
-*Defined in [src/schemes/reputationFromToken.ts:26](https://github.com/dorgtech/client/blob/19b4373/src/schemes/reputationFromToken.ts#L26)*
+*Defined in [src/schemes/reputationFromToken.ts:26](https://github.com/daostack/client/blob/6c661ff/src/schemes/reputationFromToken.ts#L26)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `beneficiary` | [Address](../globals.md#address) |
-`agreementHash?` | undefined &#124; string |
 
 **Returns:** *[Operation](../globals.md#operation)‹undefined›*

@@ -23,7 +23,6 @@ export { hasCompetitionContract, isCompetitionScheme,
     ICompetitionProposalState, ICompetitionVoteState, ICompetitionSuggestionState } from './schemes/competition'
 export  { IContributionRewardExt, IProposalCreateOptionsCRExt } from './schemes/contributionRewardExt'
 export { IGenericScheme } from './schemes/genericScheme'
-export { IUGenericScheme } from './schemes/uGenericScheme'
 export { ISchemeRegistrar } from './schemes/schemeRegistrar'
 export { Token, ITokenState, ITokenQueryOptions } from './token'
 export { Stake, IStakeState, IStakeQueryOptions } from './stake'

@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Event](event.md)
+[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [Event](event.md)
 
 # Class: Event
 
@@ -40,7 +40,7 @@
 
 \+ **new Event**(`context`: [Arc](arc.md), `idOrOpts`: string | [IEventState](../interfaces/ieventstate.md)): *[Event](event.md)*
 
-*Defined in [src/event.ts:86](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L86)*
+*Defined in [src/event.ts:86](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L86)*
 
 **Parameters:**
 
@@ -57,7 +57,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/event.ts:88](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L88)*
+*Defined in [src/event.ts:88](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L88)*
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **coreState**: *[IEventState](../interfaces/ieventstate.md) | undefined*
 
-*Defined in [src/event.ts:86](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L86)*
+*Defined in [src/event.ts:86](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L86)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/event.ts:85](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L85)*
+*Defined in [src/event.ts:85](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L85)*
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 • **idOrOpts**: *string | [IEventState](../interfaces/ieventstate.md)*
 
-*Defined in [src/event.ts:88](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L88)*
+*Defined in [src/event.ts:88](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L88)*
 
 ## Methods
 
@@ -89,7 +89,7 @@ ___
 
 ▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IEventState](../interfaces/ieventstate.md)›*
 
-*Defined in [src/event.ts:131](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L131)*
+*Defined in [src/event.ts:131](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L131)*
 
 **Parameters:**
 
@@ -105,7 +105,7 @@ ___
 
 ▸ **setState**(`opts`: [IEventState](../interfaces/ieventstate.md)): *void*
 
-*Defined in [src/event.ts:127](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L127)*
+*Defined in [src/event.ts:127](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L127)*
 
 **Parameters:**
 
@@ -121,7 +121,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IEventState](../interfaces/ieventstate.md)›*
 
-*Defined in [src/event.ts:98](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L98)*
+*Defined in [src/event.ts:98](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L98)*
 
 **Parameters:**
 
@@ -137,7 +137,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IEventQueryOptions](../interfaces/ieventqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Event](event.md)[]›*
 
-*Defined in [src/event.ts:52](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L52)*
+*Defined in [src/event.ts:52](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L52)*
 
 Event.search(context, options) searches for reward entities
 
@@ -159,7 +159,7 @@ an observable of Event objects
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/event.ts:30](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L30)*
+*Defined in [src/event.ts:30](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L30)*
 
 ###  EventFields
 
@@ -177,4 +177,4 @@ an observable of Event objects
       timestamp
     }`
 
-*Defined in [src/event.ts:31](https://github.com/dorgtech/client/blob/19b4373/src/event.ts#L31)*
+*Defined in [src/event.ts:31](https://github.com/daostack/client/blob/6c661ff/src/event.ts#L31)*

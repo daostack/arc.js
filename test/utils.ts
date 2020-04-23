@@ -6,11 +6,10 @@ import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
 import { IProposalOutcome } from '../src/proposal'
 import { Reputation } from '../src/reputation'
+import { LATEST_ARC_VERSION } from '../src/settings'
 import { Address } from '../src/types'
 import { JsonRpcProvider } from 'ethers/providers'
 import { utils } from 'ethers'
-
-const path = require('path')
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
 export const graphqlHttpMetaProvider: string = 'http://127.0.0.1:8000/subgraphs'
@@ -18,7 +17,7 @@ export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/d
 export const web3Provider: string = 'http://127.0.0.1:8545'
 export const ipfsProvider: string = 'http://127.0.0.1:5001/api/v0'
 
-export const LATEST_ARC_VERSION = '0.0.1-rc.32'
+export { LATEST_ARC_VERSION }
 
 export { BN }
 
@@ -38,48 +37,46 @@ export function toWei(amount: string | number): BN {
 }
 
 export interface ITestAddresses {
-  base: { [key: string]: Address },
-  dao: { [key: string]: Address },
-  test: {
-    organs: { [key: string]: Address },
-    Avatar: Address,
-    boostedProposalId: Address,
-    executedProposalId: Address,
-    queuedProposalId: Address,
-    preBoostedProposalId: Address,
-    [key: string]: Address | { [key: string]: Address }
+  dao: {
+    name: string
+    Avatar: Address
+    DAOToken: Address
+    Reputation: Address
+    Controller: Address
+    Schemes: {
+      name: string
+      alias: string
+      address: Address
+    }[]
+  }
+  queuedProposalId: string
+  preBoostedProposalId: string
+  boostedProposalId: string
+  executedProposalId: string
+  organs: {
+    DemoAvatar: Address
+    DemoDAOToken: Address
+    DemoReputation: Address
+    ActionMock: Address
   }
 }
 
-export function getTestAddresses(arc: Arc, version: string = LATEST_ARC_VERSION): ITestAddresses {
-  // const contractInfos = arc.contractInfos
-  const migrationFile = path.resolve(`${require.resolve('@daostack/migration')}/../migration.json`)
-  const migration = require(migrationFile).private
-  let UGenericScheme: string = ''
-  try {
-    UGenericScheme = arc.getContractInfoByName('GenericScheme', version).address
-  } catch (err) {
-    if (err.message.match(/no contract/i)) {
-      // pass
-    } else {
-      throw err
-    }
-  }
-
-  const addresses = {
-    base: {
-      ContributionReward: arc.getContractInfoByName('ContributionReward', version).address,
-      GEN: arc.GENToken().address,
-      GenericScheme: arc.getContractInfoByName('GenericScheme', version).address,
-      SchemeRegistrar: arc.getContractInfoByName('SchemeRegistrar', version).address,
-      UGenericScheme
-    },
-    dao: migration.dao[version],
-    test: migration.test[version]
-  }
-  return addresses
-
+export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAddresses {
+  return require('@daostack/test-env-experimental/daos.json').demo[version]
 }
+
+export function getTestScheme(name: string): Address {
+  const scheme = getTestAddresses().dao.Schemes.find(
+    scheme => scheme.name === name
+  )
+
+  if (!scheme) {
+    throw Error(`Test scheme is missing ${name}`)
+  }
+
+  return scheme.address
+}
+
 export async function getOptions(web3: JsonRpcProvider) {
   const block = await web3.getBlock('latest')
   return {
@@ -132,12 +129,12 @@ export async function getTestDAO(arc?: Arc, version: string = LATEST_ARC_VERSION
   if (!arc) {
     arc = await newArc()
   }
-  const addresses = await getTestAddresses(arc, version)
-  if (!addresses.test.Avatar) {
+  const addresses = await getTestAddresses(version)
+  if (!addresses.dao.Avatar) {
     const msg = `Expected to find ".test.avatar" in the migration file, found ${addresses} instead`
     throw Error(msg)
   }
-  return arc.dao(addresses.test.Avatar)
+  return arc.dao(addresses.dao.Avatar)
 }
 
 export async function createAProposal(
@@ -156,7 +153,7 @@ export async function createAProposal(
     periodLength: 0,
     periods: 1,
     reputationReward: toWei('10'),
-    scheme: getTestAddresses(dao.context).base.ContributionReward,
+    scheme: getTestScheme("ContributionReward"),
     ...options
   }
 
@@ -171,8 +168,8 @@ export async function createAProposal(
 
 export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
-  const addresses = getTestAddresses(arc, version)
-  const token = new Reputation(arc, addresses.test.organs.DemoReputation)
+  const addresses = getTestAddresses(version)
+  const token = new Reputation(arc, addresses.organs.DemoReputation)
   if (!arc.web3) throw new Error('Web3 provider not set')
   const accounts = await arc.web3.listAccounts()
   await token.mint(accounts[1], new BN('99')).send()
@@ -238,14 +235,14 @@ export async function firstResult(observable: Observable<any>) {
   return observable.pipe(first()).toPromise()
 }
 
-export function getContractAddressesFromMigration(environment: 'private' | 'rinkeby' | 'mainnet'): IContractInfo[] {
-  const migration = require('@daostack/migration/migration.json')[environment]
+export function getContractAddressesFromMigration(environment: 'private'|'rinkeby'|'mainnet'): IContractInfo[] {
+  const migration = require('@daostack/migration-experimental/migration.json')[environment]
   const contracts: IContractInfo[] = []
-  for (const version of Object.keys(migration.base)) {
-    for (const name of Object.keys(migration.base[version])) {
+  for (const version of Object.keys(migration.package)) {
+    for (const name of Object.keys(migration.package[version])) {
       contracts.push({
-        address: migration.base[version][name].toLowerCase(),
-        id: migration.base[version][name],
+        address: migration.package[version][name].toLowerCase(),
+        id: migration.package[version][name],
         name,
         version
       })

@@ -183,7 +183,7 @@ describe('Arc ', () => {
 
   it('arc.proposal() should work', async () => {
     const arc = await newArc()
-    const proposal = arc.proposal(getTestAddresses(arc).test.executedProposalId)
+    const proposal = arc.proposal(getTestAddresses().executedProposalId)
     expect(proposal).toBeInstanceOf(Proposal)
   })
 
@@ -191,7 +191,7 @@ describe('Arc ', () => {
     const arc = await newArc()
     const proposals = await arc.proposals().pipe(first()).toPromise()
     expect(typeof proposals).toEqual(typeof [])
-    expect(proposals.length).toBeGreaterThanOrEqual(6)
+    expect(proposals.length).toBeGreaterThanOrEqual(4)
   })
 
   it('arc.scheme() should work', async () => {
