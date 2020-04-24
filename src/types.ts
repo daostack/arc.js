@@ -1,3 +1,4 @@
+import { Signer } from 'ethers'
 import {
   AsyncSendable,
   JsonRpcProvider,
@@ -9,7 +10,7 @@ import { IApolloQueryOptions } from './graphnode'
 export type Address = string
 export type Date = number
 export type Hash = string
-export type Web3Provider = string | AsyncSendable
+export type Web3Provider = string | AsyncSendable | Signer
 export type Web3Client = JsonRpcProvider | EthersWeb3JsProvider
 export type IPFSProvider = string
 

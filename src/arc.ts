@@ -54,7 +54,7 @@ export class Arc extends GraphNodeObserver {
   public ipfsProvider: IPFSProvider
   public readonly web3Provider: Web3Provider
 
-  public defaultAccount: string | undefined = undefined
+  public defaultAccount: string | Signer | undefined = undefined
 
   public pendingOperations: Observable<Array<Operation<any>>> = of()
 
@@ -90,6 +90,17 @@ export class Arc extends GraphNodeObserver {
     if (options.web3Provider) {
       if (typeof options.web3Provider === "string") {
         this.web3 = new JsonRpcProvider(options.web3Provider)
+      } else if (Signer.isSigner(options.web3Provider)) {
+        const signer: Signer = options.web3Provider
+
+        if (!signer.provider) {
+          throw Error(
+            'Ethers Signer is missing a provider, please set one. More info here: https://docs.ethers.io/ethers.js/html/api-wallet.html'
+          )
+        }
+
+        this.web3 = signer.provider as JsonRpcProvider
+        this.defaultAccount = signer
       } else {
         this.web3 = new EthersWeb3JsProvider(options.web3Provider)
       }
@@ -321,7 +332,12 @@ export class Arc extends GraphNodeObserver {
     if (!this.web3) {
       throw new Error('Web3 provider not set')
     }
-    return new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
+
+    if (Signer.isSigner(this.defaultAccount)) {
+      return new Contract(address, abi, this.defaultAccount)
+    } else {
+      return new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
+    }
   }
 
   /**
@@ -345,54 +361,67 @@ export class Arc extends GraphNodeObserver {
     // this complex logic is to get the correct account both from the Web3 as well as from the Metamaask provider
     // This polls for changes. But polling is Evil!
     // cf. https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
-    return Observable.create((observer: Observer<Address>) => {
-      const interval = 1000 /// poll once a second
-      let account: Address
-      let prevAccount: Address
-      const web3 = this.web3
+    return Observable.create(async (observer: Observer<Address>) => {
+      if (Signer.isSigner(this.defaultAccount)) {
+        observer.next(await this.defaultAccount.getAddress())
+      } else {
+        const interval = 1000 /// poll once a second
+        let account: Address
+        let prevAccount: Address
+        const web3 = this.web3
 
-      if (this.defaultAccount) {
-        observer.next(this.defaultAccount)
-        prevAccount = this.defaultAccount
-      }
-
-      const timeout = setInterval(() => {
-        if (!web3) {
-          throw new Error('Web3 provider not set')
+        if (this.defaultAccount) {
+          observer.next(this.defaultAccount)
+          prevAccount = this.defaultAccount
         }
 
-        web3.listAccounts().then((accounts: string[]) => {
-          if (this.defaultAccount) {
-            account = this.defaultAccount
-          } else if (accounts) {
-            account = accounts[0]
+        const timeout = setInterval(() => {
+          if (!web3) {
+            throw new Error('Web3 provider not set')
           }
-          if (prevAccount !== account && account) {
-            observer.next(account)
-            prevAccount = account
-          }
-        })
-      }, interval)
-      return () => clearTimeout(timeout)
+
+          web3.listAccounts().then((accounts: string[]) => {
+            if (this.defaultAccount && typeof this.defaultAccount === "string") {
+              account = this.defaultAccount
+            } else if (accounts) {
+              account = accounts[0]
+            }
+            if (prevAccount !== account && account) {
+              observer.next(account)
+              prevAccount = account
+            }
+          })
+        }, interval)
+        return () => clearTimeout(timeout)
+      }
     })
   }
 
   public setAccount(address: Address) {
+    if (Signer.isSigner(this.defaultAccount)) {
+      throw Error(
+        'The account cannot be set post-initialization when a custom Signer is being used'
+      )
+    }
     this.defaultAccount = address
   }
 
   public getSigner(): Observable<Signer> {
     return Observable.create((observer: Observer<Signer>) => {
-      const subscription = this.getAccount().subscribe((address) => {
-        if (!this.web3) {
-          throw new Error('Web3 provider not set')
-        }
-        observer.next(
-          this.web3.getSigner(address)
-        )
-      })
-
-      return () => subscription.unsubscribe()
+      if (Signer.isSigner(this.defaultAccount)) {
+        observer.next(this.defaultAccount)
+      } else {
+        const subscription = this.getAccount().subscribe((address) => {
+          if (!this.web3) {
+            throw new Error('Web3 provider not set')
+          }
+          observer.next(
+            this.web3.getSigner(address)
+          )
+        })
+  
+        return () => subscription.unsubscribe()
+      }
     })
   }
 
