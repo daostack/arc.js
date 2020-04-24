@@ -1,4 +1,4 @@
-[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IVoteState](ivotestate.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IVoteState](ivotestate.md)
 
 # Interface: IVoteState
 
@@ -24,7 +24,7 @@
 
 • **amount**: *BN*
 
-*Defined in [src/vote.ts:15](https://github.com/daostack/client/blob/6c661ff/src/vote.ts#L15)*
+*Defined in [src/vote.ts:15](https://github.com/daostack/arc.js/blob/6c661ff/src/vote.ts#L15)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **createdAt**: *[Date](../globals.md#date) | undefined*
 
-*Defined in [src/vote.ts:13](https://github.com/daostack/client/blob/6c661ff/src/vote.ts#L13)*
+*Defined in [src/vote.ts:13](https://github.com/daostack/arc.js/blob/6c661ff/src/vote.ts#L13)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **dao**? : *[Address](../globals.md#address)*
 
-*Defined in [src/vote.ts:17](https://github.com/daostack/client/blob/6c661ff/src/vote.ts#L17)*
+*Defined in [src/vote.ts:17](https://github.com/daostack/arc.js/blob/6c661ff/src/vote.ts#L17)*
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/vote.ts:11](https://github.com/daostack/client/blob/6c661ff/src/vote.ts#L11)*
+*Defined in [src/vote.ts:11](https://github.com/daostack/arc.js/blob/6c661ff/src/vote.ts#L11)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **outcome**: *[IProposalOutcome](../enums/iproposaloutcome.md)*
 
-*Defined in [src/vote.ts:14](https://github.com/daostack/client/blob/6c661ff/src/vote.ts#L14)*
+*Defined in [src/vote.ts:14](https://github.com/daostack/arc.js/blob/6c661ff/src/vote.ts#L14)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **proposal**: *string*
 
-*Defined in [src/vote.ts:16](https://github.com/daostack/client/blob/6c661ff/src/vote.ts#L16)*
+*Defined in [src/vote.ts:16](https://github.com/daostack/arc.js/blob/6c661ff/src/vote.ts#L16)*
 
 ___
 
@@ -72,4 +72,4 @@ ___
 
 • **voter**: *[Address](../globals.md#address)*
 
-*Defined in [src/vote.ts:12](https://github.com/daostack/client/blob/6c661ff/src/vote.ts#L12)*
+*Defined in [src/vote.ts:12](https://github.com/daostack/arc.js/blob/6c661ff/src/vote.ts#L12)*

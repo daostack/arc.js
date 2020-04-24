@@ -1,4 +1,4 @@
-[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IStateful](istateful.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IStateful](istateful.md)
 
 # Interface: IStateful <**T**>
 
@@ -41,7 +41,7 @@
 
 • **state**: *function*
 
-*Defined in [src/types.ts:12](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L12)*
+*Defined in [src/types.ts:12](https://github.com/daostack/arc.js/blob/6c661ff/src/types.ts#L12)*
 
 #### Type declaration:
 

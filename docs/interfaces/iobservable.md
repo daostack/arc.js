@@ -1,4 +1,4 @@
-[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IObservable](iobservable.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IObservable](iobservable.md)
 
 # Interface: IObservable <**T**>
 
@@ -80,7 +80,7 @@ ___
 
 • **first**: *function*
 
-*Defined in [src/graphnode.ts:24](https://github.com/daostack/client/blob/6c661ff/src/graphnode.ts#L24)*
+*Defined in [src/graphnode.ts:24](https://github.com/daostack/arc.js/blob/6c661ff/src/graphnode.ts#L24)*
 
 #### Type declaration:
 
