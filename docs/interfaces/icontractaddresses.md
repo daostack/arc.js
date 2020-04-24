@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IContractAddresses](icontractaddresses.md)
+[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IContractAddresses](icontractaddresses.md)
 
 # Interface: IContractAddresses
 

@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IReputationQueryOptions](ireputationqueryoptions.md)
+[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IReputationQueryOptions](ireputationqueryoptions.md)
 
 # Interface: IReputationQueryOptions
 
@@ -30,7 +30,7 @@
 
 • **dao**? : *[Address](../globals.md#address)*
 
-*Defined in [src/reputation.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L20)*
+*Defined in [src/reputation.ts:19](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L19)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 *Inherited from [ICommonQueryOptions](icommonqueryoptions.md).[first](icommonqueryoptions.md#optional-first)*
 
-*Defined in [src/types.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L17)*
+*Defined in [src/types.ts:17](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L17)*
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **id**? : *undefined | string*
 
-*Defined in [src/reputation.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/reputation.ts#L19)*
+*Defined in [src/reputation.ts:18](https://github.com/daostack/client/blob/6c661ff/src/reputation.ts#L18)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 *Inherited from [ICommonQueryOptions](icommonqueryoptions.md).[orderBy](icommonqueryoptions.md#optional-orderby)*
 
-*Defined in [src/types.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L18)*
+*Defined in [src/types.ts:18](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L18)*
 
 ___
 
@@ -68,7 +68,7 @@ ___
 
 *Inherited from [ICommonQueryOptions](icommonqueryoptions.md).[orderDirection](icommonqueryoptions.md#optional-orderdirection)*
 
-*Defined in [src/types.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L19)*
+*Defined in [src/types.ts:19](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L19)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 *Inherited from [ICommonQueryOptions](icommonqueryoptions.md).[skip](icommonqueryoptions.md#optional-skip)*
 
-*Defined in [src/types.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L16)*
+*Defined in [src/types.ts:16](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L16)*
 
 ___
 
@@ -88,4 +88,4 @@ ___
 
 *Inherited from [ICommonQueryOptions](icommonqueryoptions.md).[where](icommonqueryoptions.md#optional-where)*
 
-*Defined in [src/types.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/types.ts#L20)*
+*Defined in [src/types.ts:20](https://github.com/daostack/client/blob/6c661ff/src/types.ts#L20)*

@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IGenericSchemeParams](igenericschemeparams.md)
+[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IGenericSchemeParams](igenericschemeparams.md)
 
 # Interface: IGenericSchemeParams
 
@@ -20,9 +20,9 @@
 
 • **contractToCall**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/base.ts:53](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L53)*
+*Defined in [src/schemes/base.ts:45](https://github.com/daostack/client/blob/6c661ff/src/schemes/base.ts#L45)*
 
-*Defined in [src/scheme.ts:55](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L55)*
+*Defined in [src/scheme.ts:52](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L52)*
 
 ___
 
@@ -30,9 +30,9 @@ ___
 
 • **voteParams**: *[IGenesisProtocolParams](igenesisprotocolparams.md)*
 
-*Defined in [src/schemes/base.ts:54](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L54)*
+*Defined in [src/schemes/base.ts:46](https://github.com/daostack/client/blob/6c661ff/src/schemes/base.ts#L46)*
 
-*Defined in [src/scheme.ts:56](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L56)*
+*Defined in [src/scheme.ts:53](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L53)*
 
 ___
 
@@ -40,6 +40,6 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/base.ts:52](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L52)*
+*Defined in [src/schemes/base.ts:44](https://github.com/daostack/client/blob/6c661ff/src/schemes/base.ts#L44)*
 
-*Defined in [src/scheme.ts:54](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L54)*
+*Defined in [src/scheme.ts:51](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L51)*
