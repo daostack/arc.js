@@ -29,6 +29,22 @@ import { Token } from './token'
 import { Address, IPFSProvider, Web3Provider } from './types'
 import { isAddress } from './utils'
 
+export interface IArcOptions {
+  /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
+  contractInfos?: IContractInfo[]
+  graphqlHttpProvider?: string
+  graphqlWsProvider?: string
+  ipfsProvider?: IPFSProvider
+  web3Provider?: string
+  /** this function will be called before a query is sent to the graphql provider */
+  graphqlPrefetchHook?: (query: any) => void
+  /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
+  graphqlSubscribeToQueries?: boolean
+  /** an apollo-retry-link instance as https://www.apollographql.com/docs/link/links/retry/#default-configuration */
+  graphqlRetryLink?: any,
+  graphqlErrHandler?: any
+}
+
 /**
  * The Arc class holds all configuration.
  * Any useage of the library typically will start with instantiating a new Arc instance
@@ -60,21 +76,7 @@ export class Arc extends GraphNodeObserver {
     }
   } = {}
 
-  constructor(options: {
-    /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
-    contractInfos?: IContractInfo[]
-    graphqlHttpProvider?: string
-    graphqlWsProvider?: string
-    ipfsProvider?: IPFSProvider
-    web3Provider?: string
-    /** this function will be called before a query is sent to the graphql provider */
-    graphqlPrefetchHook?: (query: any) => void
-    /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
-    graphqlSubscribeToQueries?: boolean
-    /** an apollo-retry-link instance as https://www.apollographql.com/docs/link/links/retry/#default-configuration */
-    graphqlRetryLink?: any,
-    graphqlErrHandler?: any
-  }) {
+  constructor(options: IArcOptions) {
     super({
       errHandler: options.graphqlErrHandler,
       graphqlHttpProvider: options.graphqlHttpProvider,

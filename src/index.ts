@@ -1,4 +1,4 @@
-export { Arc, IContractInfo } from './arc'
+export { Arc, IArcOptions, IContractInfo } from './arc'
 export { DAO, IDAOState, IDAOQueryOptions } from './dao'
 export { IGenesisProtocolParams } from './genesisProtocol'
 export { createApolloClient } from './graphnode'
