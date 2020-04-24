@@ -1,6 +1,6 @@
 import BN = require('bn.js')
 import { Contract, Signer } from 'ethers'
-import { JsonRpcProvider } from 'ethers/providers'
+import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
@@ -26,7 +26,7 @@ import { ABI_DIR } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
-import { Address, IPFSProvider } from './types'
+import { Address, IPFSProvider, Web3Client, Web3Provider } from './types'
 import { isAddress } from './utils'
 
 export interface IArcOptions {
@@ -35,7 +35,7 @@ export interface IArcOptions {
   graphqlHttpProvider?: string
   graphqlWsProvider?: string
   ipfsProvider?: IPFSProvider
-  web3Provider?: string
+  web3Provider?: Web3Provider
   /** this function will be called before a query is sent to the graphql provider */
   graphqlPrefetchHook?: (query: any) => void
   /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
@@ -52,13 +52,14 @@ export interface IArcOptions {
  */
 export class Arc extends GraphNodeObserver {
   public ipfsProvider: IPFSProvider
+  public readonly web3Provider: Web3Provider
 
   public defaultAccount: string | undefined = undefined
 
   public pendingOperations: Observable<Array<Operation<any>>> = of()
 
   public ipfs: IPFSClient | undefined = undefined
-  public web3: JsonRpcProvider | undefined = undefined
+  public readonly web3: Web3Client | undefined = undefined
 
   /**
    * a mapping of contrct names to contract addresses
@@ -87,8 +88,13 @@ export class Arc extends GraphNodeObserver {
     this.ipfsProvider = options.ipfsProvider || ''
 
     if (options.web3Provider) {
-      this.web3 = new JsonRpcProvider(options.web3Provider)
+      if (typeof options.web3Provider === "string") {
+        this.web3 = new JsonRpcProvider(options.web3Provider)
+      } else {
+        this.web3 = new EthersWeb3JsProvider(options.web3Provider)
+      }
     }
+    this.web3Provider = options.web3Provider || ''
 
     this.contractInfos = options.contractInfos || []
     if (!this.contractInfos) {
