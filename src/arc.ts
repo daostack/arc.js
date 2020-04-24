@@ -26,7 +26,7 @@ import { ABI_DIR } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
-import { Address, IPFSProvider, Web3Provider } from './types'
+import { Address, IPFSProvider } from './types'
 import { isAddress } from './utils'
 
 export interface IArcOptions {
@@ -51,7 +51,6 @@ export interface IArcOptions {
  * @return an instance of Arc
  */
 export class Arc extends GraphNodeObserver {
-  public web3Provider: Web3Provider = ''
   public ipfsProvider: IPFSProvider
 
   public defaultAccount: string | undefined = undefined
