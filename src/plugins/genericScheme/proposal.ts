@@ -139,7 +139,6 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
         pluginAddress,
         state.votingMachine,
         this.id,
-        state.dao.id,
         beneficiary
       ]
 

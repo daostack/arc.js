@@ -70,6 +70,10 @@ export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAdd
   return require('@daostack/test-env-experimental/daos.json').demo[version]
 }
 
+export function sleep(ms: number) {
+  return new Promise( resolve => setTimeout(resolve, ms) );
+}
+
 export function getTestScheme(name: PluginName): Address {
   const scheme = getTestAddresses().dao.Schemes.find(
     scheme => scheme.name === name

@@ -58,8 +58,6 @@ describe('Proposal execute()', () => {
       (error: Error) => { throw error }
     )
 
-    console.log(proposal)
-
     // wait until the propsal is indexed
     await waitUntilTrue(() => proposalStates.length > 0)
     expect(lastState().stage).toEqual(IProposalStage.Queued)

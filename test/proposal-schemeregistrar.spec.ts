@@ -51,6 +51,7 @@ describe('Proposal', () => {
     const proposalToAdd = new SchemeRegistrarProposal(arc, tx.result.id)
 
     proposalToAdd.state({}).subscribe((pState: IProposalState) => {
+      if(pState)
       proposalToAddStates.push(pState)
     })
 
@@ -89,6 +90,8 @@ describe('Proposal', () => {
         registeredPluginsAddresses.push(state.address)
       })
     )
+    
+    //TODO: how to create a plugin?
     expect(registeredPluginsAddresses).toContain(schemeToRegister)
 
     // we create a new proposal now to edit the scheme
@@ -108,6 +111,8 @@ describe('Proposal', () => {
     if(!editTx.result) throw new Error("Create proposal yielded no results")
 
     const proposalToEdit = new SchemeRegistrarProposal(arc, editTx.result.id)
+
+    console.log(editTx.result.id)
     const proposalToEditStates: IProposalState[]  = []
     proposalToEdit.state({}).subscribe((pState: IProposalState) => {
       proposalToEditStates.push(pState)

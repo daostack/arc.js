@@ -14,7 +14,8 @@ import {
   Plugins,
   AnyPlugin,
   Address,
-  ICommonQueryOptions
+  ICommonQueryOptions,
+  IPluginState
 } from './index'
 import { DocumentNode } from 'graphql'
 
@@ -84,15 +85,12 @@ export class Queue extends Entity<IQueueState> {
             id
           }
           scheme {
-            id
-            address
-            name
-            numberOfBoostedProposals
-            numberOfPreBoostedProposals
-            numberOfQueuedProposals
+            ...PluginFields
           }
         }
       }
+
+      ${Plugin.baseFragment}
     `
 
     const itemMap = (context: Arc, item: any, query: DocumentNode) => new Queue(context, item.id, new DAO(context, item.dao.id))
@@ -105,7 +103,14 @@ export class Queue extends Entity<IQueueState> {
       throw Error(`Queue ItemMap failed. Query: ${query.loc?.source.body}`)
     }
     const threshold = realMathToNumber(new BN(item.threshold))
-    const plugin = new Plugins[item.scheme.name](context, item.scheme.id)
+
+    const pluginState: IPluginState = Plugins[item.scheme.name].itemMap(context, item.scheme, query)
+
+    if(!pluginState) {
+      throw new Error("Queue's plugin state is null")
+    }
+
+    const plugin = new Plugins[item.scheme.name](context, pluginState)
     const dao = new DAO(context, item.dao.id)
     return {
       dao: {
@@ -113,7 +118,7 @@ export class Queue extends Entity<IQueueState> {
         entity: dao
       },
       id: item.id,
-      name: plugin.name,
+      name: item.scheme.name,
       plugin: {
         id: item.scheme.id,
         entity: plugin

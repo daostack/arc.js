@@ -41,6 +41,7 @@ export const Proposals = {
   ContributionReward: ContributionRewardProposal,
   Competition: CompetitionProposal,
   ContributionRewardExt: ContributionRewardExtProposal,
+  SchemeRegistrar: SchemeRegistrarProposal,
   SchemeRegistrarAdd: SchemeRegistrarProposal,
   SchemeRegistrarEdit: SchemeRegistrarProposal,
   SchemeRegistrarRemove: SchemeRegistrarProposal

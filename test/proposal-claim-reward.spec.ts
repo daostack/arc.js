@@ -1,5 +1,5 @@
 import { first } from 'rxjs/operators'
-import { Arc, DAO, IProposalOutcome, IProposalStage, IProposalState, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericScheme, GenericSchemeProposal } from '../src'
+import { Arc, DAO, IProposalOutcome, IProposalStage, IProposalState, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericScheme, GenericSchemeProposal, IGenericSchemeProposalState } from '../src'
 
 import BN from 'bn.js'
 import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, newArc,
@@ -21,6 +21,7 @@ describe('Claim rewards', () => {
     dao = await getTestDAO()
   })
 
+  //TODO: check this one. Maybe depends on data that should be set by default in the graph node
   it('works for ether and native token', async () => {
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
     const ethReward = new BN(12345)
@@ -120,7 +121,6 @@ describe('Claim rewards', () => {
     // check if prposal is indeed accepted etc
     const states: IProposalState[] = []
 
-    //TODO: ApolloQuery options here?
     proposal.state({}).subscribe(((next) => states.push(next)))
     const lastState = () => states[states.length - 1]
 
@@ -177,9 +177,21 @@ describe('Claim rewards', () => {
     if(!tx.result) throw new Error('Response yielded no result')
 
     const proposal = new GenericSchemeProposal(arc, tx.result.id)
+    const proposalStates: IGenericSchemeProposalState[] = []
 
-    //TODO: query for state failing
-    const proposalState = await proposal.fetchState()
+    proposal.state({}).subscribe(
+      (next) => {
+        if (next) {
+          proposalStates.push(next)
+        }
+      },
+      (error: Error) => { throw error }
+    )
+
+    // wait until the propsal is indexed
+    await waitUntilTrue(() => proposalStates.length > 0)
+
+    const proposalState = proposalStates[0]
 
     await arc.GENToken().approveForStaking(proposalState.votingMachine, stakeAmount).send()
     await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
