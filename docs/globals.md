@@ -123,7 +123,7 @@
 * [checkAddress](globals.md#const-checkaddress)
 * [checkWebsocket](globals.md#checkwebsocket)
 * [concat](globals.md#concat)
-* [createApolloClient](globals.md#createapolloarc.js)
+* [createApolloClient](globals.md#createapolloclient)
 * [createGraphQlQuery](globals.md#creategraphqlquery)
 * [createGraphQlWhereQuery](globals.md#creategraphqlwherequery)
 * [createProposalTransaction](globals.md#createproposaltransaction)
@@ -397,7 +397,7 @@ ___
 
 creates a string to be plugsging into a graphql query
 
-**`example`** 
+**`example`**
 `{  proposals ${createGraphQlQuery({ skip: 2}, 'id: "2"')}
    { id }
 }`
@@ -538,7 +538,7 @@ ___
 
 get the latest block time, or the current time, whichever is later
 
-**`export`** 
+**`export`**
 
 **Parameters:**
 

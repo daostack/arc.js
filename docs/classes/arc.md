@@ -22,7 +22,7 @@ Any useage of the library typically will start with instantiating a new Arc inst
 ### Properties
 
 * [Logger](arc.md#logger)
-* [apolloClient](arc.md#optional-apolloarc.js)
+* [apolloClient](arc.md#optional-apolloclient)
 * [contractInfos](arc.md#contractinfos)
 * [defaultAccount](arc.md#defaultaccount)
 * [graphqlHttpProvider](arc.md#optional-graphqlhttpprovider)
@@ -112,7 +112,7 @@ ___
 
 • **apolloClient**? : *ApolloClient‹object›*
 
-*Inherited from [GraphNodeObserver](graphnodeobserver.md).[apolloClient](graphnodeobserver.md#optional-apolloarc.js)*
+*Inherited from [GraphNodeObserver](graphnodeobserver.md).[apolloClient](graphnodeobserver.md#optional-apolloclient)*
 
 *Defined in [src/graphnode.ts:158](https://github.com/daostack/arc.js/blob/6c661ff/src/graphnode.ts#L158)*
 

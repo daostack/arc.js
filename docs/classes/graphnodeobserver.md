@@ -21,7 +21,7 @@ handles connections with the Graph
 ### Properties
 
 * [Logger](graphnodeobserver.md#logger)
-* [apolloClient](graphnodeobserver.md#optional-apolloarc.js)
+* [apolloClient](graphnodeobserver.md#optional-apolloclient)
 * [graphqlHttpProvider](graphnodeobserver.md#optional-graphqlhttpprovider)
 * [graphqlSubscribeToQueries](graphnodeobserver.md#optional-graphqlsubscribetoqueries)
 * [graphqlWsProvider](graphnodeobserver.md#optional-graphqlwsprovider)
