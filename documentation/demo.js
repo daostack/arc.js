@@ -1,6 +1,6 @@
 /**
  * To run this example, you must
- * 1. git checkout https://github.com/daostack/client
+ * 1. git checkout https://github.com/daostack/arc.js
  * 2. npmm install
  * 3. npm run build // build th epackage
  * 3. docker-compose up -d // this will start docker containers with the test services
@@ -13,7 +13,7 @@ async function main() {
   console.log('hello!')
 
   // mport from the local build of the library (that was created with npm run build)
-  // typically, one would use require('@daostack/client')
+  // typically, one would use require('@daostack/arc.js')
   const { Arc } = require('../dist/lib/index.js')
 
   // "Arc" is the main class that handles configuration and connections to various services

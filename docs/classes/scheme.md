@@ -1,4 +1,4 @@
-[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [Scheme](scheme.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [Scheme](scheme.md)
 
 # Class: Scheme
 
@@ -52,7 +52,7 @@ A Scheme represents a scheme instance that is registered at a DAO
 
 *Overrides [SchemeBase](schemebase.md).[constructor](schemebase.md#constructor)*
 
-*Defined in [src/scheme.ts:261](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L261)*
+*Defined in [src/scheme.ts:261](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L261)*
 
 **Parameters:**
 
@@ -71,7 +71,7 @@ Name | Type |
 
 *Overrides [SchemeBase](schemebase.md).[ReputationFromToken](schemebase.md#reputationfromtoken)*
 
-*Defined in [src/scheme.ts:261](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L261)*
+*Defined in [src/scheme.ts:261](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L261)*
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[context](schemebase.md#context)*
 
-*Defined in [src/scheme.ts:263](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L263)*
+*Defined in [src/scheme.ts:263](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L263)*
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[coreState](schemebase.md#corestate)*
 
-*Defined in [src/scheme.ts:260](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L260)*
+*Defined in [src/scheme.ts:260](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L260)*
 
 ___
 
@@ -101,7 +101,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[id](schemebase.md#id)*
 
-*Defined in [src/scheme.ts:259](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L259)*
+*Defined in [src/scheme.ts:259](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L259)*
 
 ## Methods
 
@@ -111,7 +111,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposal](schemebase.md#createproposal)*
 
-*Defined in [src/scheme.ts:310](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L310)*
+*Defined in [src/scheme.ts:310](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L310)*
 
 create a new proposal in this Scheme
 
@@ -133,7 +133,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#protected-abstract-createproposalerrorhandler)*
 
-*Defined in [src/scheme.ts:389](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L389)*
+*Defined in [src/scheme.ts:389](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L389)*
 
 **Parameters:**
 
@@ -151,7 +151,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#protected-abstract-createproposaltransaction)*
 
-*Defined in [src/scheme.ts:379](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L379)*
+*Defined in [src/scheme.ts:379](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L379)*
 
 **Parameters:**
 
@@ -169,7 +169,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#protected-abstract-createproposaltransactionmap)*
 
-*Defined in [src/scheme.ts:385](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L385)*
+*Defined in [src/scheme.ts:385](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L385)*
 
 **Returns:** *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
 
@@ -181,7 +181,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[fetchState](schemebase.md#fetchstate)*
 
-*Defined in [src/scheme.ts:286](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L286)*
+*Defined in [src/scheme.ts:286](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L286)*
 
 fetch the static state from the subgraph
 
@@ -203,7 +203,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[proposals](schemebase.md#proposals)*
 
-*Defined in [src/scheme.ts:370](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L370)*
+*Defined in [src/scheme.ts:370](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L370)*
 
 **Parameters:**
 
@@ -222,7 +222,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[setState](schemebase.md#setstate)*
 
-*Defined in [src/scheme.ts:275](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L275)*
+*Defined in [src/scheme.ts:275](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L275)*
 
 **Parameters:**
 
@@ -240,7 +240,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[state](schemebase.md#abstract-state)*
 
-*Defined in [src/scheme.ts:292](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L292)*
+*Defined in [src/scheme.ts:292](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L292)*
 
 **Parameters:**
 
@@ -256,7 +256,7 @@ ___
 
 ▸ **itemMap**(`arc`: [Arc](arc.md), `item`: any): *ISchemeState | null*
 
-*Defined in [src/scheme.ts:197](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L197)*
+*Defined in [src/scheme.ts:197](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L197)*
 
 map an apollo query result to ISchemeState
 
@@ -279,7 +279,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: ISchemeQueryOptions, `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[SchemeBase](schemebase.md)[]›*
 
-*Defined in [src/scheme.ts:111](https://github.com/daostack/client/blob/6c661ff/src/scheme.ts#L111)*
+*Defined in [src/scheme.ts:111](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L111)*
 
 Scheme.search(context, options) searches for scheme entities
 
@@ -303,7 +303,7 @@ an observable of Scheme objects
 
 *Inherited from [SchemeBase](schemebase.md).[fragments](schemebase.md#static-fragments)*
 
-*Defined in [src/schemes/base.ts:97](https://github.com/daostack/client/blob/6c661ff/src/schemes/base.ts#L97)*
+*Defined in [src/schemes/base.ts:97](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L97)*
 
 ###  SchemeFields
 
@@ -416,4 +416,4 @@ an observable of Scheme objects
       version
     }`
 
-*Defined in [src/schemes/base.ts:98](https://github.com/daostack/client/blob/6c661ff/src/schemes/base.ts#L98)*
+*Defined in [src/schemes/base.ts:98](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L98)*
