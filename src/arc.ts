@@ -51,15 +51,23 @@ export interface IArcOptions {
  * @return an instance of Arc
  */
 export class Arc extends GraphNodeObserver {
-  public ipfsProvider: IPFSProvider
-  public readonly web3Provider: Web3Provider
 
   public defaultAccount: string | Signer | undefined = undefined
-
   public pendingOperations: Observable<Array<Operation<any>>> = of()
 
+  public ipfsProvider: IPFSProvider
   public ipfs: IPFSClient | undefined = undefined
-  public readonly web3: Web3Client | undefined = undefined
+
+  public get web3Provider(): Web3Provider {
+    return this._web3Provider;
+  }
+
+  public get web3(): Web3Client | undefined {
+    return this._web3;
+  }
+
+  private _web3Provider: Web3Provider;
+  private _web3: Web3Client | undefined = undefined;
 
   /**
    * a mapping of contrct names to contract addresses
@@ -89,7 +97,7 @@ export class Arc extends GraphNodeObserver {
 
     if (options.web3Provider) {
       if (typeof options.web3Provider === "string") {
-        this.web3 = new JsonRpcProvider(options.web3Provider)
+        this._web3 = new JsonRpcProvider(options.web3Provider)
       } else if (Signer.isSigner(options.web3Provider)) {
         const signer: Signer = options.web3Provider
 
@@ -99,13 +107,13 @@ export class Arc extends GraphNodeObserver {
           )
         }
 
-        this.web3 = signer.provider as JsonRpcProvider
+        this._web3 = signer.provider as JsonRpcProvider
         this.defaultAccount = signer
       } else {
-        this.web3 = new EthersWeb3JsProvider(options.web3Provider)
+        this._web3 = new EthersWeb3JsProvider(options.web3Provider)
       }
     }
-    this.web3Provider = options.web3Provider || ''
+    this._web3Provider = options.web3Provider || ''
 
     this.contractInfos = options.contractInfos || []
     if (!this.contractInfos) {
