@@ -8,7 +8,7 @@ import { toIOperationObservable } from './operation'
 import { IProposalQueryOptions, Proposal } from './proposal'
 import { Reward } from './reward'
 import { IStakeQueryOptions, Stake } from './stake'
-import { Address, ICommonQueryOptions, IStateful } from './types'
+import { Address, Date, ICommonQueryOptions, IStateful } from './types'
 import { concat, createGraphQlQuery, hexStringToUint8Array,
   isAddress
   // stringToUint8Array
@@ -25,6 +25,7 @@ export interface IMemberState extends IMemberStaticState {
   contract: Address
   id: string
   reputation: BN
+  createdAt: Date
 }
 
 export interface IMemberQueryOptions extends ICommonQueryOptions {
@@ -51,6 +52,7 @@ export class Member implements IStateful<IMemberState> {
           id
         }
         balance
+        createdAt
       }
     `
   }
@@ -219,6 +221,7 @@ export class Member implements IStateful<IMemberState> {
         return {
             address: item.address,
             contract: item.contract,
+            createdAt: Number(item.createdAt),
             dao: item.dao.id,
             id: item.id,
             reputation: new BN(item.balance)
