@@ -16,7 +16,8 @@ import {
   ReputationFromTokenScheme,
   Address,
   ICommonQueryOptions,
-  IApolloQueryOptions
+  IApolloQueryOptions,
+  AnyPlugin
 } from '../index'
 
 export interface IPluginState {
@@ -97,21 +98,26 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode): TPluginState | null => {
+    const itemMap = (context: Arc, item: any, query: DocumentNode): AnyPlugin | null => {
       if (!options.where) {
         options.where = {}
       }
 
       if(!Object.keys(Plugins).includes(item.name)) {
-        console.log(`Plugin name '${item.name}' not supported. ItemMap will return null.`)
-        return null
+        console.log(`Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`)
+        
+        const state = Plugins['unknown'].itemMap(context, item, query)
+        if(!state) return null
+        
+        return new Plugins['unknown'](context, state)
+
+      } else {
+
+        const state: IPluginState = Plugins[item.name].itemMap(context, item, query)
+        if(!state) return null
+        
+        return new Plugins[item.name](context, state)
       }
-
-      const state: IPluginState = Plugins[item.name].itemMap(context, item, query)
-
-      if(!state) return null
-
-      return new Plugins[item.name](context, state)
     }
 
     return context.getObservableList(

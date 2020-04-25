@@ -19,7 +19,8 @@ import {
   IProposalCreateOptionsGS,
   IProposalCreateOptionsSR,
   IProposalCreateOptionsComp,
-  IProposalCreateOptionsCR
+  IProposalCreateOptionsCR,
+  UnknownPlugin
 } from '../index'
 
 export const ProposalPlugins = {
@@ -31,7 +32,8 @@ export const ProposalPlugins = {
 }
 
 export const Plugins = {
-  ...ProposalPlugins
+  ...ProposalPlugins,
+  unknown: UnknownPlugin
 }
 
 export type PluginName = keyof typeof Plugins
