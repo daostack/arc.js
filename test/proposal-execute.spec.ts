@@ -108,7 +108,7 @@ describe('Proposal execute()', () => {
       '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2'
     )
     await expect(proposal.execute().send()).rejects.toThrow(
-      /no proposal/i
+      /Fetch state returned null. Entity not indexed yet or does not exist with this id/i
     )
   })
 

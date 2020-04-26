@@ -43,6 +43,9 @@ export abstract class Entity<TEntityState extends IEntityState> {
 
     if(!this.coreState || refetch) {
       const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
+      
+      if(!state) throw new Error('Fetch state returned null. Entity not indexed yet or does not exist with this id.')
+
       this.setState(state)
 
       return state

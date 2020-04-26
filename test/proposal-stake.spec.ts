@@ -83,7 +83,7 @@ describe('Stake on a ContributionReward', () => {
 
     proposal.context.defaultAccount = accounts[2]
     await expect(proposal.stake(IProposalOutcome.Pass, new BN(10000000)).send()).rejects.toThrow(
-      /No proposal/i
+      /Fetch state returned null. Entity not indexed yet or does not exist with this id/i
     )
   })
 

@@ -89,7 +89,7 @@ describe('Vote on a ContributionReward', () => {
     if (!arc.web3) throw new Error('Web3 provider not set')
     proposal.context.defaultAccount = await arc.web3.getSigner(2).getAddress()
     await expect(proposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
-      /No proposal/i
+      /Fetch state returned null. Entity not indexed yet or does not exist with this id/i
     )
   })
 

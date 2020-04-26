@@ -184,7 +184,7 @@ describe('Proposal', () => {
     // the state is null because the proposal has not been indexed yet
     // TODO: so is this test supposed to fail?
     await expect(proposal.fetchState()).rejects.toThrow(
-      /No proposal with id/i
+      /Fetch state returned null. Entity not indexed yet or does not exist with this id/i
     )
   })
 
