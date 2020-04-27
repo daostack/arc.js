@@ -31,7 +31,7 @@
     "prebuild": "rimraf dist",
     "quality": "npm run test:prod",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
-    "test": "jest --runInBand --forceExit test/scheme-reputationfromtoken.spec.ts",
+    "test": "jest --runInBand --forceExit",
     "test:watch": "jest --watch",
     "tslint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'"
   },
