@@ -1,5 +1,6 @@
-import BN = require('bn.js')
 import 'ethers/dist/shims'
+
+import BN = require('bn.js')
 import { Contract, Signer } from 'ethers'
 import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
@@ -60,15 +61,12 @@ export class Arc extends GraphNodeObserver {
   public ipfs: IPFSClient | undefined = undefined
 
   public get web3Provider(): Web3Provider {
-    return this._web3Provider;
+    return this._web3Provider
   }
 
   public get web3(): Web3Client | undefined {
-    return this._web3;
+    return this._web3
   }
-
-  private _web3Provider: Web3Provider = '';
-  private _web3: Web3Client | undefined = undefined;
 
   /**
    * a mapping of contrct names to contract addresses
@@ -84,6 +82,9 @@ export class Arc extends GraphNodeObserver {
       subscriptionsCount: number
     }
   } = {}
+
+  private _web3Provider: Web3Provider = ''
+  private _web3: Web3Client | undefined = undefined
 
   constructor(options: IArcOptions) {
     super({
@@ -115,7 +116,7 @@ export class Arc extends GraphNodeObserver {
     }
   }
 
-  public setWeb3(provider: Web3Provider) { 
+  public setWeb3(provider: Web3Provider) {
     if (typeof provider === 'string') {
       this._web3 = new JsonRpcProvider(provider)
     } else if (Signer.isSigner(provider)) {
@@ -395,7 +396,7 @@ export class Arc extends GraphNodeObserver {
           }
 
           web3.listAccounts().then((accounts: string[]) => {
-            if (this.defaultAccount && typeof this.defaultAccount === "string") {
+            if (this.defaultAccount && typeof this.defaultAccount === 'string') {
               account = this.defaultAccount
             } else if (accounts) {
               account = accounts[0]
@@ -433,7 +434,7 @@ export class Arc extends GraphNodeObserver {
             this.web3.getSigner(address)
           )
         })
-  
+
         return () => subscription.unsubscribe()
       }
     })
