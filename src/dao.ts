@@ -166,8 +166,9 @@ export class DAO extends Entity<IDAOState> {
     return this.state().pipe(first()).pipe(map((r) => r.reputation.entity))
   }
 
-  public ethBalance(): Observable<BN> {
-    return this.context.ethBalance(this.id)
+  public async ethBalance(): Promise<Observable<BN>> {
+    const avatar = this.context.getContract(this.id)
+    return this.context.ethBalance(await avatar.vault())
   }
 
   public plugins(
