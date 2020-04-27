@@ -15,6 +15,7 @@ import {
   GenericSchemeProposal,
   SchemeRegistrar,
   GenericScheme,
+  ReputationFromToken,
   IProposalCreateOptionsCRExt,
   IProposalCreateOptionsGS,
   IProposalCreateOptionsSR,
@@ -33,6 +34,7 @@ export const ProposalPlugins = {
 
 export const Plugins = {
   ...ProposalPlugins,
+  ReputationFromToken,
   unknown: UnknownPlugin
 }
 

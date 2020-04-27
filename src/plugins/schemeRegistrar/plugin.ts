@@ -1,5 +1,4 @@
 import gql from 'graphql-tag'
-import { Observable } from 'rxjs'
 import {
   ITransaction,
   ITransactionReceipt,
@@ -11,10 +10,8 @@ import {
   IGenesisProtocolParams,
   mapGenesisProtocolParams,
   IPluginState,
-  Plugin,
   Arc,
   Address,
-  IApolloQueryOptions
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -123,18 +120,6 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
         pluginParams: schemeRegistrarParams,
         version: item.version
       }
-  }
-
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ISchemeRegistrarState> {
-    const query = gql`query SchemeStateById
-      {
-        controllerScheme (id: "${this.id}") {
-          ...PluginFields
-        }
-      }
-      ${Plugin.baseFragment}
-    `
-    return this.context.getObservableObject(this.context, query, SchemeRegistrar.itemMap, apolloQueryOptions) as Observable<ISchemeRegistrarState>
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {

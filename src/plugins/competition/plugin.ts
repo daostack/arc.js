@@ -24,13 +24,11 @@ import {
   IContributionRewardExtState,
   ProposalPlugin,
   Address,
-  Plugin,
   IPluginState,
   IGenesisProtocolParams,
   mapGenesisProtocolParams,
-  DAO
+  Plugin
 } from '../../index'
-import gql from 'graphql-tag'
 import { DocumentNode } from 'graphql'
 
 export interface ICompetitionState extends IPluginState {
@@ -67,19 +65,7 @@ export class Competition extends ProposalPlugin<
       return null
     }
 
-    let name = item.name
-    if (!name) {
-
-      try {
-        name = context.getContractInfo(item.address).name
-      } catch (err) {
-        if (err.message.match(/no contract/ig)) {
-          // continue
-        } else {
-          throw err
-        }
-      }
-    }
+    const baseState = Plugin.itemMapToBaseState(context, item)
 
     const contributionRewardExtParams = item.contributionRewardExtParams && {
       rewarder: item.contributionRewardExtParams.rewarder,
@@ -88,22 +74,8 @@ export class Competition extends ProposalPlugin<
     }
     
     return {
-        address: item.address,
-        canDelegateCall: item.canDelegateCall,
-        canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterPlugins: item.canRegisterSchemes,
-        canUpgradeController: item.canUpgradeController,
-        dao: {
-          id: item.dao.id,
-          entity: new DAO(context, item.dao.id)
-        },
-        id: item.id,
-        name,
-        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
-        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
-        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        pluginParams: contributionRewardExtParams,
-        version: item.version
+        ...baseState,
+        pluginParams: contributionRewardExtParams
       }
   }
 
@@ -130,19 +102,6 @@ export class Competition extends ProposalPlugin<
     } else {
       return false
     }
-  }
-
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ICompetitionState> {
-    const query = gql`query SchemeStateById
-      {
-        controllerScheme (id: "${this.id}") {
-          ...PluginFields
-        }
-      }
-      ${Plugin.baseFragment}
-    `
-
-    return this.context.getObservableObject(this.context, query, Competition.itemMap, apolloQueryOptions) as Observable<ICompetitionState>
   }
 
   public suggestions(

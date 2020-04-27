@@ -5,12 +5,22 @@ import {
   Operation,
   toIOperationObservable,
   Address,
-  AnyPlugin
+  Plugin,
+  Arc,
+  IPluginState
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
-export class ReputationFromTokenScheme {
+export class ReputationFromToken extends Plugin<IPluginState> {
 
-  constructor(public plugin: AnyPlugin) { }
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IPluginState | null {
+    if (!item) {
+      console.log(`ReputationFromToken Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      return null
+    }
+
+    return Plugin.itemMapToBaseState(context, item)
+  }
 
   public async getAgreementHash(): Promise<string> {
     const contract = await this.getContract()
@@ -30,7 +40,7 @@ export class ReputationFromTokenScheme {
 
     const observable = from(createTransaction()).pipe(
       concatMap((transaction) => {
-        return this.plugin.context.sendTransaction(transaction)
+        return this.context.sendTransaction(transaction)
       })
     )
 
@@ -38,9 +48,8 @@ export class ReputationFromTokenScheme {
   }
 
   public async getContract() {
-    const state = await this.plugin.fetchState()
-    const contract = this.plugin.context.getContract(state.address)
+    const state = await this.fetchState()
+    const contract = this.context.getContract(state.address)
     return contract
   }
-
 }
