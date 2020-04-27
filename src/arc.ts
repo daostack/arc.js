@@ -1,4 +1,5 @@
 import BN = require('bn.js')
+import 'ethers/dist/shims'
 import { Contract, Signer } from 'ethers'
 import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
@@ -66,7 +67,7 @@ export class Arc extends GraphNodeObserver {
     return this._web3;
   }
 
-  private _web3Provider: Web3Provider;
+  private _web3Provider: Web3Provider = '';
   private _web3: Web3Client | undefined = undefined;
 
   /**
@@ -96,24 +97,8 @@ export class Arc extends GraphNodeObserver {
     this.ipfsProvider = options.ipfsProvider || ''
 
     if (options.web3Provider) {
-      if (typeof options.web3Provider === "string") {
-        this._web3 = new JsonRpcProvider(options.web3Provider)
-      } else if (Signer.isSigner(options.web3Provider)) {
-        const signer: Signer = options.web3Provider
-
-        if (!signer.provider) {
-          throw Error(
-            'Ethers Signer is missing a provider, please set one. More info here: https://docs.ethers.io/ethers.js/html/api-wallet.html'
-          )
-        }
-
-        this._web3 = signer.provider as JsonRpcProvider
-        this.defaultAccount = signer
-      } else {
-        this._web3 = new EthersWeb3JsProvider(options.web3Provider)
-      }
+      this.setWeb3(options.web3Provider)
     }
-    this._web3Provider = options.web3Provider || ''
 
     this.contractInfos = options.contractInfos || []
     if (!this.contractInfos) {
@@ -128,6 +113,27 @@ export class Arc extends GraphNodeObserver {
     if (options.graphqlSubscribeToQueries === undefined) {
       options.graphqlSubscribeToQueries = false
     }
+  }
+
+  public setWeb3(provider: Web3Provider) { 
+    if (typeof provider === 'string') {
+      this._web3 = new JsonRpcProvider(provider)
+    } else if (Signer.isSigner(provider)) {
+      const signer: Signer = provider
+
+      if (!signer.provider) {
+        throw Error(
+          'Ethers Signer is missing a provider, please set one. More info here: https://docs.ethers.io/ethers.js/html/api-wallet.html'
+        )
+      }
+
+      this._web3 = signer.provider as JsonRpcProvider
+      this.defaultAccount = signer
+    } else {
+      this._web3 = new EthersWeb3JsProvider(provider)
+    }
+
+    this._web3Provider = provider
   }
 
   /**
