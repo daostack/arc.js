@@ -179,14 +179,14 @@ export function createGraphQlWhereQuery(where?: {[key: string]: string|string[]|
     }
 
     let value = where[key]
-    if (!value) {
-      result += `${key}: ${value}\n`
-    } else if (key === 'dao' || key === 'address') {
+    if (key === 'dao' || key === 'address') {
       isAddress(value as string)
       value = (value as string).toLowerCase()
       result += `${key}: "${value}"\n`
     } else if (key.endsWith('_in') || key.endsWith('_not_in')) {
       value = JSON.stringify(value)
+      result += `${key}: ${value}\n`
+    } else if (!value) {
       result += `${key}: ${value}\n`
     } else {
       result += `${key}: "${value}"\n`

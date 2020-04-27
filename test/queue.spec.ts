@@ -58,8 +58,6 @@ describe('Queue', () => {
 
     if(!proposalState.queue.entity.coreState) throw new Error("Proposal's queue coreState not defined")
 
-    console.log(queue.coreState)
-
     expect(inspect(proposalState.queue.entity.coreState)).toBe(inspect(queueState))
   })
 

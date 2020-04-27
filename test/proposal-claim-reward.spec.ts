@@ -21,7 +21,6 @@ describe('Claim rewards', () => {
     dao = await getTestDAO()
   })
 
-  //TODO: check this one. Maybe depends on data that should be set by default in the graph node
   it('works for ether and native token', async () => {
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
     const ethReward = new BN(12345)
@@ -67,11 +66,11 @@ describe('Claim rewards', () => {
       return lastState() && lastState().stage === IProposalStage.Executed
     })
 
-    const daoState = await firstResult(dao.state())
-    const prevNativeTokenBalance = await firstResult(daoState.token.balanceOf(beneficiary))
+    const daoState = await dao.fetchState()
+    const prevNativeTokenBalance = await firstResult(daoState.token.entity.balanceOf(beneficiary))
     const reputationBalances: Array<BN> = []
 
-    daoState.reputation.reputationOf(beneficiary).subscribe((next: BN) => {
+    daoState.reputation.entity.reputationOf(beneficiary).subscribe((next: BN) => {
       reputationBalances.push(next)
     })
 
@@ -80,7 +79,7 @@ describe('Claim rewards', () => {
 
     await proposal.redeemRewards(beneficiary).send()
 
-    const newNativeTokenBalance = await firstResult(daoState.token.balanceOf(beneficiary))
+    const newNativeTokenBalance = await firstResult(daoState.token.entity.balanceOf(beneficiary))
     expect(newNativeTokenBalance.sub(prevNativeTokenBalance).toString()).toEqual(nativeTokenReward.toString())
 
     const newBalance = await arc.web3.getBalance(beneficiary)

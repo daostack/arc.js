@@ -45,13 +45,10 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
             returnValue
           }
         }
-      `
+      `}
     }
+    return this._fragment
   }
-  
-  return this._fragment
-  
-}
 
   static itemMap (context: Arc, item: any, query: DocumentNode): IGenericSchemeProposalState | null {
 

@@ -33,19 +33,21 @@ export interface IEventQueryOptions extends ICommonQueryOptions {
 export class Event extends Entity<IEventState> {
 
   public static fragments = {
-    EventFields: gql`fragment EventFields on Event {
-      id
-      dao {
+    EventFields: gql`
+      fragment EventFields on Event {
         id
+        dao {
+          id
+        }
+        type
+        data
+        user
+        proposal {
+          id
+        }
+        timestamp
       }
-      type
-      data
-      user
-      proposal {
-        id
-      }
-      timestamp
-    }`
+    `
   }
 
   public static search(
@@ -60,14 +62,14 @@ export class Event extends Entity<IEventState> {
     }
 
     let query
-    query = gql`query EventSearch
-      {
-        events ${createGraphQlQuery(options)} {
+    query = gql`query EventSearch {
+        events ${createGraphQlQuery(options)}
+        {
           ...EventFields
         }
       }
       ${Event.fragments.EventFields}
-      `
+    `
 
     return context.getObservableList(
       context,

@@ -19,8 +19,6 @@ describe('Proposal execute()', () => {
     executedProposal = new ContributionRewardProposal(arc, addresses.executedProposalId)
   })
 
-  //TODO: it says contract address is invalid
-
   it('runs correctly through the stages', async () => {
 
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
@@ -29,7 +27,7 @@ describe('Proposal execute()', () => {
     }
     const accounts = await arc.web3.listAccounts()
     const state = await executedProposal.fetchState()
-    const plguinAddress = state.plugin.id
+    const pluginState = await state.plugin.entity.fetchState()
 
     const options: IProposalCreateOptionsCR = {
       beneficiary,
@@ -39,7 +37,7 @@ describe('Proposal execute()', () => {
       externalTokenReward: toWei('3'),
       nativeTokenReward: toWei('2'),
       reputationReward: toWei('1'),
-      plugin: plguinAddress,
+      plugin: pluginState.address,
       proposalType: "ContributionReward"
     }
 
