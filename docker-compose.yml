@@ -1,4 +1,4 @@
-# A composition of services that are needed to run the tests of the client
+# A composition of services that are needed to run the tests of the arc.js
 # This is for DEVELOPMENT, not production
 
 version: "3"

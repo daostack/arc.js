@@ -1,6 +1,6 @@
 {
-  "name": "@daostack/client",
-  "version": "2.0.0-experimental.5",
+  "name": "@daostack/arc.js",
+  "version": "2.0.0-experimental.3",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",
@@ -13,7 +13,7 @@
   "author": "DAOstack <info@daostack.io>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/daostack/client"
+    "url": "https://github.com/daostack/arc.js"
   },
   "license": "MIT",
   "engines": {
