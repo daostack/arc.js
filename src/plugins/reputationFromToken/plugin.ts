@@ -1,4 +1,4 @@
-import { from, Observable } from 'rxjs'
+import { from } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
 import {
   ITransaction,
@@ -6,22 +6,20 @@ import {
   toIOperationObservable,
   Address,
   Plugin,
-  IPluginState,
-  IApolloQueryOptions
+  Arc,
+  IPluginState
 } from '../../index'
+import { DocumentNode } from 'graphql'
 
 export class ReputationFromToken extends Plugin<IPluginState> {
 
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IPluginState> {
-    const query = gql`query SchemeStateById
-      {
-        controllerScheme (id: "${this.id}") {
-          ...PluginFields
-        }
-      }
-      ${Plugin.baseFragment}
-    `
-    return this.context.getObservableObject(this.context, query, Plugin.itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IPluginState | null {
+    if (!item) {
+      console.log(`ReputationFromToken Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      return null
+    }
+
+    return Plugin.itemMapToBaseState(context, item)
   }
 
   public async getAgreementHash(): Promise<string> {
@@ -42,7 +40,7 @@ export class ReputationFromToken extends Plugin<IPluginState> {
 
     const observable = from(createTransaction()).pipe(
       concatMap((transaction) => {
-        return this.plugin.context.sendTransaction(transaction)
+        return this.context.sendTransaction(transaction)
       })
     )
 
@@ -50,8 +48,8 @@ export class ReputationFromToken extends Plugin<IPluginState> {
   }
 
   public async getContract() {
-    const state = await this.plugin.fetchState()
-    const contract = this.plugin.context.getContract(state.address)
+    const state = await this.fetchState()
+    const contract = this.context.getContract(state.address)
     return contract
   }
 }

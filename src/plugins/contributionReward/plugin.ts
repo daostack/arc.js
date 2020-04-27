@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { Observable } from 'rxjs'
 import gql from 'graphql-tag'
 import {
   IProposalBaseCreateOptions,
@@ -8,7 +7,6 @@ import {
   IGenesisProtocolParams,
   mapGenesisProtocolParams,
   IPluginState,
-  Plugin,
   ITransaction,
   transactionResultHandler,
   ITransactionReceipt,
@@ -16,8 +14,8 @@ import {
   NULL_ADDRESS,
   IContributionRewardProposalState,
   Address,
-  IApolloQueryOptions,
-  ContributionRewardProposal
+  ContributionRewardProposal,
+  Plugin
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -75,25 +73,13 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
     return this._fragment
   }
 
-  public static itemMap(arc: Arc, item: any, query: DocumentNode): IContributionRewardState | null {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardState | null {
     if (!item) {
       console.log(`ContributionReward Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 
-    let name = item.name
-    if (!name) {
-
-      try {
-        name = arc.getContractInfo(item.address).name
-      } catch (err) {
-        if (err.message.match(/no contract/ig)) {
-          // continue
-        } else {
-          throw err
-        }
-      }
-    }
+    const baseState = Plugin.itemMapToBaseState(context, item)
 
     const contributionRewardParams = item.contributionRewardParams && {
       voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
@@ -101,34 +87,9 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
     }
     
     return {
-        address: item.address,
-        canDelegateCall: item.canDelegateCall,
-        canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterPlugins: item.canRegisterSchemes,
-        canUpgradeController: item.canUpgradeController,
-        dao: item.dao.id,
-        id: item.id,
-        name,
-        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
-        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
-        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        pluginParams: contributionRewardParams,
-        version: item.version
+        ...baseState,
+        pluginParams: contributionRewardParams
       }
-  }
-
-  // plugin/plugin.ts
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IContributionRewardState> {
-    const query = gql`query SchemeStateById
-      {
-        controllerScheme (id: "${this.id}") {
-          ...PluginFields
-        }
-      }
-      ${Plugin.baseFragment}
-    `
-
-    return this.context.getObservableObject(this.context, query, ContributionReward.itemMap, apolloQueryOptions) as Observable<IContributionRewardState>
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {

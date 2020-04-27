@@ -50,6 +50,11 @@ export interface IPluginQueryOptions extends ICommonQueryOptions {
 
 export abstract class Plugin<TPluginState extends IPluginState> extends Entity<TPluginState> {
 
+  // @ts-ignore
+  "constructor": typeof Plugin
+
+  protected static itemMap: (arc: Arc, item: any, query: DocumentNode) => IPluginState | null
+
   public static fragment: { name: string, fragment: DocumentNode } | undefined
 
   public static get baseFragment(): DocumentNode {
@@ -124,12 +129,63 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     ) as Observable<Plugin<TPluginState>[]>
   }
 
+  protected static itemMapToBaseState(
+    context: Arc,
+    item: any
+  ): IPluginState {
+
+    let name = item.name
+    if (!name) {
+
+      try {
+        name = context.getContractInfo(item.address).name
+      } catch (err) {
+        if (err.message.match(/no contract/ig)) {
+          // continue
+        } else {
+          throw err
+        }
+      }
+    }
+
+    return {
+      address: item.address,
+      canDelegateCall: item.canDelegateCall,
+      canManageGlobalConstraints: item.canManageGlobalConstraints,
+      canRegisterPlugins: item.canRegisterSchemes,
+      canUpgradeController: item.canUpgradeController,
+      dao: {
+        id: item.dao.id,
+        entity: new DAO(context, item.dao.id)
+      },
+      id: item.id,
+      name,
+      numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+      numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+      numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
+      version: item.version
+    }
+
+  }
+
   public static calculateId(opts: { daoAddress: Address, contractAddress: Address}): string {
     const seed = concat(
       hexStringToUint8Array(opts.daoAddress.toLowerCase()),
       hexStringToUint8Array(opts.contractAddress.toLowerCase())
     )
     return utils.keccak256(seed)
+  }
+
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<TPluginState> {
+    const query = gql`query SchemeStateById
+      {
+        controllerScheme (id: "${this.id}") {
+          ...PluginFields
+        }
+      }
+      ${Plugin.baseFragment}
+    `
+    return this.context.getObservableObject(this.context, query, this.constructor.itemMap, apolloQueryOptions) as Observable<TPluginState>
   }
 
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}, refetch?: boolean): Promise <TPluginState> {

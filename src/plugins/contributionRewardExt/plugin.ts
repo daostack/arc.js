@@ -1,9 +1,7 @@
 import BN from 'bn.js'
 import gql from 'graphql-tag'
-import { Observable } from 'rxjs'
 import {
   IPluginState,
-  Plugin,
   IGenesisProtocolParams,
   mapGenesisProtocolParams,
   IProposalBaseCreateOptions,
@@ -15,11 +13,10 @@ import {
   NULL_ADDRESS,
   ContributionRewardExtProposal,
   IContributionRewardExtProposalState,
-  IApolloQueryOptions,
-  Address
+  Address,
+  Plugin
 } from '../../index'
 import { DocumentNode } from 'graphql'
-import { DAO } from '../../dao'
 
 export interface IContributionRewardExtState extends IPluginState {
   pluginParams: {
@@ -83,19 +80,7 @@ export class ContributionRewardExt extends ProposalPlugin<
       return null
     }
 
-    let name = item.name
-    if (!name) {
-
-      try {
-        name = context.getContractInfo(item.address).name
-      } catch (err) {
-        if (err.message.match(/no contract/ig)) {
-          // continue
-        } else {
-          throw err
-        }
-      }
-    }
+    const baseState = Plugin.itemMapToBaseState(context, item)
 
     const contributionRewardExtParams = item.contributionRewardExtParams && {
       rewarder: item.contributionRewardExtParams.rewarder,
@@ -104,35 +89,9 @@ export class ContributionRewardExt extends ProposalPlugin<
     }
     
     return {
-        address: item.address,
-        canDelegateCall: item.canDelegateCall,
-        canManageGlobalConstraints: item.canManageGlobalConstraints,
-        canRegisterPlugins: item.canRegisterSchemes,
-        canUpgradeController: item.canUpgradeController,
-        dao: {
-          id: item.dao.id,
-          entity: new DAO(context, item.dao.id)
-        },
-        id: item.id,
-        name,
-        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
-        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
-        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        pluginParams: contributionRewardExtParams,
-        version: item.version
+        ...baseState,
+        pluginParams: contributionRewardExtParams
       }
-  }
-
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IContributionRewardExtState> {
-    const query = gql`query SchemeStateById
-      {
-        controllerScheme (id: "${this.id}") {
-          ...PluginFields
-        }
-      }
-      ${Plugin.baseFragment}
-    `
-    return this.context.getObservableObject(this.context, query, ContributionRewardExt.itemMap, apolloQueryOptions) as Observable<IContributionRewardExtState>
   }
 
   public async createProposalTransaction(
