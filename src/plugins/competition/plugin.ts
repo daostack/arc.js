@@ -108,7 +108,7 @@ export class Competition extends ProposalPlugin<
   }
 
   public static getCompetitionContract(arc: Arc, state: IContributionRewardExtState) {
-    if (state === null) {
+    if (!state) {
       throw Error(`No Plugin was provided`)
     }
     const rewarder = state.pluginParams && state.pluginParams.rewarder

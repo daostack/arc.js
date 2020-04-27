@@ -138,7 +138,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
         context,
         query,
         (context: Arc, r: any, query: DocumentNode) => {
-          if (r === null) { // no such proposal was found
+          if (!r) { // no such proposal was found
             return []
           }
           const itemMap = (item: any) =>
@@ -176,7 +176,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
   }
 
   private static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionSuggestionState {
-    if (item === null) {
+    if (!item) {
       throw Error(`Competition Suggestion ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 

@@ -84,7 +84,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
   static itemMap (context: Arc, item: any, query: DocumentNode): ICompetitionProposalState | null {
 
-    if (item === null || item === undefined) {
+    if (!item) {
       console.log(`Competition Proposal ItemMap failed.`)
       return null
     }

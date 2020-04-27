@@ -74,7 +74,7 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
         context,
         query,
         (context: Arc, r: any, query: DocumentNode) => {
-          if (r === null) { // no such proposal was found
+          if (!r) { // no such proposal was found
             return []
           }
           const itemMap = (item: any) => new CompetitionVote(context, CompetitionVote.itemMap(context, item, query))
@@ -104,7 +104,7 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionVoteState {
 
-    if(item === null) {
+    if(!item) {
       throw Error(`Competition Vote ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 

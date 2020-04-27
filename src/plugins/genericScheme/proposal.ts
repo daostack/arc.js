@@ -55,14 +55,14 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
 
   static itemMap (context: Arc, item: any, query: DocumentNode): IGenericSchemeProposalState | null {
 
-    if (item === null || item === undefined) {
+    if (!item) {
       console.log(`GenericScheme Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
     
     const genericSchemeState = GenericScheme.itemMap(context, item.scheme, query)
 
-    if(genericSchemeState === null) return null
+    if(!genericSchemeState) return null
 
     const genericScheme = new GenericScheme(context, genericSchemeState)
     const genericSchemeProposal = new GenericSchemeProposal(context, item.id)
@@ -75,7 +75,7 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
       "GenericScheme"
     )
 
-    if(baseState === null) return null
+    if(!baseState) return null
     
     return {
       ...baseState,

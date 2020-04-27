@@ -90,7 +90,7 @@ export class Tag extends Entity<ITagState> {
         context,
         query,
         (context: Arc, r: any, query: DocumentNode) => {
-          if (r === null) { // no such proposal was found
+          if (!r) { // no such proposal was found
             return []
           }
           const itemMap = (item: any) => {
@@ -121,7 +121,7 @@ export class Tag extends Entity<ITagState> {
   }
 
   public static itemMap = (context: Arc, item: any, query: DocumentNode): ITagState => {
-    if (item === null) {
+    if (!item) {
       throw Error(`Tag ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 

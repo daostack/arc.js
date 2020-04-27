@@ -55,7 +55,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
     query: DocumentNode
   ): ISchemeRegistrarProposalState | null {
 
-    if (item === null || item === undefined) {
+    if (!item) {
       console.log(`SchemeRegistrar Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
@@ -91,7 +91,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       type
     )
 
-    if(baseState === null) return null
+    if(!baseState) return null
     
     return {
       ...baseState,

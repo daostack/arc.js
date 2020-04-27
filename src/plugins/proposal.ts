@@ -342,7 +342,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     proposal: TProposal,
     type: ProposalName
   ) : IProposalState | null{
-    if (item === null || item === undefined) {
+    if (!item) {
       // no proposal was found - we return null
       // throw Error(`No proposal with id ${this.id} could be found`)
       return null

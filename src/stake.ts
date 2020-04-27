@@ -115,7 +115,7 @@ export class Stake extends Entity<IStakeState> {
         context,
         query,
         (context: Arc, r: any, query: DocumentNode) => {
-          if (r === null) { // no such proposal was found
+          if (!r) { // no such proposal was found
             return []
           }
           const stakes = r.stakes
@@ -123,6 +123,11 @@ export class Stake extends Entity<IStakeState> {
             const state = Stake.itemMap(context, item, query)
             return new Stake(context, state)
           }
+
+          if (!stakes) {
+            return []
+          }
+
           return stakes.map(itemMap)
         },
         apolloQueryOptions
@@ -147,7 +152,7 @@ export class Stake extends Entity<IStakeState> {
   }
 
   public static itemMap = (context: Arc, item: any, query: DocumentNode): IStakeState => {
-    if (item === null) {
+    if (!item) {
       throw Error(`Stake ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 

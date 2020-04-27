@@ -113,7 +113,7 @@ export class Member extends Entity<IMemberState> {
   }
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IMemberState {
-    if (item === null || item === undefined || item.id === undefined) {
+    if (!item || item.id === undefined) {
       throw Error(`Member ItemMap failed. Query: ${query.loc?.source.body}`)
     }
     return {

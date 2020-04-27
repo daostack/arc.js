@@ -79,7 +79,7 @@ export class Event extends Entity<IEventState> {
 
   public static itemMap(_context: Arc, item: any, query: DocumentNode): IEventState {
 
-    if(item === null) {
+    if(!item) {
       throw Error(`Event ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 

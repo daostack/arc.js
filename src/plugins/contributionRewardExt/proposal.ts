@@ -41,7 +41,7 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
 
   static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtProposalState | null {
 
-    if (item === null || item === undefined) {
+    if (!item) {
       console.log(`ContributionRewardExt Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }

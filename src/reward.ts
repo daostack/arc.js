@@ -116,7 +116,7 @@ export class Reward extends Entity<IRewardState> {
         context,
         query,
         (context: Arc, r: any, query: DocumentNode) => {
-          if (r === null) {
+          if (!r) {
             return []
           }
           const rewards = r.gpRewards
@@ -151,7 +151,7 @@ export class Reward extends Entity<IRewardState> {
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IRewardState {
 
-    if(item === null) {
+    if(!item) {
       throw Error(`Reward ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 

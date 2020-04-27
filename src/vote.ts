@@ -124,7 +124,7 @@ export class Vote extends Entity<IVoteState> {
         context,
         query,
         (context: Arc, r: any, query: DocumentNode) => {
-          if (r === null) { // no such proposal was found
+          if (!r) { // no such proposal was found
             return []
           }
           const votes = r.votes
@@ -157,7 +157,7 @@ export class Vote extends Entity<IVoteState> {
   }
 
   public static itemMap = (context: Arc, item: any, query: DocumentNode): IVoteState => {
-    if (item === null) {
+    if (!item) {
       throw Error(`Vote ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 

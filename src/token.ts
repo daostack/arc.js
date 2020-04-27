@@ -105,7 +105,7 @@ export class Token extends Entity<ITokenState> {
   }
 
   public static itemMap = (context: Arc, item: any, query: DocumentNode): ITokenState => {
-    if (item === null) {
+    if (!item) {
       throw Error(`Token ItemMap failed. Query: ${query.loc?.source.body}`)
     }
     return {
@@ -172,7 +172,7 @@ export class Token extends Entity<ITokenState> {
       }
       const subscribe = () => contract.balanceOf(owner)
         .then((balance: BigNumber) => {
-          if (balance === null) {
+          if (!balance) {
             observer.error(`balanceOf ${owner} returned null`)
           }
           observer.next(new BN(balance.toString()))
@@ -207,7 +207,7 @@ export class Token extends Entity<ITokenState> {
 
       contract.allowance(owner, spender)
         .then((balance: BigNumber) => {
-          if (balance === null) {
+          if (!balance) {
             observer.error(`balanceOf ${owner} returned null`)
           }
           observer.next(new BN(balance.toString()))

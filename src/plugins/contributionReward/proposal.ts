@@ -77,7 +77,7 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
 
   static itemMap (context: Arc, item: any, query: DocumentNode): IContributionRewardProposalState | null {
 
-    if (item === null || item === undefined) return null
+    if (!item) return null
 
     const ethRewardLeft = (
       item.contributionReward.ethRewardLeft !== null &&

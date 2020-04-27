@@ -122,7 +122,7 @@ export class DAO extends Entity<IDAOState> {
   }
 
   public static itemMap = (context: Arc, item: any, query: DocumentNode): IDAOState => {
-    if (item === null) {
+    if (!item) {
       throw Error(`DAO ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
