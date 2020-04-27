@@ -95,7 +95,7 @@ export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericS
       voteParams: mapGenesisProtocolParams(item.genericpluginParams.voteParams),
       votingMachine: item.genericpluginParams.votingMachine
     }
-    
+
     return {
         address: item.address,
         canDelegateCall: item.canDelegateCall,

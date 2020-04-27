@@ -1,16 +1,28 @@
-import { from } from 'rxjs'
+import { from, Observable } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
 import {
   ITransaction,
   Operation,
   toIOperationObservable,
   Address,
-  AnyPlugin
+  Plugin,
+  IPluginState,
+  IApolloQueryOptions
 } from '../../index'
 
-export class ReputationFromTokenScheme {
+export class ReputationFromToken extends Plugin<IPluginState> {
 
-  constructor(public plugin: AnyPlugin) { }
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IPluginState> {
+    const query = gql`query SchemeStateById
+      {
+        controllerScheme (id: "${this.id}") {
+          ...PluginFields
+        }
+      }
+      ${Plugin.baseFragment}
+    `
+    return this.context.getObservableObject(this.context, query, Plugin.itemMap, apolloQueryOptions) as Observable<IGenericSchemeState>
+  }
 
   public async getAgreementHash(): Promise<string> {
     const contract = await this.getContract()
@@ -42,5 +54,4 @@ export class ReputationFromTokenScheme {
     const contract = this.plugin.context.getContract(state.address)
     return contract
   }
-
 }

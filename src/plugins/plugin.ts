@@ -13,7 +13,6 @@ import {
   Arc,
   Entity,
   IEntityRef,
-  ReputationFromTokenScheme,
   Address,
   ICommonQueryOptions,
   IApolloQueryOptions,
@@ -82,8 +81,6 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
   }
   private static _baseFragment: DocumentNode | undefined
 
-  public ReputationFromToken: ReputationFromTokenScheme | null = null
-  
   public static search<TPluginState extends IPluginState>(
     context: Arc,
     options: IPluginQueryOptions = {},
@@ -105,12 +102,11 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
 
       if(!Object.keys(Plugins).includes(item.name)) {
         console.log(`Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`)
-        
+
         const state = Plugins['unknown'].itemMap(context, item, query)
         if(!state) return null
-        
-        return new Plugins['unknown'](context, state)
 
+        return new Plugins['unknown'](context, state)
       } else {
 
         const state: IPluginState = Plugins[item.name].itemMap(context, item, query)

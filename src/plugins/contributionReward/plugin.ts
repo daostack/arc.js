@@ -44,35 +44,36 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
   private static _fragment: { name: string, fragment: DocumentNode } | undefined
 
   public static get fragment () {
-   if(!this._fragment){
-    this._fragment = {
-      name: 'ContributionRewardParams',
-      fragment: gql` fragment ContributionRewardParams on ControllerScheme {
-      contributionRewardParams {
-        id
-        votingMachine
-        voteParams {
-          id
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
+    if(!this._fragment) {
+      this._fragment = {
+        name: 'ContributionRewardParams',
+        fragment: gql` fragment ContributionRewardParams on ControllerScheme {
+          contributionRewardParams {
+            id
+            votingMachine
+            voteParams {
+              id
+              queuedVoteRequiredPercentage
+              queuedVotePeriodLimit
+              boostedVotePeriodLimit
+              preBoostedVotePeriodLimit
+              thresholdConst
+              limitExponentValue
+              quietEndingPeriod
+              proposingRepReward
+              votersReputationLossRatio
+              minimumDaoBounty
+              daoBountyConst
+              activationTime
+              voteOnBehalf
+            }
+          }
+        }`
       }
-    }`
     }
+
+    return this._fragment
   }
-  return this._fragment
-}
 
   public static itemMap(arc: Arc, item: any, query: DocumentNode): IContributionRewardState | null {
     if (!item) {
@@ -116,6 +117,7 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
       }
   }
 
+  // plugin/plugin.ts
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IContributionRewardState> {
     const query = gql`query SchemeStateById
       {
