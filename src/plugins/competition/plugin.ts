@@ -316,7 +316,7 @@ export class Competition extends ProposalPlugin<
         proposerIsAdmin
       ]
     }
-}
+  }
 
   public async ethBalance(): Promise<Observable<BN>> {
     let state
@@ -330,5 +330,4 @@ export class Competition extends ProposalPlugin<
     const contributionRewardExt = this.context.getContract(state.address)
     return this.context.ethBalance(await contributionRewardExt.vault())
   }
-
 }
