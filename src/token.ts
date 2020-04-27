@@ -150,44 +150,48 @@ export class Token extends Entity<ITokenState> {
       return err
     }
     const observable = Observable.create(async (observer: Observer<BN>) => {
-      const contract = this.contract()
+      try {
+        const contract = this.contract()
 
-      const toFilter = contract.filters.Transfer(null, owner)
-      const onTransferTo = (data: any) => {
-        contract.balanceOf(owner).then((newBalance: BigNumber) => {
-          observer.next(new BN(newBalance.toString()))
-        })
-      }
+        const toFilter = contract.filters.Transfer(null, owner)
+        const onTransferTo = (data: any) => {
+          contract.balanceOf(owner).then((newBalance: BigNumber) => {
+            observer.next(new BN(newBalance.toString()))
+          })
+        }
 
-      const fromFilter = contract.filters.Transfer(owner)
-      const onTransferFrom = (data: any) => {
-        contract.balanceOf(owner).then((newBalance: number) => {
-          observer.next(new BN(newBalance.toString()))
-        })
-      }
+        const fromFilter = contract.filters.Transfer(owner)
+        const onTransferFrom = (data: any) => {
+          contract.balanceOf(owner).then((newBalance: number) => {
+            observer.next(new BN(newBalance.toString()))
+          })
+        }
 
-      const unsubscribe = () => {
-        contract.removeListener(toFilter, onTransferTo)
-        contract.removeListener(fromFilter, onTransferFrom)
+        const unsubscribe = () => {
+          contract.removeListener(toFilter, onTransferTo)
+          contract.removeListener(fromFilter, onTransferFrom)
+        }
+        const subscribe = () => contract.balanceOf(owner)
+          .then((balance: BigNumber) => {
+            if (!balance) {
+              observer.error(`balanceOf ${owner} returned null`)
+            }
+            observer.next(new BN(balance.toString()))
+            contract.on(toFilter, onTransferTo)
+            contract.on(fromFilter, onTransferFrom)
+          })
+          .catch(async (err: Error) => {
+            if (err.message.match(/connection not open/g)) {
+              observer.error(await errHandler(err))
+            } else {
+              observer.error(await errHandler(err))
+            }
+          })
+        await subscribe()
+        return () => unsubscribe()
+      } catch (e) {
+        observer.error(e)
       }
-      const subscribe = () => contract.balanceOf(owner)
-        .then((balance: BigNumber) => {
-          if (!balance) {
-            observer.error(`balanceOf ${owner} returned null`)
-          }
-          observer.next(new BN(balance.toString()))
-          contract.on(toFilter, onTransferTo)
-          contract.on(fromFilter, onTransferFrom)
-        })
-        .catch(async (err: Error) => {
-          if (err.message.match(/connection not open/g)) {
-            observer.error(await errHandler(err))
-          } else {
-            observer.error(await errHandler(err))
-          }
-        })
-      await subscribe()
-      return () => unsubscribe()
     })
     observable.first = () => observable.pipe(first()).toPromise()
     return observable

@@ -108,12 +108,10 @@ describe('Token', () => {
     expect(lastAllowance()).toMatchObject(amount)
   })
 
-  //TODO: this indeed throws but differently
   it('get balance of a non-existing token', async () => {
     const token = new Token(arc, '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
-    const promise = token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
-      .pipe(first()).toPromise()
-    await expect(promise).rejects.toThrow(new RegExp("^contract not deployed"))
+    await expect(token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1').pipe(first()).toPromise())
+      .rejects.toThrow(/No contract with address/i)
   })
 
   it('paging and sorting works', async () => {
