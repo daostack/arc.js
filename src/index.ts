@@ -1,3 +1,5 @@
+import 'ethers/dist/shims'
+
 export { Arc, IArcOptions, IContractInfo } from './arc'
 export { DAO, IDAOState, IDAOQueryOptions } from './dao'
 export { IGenesisProtocolParams } from './genesisProtocol'
@@ -29,7 +31,7 @@ export { Stake, IStakeState, IStakeQueryOptions } from './stake'
 export { Tag } from './tag'
 export { Logger } from './logger'
 export { Vote, IVoteState, IVoteQueryOptions } from './vote'
-export { Address } from './types'
+export { Address, Web3Client, Web3Provider } from './types'
 import { Arc } from './arc'
 export default Arc
 

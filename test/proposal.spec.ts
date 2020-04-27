@@ -275,7 +275,11 @@ describe('Proposal', () => {
     const stakeAmount = toWei('18')
 
     if(!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     await proposal.stakingToken().mint(defaultAccount, stakeAmount).send()
     const votingMachine = await proposal.votingMachine()

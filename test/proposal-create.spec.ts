@@ -65,7 +65,11 @@ describe('Create a ContributionReward proposal', () => {
     expect(fromWei(proposalState.stakesFor)).toEqual('0.0')
 
     if(!dao.context.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = dao.context.defaultAccount? dao.context.defaultAccount: await dao.context.web3.getSigner().getAddress()
+    let defaultAccount = await dao.context.getDefaultAddress()
+
+    if (!defaultAccount) {
+      defaultAccount = await dao.context.web3.getSigner().getAddress()
+    }
 
     expect(proposalState).toMatchObject({
       executedAt: 0,

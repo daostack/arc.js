@@ -1,6 +1,8 @@
+import 'ethers/dist/shims'
+
 import BN = require('bn.js')
 import { Contract, Signer } from 'ethers'
-import { JsonRpcProvider } from 'ethers/providers'
+import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
@@ -26,7 +28,7 @@ import { ABI_DIR } from './settings'
 import { IStakeQueryOptions, Stake } from './stake'
 import { ITagQueryOptions, Tag } from './tag'
 import { Token } from './token'
-import { Address, IPFSProvider } from './types'
+import { Address, IPFSProvider, Web3Client, Web3Provider } from './types'
 import { isAddress } from './utils'
 
 export interface IArcOptions {
@@ -35,7 +37,7 @@ export interface IArcOptions {
   graphqlHttpProvider?: string
   graphqlWsProvider?: string
   ipfsProvider?: IPFSProvider
-  web3Provider?: string
+  web3Provider?: Web3Provider
   /** this function will be called before a query is sent to the graphql provider */
   graphqlPrefetchHook?: (query: any) => void
   /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
@@ -51,14 +53,20 @@ export interface IArcOptions {
  * @return an instance of Arc
  */
 export class Arc extends GraphNodeObserver {
-  public ipfsProvider: IPFSProvider
 
-  public defaultAccount: string | undefined = undefined
-
+  public defaultAccount: string | Signer | undefined = undefined
   public pendingOperations: Observable<Array<Operation<any>>> = of()
 
+  public ipfsProvider: IPFSProvider
   public ipfs: IPFSClient | undefined = undefined
-  public web3: JsonRpcProvider | undefined = undefined
+
+  public get web3Provider(): Web3Provider {
+    return this._web3Provider
+  }
+
+  public get web3(): Web3Client | undefined {
+    return this._web3
+  }
 
   /**
    * a mapping of contrct names to contract addresses
@@ -75,6 +83,9 @@ export class Arc extends GraphNodeObserver {
     }
   } = {}
 
+  private _web3Provider: Web3Provider = ''
+  private _web3: Web3Client | undefined = undefined
+
   constructor(options: IArcOptions) {
     super({
       errHandler: options.graphqlErrHandler,
@@ -87,7 +98,7 @@ export class Arc extends GraphNodeObserver {
     this.ipfsProvider = options.ipfsProvider || ''
 
     if (options.web3Provider) {
-      this.web3 = new JsonRpcProvider(options.web3Provider)
+      this.setWeb3(options.web3Provider)
     }
 
     this.contractInfos = options.contractInfos || []
@@ -102,6 +113,35 @@ export class Arc extends GraphNodeObserver {
     // by default, we do not subscribe to queries
     if (options.graphqlSubscribeToQueries === undefined) {
       options.graphqlSubscribeToQueries = false
+    }
+  }
+
+  public setWeb3(provider: Web3Provider) {
+    if (typeof provider === 'string') {
+      this._web3 = new JsonRpcProvider(provider)
+    } else if (Signer.isSigner(provider)) {
+      const signer: Signer = provider
+
+      if (!signer.provider) {
+        throw Error(
+          'Ethers Signer is missing a provider, please set one. More info here: https://docs.ethers.io/ethers.js/html/api-wallet.html'
+        )
+      }
+
+      this._web3 = signer.provider as JsonRpcProvider
+      this.defaultAccount = signer
+    } else {
+      this._web3 = new EthersWeb3JsProvider(provider)
+    }
+
+    this._web3Provider = provider
+  }
+
+  public async getDefaultAddress(): Promise<string | undefined> {
+    if (Signer.isSigner(this.defaultAccount)) {
+      return await this.defaultAccount.getAddress()
+    } else {
+      return this.defaultAccount
     }
   }
 
@@ -315,7 +355,12 @@ export class Arc extends GraphNodeObserver {
     if (!this.web3) {
       throw new Error('Web3 provider not set')
     }
-    return new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
+
+    if (Signer.isSigner(this.defaultAccount)) {
+      return new Contract(address, abi, this.defaultAccount)
+    } else {
+      return new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
+    }
   }
 
   /**
@@ -339,54 +384,67 @@ export class Arc extends GraphNodeObserver {
     // this complex logic is to get the correct account both from the Web3 as well as from the Metamaask provider
     // This polls for changes. But polling is Evil!
     // cf. https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
-    return Observable.create((observer: Observer<Address>) => {
-      const interval = 1000 /// poll once a second
-      let account: Address
-      let prevAccount: Address
-      const web3 = this.web3
+    return Observable.create(async (observer: Observer<Address>) => {
+      if (Signer.isSigner(this.defaultAccount)) {
+        observer.next(await this.defaultAccount.getAddress())
+      } else {
+        const interval = 1000 /// poll once a second
+        let account: Address
+        let prevAccount: Address
+        const web3 = this.web3
 
-      if (this.defaultAccount) {
-        observer.next(this.defaultAccount)
-        prevAccount = this.defaultAccount
-      }
-
-      const timeout = setInterval(() => {
-        if (!web3) {
-          throw new Error('Web3 provider not set')
+        if (this.defaultAccount) {
+          observer.next(this.defaultAccount)
+          prevAccount = this.defaultAccount
         }
 
-        web3.listAccounts().then((accounts: string[]) => {
-          if (this.defaultAccount) {
-            account = this.defaultAccount
-          } else if (accounts) {
-            account = accounts[0]
+        const timeout = setInterval(() => {
+          if (!web3) {
+            throw new Error('Web3 provider not set')
           }
-          if (prevAccount !== account && account) {
-            observer.next(account)
-            prevAccount = account
-          }
-        })
-      }, interval)
-      return () => clearTimeout(timeout)
+
+          web3.listAccounts().then((accounts: string[]) => {
+            if (this.defaultAccount && typeof this.defaultAccount === 'string') {
+              account = this.defaultAccount
+            } else if (accounts) {
+              account = accounts[0]
+            }
+            if (prevAccount !== account && account) {
+              observer.next(account)
+              prevAccount = account
+            }
+          })
+        }, interval)
+        return () => clearTimeout(timeout)
+      }
     })
   }
 
   public setAccount(address: Address) {
+    if (Signer.isSigner(this.defaultAccount)) {
+      throw Error(
+        'The account cannot be set post-initialization when a custom Signer is being used'
+      )
+    }
     this.defaultAccount = address
   }
 
   public getSigner(): Observable<Signer> {
     return Observable.create((observer: Observer<Signer>) => {
-      const subscription = this.getAccount().subscribe((address) => {
-        if (!this.web3) {
-          throw new Error('Web3 provider not set')
-        }
-        observer.next(
-          this.web3.getSigner(address)
-        )
-      })
+      if (Signer.isSigner(this.defaultAccount)) {
+        observer.next(this.defaultAccount)
+      } else {
+        const subscription = this.getAccount().subscribe((address) => {
+          if (!this.web3) {
+            throw new Error('Web3 provider not set')
+          }
+          observer.next(
+            this.web3.getSigner(address)
+          )
+        })
 
-      return () => subscription.unsubscribe()
+        return () => subscription.unsubscribe()
+      }
     })
   }
 
