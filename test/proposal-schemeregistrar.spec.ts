@@ -8,7 +8,8 @@ import {
   ISchemeRegistrarProposalState,
   IProposalCreateOptionsSR,
   Plugin,
-  SchemeRegistrar
+  SchemeRegistrar,
+  AnyPlugin
   } from '../src'
 import { firstResult, getTestDAO,
   newArc, voteToPassProposal, waitUntilTrue, getTestScheme } from './utils'
@@ -96,6 +97,8 @@ describe('Proposal', () => {
 
     // we create a new proposal now to edit the scheme
 
+    const schemeRegistrarPlugin = registeredPlugins.find((rp: AnyPlugin) => rp instanceof (SchemeRegistrar)) as SchemeRegistrar
+
     const editProposalOptions: IProposalCreateOptionsSR = {
       dao: dao.id,
       descriptionHash: '',
@@ -106,20 +109,19 @@ describe('Proposal', () => {
       proposalType: "SchemeRegistrarEdit"
     }
 
-    const editTx = await registeredPlugins[0].createProposal(editProposalOptions).send()
+    const editTx = await schemeRegistrarPlugin.createProposal(editProposalOptions).send()
 
     if(!editTx.result) throw new Error("Create proposal yielded no results")
 
     const proposalToEdit = new SchemeRegistrarProposal(arc, editTx.result.id)
 
-    console.log(editTx.result.id)
     const proposalToEditStates: IProposalState[]  = []
     proposalToEdit.state({}).subscribe((pState: IProposalState) => {
       proposalToEditStates.push(pState)
     })
     const lastProposalToEditState = (): IProposalState => proposalToEditStates[proposalToEditStates.length - 1]
 
-    await waitUntilTrue(() => proposalToEditStates.length > 0)
+    await waitUntilTrue(() => proposalToEditStates.length > 1)
 
     expect(lastProposalToEditState()).toMatchObject({
       decision: null,
@@ -155,7 +157,7 @@ describe('Proposal', () => {
     })
     const lastProposalToRemoveState = (): IProposalState => proposalToRemoveStates[proposalToRemoveStates.length - 1]
 
-    await waitUntilTrue(() => proposalToRemoveStates.length > 0)
+    await waitUntilTrue(() => proposalToRemoveStates.length > 1)
 
     expect(lastProposalToRemoveState()).toMatchObject({
       decision: null,

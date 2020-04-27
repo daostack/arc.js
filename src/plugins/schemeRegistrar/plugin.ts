@@ -178,7 +178,6 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
           contract: this.context.getContract(options.plugin),
           method: 'proposeToRemoveScheme',
           args: [
-            options.dao,
             options.schemeToRegister,
             options.descriptionHash
           ]
