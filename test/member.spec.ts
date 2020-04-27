@@ -27,7 +27,11 @@ describe('Member', () => {
     daoState = await dao.fetchState()
 
     if(!arc.web3) throw new Error("Web3 provider not set")
-    defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+    defaultAccount = await arc.getDefaultAddress() as string
+
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
   })
 
   it('Member is instantiable', () => {

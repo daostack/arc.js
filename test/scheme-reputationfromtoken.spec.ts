@@ -21,7 +21,11 @@ describe('Scheme', () => {
     const reputationFromToken = scheme.ReputationFromToken as ReputationFromTokenScheme
 
     if(!arc.web3) throw new Error("Web3 provider not set")
-    const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     const redemptionPromise = reputationFromToken.redeem(defaultAccount).send()
     expect(redemptionPromise).rejects.toThrow()

@@ -137,6 +137,14 @@ export class Arc extends GraphNodeObserver {
     this._web3Provider = provider
   }
 
+  public async getDefaultAddress(): Promise<string | undefined> {
+    if (Signer.isSigner(this.defaultAccount)) {
+      return await this.defaultAccount.getAddress()
+    } else {
+      return this.defaultAccount
+    }
+  }
+
   /**
    * set the contract addresses
    * @param  contractInfos a list of IContractInfo objects

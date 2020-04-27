@@ -61,7 +61,11 @@ describe('Arc ', () => {
     await arc.approveForStaking(spender, amount).send()
 
     if (!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount ? arc.defaultAccount as string : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     arc.allowance(defaultAccount, spender).subscribe(
       (next: BN) => {
@@ -82,7 +86,11 @@ describe('Arc ', () => {
     await arc.approveForStaking(spender, amount).send()
 
     if (!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount ? arc.defaultAccount as string : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     arc.allowance(defaultAccount, spender).subscribe(
       (next: BN) => {
@@ -102,7 +110,11 @@ describe('Arc ', () => {
     await waitUntilTrue(() => addressesObserved.length > 0)
 
     if (!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     expect(addressesObserved[0]).toEqual(defaultAccount)
   })
