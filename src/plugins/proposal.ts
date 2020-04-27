@@ -512,7 +512,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       }
       // staker has sufficient balance
       const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
-      const balance = new BN(await stakingToken.contract().balanceOf(defaultAccount))
+      const balance = new BN(await stakingToken.contract().balanceOf(defaultAccount).toString())
       const amountBN = new BN(amount)
       if (balance.lt(amountBN)) {
         const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}

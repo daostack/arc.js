@@ -62,7 +62,7 @@ describe('Stake on a ContributionReward', () => {
       .mint(accounts[2], toWei('100').toString())
     proposal.context.defaultAccount = accounts[2]
     await expect(proposal.stake(IProposalOutcome.Pass, toWei('100')).send()).rejects.toThrow(
-      /insufficient allowance/i
+      /insufficient balance/i
     )
   })
 
