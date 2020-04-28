@@ -14,7 +14,8 @@ import {
   ContributionRewardExtProposal,
   IContributionRewardExtProposalState,
   Address,
-  Plugin
+  Plugin,
+  Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 import { Observable } from 'rxjs'
@@ -77,7 +78,7 @@ export class ContributionRewardExt extends ProposalPlugin<
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtState | null {
     if (!item) {
-      console.log(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

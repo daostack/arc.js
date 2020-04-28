@@ -14,7 +14,8 @@ import {
   ITransaction,
   ITransactionReceipt,
   Operation,
-  REDEEMER_CONTRACT_VERSIONS
+  REDEEMER_CONTRACT_VERSIONS,
+  Logger
 } from '../../index'
 import { concatMap } from 'rxjs/operators'
 import { DocumentNode } from 'graphql'
@@ -53,7 +54,7 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
   static itemMap (context: Arc, item: any, query: DocumentNode): IGenericSchemeProposalState | null {
 
     if (!item) {
-      console.log(`GenericScheme Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`GenericScheme Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
     

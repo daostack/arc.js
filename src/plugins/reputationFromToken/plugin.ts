@@ -7,7 +7,8 @@ import {
   Address,
   Plugin,
   Arc,
-  IPluginState
+  IPluginState,
+  Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -15,7 +16,7 @@ export class ReputationFromToken extends Plugin<IPluginState> {
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IPluginState | null {
     if (!item) {
-      console.log(`ReputationFromToken Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ReputationFromToken Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

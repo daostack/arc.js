@@ -3,7 +3,8 @@ import {
   IPluginState,
   Arc,
   DAO,
-  IApolloQueryOptions
+  IApolloQueryOptions,
+  Logger
 } from '../index'
 import { DocumentNode } from 'graphql'
 import { Observable } from 'rxjs'
@@ -13,7 +14,7 @@ export class UnknownPlugin extends Plugin<IPluginState> {
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IPluginState | null {
     if (!item) {
-      console.log(`Uknown Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`Uknown Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

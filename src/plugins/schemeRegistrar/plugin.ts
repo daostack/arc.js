@@ -12,6 +12,7 @@ import {
   IPluginState,
   Arc,
   Address,
+  Logger,
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -81,7 +82,7 @@ export class SchemeRegistrar extends ProposalPlugin<ISchemeRegistrarState, ISche
 
   public static itemMap(arc: Arc, item: any, query: DocumentNode): ISchemeRegistrarState | null {
     if (!item) {
-      console.log(`SchemeRegistrar Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`SchemeRegistrar Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

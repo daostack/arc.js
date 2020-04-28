@@ -27,7 +27,8 @@ import {
   IPluginState,
   IGenesisProtocolParams,
   mapGenesisProtocolParams,
-  Plugin
+  Plugin,
+  Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -61,7 +62,7 @@ export class Competition extends ProposalPlugin<
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionState | null {
     if (!item) {
-      console.log(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

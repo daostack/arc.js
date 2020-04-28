@@ -14,7 +14,8 @@ import {
   ITransactionReceipt,
   toIOperationObservable,
   Address,
-  IApolloQueryOptions
+  IApolloQueryOptions,
+  Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -42,7 +43,7 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
   static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtProposalState | null {
 
     if (!item) {
-      console.log(`ContributionRewardExt Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ContributionRewardExt Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

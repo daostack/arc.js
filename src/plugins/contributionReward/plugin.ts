@@ -15,7 +15,8 @@ import {
   IContributionRewardProposalState,
   Address,
   ContributionRewardProposal,
-  Plugin
+  Plugin,
+  Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -75,7 +76,7 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardState | null {
     if (!item) {
-      console.log(`ContributionReward Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ContributionReward Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

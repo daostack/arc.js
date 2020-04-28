@@ -8,7 +8,8 @@ import {
   ProposalName,
   IProposalState,
   Address,
-  IApolloQueryOptions
+  IApolloQueryOptions,
+  Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -56,7 +57,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
   ): ISchemeRegistrarProposalState | null {
 
     if (!item) {
-      console.log(`SchemeRegistrar Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`SchemeRegistrar Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

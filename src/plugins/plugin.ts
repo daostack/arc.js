@@ -16,7 +16,8 @@ import {
   Address,
   ICommonQueryOptions,
   IApolloQueryOptions,
-  AnyPlugin
+  AnyPlugin,
+  Logger
 } from '../index'
 
 export interface IPluginState {
@@ -106,7 +107,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       }
 
       if(!Object.keys(Plugins).includes(item.name)) {
-        console.log(`Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`)
+        Logger.debug(`Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`)
 
         const state = Plugins['unknown'].itemMap(context, item, query)
         if(!state) return null

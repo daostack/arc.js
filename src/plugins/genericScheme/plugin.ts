@@ -14,7 +14,8 @@ import {
   GenericSchemeProposal,
   IGenericSchemeProposalState,
   Address,
-  Plugin
+  Plugin,
+  Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -69,7 +70,7 @@ export class GenericScheme extends ProposalPlugin<IGenericSchemeState, IGenericS
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IGenericSchemeState | null {
     if (!item) {
-      console.log(`GenericScheme Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`GenericScheme Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 

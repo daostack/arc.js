@@ -94,8 +94,6 @@ describe('Member', () => {
     )
     // wait until the proposal has been indexed
 
-    console.log(stakes)
-
     await waitUntilTrue(() => stakes.length > 0)
 
     expect(stakes.length).toBeGreaterThan(0)

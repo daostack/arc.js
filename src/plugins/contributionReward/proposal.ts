@@ -15,7 +15,8 @@ import {
   NULL_ADDRESS,
   REDEEMER_CONTRACT_VERSIONS,
   IApolloQueryOptions,
-  Address
+  Address,
+  Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -77,7 +78,10 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
 
   static itemMap (context: Arc, item: any, query: DocumentNode): IContributionRewardProposalState | null {
 
-    if (!item) return null
+    if (!item) {
+      Logger.debug(`ContributionReward Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      return null
+    }
 
     const ethRewardLeft = (
       item.contributionReward.ethRewardLeft !== null &&

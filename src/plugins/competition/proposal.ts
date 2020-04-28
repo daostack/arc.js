@@ -24,7 +24,8 @@ import {
   Address,
   ContributionRewardExt,
   IContributionRewardExtProposalState,
-  ContributionRewardExtProposal
+  ContributionRewardExtProposal,
+  Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
@@ -86,7 +87,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
   static itemMap (context: Arc, item: any, query: DocumentNode): ICompetitionProposalState | null {
 
     if (!item) {
-      console.log(`Competition Proposal ItemMap failed.`)
+      Logger.debug(`Competition Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
     
