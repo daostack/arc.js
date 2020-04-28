@@ -2,7 +2,6 @@ import { Observable, from } from 'rxjs'
 import gql from 'graphql-tag'
 import { first, concatMap } from 'rxjs/operators'
 import {
-  IProposalState,
   Proposal,
   Arc,
   IApolloQueryOptions,
@@ -22,12 +21,14 @@ import {
   IContributionRewardExtState,
   CONTRIBUTION_REWARD_DUMMY_VERSION,
   REDEEMER_CONTRACT_VERSIONS,
-  Address
+  Address,
+  ContributionRewardExt,
+  IContributionRewardExtProposalState,
+  ContributionRewardExtProposal
 } from '../../index'
 import { DocumentNode } from 'graphql'
-import { ContributionRewardExt } from '../contributionRewardExt'
 
-export interface ICompetitionProposalState extends IProposalState { 
+export interface ICompetitionProposalState extends IContributionRewardExtProposalState { 
   id: string
   admin: Address
   contract: Address
@@ -106,10 +107,13 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       "Competition"
     )
 
-    if(baseState == null) return null
+    const crExtState = ContributionRewardExtProposal.itemMap(context, item, query)
+
+    if(baseState == null || crExtState == null) return null
     
     return {
       ...baseState,
+      ...crExtState,
       admin: item.competition.admin,
       contract: item.competition.contract,
       createdAt: secondSinceEpochToDate(item.competition.createdAt),
@@ -154,6 +158,9 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
   }
 
   private async getState() {
+
+    await this.fetchState()
+
     if(!this.coreState) throw new Error("Cannot get plugin state if competitionProposal's coreState is not set")
 
     return await this.coreState.plugin.entity.fetchState({}, true) as IContributionRewardExtState
@@ -181,6 +188,15 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
     if (!options.where) { options.where = {} }
     options.where.proposal = this.id
     return CompetitionSuggestion.search(this.context, options, apolloQueryOptions)
+  }
+
+  public competitionVotes(
+    options: ICompetitionSuggestionQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<CompetitionVote[]> {
+    if (!options.where) { options.where = {} }
+    options.where.proposal = this.id
+    return CompetitionVote.search(this.context, options, apolloQueryOptions)
   }
 
   public redeemRewards(beneficiary?: Address): Operation<boolean> {
@@ -310,9 +326,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       // check if the sender has reputation in the DAO
       const state = await this.fetchState() as ICompetitionProposalState
 
-      if(!state.dao.entity.coreState) throw new Error("DAO in CompetitionProposal state has not state set")
-
-      const dao = new DAO(this.context, state.dao.entity.coreState)
+      const dao = new DAO(this.context, state.dao.id)
       const reputation = await dao.nativeReputation().pipe(first()).toPromise()
       const sender = await this.context.getAccount().pipe(first()).toPromise()
       const reputationOfUser = await reputation.reputationOf(sender).pipe(first()).toPromise()

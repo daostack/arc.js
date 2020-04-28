@@ -17,6 +17,7 @@ import {
   Plugin
 } from '../../index'
 import { DocumentNode } from 'graphql'
+import { Observable } from 'rxjs'
 
 export interface IContributionRewardExtState extends IPluginState {
   pluginParams: {
@@ -131,6 +132,19 @@ export class ContributionRewardExt extends ProposalPlugin<
       const proposalId = args[1]
       return new ContributionRewardExtProposal(this.context, proposalId)
     }
+  }
+
+  public async ethBalance(): Promise<Observable<BN>> {
+    let state
+
+    if (!this.coreState) {
+      state = await this.fetchState()
+    } else {
+      state = this.coreState
+    }
+
+    const contributionRewardExt = this.context.getContract(state.address)
+    return this.context.ethBalance(await contributionRewardExt.vault())
   }
   
 }

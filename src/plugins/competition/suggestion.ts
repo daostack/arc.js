@@ -256,9 +256,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     const observable = this.state().pipe(
       first(),
       concatMap((suggestionState: ICompetitionSuggestionState) => {
-        if(!suggestionState.proposal.entity.coreState) throw new Error("SuggestionState's proposal's state is not set")
-
-        const competition = new CompetitionProposal(this.context, suggestionState.proposal.entity.coreState)
+        const competition = new CompetitionProposal(this.context, suggestionState.proposal.entity.id)
         return competition.redeemSuggestion({
           suggestionId: suggestionState.suggestionId
         })
@@ -271,9 +269,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     const observable = this.state().pipe(
       first(),
       concatMap((suggestionState: ICompetitionSuggestionState) => {
-        if(!suggestionState.proposal.entity.coreState) throw new Error("SuggestionState's proposal's state is not set")
-        
-        const competition = new CompetitionProposal(this.context, suggestionState.proposal.entity.coreState)
+        const competition = new CompetitionProposal(this.context, suggestionState.proposal.entity.id)
         return competition.voteSuggestion({
           suggestionId: suggestionState.suggestionId
         })
