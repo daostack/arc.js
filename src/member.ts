@@ -187,7 +187,14 @@ export class Member implements IStateful<IMemberState> {
               throw Error(`No member with id ${this.id} was found`)
             }
           }
-          return { id: r.id, address: r.address, dao: r.dao.id, contract: r.contract, reputation: new BN(r.balance), createdAt: Number(r.createdAt)}
+          return {
+            address: r.address,
+            contract: r.contract,
+            createdAt: Number(r.createdAt),
+            dao: r.dao.id,
+            id: r.id,
+            reputation: new BN(r.balance)
+          }
         },
         apolloQueryOptions
       )
