@@ -1,39 +1,37 @@
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import { Observable } from 'rxjs'
 import {
-  Arc,
-  IApolloQueryOptions,
-  IProposalBaseCreateOptions,
-  Proposal,
-  ITransaction,
-  transactionResultHandler,
-  transactionErrorHandler,
-  ITransactionReceipt,
-  getEventArgs,
-  toIOperationObservable,
-  Operation,
-  ICompetitionSuggestionQueryOptions,
-  CompetitionSuggestion,
-  IVoteQueryOptions,
-  getBlockTime,
-  dateToSecondsSinceEpoch,
-  NULL_ADDRESS,
-  CompetitionVote,
-  CompetitionProposal,
-  ICompetitionProposalState,
-  IContributionRewardExtState,
-  ProposalPlugin,
   Address,
+  Arc,
+  CompetitionProposal,
+  CompetitionSuggestion,
+  CompetitionVote,
+  dateToSecondsSinceEpoch,
+  getBlockTime,
+  getEventArgs,
+  IApolloQueryOptions,
+  ICompetitionProposalState,
+  ICompetitionSuggestionQueryOptions,
+  IContributionRewardExtState,
+  IProposalBaseCreateOptions,
+  ITransaction,
+  ITransactionReceipt,
+  IVoteQueryOptions,
+  Logger,
   mapGenesisProtocolParams,
+  NULL_ADDRESS,
+  Operation,
   Plugin,
-  Logger
+  Proposal,
+  ProposalPlugin,
+  toIOperationObservable,
+  transactionErrorHandler,
+  transactionResultHandler
 } from '../../index'
-import { DocumentNode } from 'graphql'
-
-export interface ICompetitionState extends IContributionRewardExtState { }
 
 export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
-  endTime: Date,
+  endTime: Date
   reputationReward?: BN
   ethReward?: BN
   externalTokenReward?: BN
@@ -41,19 +39,18 @@ export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   rewardSplit: number[]
   nativeTokenReward?: BN
   numberOfVotesPerVoter: number
-  proposerIsAdmin?: boolean, // true if new suggestions are limited to the proposer
+  proposerIsAdmin?: boolean // true if new suggestions are limited to the proposer
   startTime: Date | null
   suggestionsEndTime: Date
   votingStartTime: Date
 }
 
 export class Competition extends ProposalPlugin<
-  ICompetitionState,
+  IContributionRewardExtState,
   ICompetitionProposalState,
   IProposalCreateOptionsComp
 > {
-
-  public static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionState | null {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtState | null {
     if (!item) {
       Logger.debug(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
@@ -66,11 +63,11 @@ export class Competition extends ProposalPlugin<
       voteParams: mapGenesisProtocolParams(item.contributionRewardExtParams.voteParams),
       votingMachine: item.contributionRewardExtParams.votingMachine
     }
-    
+
     return {
-        ...baseState,
-        pluginParams: contributionRewardExtParams
-      }
+      ...baseState,
+      pluginParams: contributionRewardExtParams
+    }
   }
 
   public static getCompetitionContract(arc: Arc, state: IContributionRewardExtState) {
@@ -79,7 +76,9 @@ export class Competition extends ProposalPlugin<
     }
     const rewarder = state.pluginParams && state.pluginParams.rewarder
     if (!rewarder) {
-      throw Error(`This Plugin's rewarder is not set, and so no compeittion contract could be found`)
+      throw Error(
+        `This Plugin's rewarder is not set, and so no compeittion contract could be found`
+      )
     }
 
     if (!Competition.isCompetitionPlugin(arc, state)) {
@@ -102,7 +101,9 @@ export class Competition extends ProposalPlugin<
     options: ICompetitionSuggestionQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionSuggestion[]> {
-    if (!options.where) { options.where = {} }
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.proposal = this.id
     return CompetitionSuggestion.search(this.context, options, apolloQueryOptions)
   }
@@ -111,12 +112,16 @@ export class Competition extends ProposalPlugin<
     options: IVoteQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionVote[]> {
-    if (!options.where) { options.where = {} }
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.proposal = this.id
     return CompetitionVote.search(this.context, options, apolloQueryOptions)
   }
 
-  public async createCompetitionProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
+  public async createCompetitionProposalTransaction(
+    options: IProposalCreateOptionsComp
+  ): Promise<ITransaction> {
     const context = this.context
     const pluginState = await this.fetchState()
     if (!pluginState) {
@@ -128,7 +133,11 @@ export class Competition extends ProposalPlugin<
     // check sanity -- is the competition contract actually
     const contributionRewardExtAddress = await contract.contributionRewardExt()
     if (contributionRewardExtAddress.toLowerCase() !== pluginState.address) {
-      throw Error(`This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${pluginState.address}`)
+      throw Error(
+        `This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${
+          pluginState.address
+        }`
+      )
     }
 
     options.descriptionHash = await context.saveIPFSData(options)
@@ -136,7 +145,11 @@ export class Competition extends ProposalPlugin<
       throw Error(`Rewardsplit was not given..`)
     } else {
       if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
-        throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b)})`)
+        throw Error(
+          `Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce(
+            (a: number, b: number) => a + b
+          )})`
+        )
       }
     }
 
@@ -154,11 +167,11 @@ export class Competition extends ProposalPlugin<
       method: 'proposeCompetition',
       args: [
         options.descriptionHash || '',
-        options.reputationReward && options.reputationReward.toString() || 0,
+        (options.reputationReward && options.reputationReward.toString()) || 0,
         [
-          options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-          options.ethReward && options.ethReward.toString() || 0,
-          options.externalTokenReward && options.externalTokenReward.toString() || 0
+          (options.nativeTokenReward && options.nativeTokenReward.toString()) || 0,
+          (options.ethReward && options.ethReward.toString()) || 0,
+          (options.externalTokenReward && options.externalTokenReward.toString()) || 0
         ],
         options.externalTokenAddress || NULL_ADDRESS,
         options.rewardSplit,
@@ -168,14 +181,18 @@ export class Competition extends ProposalPlugin<
     }
   }
 
-  public createProposal(options: IProposalCreateOptionsComp): Operation<Proposal<ICompetitionProposalState>>  {
+  public createProposal(
+    options: IProposalCreateOptionsComp
+  ): Operation<Proposal<ICompetitionProposalState>> {
     const observable = Observable.create(async (observer: any) => {
       try {
         const createTransaction = await this.createProposalTransaction(options)
         const map = this.createProposalTransactionMap()
         const errHandler = this.createProposalErrorHandler(options)
         const sendTransactionObservable = this.context.sendTransaction(
-          createTransaction, map, errHandler
+          createTransaction,
+          map,
+          errHandler
         )
         const sub = sendTransactionObservable.subscribe(observer)
         return () => sub.unsubscribe()
@@ -198,11 +215,15 @@ export class Competition extends ProposalPlugin<
 
   public createProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
     return async (err) => {
-      if (err.message.match(/startTime should be greater than proposing time/ig)) {
+      if (err.message.match(/startTime should be greater than proposing time/gi)) {
         if (!this.context.web3) {
           throw Error('Web3 provider not set')
         }
-        return Error(`${err.message} - startTime is ${options.startTime}, current block time is ${await getBlockTime(this.context.web3)}`)
+        return Error(
+          `${err.message} - startTime is ${
+            options.startTime
+          }, current block time is ${await getBlockTime(this.context.web3)}`
+        )
       } else {
         const msg = `Error creating proposal: ${err.message}`
         return Error(msg)
@@ -210,7 +231,22 @@ export class Competition extends ProposalPlugin<
     }
   }
 
-  protected async createProposalTransaction(options: IProposalCreateOptionsComp): Promise<ITransaction> {
+  public async ethBalance(): Promise<Observable<BN>> {
+    let state
+
+    if (!this.coreState) {
+      state = await this.fetchState()
+    } else {
+      state = this.coreState
+    }
+
+    const contributionRewardExt = this.context.getContract(state.address)
+    return this.context.ethBalance(await contributionRewardExt.vault())
+  }
+
+  protected async createProposalTransaction(
+    options: IProposalCreateOptionsComp
+  ): Promise<ITransaction> {
     const context = this.context
     const schemeState = await this.fetchState()
     if (!schemeState) {
@@ -222,7 +258,11 @@ export class Competition extends ProposalPlugin<
     // check sanity -- is the competition contract actually c
     const contributionRewardExtAddress = await contract.contributionRewardExt()
     if (contributionRewardExtAddress.toLowerCase() !== schemeState.address) {
-      throw Error(`This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${schemeState.address}`)
+      throw Error(
+        `This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${
+          schemeState.address
+        }`
+      )
     }
 
     options.descriptionHash = await context.saveIPFSData(options)
@@ -230,7 +270,11 @@ export class Competition extends ProposalPlugin<
       throw Error(`Rewardsplit was not given..`)
     } else {
       if (options.rewardSplit.reduce((a: number, b: number) => a + b) !== 100) {
-        throw Error(`Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce((a: number, b: number) => a + b)})`)
+        throw Error(
+          `Rewardsplit must sum 100 (they sum to  ${options.rewardSplit.reduce(
+            (a: number, b: number) => a + b
+          )})`
+        )
       }
     }
     // * @param _rewardSplit an array of precentages which specify how to split the rewards
@@ -257,11 +301,11 @@ export class Competition extends ProposalPlugin<
       method: 'proposeCompetition',
       args: [
         options.descriptionHash || '',
-        options.reputationReward && options.reputationReward.toString() || 0,
+        (options.reputationReward && options.reputationReward.toString()) || 0,
         [
-          options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-          options.ethReward && options.ethReward.toString() || 0,
-          options.externalTokenReward && options.externalTokenReward.toString() || 0
+          (options.nativeTokenReward && options.nativeTokenReward.toString()) || 0,
+          (options.ethReward && options.ethReward.toString()) || 0,
+          (options.externalTokenReward && options.externalTokenReward.toString()) || 0
         ],
         options.externalTokenAddress || NULL_ADDRESS,
         options.rewardSplit,
@@ -269,18 +313,5 @@ export class Competition extends ProposalPlugin<
         proposerIsAdmin
       ]
     }
-  }
-
-  public async ethBalance(): Promise<Observable<BN>> {
-    let state
-
-    if (!this.coreState) {
-      state = await this.fetchState()
-    } else {
-      state = this.coreState
-    }
-
-    const contributionRewardExt = this.context.getContract(state.address)
-    return this.context.ethBalance(await contributionRewardExt.vault())
   }
 }

@@ -1,20 +1,20 @@
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
-  Arc,
-  IApolloQueryOptions,
-  IProposalOutcome,
-  createGraphQlQuery,
-  isAddress,
-  Entity,
-  IEntityRef,
-  Proposals,
-  AnyProposal,
   Address,
-  ICommonQueryOptions
+  AnyProposal,
+  Arc,
+  createGraphQlQuery,
+  Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  IEntityRef,
+  IProposalOutcome,
+  isAddress,
+  Proposals
 } from './index'
-import { DocumentNode } from 'graphql'
 
 export interface IStakeState {
   id: string
@@ -22,53 +22,57 @@ export interface IStakeState {
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount staked
-  //TODO: Any type of proposal?
+  // TODO: Any type of proposal?
   proposal: IEntityRef<AnyProposal>
 }
 
 export interface IStakeQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string
-    staker?: Address
-    dao?: Address
-    proposal?: string
-    createdAt?: number
-    [key: string]: any
+    id?: string;
+    staker?: Address;
+    dao?: Address;
+    proposal?: string;
+    createdAt?: number;
+    [key: string]: any;
   }
 }
 
 export class Stake extends Entity<IStakeState> {
   public static fragments = {
-    StakeFields: gql`fragment StakeFields on ProposalStake {
-      id
-      createdAt
-      dao {
+    StakeFields: gql`
+      fragment StakeFields on ProposalStake {
         id
-      }
-      staker
-      proposal {
-        id
-        scheme {
+        createdAt
+        dao {
           id
-          name
         }
+        staker
+        proposal {
+          id
+          scheme {
+            id
+            name
+          }
+        }
+        outcome
+        amount
       }
-      outcome
-      amount
-    }`
+    `
   }
 
   public static search(
     context: Arc,
     options: IStakeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable <Stake[]> {
-    if (!options.where) { options.where = {}}
+  ): Observable<Stake[]> {
+    if (!options.where) {
+      options.where = {}
+    }
     let where = ''
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
-      const state = Stake.itemMap(context, item, query)
-      return new Stake(context, state)
+    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
+      const state = Stake.itemMap(arc, item, queryDoc)
+      return new Stake(arc, state)
     }
 
     const proposalId = options.where.proposal
@@ -114,21 +118,22 @@ export class Stake extends Entity<IStakeState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any, query: DocumentNode) => {
-          if (!r) { // no such proposal was found
+        (arc: Arc, r: any, queryDoc: DocumentNode) => {
+          if (!r) {
+            // no such proposal was found
             return []
           }
           const stakes = r.stakes
-          const itemMap = (item: any) => {
-            const state = Stake.itemMap(context, item, query)
-            return new Stake(context, state)
+          const itemMapper = (item: any) => {
+            const state = Stake.itemMap(arc, item, queryDoc)
+            return new Stake(arc, state)
           }
 
           if (!stakes) {
             return []
           }
 
-          return stakes.map(itemMap)
+          return stakes.map(itemMapper)
         },
         apolloQueryOptions
       ) as Observable<Stake[]>
@@ -142,12 +147,9 @@ export class Stake extends Entity<IStakeState> {
         ${Stake.fragments.StakeFields}
       `
 
-      return context.getObservableList(
-        context,
-        query,
-        itemMap,
-        apolloQueryOptions
-      ) as Observable<Stake[]>
+      return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+        Stake[]
+      >
     }
   }
 
@@ -176,7 +178,6 @@ export class Stake extends Entity<IStakeState> {
       },
       staker: item.staker
     }
-    
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IStakeState> {

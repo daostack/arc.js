@@ -2,17 +2,17 @@ import { Observable } from 'rxjs'
 import {
   Arc,
   IApolloQueryOptions,
-  Operation,
-  toIOperationObservable,
-  ITransaction,
-  transactionResultHandler,
-  Plugin,
   IPluginQueryOptions,
   IPluginState,
-  Proposal,
-  IProposalQueryOptions,
   IProposalBaseCreateOptions,
-  IProposalState
+  IProposalQueryOptions,
+  IProposalState,
+  ITransaction,
+  Operation,
+  Plugin,
+  Proposal,
+  toIOperationObservable,
+  transactionResultHandler
 } from '../index'
 
 export abstract class ProposalPlugin<
@@ -20,16 +20,7 @@ export abstract class ProposalPlugin<
   TProposalState extends IProposalState,
   TProposalCreateOptions extends IProposalBaseCreateOptions
 > extends Plugin<TPluginState> {
-
-  protected abstract async createProposalTransaction(
-    options: TProposalCreateOptions
-  ): Promise<ITransaction>
-
-  //TODO: optional parameter 'options'?
-  protected abstract createProposalTransactionMap(options?: TProposalCreateOptions): transactionResultHandler<Proposal<TProposalState>>
-
-
-  //TODO: do we need this method? 
+  // TODO: do we need this method?
 
   // protected abstract createProposalErrorHandler(
   //   options: TProposalCreateOptions
@@ -39,28 +30,27 @@ export abstract class ProposalPlugin<
     TPluginState extends IPluginState,
     TProposalState extends IProposalState,
     TProposalCreateOptions extends IProposalBaseCreateOptions
-  > (
+  >(
     context: Arc,
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<ProposalPlugin<TPluginState, TProposalState, TProposalCreateOptions>[]> {
-
+  ): Observable<Array<ProposalPlugin<TPluginState, TProposalState, TProposalCreateOptions>>> {
     const proposalPluginOptions = {
       ...options
-      //TODO: query to get only Plugins that can create proposals
+      // TODO: query to get only Plugins that can create proposals
     }
 
-    return Plugin.search(context, proposalPluginOptions, apolloQueryOptions) as Observable<ProposalPlugin<TPluginState, TProposalState, TProposalCreateOptions>[]>
+    return Plugin.search(context, proposalPluginOptions, apolloQueryOptions) as Observable<
+      Array<ProposalPlugin<TPluginState, TProposalState, TProposalCreateOptions>>
+    >
   }
 
-  public createProposal(options: TProposalCreateOptions): Operation<Proposal<TProposalState>>  {
+  public createProposal(options: TProposalCreateOptions): Operation<Proposal<TProposalState>> {
     const observable = Observable.create(async (observer: any) => {
       try {
         const createTransaction = await this.createProposalTransaction(options)
         const map = this.createProposalTransactionMap(options)
-        const sendTransactionObservable = this.context.sendTransaction(
-          createTransaction, map
-        )
+        const sendTransactionObservable = this.context.sendTransaction(createTransaction, map)
         const sub = sendTransactionObservable.subscribe(observer)
         return () => sub.unsubscribe()
       } catch (e) {
@@ -75,9 +65,20 @@ export abstract class ProposalPlugin<
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable <Proposal<TProposalState>[]> {
-    if (!options.where) { options.where = {}}
+  ): Observable<Array<Proposal<TProposalState>>> {
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.scheme = this.id
     return Proposal.search(this.context, options, apolloQueryOptions)
   }
+
+  protected abstract async createProposalTransaction(
+    options: TProposalCreateOptions
+  ): Promise<ITransaction>
+
+  // TODO: optional parameter 'options'?
+  protected abstract createProposalTransactionMap(
+    options?: TProposalCreateOptions
+  ): transactionResultHandler<Proposal<TProposalState>>
 }

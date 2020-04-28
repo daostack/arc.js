@@ -1,68 +1,69 @@
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
-  Arc,
-  IApolloQueryOptions,
-  createGraphQlQuery,
-  isAddress,
-  Entity,
   Address,
-  ICommonQueryOptions
+  Arc,
+  createGraphQlQuery,
+  Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  isAddress
 } from './index'
-import { DocumentNode } from 'graphql'
 
 export interface IRewardState {
-  id: string,
-  beneficiary: Address,
-  createdAt: Date,
-  proposalId: string,
-  reputationForVoter: BN,
-  tokensForStaker: BN,
-  daoBountyForStaker: BN,
-  reputationForProposer: BN,
-  tokenAddress: Address,
-  reputationForVoterRedeemedAt: number,
-  tokensForStakerRedeemedAt: number,
-  reputationForProposerRedeemedAt: number,
+  id: string
+  beneficiary: Address
+  createdAt: Date
+  proposalId: string
+  reputationForVoter: BN
+  tokensForStaker: BN
+  daoBountyForStaker: BN
+  reputationForProposer: BN
+  tokenAddress: Address
+  reputationForVoterRedeemedAt: number
+  tokensForStakerRedeemedAt: number
+  reputationForProposerRedeemedAt: number
   daoBountyForStakerRedeemedAt: number
 }
 
 export interface IRewardQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string,
-    beneficiary?: Address,
-    dao?: Address,
-    proposal?: string,
-    createdAtAfter?: Date,
-    createdAtBefore?: Date,
-    [key: string]: any
+    id?: string;
+    beneficiary?: Address;
+    dao?: Address;
+    proposal?: string;
+    createdAtAfter?: Date;
+    createdAtBefore?: Date;
+    [key: string]: any;
   }
 }
 
 export class Reward extends Entity<IRewardState> {
-
   public static fragments = {
-    RewardFields: gql`fragment RewardFields on GPReward {
-      id
-      createdAt
-      dao {
+    RewardFields: gql`
+      fragment RewardFields on GPReward {
         id
+        createdAt
+        dao {
+          id
+        }
+        beneficiary
+        daoBountyForStaker
+        proposal {
+          id
+        }
+        reputationForVoter
+        reputationForVoterRedeemedAt
+        reputationForProposer
+        reputationForProposerRedeemedAt
+        tokenAddress
+        tokensForStaker
+        tokensForStakerRedeemedAt
+        daoBountyForStakerRedeemedAt
       }
-      beneficiary
-      daoBountyForStaker
-      proposal {
-         id
-      }
-      reputationForVoter
-      reputationForVoterRedeemedAt
-      reputationForProposer
-      reputationForProposerRedeemedAt
-      tokenAddress
-      tokensForStaker
-      tokensForStakerRedeemedAt
-      daoBountyForStakerRedeemedAt
-    }`
+    `
   }
 
   public static search(
@@ -71,11 +72,13 @@ export class Reward extends Entity<IRewardState> {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Reward[]> {
     let where = ''
-    if (!options.where) { options.where = {}}
+    if (!options.where) {
+      options.where = {}
+    }
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
-      const state = Reward.itemMap(context, item, query)
-      return new Reward(context, state)
+    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
+      const state = Reward.itemMap(arc, item, queryDoc)
+      return new Reward(arc, state)
     }
 
     const proposalId = options.where.proposal
@@ -115,18 +118,18 @@ export class Reward extends Entity<IRewardState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any, query: DocumentNode) => {
+        (arc: Arc, r: any, queryDoc: DocumentNode) => {
           if (!r) {
             return []
           }
           const rewards = r.gpRewards
 
-          const itemMap = (item: any) => {
-            const state = Reward.itemMap(context, item, query)
-            return new Reward(context, state)
+          const itemMapper = (item: any) => {
+            const state = Reward.itemMap(arc, item, queryDoc)
+            return new Reward(arc, state)
           }
 
-          return rewards.map(itemMap)
+          return rewards.map(itemMapper)
         },
         apolloQueryOptions
       ) as Observable<Reward[]>
@@ -141,17 +144,13 @@ export class Reward extends Entity<IRewardState> {
       `
     }
 
-    return context.getObservableList(
-      context,
-      query,
-      itemMap,
-      apolloQueryOptions
-    ) as Observable<Reward[]>
+    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+      Reward[]
+    >
   }
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IRewardState {
-
-    if(!item) {
+    if (!item) {
       throw Error(`Reward ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
@@ -173,7 +172,6 @@ export class Reward extends Entity<IRewardState> {
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IRewardState> {
-
     const query = gql`
       query RewardState {
         gpreward (id: "${this.id}")
@@ -184,6 +182,11 @@ export class Reward extends Entity<IRewardState> {
       ${Reward.fragments.RewardFields}
     `
 
-    return this.context.getObservableObject(this.context, query, Reward.itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(
+      this.context,
+      query,
+      Reward.itemMap,
+      apolloQueryOptions
+    )
   }
 }

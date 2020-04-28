@@ -5,40 +5,40 @@ import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
 import {
-  ITransaction,
-  ITransactionReceipt,
-  Operation,
-  sendTransaction,
-  transactionErrorHandler,
-  transactionResultHandler,
-  GraphNodeObserver,
-  IApolloQueryOptions,
-  DAO,
-  IDAOQueryOptions,
-  IProposalQueryOptions,
-  Proposal,
-  IRewardQueryOptions,
-  Reward,
-  IStakeQueryOptions,
-  Stake,
-  ITagQueryOptions,
-  Tag,
-  IEventQueryOptions,
-  Event,
   ABI_DIR,
-  Token,
-  isAddress,
-  IPluginQueryOptions,
-  Plugin,
-  Plugins,
-  PluginName,
+  Address,
   AnyPlugin,
   AnyProposal,
-  Address,
-  IPFSProvider,
-  Web3Provider,
+  DAO,
+  Event,
+  GraphNodeObserver,
+  IApolloQueryOptions,
+  IDAOQueryOptions,
+  IEventQueryOptions,
   IPFSClient,
-  Logger
+  IPFSProvider,
+  IPluginQueryOptions,
+  IProposalQueryOptions,
+  IRewardQueryOptions,
+  isAddress,
+  IStakeQueryOptions,
+  ITagQueryOptions,
+  ITransaction,
+  ITransactionReceipt,
+  Logger,
+  Operation,
+  Plugin,
+  PluginName,
+  Plugins,
+  Proposal,
+  Reward,
+  sendTransaction,
+  Stake,
+  Tag,
+  Token,
+  transactionErrorHandler,
+  transactionResultHandler,
+  Web3Provider
 } from './index'
 
 /**
@@ -65,27 +65,27 @@ export class Arc extends GraphNodeObserver {
   // accounts observed by ethBalance
   public observedAccounts: {
     [address: string]: {
-      observable?: Observable<BN>
-      observer?: Observer<BN>
-      lastBalance?: string
-      subscriptionsCount: number
-    }
+      observable?: Observable<BN>;
+      observer?: Observer<BN>;
+      lastBalance?: string;
+      subscriptionsCount: number;
+    };
   } = {}
 
   constructor(options: {
     /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
-    contractInfos?: IContractInfo[]
-    graphqlHttpProvider?: string
-    graphqlWsProvider?: string
-    ipfsProvider?: IPFSProvider
-    web3Provider?: string
+    contractInfos?: IContractInfo[];
+    graphqlHttpProvider?: string;
+    graphqlWsProvider?: string;
+    ipfsProvider?: IPFSProvider;
+    web3Provider?: string;
     /** this function will be called before a query is sent to the graphql provider */
-    graphqlPrefetchHook?: (query: any) => void
+    graphqlPrefetchHook?: (query: any) => void;
     /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
-    graphqlSubscribeToQueries?: boolean
+    graphqlSubscribeToQueries?: boolean;
     /** an apollo-retry-link instance as https://www.apollographql.com/docs/link/links/retry/#default-configuration */
-    graphqlRetryLink?: any,
-    graphqlErrHandler?: any
+    graphqlRetryLink?: any;
+    graphqlErrHandler?: any;
   }) {
     super({
       errHandler: options.graphqlErrHandler,
@@ -103,7 +103,9 @@ export class Arc extends GraphNodeObserver {
 
     this.contractInfos = options.contractInfos || []
     if (!this.contractInfos) {
-      Logger.warn('No contract addresses given to the Arc.constructor: expect most write operations to fail!')
+      Logger.warn(
+        'No contract addresses given to the Arc.constructor: expect most write operations to fail!'
+      )
     }
 
     if (this.ipfsProvider) {
@@ -129,15 +131,19 @@ export class Arc extends GraphNodeObserver {
    * fetch contractInfos from the subgraph
    * @return a list of IContractInfo instances
    */
-  public async fetchContractInfos(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IContractInfo[]> {
-    const query = gql`query AllContractInfos {
-      contractInfos (first: 1000) {
-        id
-        name
-        version
-        address
+  public async fetchContractInfos(
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Promise<IContractInfo[]> {
+    const query = gql`
+      query AllContractInfos {
+        contractInfos(first: 1000) {
+          id
+          name
+          version
+          address
+        }
       }
-    }`
+    `
     // const result = await this.getObservableList(query, itemMap, apolloQueryOptions).pipe(first()).toPromise()
     const response = await this.sendQuery(query, apolloQueryOptions)
     const result = response.data.contractInfos as IContractInfo[]
@@ -160,11 +166,17 @@ export class Arc extends GraphNodeObserver {
    * @param options options to pass on to the query
    * @return [description]
    */
-  public daos(options: IDAOQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<DAO[]> {
+  public daos(
+    options: IDAOQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<DAO[]> {
     return DAO.search(this, options, apolloQueryOptions)
   }
 
-  public tags(options: ITagQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Tag[]> {
+  public tags(
+    options: ITagQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Tag[]> {
     return Tag.search(this, options, apolloQueryOptions)
   }
 
@@ -226,7 +238,8 @@ export class Arc extends GraphNodeObserver {
         throw new Error('Web3 provider not defined')
       }
 
-      this.web3.getBalance(owner)
+      this.web3
+        .getBalance(owner)
         .then((currentBalance: BigNumber) => {
           const balance = currentBalance.toString()
           const obs = this.observedAccounts[owner].observer as Observer<BN>
@@ -291,16 +304,15 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-  public getABI(opts: { address?: Address, abiName?: string, version?: string }): any[] {
-
-    if (Object.values(opts).filter(value => value !== undefined).length === 0) {
+  public getABI(opts: { address?: Address; abiName?: string; version?: string }): any[] {
+    if (Object.values(opts).filter((value) => value !== undefined).length === 0) {
       throw Error('getABI needs at least one parameter passed')
     }
 
     const { address } = opts
     let { abiName, version } = opts
 
-    if (address && !abiName || !version) {
+    if ((address && !abiName) || !version) {
       const contractInfo = this.getContractInfo(address as Address)
       abiName = contractInfo.name
       version = contractInfo.version
@@ -324,7 +336,6 @@ export class Arc extends GraphNodeObserver {
    * @return   a web3 contract instance
    */
   public getContract(address: Address, abi?: any[]): Contract {
-
     if (!abi) {
       abi = this.getABI({ address })
     }
@@ -397,9 +408,7 @@ export class Arc extends GraphNodeObserver {
         if (!this.web3) {
           throw new Error('Web3 provider not set')
         }
-        observer.next(
-          this.web3.getSigner(address)
-        )
+        observer.next(this.web3.getSigner(address))
       })
 
       return () => subscription.unsubscribe()
@@ -442,8 +451,12 @@ export class Arc extends GraphNodeObserver {
    * @param  options an Object to save. This object must have title, url and desction defined
    * @return  a Promise that resolves in the IPFS Hash where the file is saved
    */
-  public async saveIPFSData(options: { title?: string, url?: string, description?: string, tags?: string[] }):
-    Promise<string> {
+  public async saveIPFSData(options: {
+    title?: string;
+    url?: string;
+    description?: string;
+    tags?: string[];
+  }): Promise<string> {
     let ipfsDataToSave: object = {}
     if (options.title || options.url || options.description || options.tags !== undefined) {
       if (!this.ipfsProvider) {

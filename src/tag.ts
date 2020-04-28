@@ -1,56 +1,60 @@
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
+  AnyProposal,
   Arc,
-  IApolloQueryOptions,
   createGraphQlQuery,
   Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
   IEntityRef,
-  Proposals,
-  AnyProposal,
-  ICommonQueryOptions
+  Proposals
 } from './index'
-import { DocumentNode } from 'graphql'
 
 export interface ITagState {
   id: string
   numberOfProposals: number
-  proposals?: IEntityRef<AnyProposal>[]
+  proposals?: Array<IEntityRef<AnyProposal>>
 }
 
 export interface ITagQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string,
-    proposal?: string
+    id?: string;
+    proposal?: string;
   }
 }
 
 export class Tag extends Entity<ITagState> {
   public static fragments = {
-    TagFields: gql`fragment TagFields on Tag {
-      id
-      numberOfProposals
-      proposals { 
+    TagFields: gql`
+      fragment TagFields on Tag {
         id
-        scheme {
+        numberOfProposals
+        proposals {
           id
-          name
+          scheme {
+            id
+            name
+          }
         }
       }
-    }`
+    `
   }
 
   public static search(
     context: Arc,
     options: ITagQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable <Tag[]> {
-    if (!options.where) { options.where = {}}
+  ): Observable<Tag[]> {
+    if (!options.where) {
+      options.where = {}
+    }
     let where = ''
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
-      const state = Tag.itemMap(context, item, query)
-      return new Tag(context, state)
+    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
+      const state = Tag.itemMap(arc, item, queryDoc)
+      return new Tag(arc, state)
     }
 
     const proposalId = options.where.proposal
@@ -89,15 +93,16 @@ export class Tag extends Entity<ITagState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any, query: DocumentNode) => {
-          if (!r) { // no such proposal was found
+        (arc: Arc, r: any, queryDoc: DocumentNode) => {
+          if (!r) {
+            // no such proposal was found
             return []
           }
-          const itemMap = (item: any) => {
-            const state = Tag.itemMap(context, item, query)
-            return new Tag(context, state)
+          const itemMapper = (item: any) => {
+            const state = Tag.itemMap(arc, item, queryDoc)
+            return new Tag(arc, state)
           }
-          return r.tags.map(itemMap)
+          return r.tags.map(itemMapper)
         },
         apolloQueryOptions
       ) as Observable<Tag[]>
@@ -111,12 +116,9 @@ export class Tag extends Entity<ITagState> {
         ${Tag.fragments.TagFields}
       `
 
-      return context.getObservableList(
-        context,
-        query,
-        itemMap,
-        apolloQueryOptions
-      ) as Observable<Tag[]>
+      return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+        Tag[]
+      >
     }
   }
 

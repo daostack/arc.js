@@ -1,30 +1,30 @@
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
+import { Observable } from 'rxjs'
 import {
-  IPluginState,
-  IGenesisProtocolParams,
-  mapGenesisProtocolParams,
-  IProposalBaseCreateOptions,
-  ProposalPlugin,
+  Address,
   Arc,
+  ContributionRewardExtProposal,
+  getEventArgs,
+  IContributionRewardExtProposalState,
+  IGenesisProtocolParams,
+  IPluginState,
+  IProposalBaseCreateOptions,
   ITransaction,
   ITransactionReceipt,
-  getEventArgs,
+  Logger,
+  mapGenesisProtocolParams,
   NULL_ADDRESS,
-  ContributionRewardExtProposal,
-  IContributionRewardExtProposalState,
-  Address,
   Plugin,
-  Logger
+  ProposalPlugin
 } from '../../index'
-import { DocumentNode } from 'graphql'
-import { Observable } from 'rxjs'
 
 export interface IContributionRewardExtState extends IPluginState {
   pluginParams: {
-    votingMachine: Address
-    voteParams: IGenesisProtocolParams
-    rewarder: Address
+    votingMachine: Address;
+    voteParams: IGenesisProtocolParams;
+    rewarder: Address;
   }
 }
 
@@ -39,44 +39,49 @@ export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions 
 }
 
 export class ContributionRewardExt extends ProposalPlugin<
-  IContributionRewardExtState, IContributionRewardExtProposalState, IProposalCreateOptionsCRExt
+  IContributionRewardExtState,
+  IContributionRewardExtProposalState,
+  IProposalCreateOptionsCRExt
 > {
-
-  private static _fragment: { name: string, fragment: DocumentNode } | undefined
-
-  public static get fragment () {
-   if(!this._fragment){
-    this._fragment = {
-      name: 'ContributionRewardExtParams',
-      fragment: gql` fragment ContributionRewardExtParams on ControllerScheme {
-      contributionRewardExtParams {
-        id
-        votingMachine
-        voteParams {
-          id
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-        rewarder
+  public static get fragment() {
+    if (!this.fragmentField) {
+      this.fragmentField = {
+        name: 'ContributionRewardExtParams',
+        fragment: gql`
+          fragment ContributionRewardExtParams on ControllerScheme {
+            contributionRewardExtParams {
+              id
+              votingMachine
+              voteParams {
+                id
+                queuedVoteRequiredPercentage
+                queuedVotePeriodLimit
+                boostedVotePeriodLimit
+                preBoostedVotePeriodLimit
+                thresholdConst
+                limitExponentValue
+                quietEndingPeriod
+                proposingRepReward
+                votersReputationLossRatio
+                minimumDaoBounty
+                daoBountyConst
+                activationTime
+                voteOnBehalf
+              }
+              rewarder
+            }
+          }
+        `
       }
-    }`
     }
+    return this.fragmentField
   }
-  return this._fragment
-}
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtState | null {
+  public static itemMap(
+    context: Arc,
+    item: any,
+    query: DocumentNode
+  ): IContributionRewardExtState | null {
     if (!item) {
       Logger.debug(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
@@ -89,12 +94,14 @@ export class ContributionRewardExt extends ProposalPlugin<
       voteParams: mapGenesisProtocolParams(item.contributionRewardExtParams.voteParams),
       votingMachine: item.contributionRewardExtParams.votingMachine
     }
-    
+
     return {
-        ...baseState,
-        pluginParams: contributionRewardExtParams
-      }
+      ...baseState,
+      pluginParams: contributionRewardExtParams
+    }
   }
+
+  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
 
   public async createProposalTransaction(
     options: IProposalCreateOptionsCRExt
@@ -102,23 +109,23 @@ export class ContributionRewardExt extends ProposalPlugin<
     if (!options.proposer) {
       options.proposer = NULL_ADDRESS
     }
-  
+
     options.descriptionHash = await this.context.saveIPFSData(options)
-  
+
     if (options.plugin === undefined) {
       throw new Error(`Missing argument "plugin" for ContributionRewardExt in Proposal.create()`)
     }
-  
+
     return {
       contract: this.context.getContract(options.plugin),
       method: 'proposeContributionReward',
       args: [
         options.descriptionHash || '',
-        options.reputationReward && options.reputationReward.toString() || 0,
+        (options.reputationReward && options.reputationReward.toString()) || 0,
         [
-          options.nativeTokenReward && options.nativeTokenReward.toString() || 0,
-          options.ethReward && options.ethReward.toString() || 0,
-          options.externalTokenReward && options.externalTokenReward.toString() || 0
+          (options.nativeTokenReward && options.nativeTokenReward.toString()) || 0,
+          (options.ethReward && options.ethReward.toString()) || 0,
+          (options.externalTokenReward && options.externalTokenReward.toString()) || 0
         ],
         options.externalTokenAddress || NULL_ADDRESS,
         options.beneficiary,
@@ -126,10 +133,14 @@ export class ContributionRewardExt extends ProposalPlugin<
       ]
     }
   }
-  
+
   public createProposalTransactionMap() {
     return (receipt: ITransactionReceipt) => {
-      const args = getEventArgs(receipt, 'NewContributionProposal', 'ContributionRewardExt.createProposal')
+      const args = getEventArgs(
+        receipt,
+        'NewContributionProposal',
+        'ContributionRewardExt.createProposal'
+      )
       const proposalId = args[1]
       return new ContributionRewardExtProposal(this.context, proposalId)
     }
@@ -147,5 +158,4 @@ export class ContributionRewardExt extends ProposalPlugin<
     const contributionRewardExt = this.context.getContract(state.address)
     return this.context.ethBalance(await contributionRewardExt.vault())
   }
-  
 }

@@ -1,31 +1,31 @@
 import BN from 'bn.js'
 import { utils } from 'ethers'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { map } from 'rxjs/operators'
 import {
+  Address,
+  AnyProposal,
   Arc,
-  IApolloQueryOptions,
-  DAO,
-  toIOperationObservable,
-  IProposalQueryOptions,
-  Proposal,
-  IStakeQueryOptions,
-  Stake,
   concat,
   createGraphQlQuery,
-  hexStringToUint8Array,
-  isAddress,
-  Reward,
-  IVoteQueryOptions,
-  Vote,
+  DAO,
   Entity,
+  hexStringToUint8Array,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
   IEntityRef,
-  AnyProposal,
-  Address,
-  ICommonQueryOptions
+  IProposalQueryOptions,
+  isAddress,
+  IStakeQueryOptions,
+  IVoteQueryOptions,
+  Proposal,
+  Reward,
+  Stake,
+  toIOperationObservable,
+  Vote
 } from './index'
-import { DocumentNode } from 'graphql'
 
 export interface IMemberState {
   id: string
@@ -37,9 +37,9 @@ export interface IMemberState {
 
 export interface IMemberQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string
-    address?: Address,
-    dao?: Address
+    id?: string;
+    address?: Address;
+    dao?: Address;
   }
 }
 
@@ -47,7 +47,6 @@ export interface IMemberQueryOptions extends ICommonQueryOptions {
  * Represents an account that holds reputaion in a specific DAO
  */
 export class Member extends Entity<IMemberState> {
-
   public static fragments = {
     ReputationHolderFields: gql`
       fragment ReputationHolderFields on ReputationHolder {
@@ -67,15 +66,17 @@ export class Member extends Entity<IMemberState> {
     options: IMemberQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Member[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) {
+      options.where = {}
+    }
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
-      const state = Member.itemMap(context, item, query)
-      return new Member(context, state)
+    const itemMap = (arc: Arc, item: any, query: DocumentNode) => {
+      const state = Member.itemMap(arc, item, query)
+      return new Member(arc, state)
     }
 
     if (options.where.id) {
-      //TODO: check what is the return of this
+      // TODO: check what is the return of this
       return new Member(context, options.where.id).state().pipe(map((r: any) => [r]))
     } else {
       let where = ''
@@ -103,13 +104,8 @@ export class Member extends Entity<IMemberState> {
         ${Member.fragments.ReputationHolderFields}
       `
 
-      return context.getObservableList(
-          context,
-          query,
-          itemMap,
-          apolloQueryOptions
-        )
-      }
+      return context.getObservableList(context, query, itemMap, apolloQueryOptions)
+    }
   }
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IMemberState {
@@ -128,7 +124,7 @@ export class Member extends Entity<IMemberState> {
     }
   }
 
-  public static calculateId(opts: { contract: Address, address: Address}): string {
+  public static calculateId(opts: { contract: Address; address: Address }): string {
     const seed = concat(
       hexStringToUint8Array(opts.contract.toLowerCase()),
       hexStringToUint8Array(opts.address.toLowerCase())
@@ -177,37 +173,39 @@ export class Member extends Entity<IMemberState> {
     return this.context.getObservableObject(
       this.context,
       query,
-      (context: Arc, items: any, query: DocumentNode) => {
-        if(items.length) {
-          if(!this.coreState){
-            throw new Error("Member state is not set")
+      (arc: Arc, items: any, queryDoc: DocumentNode) => {
+        if (items.length) {
+          if (!this.coreState) {
+            throw new Error('Member state is not set')
           }
 
-          return new Member(context, this.coreState)
+          return new Member(arc, this.coreState)
         }
-        
-        return Member.itemMap(context, items[0], query)
+
+        return Member.itemMap(arc, items[0], queryDoc)
       },
       apolloQueryOptions
     ) as Observable<IMemberState>
   }
 
-  public async dao(): Promise < DAO > {
+  public async dao(): Promise<DAO> {
     const state = await this.fetchState()
     return new DAO(this.context, state.dao.id as Address)
   }
 
-  public rewards(): Observable < Reward[] > {
+  public rewards(): Observable<Reward[]> {
     throw new Error('not implemented')
   }
 
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable < AnyProposal[] > {
+  ): Observable<AnyProposal[]> {
     const observable = Observable.create(async (observer: Observer<AnyProposal[]>) => {
       const state = await this.fetchState()
-      if (!options.where) { options.where = {} }
+      if (!options.where) {
+        options.where = {}
+      }
       options.where.proposer = state.address
       options.where.dao = state.dao.id
       const sub = Proposal.search(this.context, options, apolloQueryOptions).subscribe(observer)
@@ -217,10 +215,15 @@ export class Member extends Entity<IMemberState> {
     return toIOperationObservable(observable)
   }
 
-  public stakes(options: IStakeQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Stake[]> {
+  public stakes(
+    options: IStakeQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Stake[]> {
     const observable = Observable.create(async (observer: Observer<Stake[]>) => {
       const state = await this.fetchState()
-      if (!options.where) { options.where = {} }
+      if (!options.where) {
+        options.where = {}
+      }
       options.where.staker = state.address
       options.where.dao = state.dao.id
       const sub = Stake.search(this.context, options, apolloQueryOptions).subscribe(observer)
@@ -230,13 +233,18 @@ export class Member extends Entity<IMemberState> {
     return toIOperationObservable(observable)
   }
 
-  public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable < Vote[] > {
+  public votes(
+    options: IVoteQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Vote[]> {
     const observable = Observable.create(async (observer: Observer<Vote[]>) => {
       const state = await this.fetchState()
-      if (!options.where) { options.where = {} }
+      if (!options.where) {
+        options.where = {}
+      }
       options.where.voter = state.address
       options.where.dao = state.dao.id
-      const sub = Vote.search(this.context, options, apolloQueryOptions) .subscribe(observer)
+      const sub = Vote.search(this.context, options, apolloQueryOptions).subscribe(observer)
       return () => sub.unsubscribe()
     })
 
@@ -245,12 +253,14 @@ export class Member extends Entity<IMemberState> {
 
   public setState(opts: IMemberState) {
     isAddress(opts.address)
-    
-    if(opts.contract) {
-      this.id = Member.calculateId({ contract: opts.contract, address: opts.address})
+
+    if (opts.contract) {
+      this.id = Member.calculateId({ contract: opts.contract, address: opts.address })
     }
-    
-    if(!opts.dao) throw new Error("DAO not defined in options")
+
+    if (!opts.dao) {
+      throw new Error('DAO not defined in options')
+    }
 
     const daoId = opts.dao.id.toLowerCase()
 

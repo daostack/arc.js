@@ -1,26 +1,26 @@
 import {
-  ProposalPlugin,
-  Plugin,
-  IPluginState,
-  Proposal,
-  IProposalState,
-  IProposalBaseCreateOptions,
   Competition,
-  ContributionRewardExt,
-  ContributionReward,
-  ContributionRewardExtProposal,
   CompetitionProposal,
+  ContributionReward,
+  ContributionRewardExt,
+  ContributionRewardExtProposal,
   ContributionRewardProposal,
-  SchemeRegistrarProposal,
-  GenericSchemeProposal,
-  SchemeRegistrar,
   GenericScheme,
-  ReputationFromToken,
+  GenericSchemeProposal,
+  IPluginState,
+  IProposalBaseCreateOptions,
+  IProposalCreateOptionsComp,
+  IProposalCreateOptionsCR,
   IProposalCreateOptionsCRExt,
   IProposalCreateOptionsGS,
   IProposalCreateOptionsSR,
-  IProposalCreateOptionsComp,
-  IProposalCreateOptionsCR,
+  IProposalState,
+  Plugin,
+  Proposal,
+  ProposalPlugin,
+  ReputationFromToken,
+  SchemeRegistrar,
+  SchemeRegistrarProposal,
   UnknownPlugin
 } from '../index'
 
@@ -54,12 +54,16 @@ export const Proposals = {
 export type ProposalName = keyof typeof Proposals
 
 export type ProposalCreateOptions =
-  IProposalCreateOptionsCRExt |
-  IProposalCreateOptionsGS |
-  IProposalCreateOptionsSR |
-  IProposalCreateOptionsComp |
-  IProposalCreateOptionsCR
+  | IProposalCreateOptionsCRExt
+  | IProposalCreateOptionsGS
+  | IProposalCreateOptionsSR
+  | IProposalCreateOptionsComp
+  | IProposalCreateOptionsCR
 
 export type AnyProposal = Proposal<IProposalState>
 export type AnyPlugin = Plugin<IPluginState>
-export type AnyProposalPlugin = ProposalPlugin<IPluginState, IProposalState, IProposalBaseCreateOptions>
+export type AnyProposalPlugin = ProposalPlugin<
+  IPluginState,
+  IProposalState,
+  IProposalBaseCreateOptions
+>

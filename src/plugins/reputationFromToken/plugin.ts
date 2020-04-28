@@ -1,19 +1,18 @@
+import { DocumentNode } from 'graphql'
 import { from } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
 import {
-  ITransaction,
-  Operation,
-  toIOperationObservable,
   Address,
-  Plugin,
   Arc,
   IPluginState,
-  Logger
+  ITransaction,
+  Logger,
+  Operation,
+  Plugin,
+  toIOperationObservable
 } from '../../index'
-import { DocumentNode } from 'graphql'
 
 export class ReputationFromToken extends Plugin<IPluginState> {
-
   public static itemMap(context: Arc, item: any, query: DocumentNode): IPluginState | null {
     if (!item) {
       Logger.debug(`ReputationFromToken Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
@@ -30,12 +29,11 @@ export class ReputationFromToken extends Plugin<IPluginState> {
   }
 
   public redeem(beneficiary: Address, agreementHash?: string): Operation<undefined> {
-
     const createTransaction = async (): Promise<ITransaction> => {
       return {
         contract: await this.getContract(),
         method: 'redeem',
-        args: [ beneficiary ]
+        args: [beneficiary]
       }
     }
 

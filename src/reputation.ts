@@ -1,22 +1,22 @@
 import { ApolloQueryResult } from 'apollo-client'
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import {
-  Arc,
-  IApolloQueryOptions,
-  createGraphQlQuery,
-  isAddress,
-  Entity,
-  IEntityRef,
-  DAO,
-  Operation,
-  ITransactionReceipt,
   Address,
-  ICommonQueryOptions
+  Arc,
+  createGraphQlQuery,
+  DAO,
+  Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  IEntityRef,
+  isAddress,
+  ITransactionReceipt,
+  Operation
 } from './index'
-import { DocumentNode } from 'graphql'
 
 export interface IReputationState {
   id: Address
@@ -32,30 +32,15 @@ export interface IReputationQueryOptions extends ICommonQueryOptions {
 }
 
 export class Reputation extends Entity<IReputationState> {
-
-  public address: Address
-
-  constructor(context: Arc, idOrOpts: string | IReputationState){
-    super(context, idOrOpts)
-    if (typeof idOrOpts === 'string') {
-      isAddress(idOrOpts)
-      this.address = idOrOpts
-      this.id = idOrOpts
-    } else {
-      isAddress(idOrOpts.address)
-      this.address = idOrOpts.address
-      this.id = idOrOpts.address
-      this.setState(idOrOpts)
-    }
-  }
-
   public static search(
     context: Arc,
     options: IReputationQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Reputation[]> {
     let where = ''
-    if (!options.where) { options.where = {}}
+    if (!options.where) {
+      options.where = {}
+    }
     for (const key of Object.keys(options.where)) {
       if (options[key] === undefined) {
         continue
@@ -81,7 +66,7 @@ export class Reputation extends Entity<IReputationState> {
     return context.getObservableList(
       context,
       query,
-      (context: Arc, r: any, _query: DocumentNode) => new Reputation(context, r.id),
+      (arc: Arc, r: any, queryDoc: DocumentNode) => new Reputation(arc, r.id),
       apolloQueryOptions
     )
   }
@@ -101,6 +86,22 @@ export class Reputation extends Entity<IReputationState> {
     }
   }
 
+  public address: Address
+
+  constructor(context: Arc, idOrOpts: string | IReputationState) {
+    super(context, idOrOpts)
+    if (typeof idOrOpts === 'string') {
+      isAddress(idOrOpts)
+      this.address = idOrOpts
+      this.id = idOrOpts
+    } else {
+      isAddress(idOrOpts.address)
+      this.address = idOrOpts.address
+      this.id = idOrOpts.address
+      this.setState(idOrOpts)
+    }
+  }
+
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IReputationState> {
     const query = gql`query ReputationState
     {
@@ -113,7 +114,12 @@ export class Reputation extends Entity<IReputationState> {
       }
     }`
 
-    return  this.context.getObservableObject(this.context, query, Reputation.itemMap, apolloQueryOptions) as Observable<IReputationState>
+    return this.context.getObservableObject(
+      this.context,
+      query,
+      Reputation.itemMap,
+      apolloQueryOptions
+    ) as Observable<IReputationState>
   }
 
   public reputationOf(address: Address): Observable<BN> {
@@ -149,8 +155,10 @@ export class Reputation extends Entity<IReputationState> {
       const sender = await contract.signer.getAddress()
       const owner = await contract.owner()
       if (owner.toLowerCase() !== sender.toLowerCase()) {
-        return Error(`Minting failed: sender ${sender} is not the owner of the contract at ${contract._address}` +
-          `(which is ${owner})`)
+        return Error(
+          `Minting failed: sender ${sender} is not the owner of the contract at ${contract._address}` +
+            `(which is ${owner})`
+        )
       }
       return err
     }
@@ -158,7 +166,7 @@ export class Reputation extends Entity<IReputationState> {
     const transaction = {
       contract: this.contract(),
       method: 'mint',
-      args: [ beneficiary, amount.toString() ]
+      args: [beneficiary, amount.toString()]
     }
 
     return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
