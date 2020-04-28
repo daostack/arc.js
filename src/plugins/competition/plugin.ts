@@ -95,9 +95,9 @@ export class Competition extends ProposalPlugin<
     return contract
   }
 
-  public static isCompetitionPlugin(arc: Arc, item: any) {
-    if (item.pluginParams) {
-      const contractInfo = arc.getContractInfo(item.pluginParams.rewarder)
+  public static isCompetitionPlugin(arc: Arc, state: IContributionRewardExtState) {
+    if (state.pluginParams) {
+      const contractInfo = arc.getContractInfo(state.pluginParams.rewarder)
       return contractInfo.name === 'Competition'
     } else {
       return false

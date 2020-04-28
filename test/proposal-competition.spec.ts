@@ -294,6 +294,9 @@ describe('Competition Proposal', () => {
 
     const pluginState = await plugin.fetchState()
 
+    const beforeBalanceBigNum = await arc.web3.getBalance(address1)
+    const balanceBefore = new BN(beforeBalanceBigNum.toString())
+
     // CREATE PROPOSAL
     const tx = await plugin.createProposal(proposalOptions).send()
 
@@ -335,9 +338,6 @@ describe('Competition Proposal', () => {
 
     // check sanity for scheme
     expect(pluginState.address).toEqual(lastStatePlugin.coreState.address)
-
-    const beforeBalanceBigNum = await arc.web3.getBalance(address1)
-    const balanceBefore = new BN(beforeBalanceBigNum.toString())
 
     // redeem the proposal
     await proposal.fetchState()
@@ -690,7 +690,7 @@ describe('Competition Proposal', () => {
     expect(scheme).toBeInstanceOf(CompetitionPlugin)
   })
 
-  it('Can create a propsal using dao.createProposal', async () => {
+  it('Can create a proposal using dao.createProposal', async () => {
     if (!arc.web3) throw Error('Web3 provider not set')
     const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 10)
