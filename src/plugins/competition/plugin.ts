@@ -24,21 +24,14 @@ import {
   IContributionRewardExtState,
   ProposalPlugin,
   Address,
-  IPluginState,
-  IGenesisProtocolParams,
   mapGenesisProtocolParams,
   Plugin,
   Logger
 } from '../../index'
 import { DocumentNode } from 'graphql'
 
-export interface ICompetitionState extends IPluginState {
-  pluginParams: {
-    votingMachine: Address
-    voteParams: IGenesisProtocolParams
-    rewarder: Address
-  }
-}
+export interface ICompetitionState extends IContributionRewardExtState { }
+
 export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   endTime: Date,
   reputationReward?: BN
@@ -88,17 +81,17 @@ export class Competition extends ProposalPlugin<
     if (!rewarder) {
       throw Error(`This Plugin's rewarder is not set, and so no compeittion contract could be found`)
     }
-  
+
     if (!Competition.isCompetitionPlugin(arc, state)) {
       throw Error(`We did not find a Competition contract at the rewarder address ${rewarder}`)
     }
-    const contract = arc.getContract(rewarder as Address)
+    const contract = arc.getContract(rewarder)
     return contract
   }
 
-  public static isCompetitionPlugin(arc: Arc, item: any) {
-    if (item.pluginParams) {
-      const contractInfo = arc.getContractInfo(item.pluginParams.rewarder)
+  public static isCompetitionPlugin(arc: Arc, state: IContributionRewardExtState) {
+    if (state.pluginParams) {
+      const contractInfo = arc.getContractInfo(state.pluginParams.rewarder)
       return contractInfo.name === 'Competition'
     } else {
       return false
@@ -130,9 +123,9 @@ export class Competition extends ProposalPlugin<
       throw Error(`No plugin was found with this id: ${this.id}`)
     }
 
-    const contract = Competition.getCompetitionContract(this.context, pluginState as IContributionRewardExtState)
+    const contract = Competition.getCompetitionContract(this.context, pluginState)
 
-    // check sanity -- is the competition contract actually c
+    // check sanity -- is the competition contract actually
     const contributionRewardExtAddress = await contract.contributionRewardExt()
     if (contributionRewardExtAddress.toLowerCase() !== pluginState.address) {
       throw Error(`This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${pluginState.address}`)
