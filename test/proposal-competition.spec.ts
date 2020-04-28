@@ -520,6 +520,12 @@ describe('Competition Proposal', () => {
     let voteIsIndexed: boolean
     const { suggestions } = await createCompetition()
 
+    if (!arc.web3) throw new Error('Web3 provider not set')
+
+    const beneficiary = address1
+    const beforeBalanceBigNum = (await arc.web3.getBalance(beneficiary)).toString()
+    let balanceBefore = new BN(beforeBalanceBigNum)
+
     // vote and wait until it is indexed
     await suggestions[0].vote().send()
     voteIsIndexed = false
@@ -551,11 +557,10 @@ describe('Competition Proposal', () => {
     if(!arc.web3) throw new Error('Web3 provider not set')
 
     const crExtBalanceBefore = await (await contributionRewardExt.ethBalance()).pipe(first()).toPromise()
-    const beneficiary = address1
 
-    const beforeBalanceBigNum = (await arc.web3.getBalance(beneficiary)).toString()
-    let balanceBefore = new BN(beforeBalanceBigNum)
-    await suggestions[0].redeem().send()
+    try {
+      await suggestions[0].redeem().send()
+    } catch (e) { }
 
     const afterBalanceBigNum = (await arc.web3.getBalance(beneficiary)).toString()
     let balanceAfter = new BN(afterBalanceBigNum)
@@ -693,7 +698,8 @@ describe('Competition Proposal', () => {
   it('Can create a proposal using dao.createProposal', async () => {
     if (!arc.web3) throw Error('Web3 provider not set')
     const now = await getBlockTime(arc.web3)
-    const startTime = addSeconds(now, 10)
+    const startTime = addSeconds(now, 3)
+    const competitionId = Plugin.calculateId({ daoAddress: dao.id, contractAddress: contributionRewardExtAddress })
     const proposalOptions: IProposalCreateOptionsComp = {
       dao: dao.id,
       endTime: addSeconds(startTime, 3000),
@@ -705,13 +711,13 @@ describe('Competition Proposal', () => {
       proposalType: 'Competition',
       reputationReward: toWei('10'),
       rewardSplit: [10, 10, 80],
-      plugin: contributionRewardExtAddress,
+      plugin: competitionId,
       startTime,
       suggestionsEndTime: addSeconds(startTime, 100),
       votingStartTime: addSeconds(startTime, 0)
     }
 
-    const plugin = new CompetitionPlugin(arc, contributionRewardExtAddress)
+    const plugin = new CompetitionPlugin(arc, competitionId)
     const tx = await plugin.createProposal(proposalOptions).send()
 
     if(!tx.result) throw new Error('Create proposal yielded no results')
