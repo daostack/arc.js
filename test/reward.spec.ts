@@ -1,9 +1,9 @@
+import { getAddress } from 'ethers/utils'
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import {  Reward, IRewardState } from '../src/reward'
+import { IRewardState, Reward } from '../src/reward'
 import { getTestDAO, getTestScheme, newArc, toWei } from './utils'
-import { getAddress } from 'ethers/utils'
 
 /**
  * Reward test
@@ -35,7 +35,7 @@ describe('Reward', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: getTestScheme("ContributionReward")
+      scheme: getTestScheme('ContributionReward')
     }).send()
     const proposal = state.result
 
@@ -45,7 +45,7 @@ describe('Reward', () => {
     result = await Reward.search(arc)
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(0)
-    
+
     // search does not care about case in the address
     result = await Reward.search(arc, { where: {beneficiary}})
         .pipe(first()).toPromise()
