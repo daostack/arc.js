@@ -1,23 +1,23 @@
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
-  IProposalBaseCreateOptions,
-  ProposalPlugin,
-  Arc,
-  IGenesisProtocolParams,
-  mapGenesisProtocolParams,
-  IPluginState,
-  ITransaction,
-  transactionResultHandler,
-  ITransactionReceipt,
-  getEventArgs,
-  NULL_ADDRESS,
-  IContributionRewardProposalState,
   Address,
+  Arc,
   ContributionRewardProposal,
-  Plugin
+  getEventArgs,
+  IContributionRewardProposalState,
+  IGenesisProtocolParams,
+  IPluginState,
+  IProposalBaseCreateOptions,
+  ITransaction,
+  ITransactionReceipt,
+  mapGenesisProtocolParams,
+  NULL_ADDRESS,
+  Plugin,
+  ProposalPlugin,
+  transactionResultHandler
 } from '../../index'
-import { DocumentNode } from 'graphql'
 
 export interface IContributionRewardState extends IPluginState {
   pluginParams: {
@@ -39,10 +39,8 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
 
 export class ContributionReward extends ProposalPlugin<IContributionRewardState, IContributionRewardProposalState, IProposalCreateOptionsCR> {
 
-  private static _fragment: { name: string, fragment: DocumentNode } | undefined
-
-  public static get fragment () {
-    if(!this._fragment) {
+  public static get fragment() {
+    if (!this._fragment) {
       this._fragment = {
         name: 'ContributionRewardParams',
         fragment: gql` fragment ContributionRewardParams on ControllerScheme {
@@ -75,7 +73,7 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardState | null {
     if (!item) {
-      console.log(`ContributionReward Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      console.log(`ContributionReward Plugin ItemMap failed. Query: ${query.loc && query.loc.source.body  }`)
       return null
     }
 
@@ -85,20 +83,22 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
       voteParams: mapGenesisProtocolParams(item.contributionRewardParams.voteParams),
       votingMachine: item.contributionRewardParams.votingMachine
     }
-    
+
     return {
         ...baseState,
         pluginParams: contributionRewardParams
       }
   }
 
+  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {
     options.descriptionHash = await this.context.saveIPFSData(options)
-  
+
     if (options.plugin === undefined) {
       throw new Error(`Missing argument "plugin" for ContributionReward in Proposal.create()`)
     }
-  
+
     return {
       contract: this.context.getContract(options.plugin),
       method: 'proposeContributionReward',
@@ -125,5 +125,5 @@ export class ContributionReward extends ProposalPlugin<IContributionRewardState,
       return new ContributionRewardProposal(this.context, proposalId)
     }
   }
-  
+
 }

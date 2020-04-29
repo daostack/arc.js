@@ -1,21 +1,21 @@
 import BN from 'bn.js'
+import { utils } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { JsonRpcProvider } from 'ethers/providers'
-import { utils } from 'ethers'
 import {
-  Arc,
-  DAO,
-  IProposalOutcome,
-  Reputation,
   Address,
-  IContractInfo,
+  AnyProposal,
+  Arc,
   ContributionReward,
   ContributionRewardProposal,
-  AnyProposal,
+  DAO,
+  IContractInfo,
   IProposalCreateOptionsCR,
+  IProposalOutcome,
   LATEST_ARC_VERSION,
-  PluginName
+  PluginName,
+  Reputation
 } from '../src'
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
@@ -48,11 +48,11 @@ export interface ITestAddresses {
     DAOToken: Address
     Reputation: Address
     Controller: Address
-    Schemes: {
+    Schemes: Array<{
       name: string
       alias: string
       address: Address
-    }[]
+    }>
   }
   queuedProposalId: string
   preBoostedProposalId: string
@@ -71,12 +71,12 @@ export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAdd
 }
 
 export function sleep(ms: number) {
-  return new Promise( resolve => setTimeout(resolve, ms) );
+  return new Promise( (resolve) => setTimeout(resolve, ms) )
 }
 
 export function getTestScheme(name: PluginName): Address {
   const scheme = getTestAddresses().dao.Schemes.find(
-    scheme => scheme.name === name
+    (scheme) => scheme.name === name
   )
 
   if (!scheme) {
@@ -163,19 +163,19 @@ export async function createAProposal(
     periodLength: 0,
     periods: 1,
     reputationReward: toWei('10'),
-    plugin: getTestScheme("ContributionReward"),
-    proposalType: "ContributionReward",
+    plugin: getTestScheme('ContributionReward'),
+    proposalType: 'ContributionReward',
     ...options
   }
 
   const plugin = new ContributionReward(
-    dao.context, 
-    getTestScheme("ContributionReward")
+    dao.context,
+    getTestScheme('ContributionReward')
   )
 
   const response = await plugin.createProposal(options).send()
 
-  if(!response.result) throw new Error('Response yielded no results')
+  if (!response.result) { throw new Error('Response yielded no results') }
 
   const proposal = new ContributionRewardProposal(dao.context, response.result.id)
 
@@ -189,12 +189,12 @@ export async function createAProposal(
 export async function createCRProposal(
   context: Arc,
   options: IProposalCreateOptionsCR,
-  pluginId: Address = getTestScheme("ContributionReward")
+  pluginId: Address = getTestScheme('ContributionReward')
 ) {
   const plugin = new ContributionReward(context, pluginId)
   const response = await plugin.createProposal(options).send()
 
-  if(!response.result) throw new Error('Response yielded no results')
+  if (!response.result) { throw new Error('Response yielded no results') }
 
   return new ContributionRewardProposal(context, response.result.id)
 }
@@ -203,7 +203,7 @@ export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
   const addresses = getTestAddresses(version)
   const token = new Reputation(arc, addresses.organs.DemoReputation)
-  if (!arc.web3) throw new Error('Web3 provider not set')
+  if (!arc.web3) { throw new Error('Web3 provider not set') }
   const accounts = await arc.web3.listAccounts()
   await token.mint(accounts[1], new BN('99')).send()
 }
@@ -224,7 +224,7 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
 // Vote and vote and vote for proposal until it is accepted
 export async function voteToPassProposal(proposal: AnyProposal) {
   const arc = proposal.context
-  if (!arc.web3) throw new Error('Web3 provider not set')
+  if (!arc.web3) { throw new Error('Web3 provider not set') }
   const accounts = await arc.web3.listAccounts()
   // make sure the proposal is indexed
   await waitUntilTrue(async () => {

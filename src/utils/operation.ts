@@ -160,6 +160,8 @@ export function sendTransaction<T>(
     observer.next({
       state: ITransactionState.Sending
     })
+    console.log(tx)
+    console.log(overrides)
 
     try {
       response = await contract[tx.method](...tx.args, overrides)
@@ -168,6 +170,7 @@ export function sendTransaction<T>(
       return
     }
 
+    console.log(response)
     if (!response.hash) {
       throw Error('Transaction hash is undefined')
     }

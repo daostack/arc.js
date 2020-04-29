@@ -5,40 +5,40 @@ import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
 import {
-  ITransaction,
-  ITransactionReceipt,
-  Operation,
-  sendTransaction,
-  transactionErrorHandler,
-  transactionResultHandler,
-  GraphNodeObserver,
-  IApolloQueryOptions,
-  DAO,
-  IDAOQueryOptions,
-  IProposalQueryOptions,
-  Proposal,
-  IRewardQueryOptions,
-  Reward,
-  IStakeQueryOptions,
-  Stake,
-  ITagQueryOptions,
-  Tag,
-  IEventQueryOptions,
-  Event,
   ABI_DIR,
-  Token,
-  isAddress,
-  IPluginQueryOptions,
-  Plugin,
-  Plugins,
-  PluginName,
+  Address,
   AnyPlugin,
   AnyProposal,
-  Address,
-  IPFSProvider,
-  Web3Provider,
+  DAO,
+  Event,
+  GraphNodeObserver,
+  IApolloQueryOptions,
+  IDAOQueryOptions,
+  IEventQueryOptions,
   IPFSClient,
-  Logger
+  IPFSProvider,
+  IPluginQueryOptions,
+  IProposalQueryOptions,
+  IRewardQueryOptions,
+  isAddress,
+  IStakeQueryOptions,
+  ITagQueryOptions,
+  ITransaction,
+  ITransactionReceipt,
+  Logger,
+  Operation,
+  Plugin,
+  PluginName,
+  Plugins,
+  Proposal,
+  Reward,
+  sendTransaction,
+  Stake,
+  Tag,
+  Token,
+  transactionErrorHandler,
+  transactionResultHandler,
+  Web3Provider
 } from './index'
 
 /**
@@ -293,7 +293,7 @@ export class Arc extends GraphNodeObserver {
 
   public getABI(opts: { address?: Address, abiName?: string, version?: string }): any[] {
 
-    if (Object.values(opts).filter(value => value !== undefined).length === 0) {
+    if (Object.values(opts).filter((value) => value !== undefined).length === 0) {
       throw Error('getABI needs at least one parameter passed')
     }
 

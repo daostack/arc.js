@@ -1,22 +1,24 @@
 import BN from 'bn.js'
+import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
+import { inspect } from 'util'
 import {
   Arc,
   Competition as CompetitionPlugin,
   CompetitionProposal,
   CompetitionSuggestion,
   CompetitionVote,
+  ContributionRewardExt,
   DAO,
+  getBlockTime,
   ICompetitionProposalState,
   ICompetitionSuggestionState,
+  IProposalCreateOptionsComp,
   IProposalStage,
   IProposalState,
-  Proposal,
   Plugin,
-  IProposalCreateOptionsComp,
-  getBlockTime,
-  ContributionRewardExt
+  Proposal
 } from '../src'
 import {
   advanceTimeAndBlock,
@@ -25,8 +27,6 @@ import {
   voteToPassProposal,
   waitUntilTrue
 } from './utils'
-import { BigNumber } from 'ethers/utils'
-import { inspect } from 'util'
 
 jest.setTimeout(40000)
 
@@ -63,7 +63,7 @@ describe('Competition Proposal', () => {
     arc = await newArc()
     // we'll get a `ContributionRewardExt` contract
     const contributionRewardExts = await arc
-      .plugins({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
+      .plugins({ where: { name: 'ContributionRewardExt' } }).pipe(first()).toPromise()
 
     contributionRewardExt = contributionRewardExts[0] as ContributionRewardExt
 
@@ -71,11 +71,11 @@ describe('Competition Proposal', () => {
     contributionRewardExtAddress = contributionRewardExtState.address
     await contributionRewardExtState.dao.entity.fetchState()
 
-    if(!contributionRewardExtState.dao.entity.coreState) throw new Error("Dao coreState not defined")
+    if (!contributionRewardExtState.dao.entity.coreState) { throw new Error('Dao coreState not defined') }
 
     dao = new DAO(arc, contributionRewardExtState.dao.entity.coreState)
 
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     address0 = (await arc.web3.getSigner(0).getAddress()).toLowerCase()
     address1 = (await arc.web3.getSigner(1).getAddress()).toLowerCase()
   })
@@ -88,7 +88,7 @@ describe('Competition Proposal', () => {
 
     // make sure that the DAO has enough Ether to pay forthe reward
 
-    if(!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     await arc.web3.getSigner().sendTransaction({
       gasLimit: 4000000,
@@ -120,16 +120,16 @@ describe('Competition Proposal', () => {
 
     // CREATE PROPOSAL
 
-    //TODO: this actually creates a CRExt proposal, not a competition one. Therefore, its fetchState itemMapper fails.
+    // TODO: this actually creates a CRExt proposal, not a competition one. Therefore, its fetchState itemMapper fails.
     const tx = await plugin.createProposal(proposalOptions).send()
 
-    if(!tx.result) throw new Error("Create proposal yielded no results")
+    if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposal = new CompetitionProposal(arc, tx.result.id)
 
     const proposalStates = []
-    proposal.state({}).subscribe(pstate => { 
-      if(pstate) proposalStates.push(pstate)
+    proposal.state({}).subscribe((pstate) => {
+      if (pstate) { proposalStates.push(pstate) }
     })
 
     await waitUntilTrue(() => proposalStates.length > 0)
@@ -140,7 +140,7 @@ describe('Competition Proposal', () => {
     await voteToPassProposal(proposal)
     await proposal.redeemRewards().send()
 
-    //TODO: the scheme name in the following query is ContributionRewardExt, therefore thats the ItemMapper called.
+    // TODO: the scheme name in the following query is ContributionRewardExt, therefore thats the ItemMapper called.
 
     // find the competition
     const competitions = await Proposal.search(arc, { where: {id: proposal.id}}).pipe(first()).toPromise() as CompetitionProposal[]
@@ -207,11 +207,11 @@ describe('Competition Proposal', () => {
   })
 
   it('create a competition proposal with starttime set to null', async () => {
-    const plugin = new CompetitionPlugin(arc,contributionRewardExt.id)
+    const plugin = new CompetitionPlugin(arc, contributionRewardExt.id)
     // TODO: test error handling for all these params
     // - all args are present
     // - order of times
-    if (!arc.web3) throw Error('Web3 provider not set')
+    if (!arc.web3) { throw Error('Web3 provider not set') }
     const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 3)
     const proposalOptions: IProposalCreateOptionsComp = {
@@ -233,7 +233,7 @@ describe('Competition Proposal', () => {
     // CREATE PROPOSAL
     const tx = await plugin.createProposal(proposalOptions).send()
 
-    if(!tx.result) throw new Error("Create proposal yielded no results")
+    if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposal1 = new CompetitionProposal(arc, tx.result.id)
     expect(proposal1).toBeInstanceOf(Proposal)
@@ -256,11 +256,11 @@ describe('Competition Proposal', () => {
 
     const plugin = new CompetitionPlugin(arc, contributionRewardExt.id)
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     // make sure that the DAO has enough Ether to pay for the reward
 
-    if(!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     await arc.web3.getSigner().sendTransaction({
       gasLimit: 4000000,
@@ -297,7 +297,7 @@ describe('Competition Proposal', () => {
     // CREATE PROPOSAL
     const tx = await plugin.createProposal(proposalOptions).send()
 
-    if(!tx.result) throw new Error("Create proposal yielded no results")
+    if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposal = new CompetitionProposal(arc, tx.result.id)
     expect(proposal).toBeInstanceOf(Proposal)
@@ -331,7 +331,7 @@ describe('Competition Proposal', () => {
 
     const lastStatePlugin = lastState().plugin.entity
 
-    if(!lastStatePlugin.coreState) throw new Error('Plugin coreState not defined')
+    if (!lastStatePlugin.coreState) { throw new Error('Plugin coreState not defined') }
 
     // check sanity for scheme
     expect(pluginState.address).toEqual(lastStatePlugin.coreState.address)
@@ -372,14 +372,14 @@ describe('Competition Proposal', () => {
     let suggestionIds: string[] = []
     sub = competition.suggestions()
       .subscribe((ls: CompetitionSuggestion[]) => {
-        suggestionIds = [...suggestionIds, ...ls.map(x => x.id)]
+        suggestionIds = [...suggestionIds, ...ls.map((x) => x.id)]
       })
 
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion2.id) > -1)
     sub.unsubscribe()
 
     const suggestion1State = await suggestion1.fetchState()
-    
+
     expect(suggestion1State.beneficiary).toEqual(address1)
     expect(suggestion1State.id).toEqual(suggestion1.id)
     expect(suggestion1State.redeemedAt).not.toBeTruthy()
@@ -405,7 +405,7 @@ describe('Competition Proposal', () => {
         .pipe(first()).toPromise()).length)
       .toEqual(1)
     // // and lets vote for the first suggestion
-    
+
     const voteReceipt = await competition.voteSuggestion({ suggestionId: suggestion2.suggestionId as number }).send()
     const vote = voteReceipt.result
     // // the vote should be counted
@@ -439,7 +439,7 @@ describe('Competition Proposal', () => {
     )
     await advanceTimeAndBlock(4000)
 
-    if(!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     // get the current balance of addres1 (who we will send the rewards to)
 
@@ -461,8 +461,9 @@ describe('Competition Proposal', () => {
 
     const sub = proposal.state({}).subscribe(
       (state) => {
-        if(state)
+        if (state) {
         competitionState = state
+        }
       }
     )
     await waitUntilTrue(() => !!competitionState)
@@ -548,7 +549,7 @@ describe('Competition Proposal', () => {
 
     await advanceTimeAndBlock(2000)
 
-    if(!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     const crExtBalanceBefore = await (await contributionRewardExt.ethBalance()).pipe(first()).toPromise()
     const beneficiary = address1
@@ -613,7 +614,7 @@ describe('Competition Proposal', () => {
 
     const beneficiary = address1
 
-    if(!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     const beforeBalanceBigNum = await arc.web3.getBalance(beneficiary)
     let balanceBefore = new BN(beforeBalanceBigNum.toString())
@@ -680,18 +681,18 @@ describe('Competition Proposal', () => {
     expect(suggestion4State.totalVotes).toEqual(new BN(0))
   })
 
-  //TODO: Is this test really necessary?
+  // TODO: Is this test really necessary?
   it.skip('CompetionScheme is recognized', async () => {
     // we'll get a `ContributionRewardExt` contract that has a Compietion contract as a rewarder
     const contributionRewardExts = await arc
-      .plugins({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
+      .plugins({ where: { name: 'ContributionRewardExt' } }).pipe(first()).toPromise()
     expect(contributionRewardExts.length).toEqual(1)
     const scheme = contributionRewardExts[0]
     expect(scheme).toBeInstanceOf(CompetitionPlugin)
   })
 
   it('Can create a propsal using dao.createProposal', async () => {
-    if (!arc.web3) throw Error('Web3 provider not set')
+    if (!arc.web3) { throw Error('Web3 provider not set') }
     const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 10)
     const proposalOptions: IProposalCreateOptionsComp = {
@@ -714,7 +715,7 @@ describe('Competition Proposal', () => {
     const plugin = new CompetitionPlugin(arc, contributionRewardExtAddress)
     const tx = await plugin.createProposal(proposalOptions).send()
 
-    if(!tx.result) throw new Error('Create proposal yielded no results')
+    if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposal = new CompetitionProposal(arc, tx.result.id)
     expect(proposal).toBeInstanceOf(Proposal)
@@ -746,7 +747,7 @@ describe('Competition Proposal', () => {
     await waitUntilTrue(() => suggestionIds.indexOf(suggestion.id) > -1)
     subscription.unsubscribe()
 
-    let suggestionState = await suggestion.fetchState()
+    const suggestionState = await suggestion.fetchState()
 
     expect(suggestionState.proposal.id).toEqual(suggestionOptions.proposal)
     expect(suggestionState.beneficiary).toEqual(suggestionOptions.beneficiary)
@@ -754,7 +755,7 @@ describe('Competition Proposal', () => {
     expect(suggestionState.tags).toEqual(suggestionOptions.tags)
     expect(suggestionState.title).toEqual(suggestionOptions.title)
     expect(suggestionState.url).toEqual(suggestionOptions.url)
-    
+
     expect(suggestionState).toMatchObject({
       id: suggestion.id,
       redeemedAt: null,
@@ -788,14 +789,14 @@ describe('Competition Proposal', () => {
       // find a proposal in a scheme that has > 1 votes
       const { competition } = await createCompetition()
       // check if the competition has indeed some suggestions
-  
+
       const suggestions = await competition.suggestions().pipe(first()).toPromise()
       expect(suggestions.length).toBeGreaterThan(0)
-  
+
       // now we have our objects, reset the cache
       await (arc.apolloClient as any).cache.reset()
       expect((arc.apolloClient as any).cache.data.data).toEqual({})
-  
+
         // // construct our superquery that will fill the cache
       const query = gql`query {
           proposals (where: { id: "${competition.id}"}) {
@@ -813,32 +814,32 @@ describe('Competition Proposal', () => {
         ${Plugin.baseFragment}
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
         `
-  
+
       await arc.sendQuery(query)
-  
+
         // now see if we can get our informatino directly from the cache
       const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
           .pipe(first()).toPromise()
       expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))
           .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
-  
+
       const cachedSuggestionState = await cachedSuggestions[0]
         .fetchState()
       expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
-  
+
     })
-  
+
     it('competition.suggestions works also without resetting the cache', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { competition } =  await createCompetition()
       // check if the competition has indeed some suggestions
-  
+
       const suggestions = await competition.suggestions().pipe(first()).toPromise()
       expect(suggestions.length).toBeGreaterThan(0)
-  
+
       // add some exiting data to the cache to seeif we can mess things up
       await new CompetitionProposal(arc, competition.id).state({}).pipe(first()).toPromise()
-  
+
       // construct our superquery that will fill the cache
       const query = gql`query {
           proposals (where: { id: "${competition.id}"}) {
@@ -856,25 +857,25 @@ describe('Competition Proposal', () => {
         ${Plugin.baseFragment}
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
         `
-  
+
       await arc.sendQuery(query)
-  
+
         // now see if we can get our informatino directly from the cache
       const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
           .pipe(first()).toPromise()
       expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))
           .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
-  
+
       const cachedSuggestionState = await cachedSuggestions[0]
         .state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
       expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
-  
+
     })
 
     it('suggestion.votes works', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { suggestions } = await createCompetition()
-  
+
       await suggestions[0].vote().send()
       let voteIsIndexed = false
       const sub = suggestions[0].state().subscribe((s: ICompetitionSuggestionState) => {
@@ -882,16 +883,16 @@ describe('Competition Proposal', () => {
       })
       await waitUntilTrue(() => voteIsIndexed)
       sub.unsubscribe()
-  
+
       // check if the competition has indeed some suggestions
-  
+
       const votes = await suggestions[0].votes().pipe(first()).toPromise()
       expect(votes.length).toBeGreaterThan(0)
-  
+
       // now we have our objects, reset the cache
       await (arc.apolloClient as any).cache.reset()
       expect((arc.apolloClient as any).cache.data.data).toEqual({})
-  
+
       // // construct our superquery that will fill the cache
       const query = gql`query
         {
@@ -907,14 +908,14 @@ describe('Competition Proposal', () => {
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
         ${CompetitionVote.fragments.CompetitionVoteFields}
       `
-  
+
       await arc.sendQuery(query)
-  
+
       const cachedVotes = await suggestions[0].votes({}, { fetchPolicy: 'cache-only'})
         .pipe(first()).toPromise()
       expect(cachedVotes.map((v: CompetitionVote) => v.id))
         .toEqual(votes.map((v: CompetitionVote) => v.id))
-  
+
       const cachedVoteState = await cachedVotes[0].state({ fetchPolicy: 'cache-only'})
         .pipe(first()).toPromise()
       expect(cachedVoteState.id).toEqual(cachedVotes[0].id)

@@ -1,44 +1,44 @@
 import BN from 'bn.js'
-import gql from 'graphql-tag'
-import { Observable, from } from 'rxjs'
 import { utils } from 'ethers'
 import { DocumentNode } from 'graphql'
+import gql from 'graphql-tag'
+import { from, Observable } from 'rxjs'
 import { concatMap, first } from 'rxjs/operators'
 import {
-  Arc,
-  IEntityRef,
-  Entity,
-  DAO,
-  IRewardQueryOptions,
-  Reward,
-  Queue,
-  IQueueState,
-  IVoteQueryOptions,
-  Vote,
-  Stake,
-  IStakeQueryOptions,
-  Proposals,
-  ProposalName,
-  AnyProposal,
-  AnyPlugin,
-  ITransactionReceipt,
-  Operation,
-  getEventAndArgs,
-  ITransaction,
-  toIOperationObservable,
-  IObservable,
-  createGraphQlQuery,
-  isAddress,
-  realMathToNumber,
-  hexStringToUint8Array,
-  concat,
-  eventId,
-  NULL_ADDRESS,
-  IGenesisProtocolParams,
-  mapGenesisProtocolParams,
-  IApolloQueryOptions,
   Address,
-  ICommonQueryOptions
+  AnyPlugin,
+  AnyProposal,
+  Arc,
+  concat,
+  createGraphQlQuery,
+  DAO,
+  Entity,
+  eventId,
+  getEventAndArgs,
+  hexStringToUint8Array,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  IEntityRef,
+  IGenesisProtocolParams,
+  IObservable,
+  IQueueState,
+  IRewardQueryOptions,
+  isAddress,
+  IStakeQueryOptions,
+  ITransaction,
+  ITransactionReceipt,
+  IVoteQueryOptions,
+  mapGenesisProtocolParams,
+  NULL_ADDRESS,
+  Operation,
+  ProposalName,
+  Proposals,
+  Queue,
+  realMathToNumber,
+  Reward,
+  Stake,
+  toIOperationObservable,
+  Vote
 } from '../index'
 import { Plugin } from './plugin'
 
@@ -111,7 +111,7 @@ export interface IProposalState {
   id: string
   dao: IEntityRef<DAO>
   votingMachine: Address
-  //TODO: plugin instance inside itself? or other type of plugin?
+  // TODO: plugin instance inside itself? or other type of plugin?
   plugin: IEntityRef<AnyPlugin>
   closingAt: number
   createdAt: number | Date
@@ -121,7 +121,7 @@ export interface IProposalState {
   executedAt: number
   organizationId: string
   paramsHash: string
-  //TODO: Stores proposal instance inside itself? Or is this another proposaltype?
+  // TODO: Stores proposal instance inside itself? Or is this another proposaltype?
   proposal: IEntityRef<AnyProposal>
   proposer: Address
   resolvedAt: number
@@ -131,7 +131,7 @@ export interface IProposalState {
   totalRepWhenExecuted: BN
   type: ProposalName
   url?: string
-  votes: IEntityRef<Vote>[]
+  votes: Array<IEntityRef<Vote>>
   votesFor: BN
   votesAgainst: BN
   votesCount: number
@@ -156,8 +156,6 @@ export interface IProposalState {
 }
 
 export abstract class Proposal<TProposalState extends IProposalState> extends Entity<TProposalState> {
-
-  public static fragment: { name: string, fragment: DocumentNode } | undefined
 
   public static get baseFragment(): DocumentNode {
 
@@ -211,7 +209,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
         preBoostedAt
         proposer
         quietEndingPeriodBeganAt
-        
+
         stage
         # stakes { id }
         stakesFor
@@ -229,12 +227,12 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
         votingMachine
         winningOutcome
         ${Object.values(Proposals)
-          .filter(proposal => proposal.fragment)
-          .map(proposal => '...' + proposal.fragment?.name).join('\n')}
+          .filter((proposal) => proposal.fragment)
+          .map((proposal) => '...' + proposal.fragment?.name).join('\n')}
       }
       ${Object.values(Proposals)
-        .filter(proposal => proposal.fragment)
-        .map(proposal => proposal.fragment?.fragment.loc?.source.body).join('\n')}
+        .filter((proposal) => proposal.fragment)
+        .map((proposal) => proposal.fragment?.fragment.loc?.source.body).join('\n')}
 
       ${Plugin.baseFragment}
 `
@@ -242,28 +240,27 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
 
     return this._baseFragment
   }
-  private static _baseFragment: DocumentNode | undefined;
 
-  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<TProposalState>
+  public static fragment: { name: string, fragment: DocumentNode } | undefined
 
   public static search<TProposalState extends IProposalState>(
     context: Arc,
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Proposal<TProposalState>[]> {
+  ): Observable<Array<Proposal<TProposalState>>> {
     let where = ''
 
     const itemMap = (context: Arc, r: any, query: DocumentNode) => {
 
-      if(r.scheme.name === 'ContributionRewardExt') {
-        if(r.competition) {
+      if (r.scheme.name === 'ContributionRewardExt') {
+        if (r.competition) {
           r.scheme.name = 'Competition'
         }
       }
 
       const state: IProposalState = Proposals[r.scheme.name].itemMap(context, r, query)
 
-      if(!state) return null
+      if (!state) { return null }
 
       return new Proposals[r.scheme.name](context, state)
     }
@@ -324,7 +321,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       query,
       itemMap,
       apolloQueryOptions
-    ) as IObservable<Proposal<TProposalState>[]>
+    ) as IObservable<Array<Proposal<TProposalState>>>
   }
 
   public static calculateId(address: Address, proposalCount: number) {
@@ -341,7 +338,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     plugin: TPlugin,
     proposal: TProposal,
     type: ProposalName
-  ) : IProposalState | null{
+  ): IProposalState | null {
     if (!item) {
       // no proposal was found - we return null
       // throw Error(`No proposal with id ${this.id} could be found`)
@@ -458,8 +455,8 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       type,
       upstakeNeededToPreBoost,
       url: item.url,
-      votes: item.votes.map((vote: any) => { 
-        return { 
+      votes: item.votes.map((vote: any) => {
+        return {
           id: vote.id,
           entity: new Vote(context, vote.id)
         }
@@ -472,6 +469,9 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       winningOutcome: IProposalOutcome[item.winningOutcome] as any
     }
   }
+  private static _baseFragment: DocumentNode | undefined
+
+  public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<TProposalState>
 
   public async votingMachine() {
     const state = await this.fetchState()

@@ -1,22 +1,22 @@
 
+import { utils } from 'ethers'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { DocumentNode } from 'graphql'
-import { utils } from 'ethers'
 import {
-  DAO,
-  Plugins,
-  createGraphQlQuery,
-  concat,
-  hexStringToUint8Array,
-  Arc,
-  Entity,
-  IEntityRef,
   Address,
-  ICommonQueryOptions,
+  AnyPlugin,
+  Arc,
+  concat,
+  createGraphQlQuery,
+  DAO,
+  Entity,
+  hexStringToUint8Array,
   IApolloQueryOptions,
-  AnyPlugin
+  ICommonQueryOptions,
+  IEntityRef,
+  Plugins
 } from '../index'
 
 export interface IPluginState {
@@ -50,13 +50,6 @@ export interface IPluginQueryOptions extends ICommonQueryOptions {
 
 export abstract class Plugin<TPluginState extends IPluginState> extends Entity<TPluginState> {
 
-  // @ts-ignore
-  "constructor": typeof Plugin
-
-  protected static itemMap: (arc: Arc, item: any, query: DocumentNode) => IPluginState | null
-
-  public static fragment: { name: string, fragment: DocumentNode } | undefined
-
   public static get baseFragment(): DocumentNode {
 
     if (!this._baseFragment) {
@@ -74,23 +67,24 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
           numberOfPreBoostedProposals
           numberOfBoostedProposals
           version
-          ${Object.values(Plugins).filter(plugin => plugin.fragment)
-            .map(plugin => '...' + plugin.fragment?.name).join('\n')}
+          ${Object.values(Plugins).filter((plugin) => plugin.fragment)
+            .map((plugin) => '...' + plugin.fragment?.name).join('\n')}
         }
-        ${Object.values(Plugins).filter(plugin => plugin.fragment)
-          .map(plugin => plugin.fragment?.fragment.loc?.source.body).join('\n')}
+        ${Object.values(Plugins).filter((plugin) => plugin.fragment)
+          .map((plugin) => plugin.fragment?.fragment.loc?.source.body).join('\n')}
       `
     }
 
     return this._baseFragment
   }
-  private static _baseFragment: DocumentNode | undefined
+
+  public static fragment: { name: string, fragment: DocumentNode } | undefined
 
   public static search<TPluginState extends IPluginState>(
     context: Arc,
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Plugin<TPluginState>[]> {
+  ): Observable<Array<Plugin<TPluginState>>> {
     const query = gql`query SchemeSearchAllData {
         controllerSchemes ${createGraphQlQuery(options)}
         {
@@ -105,18 +99,18 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
         options.where = {}
       }
 
-      if(!Object.keys(Plugins).includes(item.name)) {
+      if (!Object.keys(Plugins).includes(item.name)) {
         console.log(`Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`)
 
-        const state = Plugins['unknown'].itemMap(context, item, query)
-        if(!state) return null
+        const state = Plugins.unknown.itemMap(context, item, query)
+        if (!state) { return null }
 
-        return new Plugins['unknown'](context, state)
+        return new Plugins.unknown(context, state)
       } else {
 
         const state: IPluginState = Plugins[item.name].itemMap(context, item, query)
-        if(!state) return null
-        
+        if (!state) { return null }
+
         return new Plugins[item.name](context, state)
       }
     }
@@ -126,8 +120,18 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       query,
       itemMap,
       apolloQueryOptions
-    ) as Observable<Plugin<TPluginState>[]>
+    ) as Observable<Array<Plugin<TPluginState>>>
   }
+
+  public static calculateId(opts: { daoAddress: Address, contractAddress: Address}): string {
+    const seed = concat(
+      hexStringToUint8Array(opts.daoAddress.toLowerCase()),
+      hexStringToUint8Array(opts.contractAddress.toLowerCase())
+    )
+    return utils.keccak256(seed)
+  }
+
+  protected static itemMap: (arc: Arc, item: any, query: DocumentNode) => IPluginState | null
 
   protected static itemMapToBaseState(
     context: Arc,
@@ -167,14 +171,10 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     }
 
   }
+  private static _baseFragment: DocumentNode | undefined
 
-  public static calculateId(opts: { daoAddress: Address, contractAddress: Address}): string {
-    const seed = concat(
-      hexStringToUint8Array(opts.daoAddress.toLowerCase()),
-      hexStringToUint8Array(opts.contractAddress.toLowerCase())
-    )
-    return utils.keccak256(seed)
-  }
+  // @ts-ignore
+  public 'constructor': typeof Plugin
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<TPluginState> {
     const query = gql`query SchemeStateById
@@ -190,12 +190,12 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
 
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}, refetch?: boolean): Promise <TPluginState> {
 
-    if(this.coreState === undefined || refetch) {
+    if (this.coreState === undefined || refetch) {
       const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
       this.setState(state)
       return state
     }
-    
+
     return this.coreState
   }
 }

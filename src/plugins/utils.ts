@@ -1,26 +1,32 @@
 import {
-  ProposalPlugin,
-  Plugin,
-  IPluginState,
-  Proposal,
-  IProposalState,
-  IProposalBaseCreateOptions,
   Competition,
-  ContributionRewardExt,
-  ContributionReward,
-  ContributionRewardExtProposal,
   CompetitionProposal,
+  ContributionReward,
+  ContributionRewardExt,
+  ContributionRewardExtProposal,
   ContributionRewardProposal,
-  SchemeRegistrarProposal,
-  GenericSchemeProposal,
-  SchemeRegistrar,
+  FundingRequest,
+  FundingRequestProposal,
   GenericScheme,
-  ReputationFromToken,
-  IProposalCreateOptionsCRExt,
-  IProposalCreateOptionsGS,
-  IProposalCreateOptionsSR,
+  GenericSchemeProposal,
+  IPluginState,
+  IProposalBaseCreateOptions,
   IProposalCreateOptionsComp,
   IProposalCreateOptionsCR,
+  IProposalCreateOptionsCRExt,
+  IProposalCreateOptionsFundingRequest,
+  IProposalCreateOptionsGS,
+  IProposalCreateOptionsJoinAndQuit,
+  IProposalCreateOptionsSR,
+  IProposalState,
+  JoinAndQuit,
+  JoinAndQuitProposal,
+  Plugin,
+  Proposal,
+  ProposalPlugin,
+  ReputationFromToken,
+  SchemeRegistrar,
+  SchemeRegistrarProposal,
   UnknownPlugin
 } from '../index'
 
@@ -29,7 +35,9 @@ export const ProposalPlugins = {
   SchemeRegistrar,
   ContributionReward,
   ContributionRewardExt,
-  Competition
+  Competition,
+  FundingRequest,
+  JoinAndQuit
 }
 
 export const Plugins = {
@@ -45,6 +53,8 @@ export const Proposals = {
   ContributionReward: ContributionRewardProposal,
   Competition: CompetitionProposal,
   ContributionRewardExt: ContributionRewardExtProposal,
+  FundingRequest: FundingRequestProposal,
+  JoinAndQuit: JoinAndQuitProposal,
   SchemeRegistrar: SchemeRegistrarProposal,
   SchemeRegistrarAdd: SchemeRegistrarProposal,
   SchemeRegistrarEdit: SchemeRegistrarProposal,
@@ -58,7 +68,9 @@ export type ProposalCreateOptions =
   IProposalCreateOptionsGS |
   IProposalCreateOptionsSR |
   IProposalCreateOptionsComp |
-  IProposalCreateOptionsCR
+  IProposalCreateOptionsCR |
+  IProposalCreateOptionsFundingRequest |
+  IProposalCreateOptionsJoinAndQuit
 
 export type AnyProposal = Proposal<IProposalState>
 export type AnyPlugin = Plugin<IPluginState>
