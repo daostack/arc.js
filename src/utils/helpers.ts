@@ -2,9 +2,9 @@ import { Observable as ZenObservable } from 'apollo-link'
 import BN from 'bn.js'
 import { utils } from 'ethers'
 import { JsonRpcProvider } from 'ethers/providers'
-import WebSocket from 'isomorphic-ws';
+import WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
-import { ITransactionEvent, Address, ICommonQueryOptions } from '../index'
+import { Address, ICommonQueryOptions, ITransactionEvent } from '../index'
 
 const checkAddress = (address: string) => {
   try {
@@ -75,7 +75,6 @@ export function stringToUint8Array(str: string) {
 
 // function lifted and adapted from @daostack/subgraph/src/utils to generate unique ids
 export function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
-
   const out = new Uint8Array(a.length + b.length)
   for (let i = 0; i < a.length; i++) {
     out[i] = a[i]
@@ -90,10 +89,9 @@ export function eventId(event: ITransactionEvent): string {
   if (!event.transactionHash || !event.logIndex) {
     throw new Error('Event must have both transactionHash and logIndex')
   }
-  const hash = utils.keccak256(concat(
-    stringToUint8Array(event.transactionHash),
-    stringToUint8Array(event.logIndex.toString())
-  ))
+  const hash = utils.keccak256(
+    concat(stringToUint8Array(event.transactionHash), stringToUint8Array(event.logIndex.toString()))
+  )
   return hash
 }
 
@@ -170,9 +168,11 @@ export function createGraphQlQuery(options: ICommonQueryOptions, where: string =
   }
 }
 
-export function createGraphQlWhereQuery(where?: {[key: string]: string|string[]|null}) {
+export function createGraphQlWhereQuery(where?: { [key: string]: string | string[] | null }) {
   let result = ''
-  if (!where) { where = {}}
+  if (!where) {
+    where = {}
+  }
   for (const key of Object.keys(where)) {
     if (where[key] === undefined) {
       continue

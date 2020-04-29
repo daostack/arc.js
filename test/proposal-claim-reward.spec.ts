@@ -51,8 +51,7 @@ describe('Claim rewards', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward,
       reputationReward,
-      plugin: getTestScheme("ContributionReward"),
-      proposalType: "ContributionReward"
+      plugin: getTestScheme("ContributionReward")
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -109,8 +108,7 @@ describe('Claim rewards', () => {
       externalTokenReward,
       nativeTokenReward: new BN(0),
       reputationReward: new BN(0),
-      plugin: getTestScheme("ContributionReward"),
-      proposalType: "ContributionReward"
+      plugin: getTestScheme("ContributionReward")
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -168,7 +166,6 @@ describe('Claim rewards', () => {
     const tx = await genericScheme.createProposal({
       callData,
       dao: dao.id,
-      proposalType: "GenericScheme",
       plugin: genericSchemeState.address,
       value: 0
     }).send()

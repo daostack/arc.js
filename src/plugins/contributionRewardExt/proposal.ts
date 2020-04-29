@@ -1,22 +1,25 @@
-import { Observable, from } from 'rxjs'
-import gql from 'graphql-tag'
-import { concatMap } from 'rxjs/operators'
 import BN from 'bn.js'
-import {
-  Proposal,
-  IProposalState,
-  Arc,
-  Plugin,
-  ContributionRewardExt,
-  NULL_ADDRESS,CONTRIBUTION_REWARD_DUMMY_VERSION,
-  REDEEMER_CONTRACT_VERSIONS,
-  ITransaction, Operation,
-  ITransactionReceipt,
-  toIOperationObservable,
-  Address,
-  IApolloQueryOptions
-} from '../../index'
 import { DocumentNode } from 'graphql'
+import gql from 'graphql-tag'
+import { from, Observable } from 'rxjs'
+import { concatMap } from 'rxjs/operators'
+import {
+  Address,
+  Arc,
+  CONTRIBUTION_REWARD_DUMMY_VERSION,
+  ContributionRewardExt,
+  IApolloQueryOptions,
+  IProposalState,
+  ITransaction,
+  ITransactionReceipt,
+  Logger,
+  NULL_ADDRESS,
+  Operation,
+  Plugin,
+  Proposal,
+  REDEEMER_CONTRACT_VERSIONS,
+  toIOperationObservable
+} from '../../index'
 
 export interface IContributionRewardExtProposalState extends IProposalState {
   beneficiary: Address
@@ -38,40 +41,42 @@ export interface IContributionRewardExtProposalState extends IProposalState {
 }
 
 export class ContributionRewardExtProposal extends Proposal<IContributionRewardExtProposalState> {
-
-  static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtProposalState | null {
-
+  public static itemMap(
+    context: Arc,
+    item: any,
+    query: DocumentNode
+  ): IContributionRewardExtProposalState | null {
     if (!item) {
-      console.log(`ContributionRewardExt Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(
+        `ContributionRewardExt Proposal ItemMap failed. Query: ${query.loc?.source.body}`
+      )
       return null
     }
 
-    const ethRewardLeft = (
-      item.contributionReward.ethRewardLeft !== null &&
-      new BN(item.contributionReward.ethRewardLeft) ||
+    const ethRewardLeft =
+      (item.contributionReward.ethRewardLeft !== null &&
+        new BN(item.contributionReward.ethRewardLeft)) ||
       null
-    )
-    const externalTokenRewardLeft = (
-      item.contributionReward.externalTokenRewardLeft !== null &&
-      new BN(item.contributionReward.externalTokenRewardLeft) ||
+    const externalTokenRewardLeft =
+      (item.contributionReward.externalTokenRewardLeft !== null &&
+        new BN(item.contributionReward.externalTokenRewardLeft)) ||
       null
-    )
-    const nativeTokenRewardLeft = (
-      item.contributionReward.nativeTokenRewardLeft !== null &&
-      new BN(item.contributionReward.nativeTokenRewardLeft) ||
+    const nativeTokenRewardLeft =
+      (item.contributionReward.nativeTokenRewardLeft !== null &&
+        new BN(item.contributionReward.nativeTokenRewardLeft)) ||
       null
-    )
-    const reputationChangeLeft = (
-      item.contributionReward.reputationChangeLeft !== null &&
-      new BN(item.contributionReward.reputationChangeLeft) ||
+    const reputationChangeLeft =
+      (item.contributionReward.reputationChangeLeft !== null &&
+        new BN(item.contributionReward.reputationChangeLeft)) ||
       null
-    )
 
     const contributionRewardExtState = ContributionRewardExt.itemMap(context, item.scheme, query)
 
-    if(!contributionRewardExtState) return null
+    if (!contributionRewardExtState) {
+      return null
+    }
 
-    const contributionRewardExt =  new ContributionRewardExt(context, contributionRewardExtState)
+    const contributionRewardExt = new ContributionRewardExt(context, contributionRewardExtState)
     const contributionRewardExtProposal = new ContributionRewardExtProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -79,17 +84,25 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
       item,
       contributionRewardExt,
       contributionRewardExtProposal,
-      "ContributionRewardExt"
+      'ContributionRewardExt'
     )
 
-    if (baseState == null) return null
+    if (baseState == null) {
+      return null
+    }
 
     return {
       ...baseState,
       alreadyRedeemedEthPeriods: Number(item.contributionReward.alreadyRedeemedEthPeriods),
-      alreadyRedeemedExternalTokenPeriods: Number(item.contributionReward.alreadyRedeemedExternalTokenPeriods),
-      alreadyRedeemedNativeTokenPeriods: Number(item.contributionReward.alreadyRedeemedNativeTokenPeriods),
-      alreadyRedeemedReputationPeriods: Number(item.contributionReward.alreadyRedeemedReputationPeriods),
+      alreadyRedeemedExternalTokenPeriods: Number(
+        item.contributionReward.alreadyRedeemedExternalTokenPeriods
+      ),
+      alreadyRedeemedNativeTokenPeriods: Number(
+        item.contributionReward.alreadyRedeemedNativeTokenPeriods
+      ),
+      alreadyRedeemedReputationPeriods: Number(
+        item.contributionReward.alreadyRedeemedReputationPeriods
+      ),
       beneficiary: item.contributionReward.beneficiary,
       ethReward: new BN(item.contributionReward.ethReward),
       ethRewardLeft,
@@ -105,7 +118,9 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
     }
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IContributionRewardExtProposalState> {
+  public state(
+    apolloQueryOptions: IApolloQueryOptions
+  ): Observable<IContributionRewardExtProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {
@@ -122,7 +137,12 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
       ${Plugin.baseFragment}
     `
 
-    const result = this.context.getObservableObject(this.context, query, ContributionRewardExtProposal.itemMap, apolloQueryOptions) as Observable<IContributionRewardExtProposalState>
+    const result = this.context.getObservableObject(
+      this.context,
+      query,
+      ContributionRewardExtProposal.itemMap,
+      apolloQueryOptions
+    ) as Observable<IContributionRewardExtProposalState>
     return result
   }
 
@@ -138,28 +158,26 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
         }
       }
     }
-    throw Error(`No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`)
+    throw Error(
+      `No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`
+    )
   }
 
   public redeemRewards(beneficiary?: Address): Operation<boolean> {
-
     const mapReceipt = (receipt: ITransactionReceipt) => true
 
     const createTransaction = async (): Promise<ITransaction> => {
-
       if (!beneficiary) {
         beneficiary = NULL_ADDRESS
       }
 
       const state = await this.fetchState()
-      const pluginAddress = this.context.getContractInfoByName('ContributionReward', CONTRIBUTION_REWARD_DUMMY_VERSION).address
+      const pluginAddress = this.context.getContractInfoByName(
+        'ContributionReward',
+        CONTRIBUTION_REWARD_DUMMY_VERSION
+      ).address
       const method = 'redeemFromCRExt'
-      const args = [
-        pluginAddress,
-        state.votingMachine,
-        this.id,
-        beneficiary
-      ]
+      const args = [pluginAddress, state.votingMachine, this.id, beneficiary]
 
       return {
         contract: this.redeemerContract(),

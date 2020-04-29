@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> architecture-change
 import { utils } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
@@ -16,6 +19,10 @@ import {
   IApolloQueryOptions,
   ICommonQueryOptions,
   IEntityRef,
+<<<<<<< HEAD
+=======
+  Logger,
+>>>>>>> architecture-change
   Plugins
 } from '../index'
 
@@ -36,24 +43,26 @@ export interface IPluginState {
 
 export interface IPluginQueryOptions extends ICommonQueryOptions {
   where?: {
-    address?: Address
-    canDelegateCall?: boolean
-    canRegisterPlugins?: boolean
-    canUpgradeController?: boolean
-    canManageGlobalConstraints?: boolean
-    dao?: Address
-    id?: string
-    name?: string
-    [key: string]: any
+    address?: Address;
+    canDelegateCall?: boolean;
+    canRegisterPlugins?: boolean;
+    canUpgradeController?: boolean;
+    canManageGlobalConstraints?: boolean;
+    dao?: Address;
+    id?: string;
+    name?: string;
+    [key: string]: any;
   }
 }
 
 export abstract class Plugin<TPluginState extends IPluginState> extends Entity<TPluginState> {
+<<<<<<< HEAD
 
+=======
+>>>>>>> architecture-change
   public static get baseFragment(): DocumentNode {
-
-    if (!this._baseFragment) {
-      this._baseFragment = gql`
+    if (!this.baseFragmentField) {
+      this.baseFragmentField = gql`
         fragment PluginFields on ControllerScheme {
           id
           address
@@ -67,18 +76,34 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
           numberOfPreBoostedProposals
           numberOfBoostedProposals
           version
+<<<<<<< HEAD
           ${Object.values(Plugins).filter((plugin) => plugin.fragment)
             .map((plugin) => '...' + plugin.fragment?.name).join('\n')}
         }
         ${Object.values(Plugins).filter((plugin) => plugin.fragment)
           .map((plugin) => plugin.fragment?.fragment.loc?.source.body).join('\n')}
+=======
+          ${Object.values(Plugins)
+            .filter((plugin) => plugin.fragment)
+            .map((plugin) => '...' + plugin.fragment?.name)
+            .join('\n')}
+        }
+        ${Object.values(Plugins)
+          .filter((plugin) => plugin.fragment)
+          .map((plugin) => plugin.fragment?.fragment.loc?.source.body)
+          .join('\n')}
+>>>>>>> architecture-change
       `
     }
 
-    return this._baseFragment
+    return this.baseFragmentField
   }
 
+<<<<<<< HEAD
   public static fragment: { name: string, fragment: DocumentNode } | undefined
+=======
+  public static fragment: { name: string; fragment: DocumentNode } | undefined
+>>>>>>> architecture-change
 
   public static search<TPluginState extends IPluginState>(
     context: Arc,
@@ -94,20 +119,38 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode): AnyPlugin | null => {
+    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode): AnyPlugin | null => {
       if (!options.where) {
         options.where = {}
       }
 
       if (!Object.keys(Plugins).includes(item.name)) {
+<<<<<<< HEAD
         console.log(`Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`)
 
         const state = Plugins.unknown.itemMap(context, item, query)
         if (!state) { return null }
 
         return new Plugins.unknown(context, state)
-      } else {
+=======
+        Logger.debug(
+          `Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`
+        )
 
+        const state = Plugins.unknown.itemMap(arc, item, queryDoc)
+        if (!state) {
+          return null
+        }
+
+        return new Plugins.unknown(arc, state)
+>>>>>>> architecture-change
+      } else {
+        const state: IPluginState = Plugins[item.name].itemMap(arc, item, queryDoc)
+        if (!state) {
+          return null
+        }
+
+<<<<<<< HEAD
         const state: IPluginState = Plugins[item.name].itemMap(context, item, query)
         if (!state) { return null }
 
@@ -137,14 +180,34 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     context: Arc,
     item: any
   ): IPluginState {
+=======
+        return new Plugins[item.name](arc, state)
+      }
+    }
 
+    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+      Array<Plugin<TPluginState>>
+    >
+  }
+
+  public static calculateId(opts: { daoAddress: Address; contractAddress: Address }): string {
+    const seed = concat(
+      hexStringToUint8Array(opts.daoAddress.toLowerCase()),
+      hexStringToUint8Array(opts.contractAddress.toLowerCase())
+    )
+    return utils.keccak256(seed)
+  }
+>>>>>>> architecture-change
+
+  protected static itemMap: (arc: Arc, item: any, query: DocumentNode) => IPluginState | null
+
+  protected static itemMapToBaseState(context: Arc, item: any): IPluginState {
     let name = item.name
     if (!name) {
-
       try {
         name = context.getContractInfo(item.address).name
       } catch (err) {
-        if (err.message.match(/no contract/ig)) {
+        if (err.message.match(/no contract/gi)) {
           // continue
         } else {
           throw err
@@ -169,9 +232,12 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
       version: item.version
     }
-
   }
+<<<<<<< HEAD
   private static _baseFragment: DocumentNode | undefined
+=======
+  private static baseFragmentField: DocumentNode | undefined
+>>>>>>> architecture-change
 
   // @ts-ignore
   public 'constructor': typeof Plugin
@@ -185,11 +251,23 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       }
       ${Plugin.baseFragment}
     `
-    return this.context.getObservableObject(this.context, query, this.constructor.itemMap, apolloQueryOptions) as Observable<TPluginState>
+    return this.context.getObservableObject(
+      this.context,
+      query,
+      this.constructor.itemMap,
+      apolloQueryOptions
+    ) as Observable<TPluginState>
   }
 
+<<<<<<< HEAD
   public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}, refetch?: boolean): Promise <TPluginState> {
 
+=======
+  public async fetchState(
+    apolloQueryOptions: IApolloQueryOptions = {},
+    refetch?: boolean
+  ): Promise<TPluginState> {
+>>>>>>> architecture-change
     if (this.coreState === undefined || refetch) {
       const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
       this.setState(state)

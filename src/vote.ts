@@ -1,21 +1,21 @@
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
-  Arc,
-  IApolloQueryOptions,
-  IProposalOutcome,
-  createGraphQlQuery,
-  isAddress,
-  Entity,
-  IEntityRef,
-  Proposals,
-  AnyProposal,
   Address,
+  AnyProposal,
+  Arc,
+  createGraphQlQuery,
   Date,
-  ICommonQueryOptions
+  Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  IEntityRef,
+  IProposalOutcome,
+  isAddress,
+  Proposals
 } from './index'
-import { DocumentNode } from 'graphql'
 
 export interface IVoteState {
   id: string
@@ -23,54 +23,58 @@ export interface IVoteState {
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount of reputation that was voted with
-  //TODO: Any type of proposal?
+  // TODO: Any type of proposal?
   proposal: IEntityRef<AnyProposal>
   dao?: Address
 }
 
 export interface IVoteQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string
-    voter?: Address
-    outcome?: IProposalOutcome
-    proposal?: string
-    dao?: Address
-    [key: string]: any
+    id?: string;
+    voter?: Address;
+    outcome?: IProposalOutcome;
+    proposal?: string;
+    dao?: Address;
+    [key: string]: any;
   }
 }
 
 export class Vote extends Entity<IVoteState> {
   public static fragments = {
-    VoteFields: gql`fragment VoteFields on ProposalVote {
-      id
-      createdAt
-      dao {
+    VoteFields: gql`
+      fragment VoteFields on ProposalVote {
         id
-      }
-      voter
-      proposal {
-        id
-        scheme {
+        createdAt
+        dao {
           id
-          name
         }
+        voter
+        proposal {
+          id
+          scheme {
+            id
+            name
+          }
+        }
+        outcome
+        reputation
       }
-      outcome
-      reputation
-    }`
+    `
   }
 
   public static search(
     context: Arc,
     options: IVoteQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable <Vote[]> {
-    if (!options.where) { options.where = {}}
+  ): Observable<Vote[]> {
+    if (!options.where) {
+      options.where = {}
+    }
     const proposalId = options.where.proposal
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
-      const state = Vote.itemMap(context, item, query)
-      return new Vote(context, state)
+    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
+      const state = Vote.itemMap(arc, item, queryDoc)
+      return new Vote(arc, state)
     }
 
     // if we are searching for votes of a specific proposal (a common case), we
@@ -112,7 +116,10 @@ export class Vote extends Entity<IVoteState> {
               id
               name
             }
-            votes ${createGraphQlQuery({ where: { ...options.where, proposal: undefined}}, where)} {
+            votes ${createGraphQlQuery(
+              { where: { ...options.where, proposal: undefined } },
+              where
+            )} {
               ...VoteFields
             }
           }
@@ -123,20 +130,20 @@ export class Vote extends Entity<IVoteState> {
       return context.getObservableObject(
         context,
         query,
-        (context: Arc, r: any, query: DocumentNode) => {
-          if (!r) { // no such proposal was found
+        (arc: Arc, r: any, queryDoc: DocumentNode) => {
+          if (!r) {
+            // no such proposal was found
             return []
           }
           const votes = r.votes
-          const itemMap = (item: any) => {
-            const state = Vote.itemMap(context, item, query)
-            return new Vote(context, state)
+          const itemMapper = (item: any) => {
+            const state = Vote.itemMap(arc, item, queryDoc)
+            return new Vote(arc, state)
           }
-          return votes.map(itemMap)
+          return votes.map(itemMapper)
         },
         apolloQueryOptions
       ) as Observable<Vote[]>
-
     } else {
       query = gql`query ProposalVotesSearch
         {
@@ -147,12 +154,9 @@ export class Vote extends Entity<IVoteState> {
         ${Vote.fragments.VoteFields}
       `
 
-      return context.getObservableList(
-        context,
-        query,
-        itemMap,
-        apolloQueryOptions
-      ) as Observable<Vote[]>
+      return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+        Vote[]
+      >
     }
   }
 
@@ -192,7 +196,7 @@ export class Vote extends Entity<IVoteState> {
     }
     ${Vote.fragments.VoteFields}
     `
-    
+
     return this.context.getObservableObject(this.context, query, Vote.itemMap, apolloQueryOptions)
   }
 }

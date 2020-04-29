@@ -73,25 +73,25 @@ enum ProposalQuerySortOptions {
 
 export interface IProposalQueryOptions extends ICommonQueryOptions {
   where?: {
-    accountsWithUnclaimedRewards_contains?: Address[]
-    active?: boolean
-    boosted?: boolean
-    dao?: Address
-    expiresInQueueAt?: Date | number
-    expiresInQueueAt_gte?: Date | number
-    expiresInQueueAt_lte?: Date | number
-    expiresInQueueAt_gt?: Date | number
-    executedAfter?: Date | number
-    executedBefore?: Date| number
-    id?: string
-    proposer?: Address
-    proposalId?: string
-    stage?: IProposalStage
-    stage_in?: IProposalStage[]
-    plugin?: Address
-    orderBy?: ProposalQuerySortOptions
-    type?: ProposalName
-    [key: string]: any | undefined
+    accountsWithUnclaimedRewards_contains?: Address[];
+    active?: boolean;
+    boosted?: boolean;
+    dao?: Address;
+    expiresInQueueAt?: Date | number;
+    expiresInQueueAt_gte?: Date | number;
+    expiresInQueueAt_lte?: Date | number;
+    expiresInQueueAt_gt?: Date | number;
+    executedAfter?: Date | number;
+    executedBefore?: Date | number;
+    id?: string;
+    proposer?: Address;
+    proposalId?: string;
+    stage?: IProposalStage;
+    stage_in?: IProposalStage[];
+    plugin?: Address;
+    orderBy?: ProposalQuerySortOptions;
+    type?: ProposalName;
+    [key: string]: any | undefined;
   }
 }
 
@@ -103,7 +103,6 @@ export interface IProposalBaseCreateOptions {
   tags?: string[]
   plugin?: Address
   url?: string
-  proposalType: ProposalName
 }
 
 export interface IProposalState {
@@ -117,7 +116,7 @@ export interface IProposalState {
   createdAt: number | Date
   descriptionHash?: string
   description?: string
-  name: string,
+  name: string
   executedAt: number
   organizationId: string
   paramsHash: string
@@ -155,12 +154,12 @@ export interface IProposalState {
   confidenceThreshold: number
 }
 
-export abstract class Proposal<TProposalState extends IProposalState> extends Entity<TProposalState> {
-
+export abstract class Proposal<TProposalState extends IProposalState> extends Entity<
+  TProposalState
+> {
   public static get baseFragment(): DocumentNode {
-
-    if (!this._baseFragment) {
-      this._baseFragment = gql`fragment ProposalFields on Proposal {
+    if (!this.baseFragmentField) {
+      this.baseFragmentField = gql`fragment ProposalFields on Proposal {
         id
         accountsWithUnclaimedRewards
         boostedAt
@@ -228,20 +227,22 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
         winningOutcome
         ${Object.values(Proposals)
           .filter((proposal) => proposal.fragment)
-          .map((proposal) => '...' + proposal.fragment?.name).join('\n')}
+          .map((proposal) => '...' + proposal.fragment?.name)
+          .join('\n')}
       }
       ${Object.values(Proposals)
         .filter((proposal) => proposal.fragment)
-        .map((proposal) => proposal.fragment?.fragment.loc?.source.body).join('\n')}
+        .map((proposal) => proposal.fragment?.fragment.loc?.source.body)
+        .join('\n')}
 
       ${Plugin.baseFragment}
 `
     }
 
-    return this._baseFragment
+    return this.baseFragmentField
   }
 
-  public static fragment: { name: string, fragment: DocumentNode } | undefined
+  public static fragment: { name: string; fragment: DocumentNode } | undefined
 
   public static search<TProposalState extends IProposalState>(
     context: Arc,
@@ -250,29 +251,34 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
   ): Observable<Array<Proposal<TProposalState>>> {
     let where = ''
 
-    const itemMap = (context: Arc, r: any, query: DocumentNode) => {
-
+    const itemMap = (arc: Arc, r: any, queryDoc: DocumentNode) => {
       if (r.scheme.name === 'ContributionRewardExt') {
         if (r.competition) {
           r.scheme.name = 'Competition'
         }
       }
 
-      const state: IProposalState = Proposals[r.scheme.name].itemMap(context, r, query)
+      const state: IProposalState = Proposals[r.scheme.name].itemMap(arc, r, queryDoc)
 
-      if (!state) { return null }
+      if (!state) {
+        return null
+      }
 
-      return new Proposals[r.scheme.name](context, state)
+      return new Proposals[r.scheme.name](arc, state)
     }
 
-    if (!options.where) { options.where = {} }
+    if (!options.where) {
+      options.where = {}
+    }
 
     for (const key of Object.keys(options.where)) {
       const value = options.where[key]
       if (key === 'stage' && value !== undefined) {
         where += `stage: "${IProposalStage[value as IProposalStage]}"\n`
       } else if (key === 'stage_in' && Array.isArray(value)) {
-        const stageValues = value.map((stage: number) => '"' + IProposalStage[stage as IProposalStage] + '"')
+        const stageValues = value.map(
+          (stage: number) => '"' + IProposalStage[stage as IProposalStage] + '"'
+        )
         where += `stage_in: [${stageValues.join(',')}]\n`
       } else if (key === 'type') {
         // TODO: we are not distinguishing between the schemeregisterpropose
@@ -316,12 +322,9 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       ${Proposal.baseFragment}
     `
 
-    return context.getObservableList(
-      context,
-      query,
-      itemMap,
-      apolloQueryOptions
-    ) as IObservable<Array<Proposal<TProposalState>>>
+    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as IObservable<
+      Array<Proposal<TProposalState>>
+    >
   }
 
   public static calculateId(address: Address, proposalCount: number) {
@@ -347,11 +350,10 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
 
     let name = item.scheme.name
     if (!name) {
-
       try {
         name = context.getContractInfo(item.scheme.address).name
       } catch (err) {
-        if (err.message.match(/no contract/ig)) {
+        if (err.message.match(/no contract/gi)) {
           // continue
         } else {
           throw err
@@ -373,7 +375,6 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     let upstakeNeededToPreBoost: BN = new BN(0)
     const PRECISION = Math.pow(2, 40)
     if (stage === IProposalStage.Queued) {
-
       upstakeNeededToPreBoost = new BN(threshold * PRECISION)
         .mul(stakesAgainst)
         .div(new BN(PRECISION))
@@ -384,7 +385,8 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     // note that the number can be negative!
     let downStakeNeededToQueue: BN = new BN(0)
     if (stage === IProposalStage.PreBoosted) {
-      downStakeNeededToQueue = stakesFor.mul(new BN(PRECISION))
+      downStakeNeededToQueue = stakesFor
+        .mul(new BN(PRECISION))
         .div(new BN(threshold * PRECISION))
         .sub(stakesAgainst)
     }
@@ -469,7 +471,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       winningOutcome: IProposalOutcome[item.winningOutcome] as any
     }
   }
-  private static _baseFragment: DocumentNode | undefined
+  private static baseFragmentField: DocumentNode | undefined
 
   public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<TProposalState>
 
@@ -483,9 +485,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
   }
 
   public stake(outcome: IProposalOutcome, amount: BN): Operation<Stake> {
-
     const mapReceipt = (receipt: ITransactionReceipt) => {
-
       const [event, args] = getEventAndArgs(receipt, 'Stake', 'Proposal.stake')
 
       return new Stake(this.context, {
@@ -521,9 +521,9 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       }
 
       // staker has approved the token spend
-      const allowance = new BN(await stakingToken.contract().allowance(
-        defaultAccount, votingMachine.address
-      ))
+      const allowance = new BN(
+        await stakingToken.contract().allowance(defaultAccount, votingMachine.address)
+      )
       if (allowance.lt(amountBN)) {
         return new Error(
           `Staker has insufficient allowance to stake ${amount.toString()}
@@ -545,7 +545,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       contract: await this.votingMachine(),
       method: 'stake',
       args: [
-        this.id,  // proposalId
+        this.id, // proposalId
         outcome, // a value between 0 to and the proposal number of choices.
         amount.toString() // the amount of tokens to stake
       ]
@@ -560,14 +560,24 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     return toIOperationObservable(observable)
   }
 
-  public votes(options: IVoteQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Vote[]> {
-    if (!options.where) { options.where = {} }
+  public votes(
+    options: IVoteQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Vote[]> {
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.proposal = this.id
     return Vote.search(this.context, options, apolloQueryOptions)
   }
 
-  public stakes(options: IStakeQueryOptions = {}, apolloQueryOptions: IApolloQueryOptions = {}): Observable<Stake[]> {
-    if (!options.where) { options.where = {} }
+  public stakes(
+    options: IStakeQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<Stake[]> {
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.proposal = this.id
     return Stake.search(this.context, options, apolloQueryOptions)
   }
@@ -576,13 +586,14 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     options: IRewardQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Reward[]> {
-    if (!options.where) { options.where = {} }
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.proposal = this.id
     return Reward.search(this.context, options, apolloQueryOptions)
   }
 
   public execute(): Operation<undefined> {
-
     const mapReceipt = (receipt: ITransactionReceipt) => undefined
 
     const errorHandler = async (err: Error) => {
@@ -603,7 +614,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     const createTransaction = async (): Promise<ITransaction> => ({
       contract: await this.votingMachine(),
       method: 'execute',
-      args: [ this.id ]
+      args: [this.id]
     })
 
     const observable = from(createTransaction()).pipe(
@@ -616,7 +627,6 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
   }
 
   public vote(outcome: IProposalOutcome, amount: number = 0): Operation<Vote | null> {
-
     const mapReceipt = (receipt: ITransactionReceipt) => {
       try {
         const [event, args] = getEventAndArgs(receipt, 'VoteProposal', 'Proposal.vote')
@@ -660,7 +670,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       contract: await this.votingMachine(),
       method: 'vote',
       args: [
-        this.id,  // proposalId
+        this.id, // proposalId
         outcome, // a value between 0 to and the proposal number of choices.
         amount.toString(), // amount of reputation to vote with . if _amount == 0 it will use all voter reputation.
         NULL_ADDRESS
@@ -675,5 +685,4 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
 
     return toIOperationObservable(observable)
   }
-
 }

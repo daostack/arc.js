@@ -1,19 +1,19 @@
 import BN from 'bn.js'
 import { BigNumber } from 'ethers/utils'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { first } from 'rxjs/operators'
 import {
-  Arc,
-  IApolloQueryOptions,
-  createGraphQlQuery,
-  isAddress,
-  Entity,
   Address,
+  Arc,
+  createGraphQlQuery,
+  Entity,
   Hash,
-  ICommonQueryOptions
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  isAddress
 } from './index'
-import { DocumentNode } from 'graphql'
 
 export interface ITokenState {
   id: Address
@@ -26,11 +26,11 @@ export interface ITokenState {
 
 export interface ITokenQueryOptions extends ICommonQueryOptions {
   where?: {
-    address?: Address
-    name?: string
-    owner?: Address
-    symbol?: string
-    [key: string]: any
+    address?: Address;
+    name?: string;
+    owner?: Address;
+    symbol?: string;
+    [key: string]: any;
   }
 }
 
@@ -51,29 +51,14 @@ export interface IAllowance {
 }
 
 export class Token extends Entity<ITokenState> {
-
-  public address: string
-
-  constructor(context: Arc, idOrOpts: string|ITokenState) {
-    super(context, idOrOpts)
-    if (typeof idOrOpts === 'string') {
-      isAddress(idOrOpts)
-      this.address = idOrOpts
-      this.id = idOrOpts
-    } else {
-      isAddress(idOrOpts.address)
-      this.address = idOrOpts.address
-      this.id = idOrOpts.address
-      this.setState(idOrOpts)
-    }
-  }
-
   public static search(
     context: Arc,
     options: ITokenQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Token[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) {
+      options.where = {}
+    }
     let where = ''
     for (const key of Object.keys(options.where)) {
       if (options[key] === undefined) {
@@ -99,7 +84,7 @@ export class Token extends Entity<ITokenState> {
     return context.getObservableList(
       context,
       query,
-      (context: Arc, r: any, query: DocumentNode) => new Token(context, r.id),
+      (arc: Arc, r: any, queryDoc: DocumentNode) => new Token(arc, r.id),
       apolloQueryOptions
     ) as Observable<Token[]>
   }
@@ -118,6 +103,22 @@ export class Token extends Entity<ITokenState> {
     }
   }
 
+  public address: string
+
+  constructor(context: Arc, idOrOpts: string | ITokenState) {
+    super(context, idOrOpts)
+    if (typeof idOrOpts === 'string') {
+      isAddress(idOrOpts)
+      this.address = idOrOpts
+      this.id = idOrOpts
+    } else {
+      isAddress(idOrOpts.address)
+      this.address = idOrOpts.address
+      this.id = idOrOpts.address
+      this.setState(idOrOpts)
+    }
+  }
+
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITokenState> {
     const query = gql`query tokenState {
       token(id: "${this.address.toLowerCase()}") {
@@ -131,7 +132,12 @@ export class Token extends Entity<ITokenState> {
       }
     }`
 
-    return  this.context.getObservableObject(this.context,query, Token.itemMap, apolloQueryOptions) as Observable<ITokenState>
+    return this.context.getObservableObject(
+      this.context,
+      query,
+      Token.itemMap,
+      apolloQueryOptions
+    ) as Observable<ITokenState>
   }
 
   public contract() {
@@ -144,7 +150,9 @@ export class Token extends Entity<ITokenState> {
         // check if there is actually a contract deployed there
         const code = await this.context.web3.getCode(this.address)
         if (code === '0x') {
-          return new Error(`Cannot get balanceOf(): there is no contract at this address ${this.address}`)
+          return new Error(
+            `Cannot get balanceOf(): there is no contract at this address ${this.address}`
+          )
         }
       }
       return err
@@ -171,22 +179,24 @@ export class Token extends Entity<ITokenState> {
           contract.removeListener(toFilter, onTransferTo)
           contract.removeListener(fromFilter, onTransferFrom)
         }
-        const subscribe = () => contract.balanceOf(owner)
-          .then((balance: BigNumber) => {
-            if (!balance) {
-              observer.error(`balanceOf ${owner} returned null`)
-            }
-            observer.next(new BN(balance.toString()))
-            contract.on(toFilter, onTransferTo)
-            contract.on(fromFilter, onTransferFrom)
-          })
-          .catch(async (err: Error) => {
-            if (err.message.match(/connection not open/g)) {
-              observer.error(await errHandler(err))
-            } else {
-              observer.error(await errHandler(err))
-            }
-          })
+        const subscribe = () =>
+          contract
+            .balanceOf(owner)
+            .then((balance: BigNumber) => {
+              if (!balance) {
+                observer.error(`balanceOf ${owner} returned null`)
+              }
+              observer.next(new BN(balance.toString()))
+              contract.on(toFilter, onTransferTo)
+              contract.on(fromFilter, onTransferFrom)
+            })
+            .catch(async (err: Error) => {
+              if (err.message.match(/connection not open/g)) {
+                observer.error(await errHandler(err))
+              } else {
+                observer.error(await errHandler(err))
+              }
+            })
         await subscribe()
         return () => unsubscribe()
       } catch (e) {
@@ -209,7 +219,8 @@ export class Token extends Entity<ITokenState> {
         })
       }
 
-      contract.allowance(owner, spender)
+      contract
+        .allowance(owner, spender)
         .then((balance: BigNumber) => {
           if (!balance) {
             observer.error(`balanceOf ${owner} returned null`)
@@ -217,7 +228,9 @@ export class Token extends Entity<ITokenState> {
           observer.next(new BN(balance.toString()))
           contract.on(filter, onApproval)
         })
-        .catch((err: Error) => { observer.error(err)})
+        .catch((err: Error) => {
+          observer.error(err)
+        })
       return () => {
         contract.removeListener(filter, onApproval)
       }
@@ -228,7 +241,7 @@ export class Token extends Entity<ITokenState> {
     return this.context.sendTransaction({
       contract: this.contract(),
       method: 'mint',
-      args: [ beneficiary, amount.toString() ]
+      args: [beneficiary, amount.toString()]
     })
   }
 
@@ -236,7 +249,7 @@ export class Token extends Entity<ITokenState> {
     return this.context.sendTransaction({
       contract: this.contract(),
       method: 'transfer',
-      args: [ beneficiary, amount.toString() ]
+      args: [beneficiary, amount.toString()]
     })
   }
 
@@ -244,7 +257,7 @@ export class Token extends Entity<ITokenState> {
     return this.context.sendTransaction({
       contract: this.contract(),
       method: 'approve',
-      args: [ spender, amount.toString() ]
+      args: [spender, amount.toString()]
     })
   }
 }

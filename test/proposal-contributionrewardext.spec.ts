@@ -43,7 +43,6 @@ describe('ContributionReward Ext', () => {
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
       plugin: contributionRewardExtState.address,
-      proposalType: "ContributionRewardExt",
       //TODO: proposer?
       proposer: ''
     }).send()

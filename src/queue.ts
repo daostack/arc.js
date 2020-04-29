@@ -1,23 +1,23 @@
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
+  Address,
+  AnyPlugin,
   Arc,
-  IApolloQueryOptions,
-  DAO,
   createGraphQlQuery,
-  isAddress,
-  realMathToNumber,
+  DAO,
   Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
   IEntityRef,
+  IPluginState,
+  isAddress,
   Plugin,
   Plugins,
-  AnyPlugin,
-  Address,
-  ICommonQueryOptions,
-  IPluginState
+  realMathToNumber
 } from './index'
-import { DocumentNode } from 'graphql'
 
 export interface IQueueState {
   dao: IEntityRef<DAO>
@@ -30,36 +30,22 @@ export interface IQueueState {
 
 export interface IQueueQueryOptions extends ICommonQueryOptions {
   where?: {
-    dao?: Address,
-    votingMachine?: Address
-    plugin?: Address
-    [key: string]: any
+    dao?: Address;
+    votingMachine?: Address;
+    plugin?: Address;
+    [key: string]: any;
   }
 }
 
 export class Queue extends Entity<IQueueState> {
-
-  constructor(
-    context: Arc,
-    idOrOpts: string|IQueueState,
-    public dao: DAO
-  ) {
-    super(context, idOrOpts)
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts as IQueueState)
-    }
-  }
-
   public static search(
     context: Arc,
     options: IQueueQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Queue[]> {
-    if (!options.where) { options.where = {} }
+    if (!options.where) {
+      options.where = {}
+    }
     let where = ''
 
     for (const key of Object.keys(options.where)) {
@@ -93,9 +79,12 @@ export class Queue extends Entity<IQueueState> {
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (context: Arc, item: any, query: DocumentNode) => new Queue(context, item.id, new DAO(context, item.dao.id))
+    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) =>
+      new Queue(arc, item.id, new DAO(arc, item.dao.id))
 
-    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<Queue[]>
+    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+      Queue[]
+    >
   }
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IQueueState {
@@ -104,10 +93,14 @@ export class Queue extends Entity<IQueueState> {
     }
     const threshold = realMathToNumber(new BN(item.threshold))
 
-    const pluginState: IPluginState = Plugins[item.scheme.name].itemMap(context, item.scheme, query)
+    const pluginState: IPluginState = Plugins[item.scheme.name].itemMap(
+      context,
+      item.scheme,
+      query
+    )
 
-    if(!pluginState) {
-      throw new Error("Queue's plugin state is null")
+    if (!pluginState) {
+      throw new Error('Queue\'s plugin state is null')
     }
 
     const plugin = new Plugins[item.scheme.name](context, pluginState)
@@ -125,6 +118,17 @@ export class Queue extends Entity<IQueueState> {
       },
       threshold,
       votingMachine: item.votingMachine
+    }
+  }
+
+  constructor(context: Arc, idOrOpts: string | IQueueState, public dao: DAO) {
+    super(context, idOrOpts)
+    this.context = context
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts as IQueueState)
     }
   }
 
@@ -146,6 +150,11 @@ export class Queue extends Entity<IQueueState> {
       ${Plugin.baseFragment}
     `
 
-    return this.context.getObservableObject(this.context, query, Queue.itemMap, apolloQueryOptions) as Observable<IQueueState>
+    return this.context.getObservableObject(
+      this.context,
+      query,
+      Queue.itemMap,
+      apolloQueryOptions
+    ) as Observable<IQueueState>
   }
 }

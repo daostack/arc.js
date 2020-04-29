@@ -74,4 +74,8 @@ export type ProposalCreateOptions =
 
 export type AnyProposal = Proposal<IProposalState>
 export type AnyPlugin = Plugin<IPluginState>
-export type AnyProposalPlugin = ProposalPlugin<IPluginState, IProposalState, IProposalBaseCreateOptions>
+export type AnyProposalPlugin = ProposalPlugin<
+  IPluginState,
+  IProposalState,
+  IProposalBaseCreateOptions
+>

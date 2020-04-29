@@ -36,8 +36,7 @@ describe('Event', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       plugin: getTestScheme("ContributionReward"),
-      title: 'a-title',
-      proposalType: "ContributionReward"
+      title: 'a-title'
     }
 
     const proposal = await createCRProposal(arc, options)

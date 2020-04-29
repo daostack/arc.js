@@ -9,7 +9,9 @@ import {
   ContributionRewardProposal,
   AnyProposal,
   IProposalCreateOptionsCR,
-  ContributionReward
+  ContributionReward,
+  IContributionRewardProposalState,
+  IExecutionState
   } from '../src'
 
 import BN from 'bn.js'
@@ -169,8 +171,7 @@ describe('Proposal', () => {
       periodLength: 0,
       periods: 1,
       reputationReward: toWei('10'),
-      plugin: getTestScheme("ContributionReward"),
-      proposalType: "ContributionReward"
+      plugin: getTestScheme("ContributionReward")
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -185,6 +186,18 @@ describe('Proposal', () => {
   it('Check queued proposal state is correct', async () => {
 
     const proposal = preBoostedProposal
+
+    //make sure proposal is indexed
+    const proposalStates: IContributionRewardProposalState[] = []
+
+    proposal.state({}).pipe(first()).subscribe((result: IContributionRewardProposalState) => {
+      if(result) {
+        proposalStates.push(result)
+      }
+    })
+
+    await waitUntilTrue(() => proposalStates.length > 0)
+
     const pState = await proposal.fetchState()
     const plugin = pState.plugin.entity as ContributionReward
     expect(proposal).toBeInstanceOf(Proposal)
@@ -201,48 +214,47 @@ describe('Proposal', () => {
 
     //TODO: This comparison one makes the heap run out of memory, probably because of entityRef stringifying
     
-    // expect(pState).toMatchObject({
-    //     boostedAt: 0,
-    //     description: '',
-    //     descriptionHash: '0x000000000000000000000000000000000000000000000000000000000000efgh',
-    //     // downStakeNeededToQueue: new BN(0),
-    //     executedAt: 0,
-    //     executionState: IExecutionState.None,
-    //     genesisProtocolParams: {
-    //       activationTime: 0,
-    //       boostedVotePeriodLimit: 600,
-    //       daoBountyConst: 10,
-    //       limitExponentValue: 172,
-    //       minimumDaoBounty: new BN('100000000000000000000'),
-    //       preBoostedVotePeriodLimit: 600,
-    //       proposingRepReward: new BN('5000000000000000000'),
-    //       queuedVotePeriodLimit: 1800,
-    //       queuedVoteRequiredPercentage: 50,
-    //       quietEndingPeriod: 300,
-    //       thresholdConst: 2,
-    //       votersReputationLossRatio: 1
-    //     },
-    //     proposer: '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1',
-    //     quietEndingPeriodBeganAt: 0,
-    //     resolvedAt: 0,
-    //     // stage: IProposalStage.Queued,
-    //     title: '',
-    //     url: '',
-    //     winningOutcome: IProposalOutcome.Fail
-    // })
-
     expect(pState).toMatchObject({
-        beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
-        periodLength: 0,
-        periods: 1
+        boostedAt: 0,
+        description: '',
+        descriptionHash: '0x000000000000000000000000000000000000000000000000000000000000efgh',
+        // downStakeNeededToQueue: new BN(0),
+        executedAt: 0,
+        executionState: IExecutionState.None,
+        genesisProtocolParams: {
+          activationTime: 0,
+          boostedVotePeriodLimit: 600,
+          daoBountyConst: 10,
+          limitExponentValue: 172,
+          minimumDaoBounty: new BN('100000000000000000000'),
+          preBoostedVotePeriodLimit: 600,
+          proposingRepReward: new BN('5000000000000000000'),
+          queuedVotePeriodLimit: 1800,
+          queuedVoteRequiredPercentage: 50,
+          quietEndingPeriod: 300,
+          thresholdConst: 2,
+          votersReputationLossRatio: 1
+        },
+        proposer: '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1',
+        quietEndingPeriodBeganAt: 0,
+        resolvedAt: 0,
+        // stage: IProposalStage.Queued,
+        title: '',
+        url: '',
+        winningOutcome: IProposalOutcome.Fail
     })
-    expect(pState.plugin.entity.coreState).toMatchObject({
-        canDelegateCall: false,
-        canManageGlobalConstraints: false,
-        canRegisterPlugins: false,
-        dao: dao.id,
-        name: 'ContributionReward'
-    })
+
+    expect(pState.beneficiary).toEqual('0xffcf8fdee72ac11b5c542428b35eef5769c409f0')
+    expect(pState.periodLength).toEqual(0)
+    expect(pState.periods).toEqual(1)
+
+    const pluginState = await pState.plugin.entity.fetchState()
+
+    expect(pluginState.canDelegateCall).toEqual(false)
+    expect(pluginState.canManageGlobalConstraints).toEqual(false)
+    expect(pluginState.canRegisterPlugins).toEqual(false)
+    expect(pluginState.dao.id).toEqual(dao.id)
+    expect(pluginState.name).toEqual('ContributionReward')
 
     if(!plugin.coreState) throw new Error("Plugin coreState is not defined")
 

@@ -1,6 +1,12 @@
 import { defaultDataIdFromObject, InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient, ApolloQueryResult } from 'apollo-client'
-import { ApolloLink, FetchResult, Observable as ZenObservable, split, DocumentNode } from 'apollo-link'
+import {
+  ApolloLink,
+  DocumentNode,
+  FetchResult,
+  Observable as ZenObservable,
+  split
+} from 'apollo-link'
 import { onError } from 'apollo-link-error'
 import { HttpLink } from 'apollo-link-http'
 import { RetryLink } from 'apollo-link-retry'
@@ -8,14 +14,14 @@ import { WebSocketLink } from 'apollo-link-ws'
 import { getMainDefinition } from 'apollo-utilities'
 import gql from 'graphql-tag'
 import fetch from 'isomorphic-fetch'
-import WebSocket from 'isomorphic-ws';
+import WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
 import { catchError, filter, first, map } from 'rxjs/operators'
-import { Logger, zenToRxjsObservable, Arc } from '../index'
+import { Arc, Logger, zenToRxjsObservable } from '../index'
 
 export interface IApolloQueryOptions {
-  fetchPolicy?: 'cache-first' | 'network-only' | 'cache-only' | 'no-cache' | 'standby',
-  subscribe?: true | false,
+  fetchPolicy?: 'cache-first' | 'network-only' | 'cache-only' | 'no-cache' | 'standby'
+  subscribe?: true | false
   fetchAllData?: true | false
 }
 
@@ -24,11 +30,11 @@ export interface IObservable<T> extends Observable<T> {
 }
 
 export function createApolloClient(options: {
-  graphqlHttpProvider: string,
-  graphqlWsProvider: string,
-  prefetchHook?: (query: any) => any, // a callback function that will be called for each query sent to the link
-  errHandler?: (event: any) => any,
-  retryLink?: any // apollo retry link instance
+  graphqlHttpProvider: string;
+  graphqlWsProvider: string;
+  prefetchHook?: (query: any) => any; // a callback function that will be called for each query sent to the link
+  errHandler?: (event: any) => any;
+  retryLink?: any; // apollo retry link instance
 }) {
   const httpLink = new HttpLink({
     credentials: 'same-origin',
@@ -62,7 +68,7 @@ export function createApolloClient(options: {
       attempts: {
         max: 5,
         // @ts-ignore
-        retryIf: (error, operation) =>  !!error
+        retryIf: (error, operation) => !!error
       },
       delay: {
         initial: 300,
@@ -88,11 +94,7 @@ export function createApolloClient(options: {
   }
   const errorHandlingLink = onError(options.errHandler)
 
-  const link = ApolloLink.from([
-    errorHandlingLink,
-    options.retryLink,
-    wsOrHttpLink
-  ])
+  const link = ApolloLink.from([errorHandlingLink, options.retryLink, wsOrHttpLink])
 
   const cache = new InMemoryCache({
     cacheRedirects: {
@@ -112,7 +114,7 @@ export function createApolloClient(options: {
         controllerScheme: (_, args, { getCacheKey }) => {
           return getCacheKey({ __typename: 'ControllerScheme', id: args.id })
         },
-        dao: (_, args, { getCacheKey }) =>  {
+        dao: (_, args, { getCacheKey }) => {
           return getCacheKey({ __typename: 'DAO', id: args.id })
         },
         proposal: (_, args, { getCacheKey }) => {
@@ -131,10 +133,13 @@ export function createApolloClient(options: {
     },
     dataIdFromObject: (object) => {
       switch (object.__typename) {
-        case 'ProposalVote': return undefined
-        case 'ProposalStake': return undefined
+        case 'ProposalVote':
+          return undefined
+        case 'ProposalStake':
+          return undefined
         // case 'CompetitionVote': return undefined
-        default: return defaultDataIdFromObject(object) // fall back to default handling
+        default:
+          return defaultDataIdFromObject(object) // fall back to default handling
       }
     }
   })
@@ -158,16 +163,15 @@ export class GraphNodeObserver {
   public graphqlSubscribeToQueries?: boolean
 
   constructor(options: {
-    graphqlHttpProvider?: string
-    graphqlWsProvider?: string
-    graphqlSubscribeToQueries?: boolean
-    prefetchHook?: any
-    errHandler?: any
-    retryLink?: any
+    graphqlHttpProvider?: string;
+    graphqlWsProvider?: string;
+    graphqlSubscribeToQueries?: boolean;
+    prefetchHook?: any;
+    errHandler?: any;
+    retryLink?: any;
   }) {
-    this.graphqlSubscribeToQueries = (
+    this.graphqlSubscribeToQueries =
       options.graphqlSubscribeToQueries === undefined || options.graphqlSubscribeToQueries
-    )
     if (options.graphqlHttpProvider && options.graphqlWsProvider) {
       this.graphqlHttpProvider = options.graphqlHttpProvider as string
       this.graphqlWsProvider = options.graphqlWsProvider as string
@@ -185,13 +189,11 @@ export class GraphNodeObserver {
    * @param  apolloQueryOptions options to pass on to Apollo, cf ..
    * @return an Observable that will first yield the current result, and yields updates every time the data changes
    */
-  public getObservable(
-    query: any,
-    apolloQueryOptions: IApolloQueryOptions = {}
-  ) {
-
+  public getObservable(query: any, apolloQueryOptions: IApolloQueryOptions = {}) {
     if (!this.apolloClient) {
-      throw Error(`No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`)
+      throw Error(
+        `No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`
+      )
     }
 
     const apolloClient = this.apolloClient as ApolloClient<object>
@@ -221,21 +223,23 @@ export class GraphNodeObserver {
           subscriptionQuery = gql`
             subscription ${query}
           `
-
         }
         // send a subscription request to the server
-        const subscriptionObservable: ZenObservable<FetchResult<object[], Record<string, any>, Record<string, any>>>
-          = apolloClient.subscribe<object[]>({
+        const subscriptionObservable: ZenObservable<FetchResult<
+          object[],
+          Record<string, any>,
+          Record<string, any>
+        >> = apolloClient.subscribe<object[]>({
           fetchPolicy: 'cache-first',
           // fetchPolicy: 'network-only',
           query: subscriptionQuery
-         })
-         // subscribe to the results
+        })
+        // subscribe to the results
         subscriptionSubscription = subscriptionObservable.subscribe((next: any) => {
-            apolloClient.writeQuery({
-              data: next.data,
-              query
-            })
+          apolloClient.writeQuery({
+            data: next.data,
+            query
+          })
         })
       }
 
@@ -244,7 +248,8 @@ export class GraphNodeObserver {
           fetchPolicy: apolloQueryOptions.fetchPolicy,
           fetchResults: true,
           query
-        }))
+        })
+      )
         .pipe(
           filter((r: ApolloQueryResult<any>) => {
             return !r.loading
@@ -293,14 +298,16 @@ export class GraphNodeObserver {
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
-    const observable =  this.getObservable(query, apolloQueryOptions).pipe(
+    const observable = this.getObservable(query, apolloQueryOptions).pipe(
       map((r: ApolloQueryResult<any>) => {
         if (!r.data[entity]) {
           throw Error(`Could not find entity '${entity}' in ${Object.keys(r.data)}`)
         }
         return r.data[entity]
       }),
-      map((rs: object[]) => rs.map((item: Object) => itemMap(context, item, query)).filter((x) => x !== null))
+      map((rs: object[]) =>
+        rs.map((item: object) => itemMap(context, item, query)).filter((x) => x !== null)
+      )
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable
@@ -335,7 +342,9 @@ export class GraphNodeObserver {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
     return this.getObservable(query, apolloQueryOptions).pipe(
       map((r: ApolloQueryResult<object[]>) => {
-        if (!r.data[entity]) { throw Error(`Could not find ${entity} in ${r.data}`)}
+        if (!r.data[entity]) {
+          throw Error(`Could not find ${entity} in ${r.data}`)
+        }
         return r.data[entity]
       }),
       filter(filterFunc),
@@ -358,7 +367,7 @@ export class GraphNodeObserver {
         }
         return r.data[entity]
       }),
-      map((object: Object) => itemMap(context, object, query))
+      map((object: object) => itemMap(context, object, query))
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable
@@ -366,10 +375,11 @@ export class GraphNodeObserver {
 
   public sendQuery(query: any, apolloQueryOptions: IApolloQueryOptions = {}) {
     if (!this.apolloClient) {
-      throw Error(`No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`)
+      throw Error(
+        `No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`
+      )
     }
     const apolloClient = this.apolloClient as ApolloClient<object>
-    return apolloClient.query({...apolloQueryOptions, ...{query}})
+    return apolloClient.query({ ...apolloQueryOptions, ...{ query } })
   }
-
 }

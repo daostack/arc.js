@@ -45,7 +45,6 @@ describe('Proposal', () => {
       dao: dao.id,
       callData,
       value: 0,
-      proposalType: "GenericScheme",
       plugin: getTestScheme('GenericScheme')
     }).send()
 

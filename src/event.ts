@@ -1,14 +1,14 @@
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
+  Address,
   Arc,
-  IApolloQueryOptions,
   createGraphQlQuery,
   Entity,
-  Address,
+  IApolloQueryOptions,
   ICommonQueryOptions
 } from './index'
-import { DocumentNode } from 'graphql'
 
 export interface IEventState {
   id: string
@@ -16,22 +16,21 @@ export interface IEventState {
   proposal: string
   user: string
   type: string
-  data: {[key: string]: any}
+  data: { [key: string]: any }
   timestamp: string
 }
 
 export interface IEventQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string,
-    dao?: Address,
-    proposal?: string,
-    user?: Address
-    [key: string]: any
+    id?: string;
+    dao?: Address;
+    proposal?: string;
+    user?: Address;
+    [key: string]: any;
   }
 }
 
 export class Event extends Entity<IEventState> {
-
   public static fragments = {
     EventFields: gql`
       fragment EventFields on Event {
@@ -55,14 +54,12 @@ export class Event extends Entity<IEventState> {
     options: IEventQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Event[]> {
-
-    const itemMap = (context: Arc, item: any, query: DocumentNode) => {
-      const state = Event.itemMap(context, item, query)
-      return new Event(context, state)
+    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
+      const state = Event.itemMap(arc, item, queryDoc)
+      return new Event(arc, state)
     }
 
-    let query
-    query = gql`query EventSearch {
+    const query = gql`query EventSearch {
         events ${createGraphQlQuery(options)}
         {
           ...EventFields
@@ -71,17 +68,13 @@ export class Event extends Entity<IEventState> {
       ${Event.fragments.EventFields}
     `
 
-    return context.getObservableList(
-      context,
-      query,
-      itemMap,
-      apolloQueryOptions
-    ) as Observable<Event[]>
+    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+      Event[]
+    >
   }
 
-  public static itemMap(_context: Arc, item: any, query: DocumentNode): IEventState {
-
-    if(!item) {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IEventState {
+    if (!item) {
       throw Error(`Event ItemMap failed. Query: ${query.loc?.source.body}`)
     }
 
@@ -96,8 +89,7 @@ export class Event extends Entity<IEventState> {
     }
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable < IEventState > {
-
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IEventState> {
     const query = gql`
       query EventState {
         event (id: "${this.id}")

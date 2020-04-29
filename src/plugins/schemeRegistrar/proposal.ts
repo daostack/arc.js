@@ -1,18 +1,19 @@
-import { Observable } from 'rxjs'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
+import { Observable } from 'rxjs'
 import {
+  Address,
   Arc,
+  IApolloQueryOptions,
+  IProposalState,
+  Logger,
   Plugin,
-  SchemeRegistrar,
   Proposal,
   ProposalName,
-  IProposalState,
-  Address,
-  IApolloQueryOptions
+  SchemeRegistrar
 } from '../../index'
-import { DocumentNode } from 'graphql'
 
-export interface ISchemeRegistrarProposalState extends IProposalState { 
+export interface ISchemeRegistrarProposalState extends IProposalState {
   id: string
   schemeToRegister: Address
   schemeToRegisterPermission: string
@@ -23,12 +24,11 @@ export interface ISchemeRegistrarProposalState extends IProposalState {
 }
 
 export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalState> {
+  protected static fragmentField: { name: string; fragment: DocumentNode } | undefined
 
-  protected static _fragment: { name: string, fragment: DocumentNode } | undefined
-
-  public static get fragment () {
-    if(!this._fragment){
-      this._fragment = {
+  public static get fragment() {
+    if (!this.fragmentField) {
+      this.fragmentField = {
         name: 'SchemeRegistrarProposalFields',
         fragment: gql`
           fragment SchemeRegistrarProposalFields on Proposal {
@@ -46,17 +46,16 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       }
     }
 
-    return this._fragment
-  } 
+    return this.fragmentField
+  }
 
-  protected static itemMap (
+  protected static itemMap(
     context: Arc,
     item: any,
     query: DocumentNode
   ): ISchemeRegistrarProposalState | null {
-
     if (!item) {
-      console.log(`SchemeRegistrar Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`SchemeRegistrar Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 
@@ -64,21 +63,28 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
 
     if (item.schemeRegistrar.schemeToRegister) {
       // TODO: this is failing bc of https://github.com/daostack/subgraph/issues/224
-      if (item.dao.schemes.map((s: any) => s.address.toLowerCase())
-        .includes(item.schemeRegistrar.schemeToRegister.toLowerCase())) {
-        type = "SchemeRegistrarEdit"
+      if (
+        item.dao.schemes
+          .map((s: any) => s.address.toLowerCase())
+          .includes(item.schemeRegistrar.schemeToRegister.toLowerCase())
+      ) {
+        type = 'SchemeRegistrarEdit'
       } else {
-        type = "SchemeRegistrarAdd"
+        type = 'SchemeRegistrarAdd'
       }
     } else if (item.schemeRegistrar.schemeToRemove) {
-      type = "SchemeRegistrarRemove"
+      type = 'SchemeRegistrarRemove'
     } else {
-      throw Error(`Unknown proposal type: schemeRegistrar without a scheme to register or to remove`)
+      throw Error(
+        `Unknown proposal type: schemeRegistrar without a scheme to register or to remove`
+      )
     }
-    
+
     const schemeRegistrarState = SchemeRegistrar.itemMap(context, item.scheme, query)
 
-    if(!schemeRegistrarState) return null
+    if (!schemeRegistrarState) {
+      return null
+    }
 
     const schemeRegistrar = new SchemeRegistrar(context, schemeRegistrarState)
     const schemeRegistrarProposal = new SchemeRegistrarProposal(context, item.id)
@@ -91,8 +97,10 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       type
     )
 
-    if(!baseState) return null
-    
+    if (!baseState) {
+      return null
+    }
+
     return {
       ...baseState,
       decision: item.schemeRegistrar.decision,
@@ -121,7 +129,11 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       ${Plugin.baseFragment}
     `
 
-    return this.context.getObservableObject(this.context, query, SchemeRegistrarProposal.itemMap, apolloQueryOptions) as Observable<ISchemeRegistrarProposalState>
+    return this.context.getObservableObject(
+      this.context,
+      query,
+      SchemeRegistrarProposal.itemMap,
+      apolloQueryOptions
+    ) as Observable<ISchemeRegistrarProposalState>
   }
-
 }
