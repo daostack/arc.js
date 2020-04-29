@@ -1,10 +1,13 @@
+import { getAddress } from 'ethers/utils'
+import { getAddress } from 'ethers/utils'
 import { first } from 'rxjs/operators'
+import { IProposalCreateOptionsCR } from '../src'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import {  Reward, IRewardState } from '../src/reward'
-import { getTestDAO, newArc, toWei, createCRProposal, getTestScheme } from './utils'
-import { getAddress } from 'ethers/utils'
-import { IProposalCreateOptionsCR } from '../src'
+import {  IRewardState, Reward } from '../src/reward'
+import { IRewardState, Reward } from '../src/reward'
+import { createCRProposal, getTestDAO, getTestScheme, newArc, toWei } from './utils'
+import { getTestDAO, getTestScheme, newArc, toWei } from './utils'
 
 /**
  * Reward test
@@ -37,7 +40,7 @@ describe('Reward', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      plugin: getTestScheme("ContributionReward")
+      plugin: getTestScheme('ContributionReward')
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -48,7 +51,7 @@ describe('Reward', () => {
     result = await Reward.search(arc)
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(0)
-    
+
     // search does not care about case in the address
     result = await Reward.search(arc, { where: {beneficiary}})
         .pipe(first()).toPromise()

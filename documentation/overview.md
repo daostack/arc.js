@@ -1,6 +1,6 @@
 # Overview
 
-The main purpose of the `@daostack/client` package is to provide a helpful set of tools to interact with the DAOstack ecosystem.
+The main purpose of the `@daostack/arc.js` package is to provide a helpful set of tools to interact with the DAOstack ecosystem.
 
 In particular, the  library provides an interface to
  the [DAOstack contracts](https://github.com/daostack/arc)
@@ -11,16 +11,16 @@ and to the [DAOstack subgraph](https://github.com/daostack/subgraph) (an index o
 
 
 ```sh
-npm install @daostack/client
+npm install @daostack/arc.js
 ```
-The client package can be used as a dependency for developing a client application
+The arc.js package can be used as a dependency for developing a arc.js application
 (we are using it to build a [React application](https://github.com/daostack/alchemy) called [Alchemy](https://alchemy.daostack.io)),
 but it can also be used for writing nodejs scripts that interact with the contracts or for querying data from the subgraph.
 
 
 ## General structure
 
-The client library provides a number of Classes that represent a the DAOstack basic entities - these are the basic building blocks of a DAO.
+The arc.js library provides a number of Classes that represent a the DAOstack basic entities - these are the basic building blocks of a DAO.
 
 A  `DAO` has a number of `Member`, which are holders of reputation (from the `Reputation` contract) and can cast a `Vote` on a  `Proposal`.
 Proposals are always made in a `Scheme` - that determines the conditions and effects of executing a proposal, typically by ordering them in a  `Queue`.
@@ -38,7 +38,7 @@ The `Arc` object that holds the basic configuration (which services to connect t
 
 The current (at the time of writing) version of [Alchemy](https://alchemy.daostack.io) uses the following configuration:
 ```
-import { Arc } from '@daostack/client'
+import { Arc } from '@daostack/arc.js'
 
 const arc = new Arc({
   graphqlHttpProvider: "https://subgraph.daostack.io/subgraphs/name/v23",
@@ -60,7 +60,7 @@ await arc.fetchContractInfos()
 Note how we are passing to Arc all the information it needs to connect to the various services: the web3Provider represents a  connection to an Ethereum node,  websocket and http connections to the subgraph of The Graph;
 and a connection to an IPFS provider (which is used to as a data storage layer by DAOStack).
 
-Some of these configuration settings are optional: to use `@daostack/client` for creating and sending transactions to the blockchain, it is sufficient
+Some of these configuration settings are optional: to use `@daostack/arc.js` for creating and sending transactions to the blockchain, it is sufficient
 to provide the web3Provider;
 similarly, the `web3` and `ipfs` providers can be omitted when the library is only used for fetching data from the subgraph.
 
@@ -69,13 +69,13 @@ similarly, the `web3` and `ipfs` providers can be omitted when the library is on
 ### Proposals, Schemes, Votes, Stakes, Queues, etc
 
 
-All basic Entity classes in the client library implement a number of common functions.
+All basic Entity classes in the arc.js library implement a number of common functions.
 
 For example, all these classes implement a `search`  function as a class method, which can be used to search for those entities on the subgraph.
 To get all DAOs that are called `Foo`, you can do:
 
 ```
-import { DAO } from '@doastack/client'
+import { DAO } from '@doastack/arc.js'
 DAO.search(arc, {where: { name: "Foo" }})
 ```
 Note how the search function must be provided with an `Arc` instance, so it knows to which service to send the queries.
@@ -97,7 +97,7 @@ await proposal.vote(...).send()
 This call will register a vote by sending a transaction to the blockchain.
 Again, see below for more details.
 
-Because the proposal is created with only an `id`, the client will query the subgraph for additional information, such as the address of the contract that the vote needs to be sent to. To make the client usable without having subgraph service available, all Entities have a second way of being created:
+Because the proposal is created with only an `id`, the arc.js will query the subgraph for additional information, such as the address of the contract that the vote needs to be sent to. To make the arc.js usable without having subgraph service available, all Entities have a second way of being created:
 ```
 const proposal = new Proposal({
   id: '0x12455..',
@@ -170,7 +170,7 @@ const proposals = await observable.first() // returns a list of Proposal instanc
 
 ## Sending transactions
 
-One of the purposes of the client library is to make help with interactions with the DAOstack Ethereum contracts.
+One of the purposes of the arc.js library is to make help with interactions with the DAOstack Ethereum contracts.
 
 Here is how you create a proposal in a DAO  for a contribution reward for a
 

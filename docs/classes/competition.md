@@ -1,4 +1,4 @@
-[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [Competition](competition.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [Competition](competition.md)
 
 # Class: Competition
 
@@ -32,7 +32,7 @@
 
 \+ **new Competition**(`context`: [Arc](arc.md), `id`: string): *[Competition](competition.md)*
 
-*Defined in [src/schemes/competition.ts:437](https://github.com/daostack/client/blob/6c661ff/src/schemes/competition.ts#L437)*
+*Defined in [src/schemes/competition.ts:437](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L437)*
 
 **Parameters:**
 
@@ -49,7 +49,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/schemes/competition.ts:437](https://github.com/daostack/client/blob/6c661ff/src/schemes/competition.ts#L437)*
+*Defined in [src/schemes/competition.ts:437](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L437)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/schemes/competition.ts:436](https://github.com/daostack/client/blob/6c661ff/src/schemes/competition.ts#L436)*
+*Defined in [src/schemes/competition.ts:436](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L436)*
 
 ## Methods
 
@@ -65,7 +65,7 @@ ___
 
 ▸ **createSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹[CompetitionSuggestion](competitionsuggestion.md)›*
 
-*Defined in [src/schemes/competition.ts:444](https://github.com/daostack/client/blob/6c661ff/src/schemes/competition.ts#L444)*
+*Defined in [src/schemes/competition.ts:444](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L444)*
 
 **Parameters:**
 
@@ -87,7 +87,7 @@ ___
 
 ▸ **redeemSuggestion**(`suggestionId`: number): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [src/schemes/competition.ts:515](https://github.com/daostack/client/blob/6c661ff/src/schemes/competition.ts#L515)*
+*Defined in [src/schemes/competition.ts:515](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L515)*
 
 **Parameters:**
 
@@ -103,7 +103,7 @@ ___
 
 ▸ **suggestions**(`options`: [ICompetitionSuggestionQueryOptions](../interfaces/icompetitionsuggestionqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[CompetitionSuggestion](competitionsuggestion.md)[]›*
 
-*Defined in [src/schemes/competition.ts:527](https://github.com/daostack/client/blob/6c661ff/src/schemes/competition.ts#L527)*
+*Defined in [src/schemes/competition.ts:527](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L527)*
 
 **Parameters:**
 
@@ -120,7 +120,7 @@ ___
 
 ▸ **voteSuggestion**(`suggestionId`: number): *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-*Defined in [src/schemes/competition.ts:500](https://github.com/daostack/client/blob/6c661ff/src/schemes/competition.ts#L500)*
+*Defined in [src/schemes/competition.ts:500](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L500)*
 
 **Parameters:**
 
@@ -136,7 +136,7 @@ ___
 
 ▸ **votes**(`options`: [IVoteQueryOptions](../interfaces/ivotequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[CompetitionVote](competitionvote.md)[]›*
 
-*Defined in [src/schemes/competition.ts:536](https://github.com/daostack/client/blob/6c661ff/src/schemes/competition.ts#L536)*
+*Defined in [src/schemes/competition.ts:536](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L536)*
 
 **Parameters:**
 
@@ -153,7 +153,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Competition](competition.md)[]›*
 
-*Defined in [src/schemes/competition.ts:426](https://github.com/daostack/client/blob/6c661ff/src/schemes/competition.ts#L426)*
+*Defined in [src/schemes/competition.ts:426](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L426)*
 
 **Parameters:**
 
