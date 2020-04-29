@@ -12,6 +12,7 @@ import {
   Plugin,
   Proposal,
   toIOperationObservable,
+  transactionErrorHandler,
   transactionResultHandler
 } from '../index'
 
@@ -20,11 +21,6 @@ export abstract class ProposalPlugin<
   TProposalState extends IProposalState,
   TProposalCreateOptions extends IProposalBaseCreateOptions
 > extends Plugin<TPluginState> {
-  // TODO: do we need this method?
-
-  // protected abstract createProposalErrorHandler(
-  //   options: TProposalCreateOptions
-  // ): transactionErrorHandler
 
   public static search<
     TPluginState extends IPluginState,
@@ -50,7 +46,8 @@ export abstract class ProposalPlugin<
       try {
         const createTransaction = await this.createProposalTransaction(options)
         const map = this.createProposalTransactionMap(options)
-        const sendTransactionObservable = this.context.sendTransaction(createTransaction, map)
+        const errorHandler = this.createProposalErrorHandler(options)
+        const sendTransactionObservable = this.context.sendTransaction(createTransaction, map, errorHandler)
         const sub = sendTransactionObservable.subscribe(observer)
         return () => sub.unsubscribe()
       } catch (e) {
@@ -72,6 +69,10 @@ export abstract class ProposalPlugin<
     options.where.scheme = this.id
     return Proposal.search(this.context, options, apolloQueryOptions)
   }
+
+  protected abstract createProposalErrorHandler(
+    options: TProposalCreateOptions
+  ): transactionErrorHandler
 
   protected abstract async createProposalTransaction(
     options: TProposalCreateOptions

@@ -120,6 +120,7 @@ export class FundingRequest
 
   public createProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
     return async (err) => {
+      throw new Error(('my error'))
       throw err
       // console.log(options)
       // console.log(this)
