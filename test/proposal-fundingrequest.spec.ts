@@ -6,6 +6,7 @@ import {
   FundingRequestProposal,
   IProposalStage,
   IProposalState,
+  NULL_ADDRESS,
   Proposal
   } from '../src'
 import { BN,
@@ -31,6 +32,11 @@ describe('FundingRequest', () => {
 
     const fundingRequest = fundingRequests[0] as FundingRequest
     const fundingRequestState = await fundingRequest.fetchState()
+
+    expect(fundingRequestState.pluginParams).toMatchObject({
+      fundingToken: NULL_ADDRESS
+    })
+
     const dao = new DAO(arc, fundingRequestState.dao.id)
 
     const tx = await fundingRequest.createProposal({
@@ -56,6 +62,7 @@ describe('FundingRequest', () => {
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Queued
     })
+
     expect(lastState()).toMatchObject({
       alreadyRedeemedEthPeriods: 0,
       ethReward: toWei('300'),

@@ -4,13 +4,13 @@ import gql from 'graphql-tag'
 import {
   Address,
   Arc,
+  fromWei,
   FundingRequestProposal,
   getEventArgs,
   IFundingRequestProposalState,
   IGenesisProtocolParams,
   IPluginState,
   IProposalBaseCreateOptions,
-  IProposalCreateOptionsComp,
   ITransaction,
   ITransactionReceipt,
   mapGenesisProtocolParams,
@@ -19,6 +19,7 @@ import {
   transactionErrorHandler,
   transactionResultHandler
 } from '../../index'
+import { IJoinAndQuitState } from '../joinAndQuit'
 
 export interface IFundingRequestState extends IPluginState {
   pluginParams: {
@@ -118,26 +119,18 @@ export class FundingRequest
     }
   }
 
-  public createProposalErrorHandler(options: IProposalCreateOptionsComp): transactionErrorHandler {
+  public createProposalErrorHandler(options: IProposalCreateOptionsFundingRequest): transactionErrorHandler {
     return async (err) => {
-      throw new Error(('my error'))
+      if (err.message.match(/funding is not allowed yet/)) {
+        console.log(options)
+        const state = await this.fetchState()
+        const dao = state.dao.entity
+        const joinAndQuit = (await dao.plugin({where: {name: 'JoinAndQuit'}}))
+        const joinAndQuitState = await joinAndQuit.fetchState() as IJoinAndQuitState
+        console.log(`Funding goal: ${joinAndQuitState.pluginParams.fundingGoal.toString()}`)
+        console.log(`Funding goal: ${fromWei(joinAndQuitState.pluginParams.fundingGoal)}`)
+      }
       throw err
-      // console.log(options)
-      // console.log(this)
-      // const state = await this.fetchState()
-      // console.log(state)
-      // throw Error('THIS is my error')
-      // console.log('x')
-      // console.log(options)
-      // if (err.message.match(/startTime should be greater than proposing time/ig)) {
-      //   if (!this.context.web3) {
-      //     throw Error('Web3 provider not set')
-      //   }
-      //   return Error(`${err.message} - startTime is ${options.startTime}, current block time is ${await getBlockTime(this.context.web3)}`)
-      // } else {
-      //   const msg = `Error creating proposal: ${err.message}`
-      //   return Error(msg)
-      // }
     }
   }
 

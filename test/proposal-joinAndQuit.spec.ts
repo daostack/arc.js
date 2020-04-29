@@ -6,6 +6,7 @@ import {
   IProposalStage,
   JoinAndQuit,
   JoinAndQuitProposal,
+  NULL_ADDRESS,
   Proposal
   } from '../src'
 import {
@@ -39,6 +40,7 @@ describe('JoinAndQuit', () => {
     const joinAndQuitState = await joinAndQuit.fetchState()
 
     expect(joinAndQuitState.pluginParams).toMatchObject({
+      fundingToken: NULL_ADDRESS,
       fundingGoal: new BN('330000000000000000000000000000000000000000'),
       minFeeToJoin: new BN(100),
       memberReputation: new BN(100)

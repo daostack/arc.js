@@ -18,7 +18,7 @@ import {
   transactionErrorHandler,
   transactionResultHandler
 } from '../../index'
-import { secondSinceEpochToDate } from '../../utils'
+import { NULL_ADDRESS, secondSinceEpochToDate } from '../../utils'
 
 export interface IJoinAndQuitState extends IPluginState {
   pluginParams: {
@@ -110,6 +110,14 @@ export class JoinAndQuit
       throw new Error(`Missing argument "plugin" for JoinAndQuit in Proposal.create()`)
     }
 
+    const state = this.fetchState()
+    let opts
+    if ((await state).pluginParams.fundingToken === NULL_ADDRESS) {
+      // if we have no funding token, we shoudl send the fee as ETH
+      opts = { value: options.fee.toNumber()}
+    } else  {
+      opts = {}
+    }
     return {
       contract: this.context.getContract(options.plugin),
       method: 'proposeToJoin',
@@ -117,9 +125,7 @@ export class JoinAndQuit
         options.descriptionHash,
         options.fee.toString()
       ],
-      opts: {
-        value: options.fee.toNumber()
-      }
+      opts
     }
   }
 
