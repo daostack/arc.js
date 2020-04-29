@@ -304,12 +304,7 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-<<<<<<< HEAD
-  public getABI(opts: { address?: Address, abiName?: string, version?: string }): any[] {
-
-=======
   public getABI(opts: { address?: Address; abiName?: string; version?: string }): any[] {
->>>>>>> architecture-change
     if (Object.values(opts).filter((value) => value !== undefined).length === 0) {
       throw Error('getABI needs at least one parameter passed')
     }

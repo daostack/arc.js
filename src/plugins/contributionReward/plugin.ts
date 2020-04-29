@@ -12,10 +12,7 @@ import {
   IProposalBaseCreateOptions,
   ITransaction,
   ITransactionReceipt,
-<<<<<<< HEAD
-=======
   Logger,
->>>>>>> architecture-change
   mapGenesisProtocolParams,
   NULL_ADDRESS,
   Plugin,
@@ -41,13 +38,6 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
   periods?: any
 }
 
-<<<<<<< HEAD
-export class ContributionReward extends ProposalPlugin<IContributionRewardState, IContributionRewardProposalState, IProposalCreateOptionsCR> {
-
-  public static get fragment() {
-    if (!this._fragment) {
-      this._fragment = {
-=======
 export class ContributionReward extends ProposalPlugin<
   IContributionRewardState,
   IContributionRewardProposalState,
@@ -56,7 +46,6 @@ export class ContributionReward extends ProposalPlugin<
   public static get fragment() {
     if (!this.fragmentField) {
       this.fragmentField = {
->>>>>>> architecture-change
         name: 'ContributionRewardParams',
         fragment: gql`
           fragment ContributionRewardParams on ControllerScheme {
@@ -94,11 +83,7 @@ export class ContributionReward extends ProposalPlugin<
     query: DocumentNode
   ): IContributionRewardState | null {
     if (!item) {
-<<<<<<< HEAD
-      console.log(`ContributionReward Plugin ItemMap failed. Query: ${query.loc && query.loc.source.body  }`)
-=======
       Logger.debug(`ContributionReward Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
->>>>>>> architecture-change
       return null
     }
 
@@ -115,11 +100,7 @@ export class ContributionReward extends ProposalPlugin<
     }
   }
 
-<<<<<<< HEAD
-  private static _fragment: { name: string, fragment: DocumentNode } | undefined
-=======
   private static fragmentField: { name: string; fragment: DocumentNode } | undefined
->>>>>>> architecture-change
 
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {
     options.descriptionHash = await this.context.saveIPFSData(options)
@@ -158,8 +139,4 @@ export class ContributionReward extends ProposalPlugin<
       return new ContributionRewardProposal(this.context, proposalId)
     }
   }
-<<<<<<< HEAD
-
-=======
->>>>>>> architecture-change
 }
