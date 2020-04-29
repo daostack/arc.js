@@ -2,95 +2,55 @@ import BN from 'bn.js'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
+import { IEntityRef } from '../../entity'
 import {
   Address,
   Arc,
+  DAO,
   FundingRequest,
   IApolloQueryOptions,
   IProposalState,
   Plugin,
-  Proposal
+  Proposal,
+  secondSinceEpochToDate
 } from '../../index'
 
 export interface IFundingRequestProposalState extends IProposalState {
+  dao: IEntityRef<DAO>
   beneficiary: Address
-  externalTokenReward: BN
-  externalToken: Address
-  ethReward: BN
-  nativeTokenReward: BN
-  periods: number
-  periodLength: number
-  reputationReward: BN
-  alreadyRedeemedNativeTokenPeriods: number
-  alreadyRedeemedReputationPeriods: number
-  alreadyRedeemedExternalTokenPeriods: number
-  alreadyRedeemedEthPeriods: number
-  reputationChangeLeft: BN | null
-  nativeTokenRewardLeft: BN | null
-  ethRewardLeft: BN | null
-  externalTokenRewardLeft: BN | null
+  amount: BN
+  executed: Date
+  amountRedeemed: BN
 }
 
 export class FundingRequestProposal extends Proposal<IFundingRequestProposalState> {
 
   public static get fragment() {
-    if (!this._fragment) {
-      this._fragment = {
+    if (!this.fragmentField) {
+      this.fragmentField = {
         name: 'FundingRequestProposalFields',
         fragment: gql`
           fragment FundingRequestProposalFields on Proposal {
             fundingRequest {
               id
+              # dao { id }
               beneficiary
-              ethReward
-              ethRewardLeft
-              externalToken
-              externalTokenReward
-              externalTokenRewardLeft
-              nativeTokenReward
-              nativeTokenRewardLeft
-              periods
-              periodLength
-              reputationReward
-              reputationChangeLeft
-              alreadyRedeemedReputationPeriods
-              alreadyRedeemedExternalTokenPeriods
-              alreadyRedeemedNativeTokenPeriods
-              alreadyRedeemedEthPeriods
+              amount
+              executed
+              amountRedeemed
             }
           }
         `
       }
     }
 
-    return this._fragment
+    return this.fragmentField
   }
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IFundingRequestProposalState | null {
 
     if (!item) { return null }
     console.log(item)
-    const ethRewardLeft = (
-      item.contributionReward.ethRewardLeft !== null &&
-      new BN(item.contributionReward.ethRewardLeft) ||
-      null
-    )
-    const externalTokenRewardLeft = (
-      item.contributionReward.externalTokenRewardLeft !== null &&
-      new BN(item.contributionReward.externalTokenRewardLeft) ||
-      null
-    )
-    const nativeTokenRewardLeft = (
-      item.contributionReward.nativeTokenRewardLeft !== null &&
-      new BN(item.contributionReward.nativeTokenRewardLeft) ||
-      null
-    )
-    const reputationChangeLeft = (
-      item.contributionReward.reputationChangeLeft !== null &&
-      new BN(item.contributionReward.reputationChangeLeft) ||
-      null
-    )
-
     const contributionRewardState = FundingRequest.itemMap(context, item.scheme, query)
 
     if (!contributionRewardState) { return null }
@@ -110,26 +70,19 @@ export class FundingRequestProposal extends Proposal<IFundingRequestProposalStat
 
     return {
       ...baseState,
-      alreadyRedeemedEthPeriods: Number(item.contributionReward.alreadyRedeemedEthPeriods),
-      alreadyRedeemedExternalTokenPeriods: Number(item.contributionReward.alreadyRedeemedExternalTokenPeriods),
-      alreadyRedeemedNativeTokenPeriods: Number(item.contributionReward.alreadyRedeemedNativeTokenPeriods),
-      alreadyRedeemedReputationPeriods: Number(item.contributionReward.alreadyRedeemedReputationPeriods),
-      beneficiary: item.contributionReward.beneficiary,
-      ethReward: new BN(item.contributionReward.ethReward),
-      ethRewardLeft,
-      externalToken: item.contributionReward.externalToken,
-      externalTokenReward: new BN(item.contributionReward.externalTokenReward),
-      externalTokenRewardLeft,
-      nativeTokenReward: new BN(item.contributionReward.nativeTokenReward),
-      nativeTokenRewardLeft,
-      periodLength: Number(item.contributionReward.periodLength),
-      periods: Number(item.contributionReward.periods),
-      reputationChangeLeft,
-      reputationReward: new BN(item.contributionReward.reputationReward)
+      dao: {
+        id: item.fundingRequest.dao.id,
+        entity: new DAO(context, item.fundingRequest.dao.id)
+      },
+      beneficiary: item.fundingRequest.beneficiary,
+      amount: new BN(item.fundingRequest.amount),
+      executed: secondSinceEpochToDate(item.fundingRequest.executed),
+      amountRedeemed: new BN(item.fundingRequest.amountRedeemed)
+
     }
   }
 
-  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+  private static fragmentField: { name: string, fragment: DocumentNode } | undefined
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<IFundingRequestProposalState> {
     const query = gql`query ProposalState

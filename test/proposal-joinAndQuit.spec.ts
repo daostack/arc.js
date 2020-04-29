@@ -2,15 +2,19 @@ import { first } from 'rxjs/operators'
 import {
   Arc,
   DAO,
+  IJoinAndQuitProposalState,
   IProposalStage,
-  IProposalState,
   JoinAndQuit,
   JoinAndQuitProposal,
   Proposal
   } from '../src'
-import { BN,
+import {
+  BN,
   // getTestScheme,
-  newArc, toWei, voteToPassProposal, waitUntilTrue } from './utils'
+  newArc,
+  voteToPassProposal,
+  waitUntilTrue
+ } from './utils'
 
 jest.setTimeout(60000)
 
@@ -27,7 +31,8 @@ describe('JoinAndQuit', () => {
   it('Create a proposal, accept it, execute it', async () => {
 
     const accounts = await arc.web3?.listAccounts() as any[]
-    arc.setAccount(accounts[9])
+    const proposedMember = accounts[9]
+    arc.setAccount(proposedMember)
     // we'll get a `JoinAndQuit` contract
     const joinAndQuits = await arc
       .plugins({where: {name: 'JoinAndQuit'}}).pipe(first()).toPromise()
@@ -36,11 +41,14 @@ describe('JoinAndQuit', () => {
     const joinAndQuitState = await joinAndQuit.fetchState()
     const dao = new DAO(arc, joinAndQuitState.dao.id)
 
+    // const contract = arc.getContract(joinAndQuitState.address)
+    const fee = new BN(1000)
+    const descriptionHash = 'hello'
+
     const tx = await joinAndQuit.createProposal({
-      fee: new BN(1000),
-      descriptionHash: 'hello',
+      fee,
+      descriptionHash,
       dao: dao.id,
-      proposalType: 'JoinAndQuit',
       plugin: joinAndQuitState.address
     }).send()
 
@@ -49,21 +57,19 @@ describe('JoinAndQuit', () => {
     const proposal = new JoinAndQuitProposal(arc, tx.result.id)
     expect(proposal).toBeInstanceOf(Proposal)
 
-    const states: IProposalState[] = []
-    const lastState = (): IProposalState => states[states.length - 1]
-    proposal.state({}).subscribe((pState: IProposalState) => {
+    const states: IJoinAndQuitProposalState[] = []
+    const lastState = (): IJoinAndQuitProposalState => states[states.length - 1]
+    proposal.state({}).subscribe((pState: IJoinAndQuitProposalState) => {
       states.push(pState)
     })
     await waitUntilTrue(() => !!lastState())
 
     expect(lastState()).toMatchObject({
-      stage: IProposalStage.Queued
-    })
-    expect(lastState()).toMatchObject({
-      alreadyRedeemedEthPeriods: 0,
-      ethReward: toWei('300'),
-      nativeTokenReward: toWei('1'),
-      reputationReward: toWei('10')
+      stage: IProposalStage.Queued,
+      proposedMember: proposedMember.toLowerCase(),
+      funding: fee,
+      executed: false,
+      reputationMinted: new BN(0)
     })
 
     // accept the proposal by voting the hell out of it
@@ -73,5 +79,6 @@ describe('JoinAndQuit', () => {
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Executed
     })
+    return
   })
 })

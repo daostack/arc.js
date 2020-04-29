@@ -1,3 +1,4 @@
+
 import {
   Contract,
   ContractReceipt as ITransactionReceipt,
@@ -136,7 +137,7 @@ export function sendTransaction<T>(
       gasLimit = tx.opts.gasLimit
     } else {
       try {
-        gasLimit = (await contract.estimate[tx.method](...tx.args)).toNumber()
+        gasLimit = (await contract.estimate[tx.method](...tx.args, tx.opts)).toNumber()
       } catch (error) {
         await catchHandler(error, tx, await signer.getAddress())
       }
@@ -154,8 +155,6 @@ export function sendTransaction<T>(
     observer.next({
       state: ITransactionState.Sending
     })
-    console.log(tx)
-    console.log(overrides)
 
     try {
       response = await contract[tx.method](...tx.args, overrides)
@@ -164,7 +163,6 @@ export function sendTransaction<T>(
       return
     }
 
-    console.log(response)
     if (!response.hash) {
       throw Error('Transaction hash is undefined')
     }

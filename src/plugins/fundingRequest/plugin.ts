@@ -38,8 +38,8 @@ export class FundingRequest
   extends ProposalPlugin<IFundingRequestState, IFundingRequestProposalState, IProposalCreateOptionsFundingRequest> {
 
   public static get fragment() {
-    if (!this._fragment) {
-      this._fragment = {
+    if (!this.fragmentField) {
+      this.fragmentField = {
         name: 'FundingRequestParams',
         fragment: gql` fragment FundingRequestParams on ControllerScheme {
           fundingRequestParams {
@@ -67,7 +67,7 @@ export class FundingRequest
       }
     }
 
-    return this._fragment
+    return this.fragmentField
   }
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IFundingRequestState | null {
@@ -90,7 +90,7 @@ export class FundingRequest
       }
   }
 
-  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+  private static fragmentField: { name: string, fragment: DocumentNode } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsFundingRequest): Promise<ITransaction> {
     options.descriptionHash = await this.context.saveIPFSData(options)

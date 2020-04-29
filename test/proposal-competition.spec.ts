@@ -518,7 +518,7 @@ describe('Competition Proposal', () => {
     let voteIsIndexed: boolean
     const { suggestions } = await createCompetition()
 
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     const beneficiary = address1
     const beforeBalanceBigNum = (await arc.web3.getBalance(beneficiary)).toString()
@@ -693,13 +693,8 @@ describe('Competition Proposal', () => {
     expect(scheme).toBeInstanceOf(CompetitionPlugin)
   })
 
-<<<<<<< HEAD
-  it('Can create a propsal using dao.createProposal', async () => {
-    if (!arc.web3) { throw Error('Web3 provider not set') }
-=======
   it('Can create a proposal using dao.createProposal', async () => {
-    if (!arc.web3) throw Error('Web3 provider not set')
->>>>>>> architecture-change
+    if (!arc.web3) { throw Error('Web3 provider not set') }
     const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 3)
     const competitionId = Plugin.calculateId({ daoAddress: dao.id, contractAddress: contributionRewardExtAddress })

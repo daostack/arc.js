@@ -36,8 +36,8 @@ export class JoinAndQuit
   extends ProposalPlugin<IJoinAndQuitState, IJoinAndQuitProposalState, IProposalCreateOptionsJoinAndQuit> {
 
   public static get fragment() {
-    if (!this._fragment) {
-      this._fragment = {
+    if (!this.fragmentField) {
+      this.fragmentField = {
         name: 'JoinAndQuitParams',
         fragment: gql` fragment JoinAndQuitParams on ControllerScheme {
           fundingRequestParams {
@@ -65,7 +65,7 @@ export class JoinAndQuit
       }
     }
 
-    return this._fragment
+    return this.fragmentField
   }
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IJoinAndQuitState | null {
@@ -88,10 +88,10 @@ export class JoinAndQuit
       }
   }
 
-  private static _fragment: { name: string, fragment: DocumentNode } | undefined
+  private static fragmentField: { name: string, fragment: DocumentNode } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsJoinAndQuit): Promise<ITransaction> {
-    options.descriptionHash = await this.context.saveIPFSData(options)
+    // options.descriptionHash = await this.context.saveIPFSData(options)
 
     if (options.plugin === undefined) {
       throw new Error(`Missing argument "plugin" for JoinAndQuit in Proposal.create()`)
@@ -102,7 +102,7 @@ export class JoinAndQuit
       method: 'proposeToJoin',
       args: [
         options.descriptionHash,
-        options.fee.toNumber()
+        options.fee.toString()
       ],
       opts: {
         value: options.fee.toNumber()
@@ -112,7 +112,7 @@ export class JoinAndQuit
 
   public createProposalTransactionMap(): transactionResultHandler<any> {
     return async (receipt: ITransactionReceipt) => {
-      const args = getEventArgs(receipt, 'NewContributionProposal', 'ContributionReward.createProposal')
+      const args = getEventArgs(receipt, 'JoinInProposal', 'JoinAndQuit.createProposal')
       const proposalId = args[1]
       return new JoinAndQuitProposal(this.context, proposalId)
     }
@@ -120,24 +120,7 @@ export class JoinAndQuit
 
   public createProposalErrorHandler(options: IProposalCreateOptionsJoinAndQuit): transactionErrorHandler {
     return async (err) => {
-      console.log(options.fee.toString())
       throw err
-      // console.log(options)
-      // console.log(this)
-      // const state = await this.fetchState()
-      // console.log(state)
-      // throw Error('THIS is my error')
-      // console.log('x')
-      // console.log(options)
-      // if (err.message.match(/startTime should be greater than proposing time/ig)) {
-      //   if (!this.context.web3) {
-      //     throw Error('Web3 provider not set')
-      //   }
-      //   return Error(`${err.message} - startTime is ${options.startTime}, current block time is ${await getBlockTime(this.context.web3)}`)
-      // } else {
-      //   const msg = `Error creating proposal: ${err.message}`
-      //   return Error(msg)
-      // }
     }
   }
 
