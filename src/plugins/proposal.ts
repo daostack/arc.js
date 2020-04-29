@@ -103,7 +103,6 @@ export interface IProposalBaseCreateOptions {
   tags?: string[]
   plugin?: Address
   url?: string
-  proposalType: ProposalName
 }
 
 export interface IProposalState {

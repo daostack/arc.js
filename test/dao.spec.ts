@@ -151,8 +151,7 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      plugin: getTestScheme("ContributionReward"),
-      proposalType: "ContributionReward"
+      plugin: getTestScheme("ContributionReward")
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -179,8 +178,7 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      plugin: getTestScheme("ContributionReward"),
-      proposalType: "ContributionReward"
+      plugin: getTestScheme("ContributionReward")
     }
 
     await createCRProposal(arc, options)

@@ -37,8 +37,7 @@ describe('Proposal execute()', () => {
       externalTokenReward: toWei('3'),
       nativeTokenReward: toWei('2'),
       reputationReward: toWei('1'),
-      plugin: pluginState.address,
-      proposalType: "ContributionReward"
+      plugin: pluginState.address
     }
 
     let proposalState: IProposalState

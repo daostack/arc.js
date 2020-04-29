@@ -25,6 +25,7 @@ export interface ISchemeRegistrarState extends IPluginState {
 }
 
 export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
+  proposalType: 'SchemeRegistrarAdd' | 'SchemeRegistrarEdit' | 'SchemeRegistrarRemove'
   parametersHash?: string
   permissions?: string
   schemeToRegister?: Address
@@ -165,7 +166,6 @@ export class SchemeRegistrar extends ProposalPlugin<
           args: [options.schemeToRegister, options.descriptionHash]
         }
     }
-    throw Error('For a schemeregistrar proposal, you must specifcy proposal.proposalType')
   }
 
   public createProposalTransactionMap(options: IProposalCreateOptionsSR) {

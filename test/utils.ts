@@ -164,7 +164,6 @@ export async function createAProposal(
     periods: 1,
     reputationReward: toWei('10'),
     plugin: getTestScheme("ContributionReward"),
-    proposalType: "ContributionReward",
     ...options
   }
 

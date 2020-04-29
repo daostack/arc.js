@@ -17,8 +17,7 @@ describe('Operation', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      plugin: getTestScheme("ContributionReward"),
-      proposalType: "ContributionReward"
+      plugin: getTestScheme("ContributionReward")
     }
 
     const plugin = new ContributionReward(arc, getTestScheme("ContributionReward"))

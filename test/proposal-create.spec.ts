@@ -38,8 +38,7 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      plugin: getTestScheme("ContributionReward"),
-      proposalType: "ContributionReward"
+      plugin: getTestScheme("ContributionReward")
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -91,7 +90,6 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       plugin: getTestScheme("ContributionReward"),
-      proposalType: "ContributionReward",
       title: 'A modest proposal',
       url: 'http://swift.org/modest'
     }
@@ -136,8 +134,7 @@ describe('Create a ContributionReward proposal', () => {
       nativeTokenReward: toWei('1'),
       plugin: getTestScheme("ContributionReward"),
       title: 'A modest proposal',
-      url: 'http://swift.org/modest',
-      proposalType: "ContributionReward"
+      url: 'http://swift.org/modest'
     }
 
     await expect(anotherDAO.createProposal(options).send()).rejects.toThrowError(
