@@ -26,17 +26,26 @@ describe('JoinAndQuit', () => {
     arc = await newArc()
   })
 
-  it('Create a proposal, accept it, execute it', async () => {
+  it('Create a proposal and check if it is indexed correctly', async () => {
 
     const accounts = await arc.web3?.listAccounts() as any[]
     const proposedMember = accounts[9]
     arc.setAccount(proposedMember)
-    // we'll get a `JoinAndQuit` contract
+
     const joinAndQuits = await arc
       .plugins({where: {name: 'JoinAndQuit'}}).pipe(first()).toPromise()
 
     const joinAndQuit = joinAndQuits[0] as JoinAndQuit
     const joinAndQuitState = await joinAndQuit.fetchState()
+
+    expect(joinAndQuitState.pluginParams).toMatchObject({
+      fundingGoal: new BN('330000000000000000000000000000000000000000'),
+      minFeeToJoin: new BN(100),
+      memberReputation: new BN(100)
+
+    })
+    expect(Object.prototype.toString.call(joinAndQuitState.pluginParams.fundingGoalDeadline)).toBe('[object Date]')
+
     const dao = new DAO(arc, joinAndQuitState.dao.id)
 
     // const contract = arc.getContract(joinAndQuitState.address)

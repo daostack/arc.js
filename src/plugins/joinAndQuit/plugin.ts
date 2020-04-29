@@ -18,13 +18,18 @@ import {
   transactionErrorHandler,
   transactionResultHandler
 } from '../../index'
+import { secondSinceEpochToDate } from '../../utils'
 
 export interface IJoinAndQuitState extends IPluginState {
   pluginParams: {
     votingMachine: Address
     voteParams: IGenesisProtocolParams
     fundingToken: Address
-  }
+    minFeeToJoin: BN
+    memberReputation: BN
+    fundingGoal: BN
+    fundingGoalDeadline: Date
+   }
 }
 
 export interface IProposalCreateOptionsJoinAndQuit extends IProposalBaseCreateOptions {
@@ -40,7 +45,7 @@ export class JoinAndQuit
       this.fragmentField = {
         name: 'JoinAndQuitParams',
         fragment: gql` fragment JoinAndQuitParams on ControllerScheme {
-          fundingRequestParams {
+          joinAndQuitParams {
             id
             votingMachine
             voteParams {
@@ -59,7 +64,11 @@ export class JoinAndQuit
               activationTime
               voteOnBehalf
             }
-            fundingToken
+            fundingToken,
+            minFeeToJoin,
+            memberReputation,
+            fundingGoal,
+            fundingGoalDeadLine
           }
         }`
       }
@@ -76,10 +85,14 @@ export class JoinAndQuit
 
     const baseState = Plugin.itemMapToBaseState(context, item)
 
-    const fundingRequestParams = item.fundingRequestParams && {
-      voteParams: mapGenesisProtocolParams(item.fundingRequestParams.voteParams),
-      votingMachine: item.fundingRequestParams.votingMachine,
-      fundingToken: item.fundingRequestParams.fundingToken
+    const fundingRequestParams = item.joinAndQuitParams && {
+      voteParams: mapGenesisProtocolParams(item.joinAndQuitParams.voteParams),
+      votingMachine: item.joinAndQuitParams.votingMachine,
+      fundingToken: item.joinAndQuitParams.fundingToken,
+      minFeeToJoin: new BN(item.joinAndQuitParams.minFeeToJoin),
+      memberReputation: new BN(item.joinAndQuitParams.memberReputation),
+      fundingGoal: new BN(item.joinAndQuitParams.fundingToken),
+      fundingGoalDeadline: secondSinceEpochToDate(item.joinAndQuitParams.fundingGoalDeadLine)
     }
 
     return {

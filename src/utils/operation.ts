@@ -133,7 +133,9 @@ export function sendTransaction<T>(
 
     let gasLimit: number = 0
 
-    if (tx.opts?.gasLimit) {
+    if (!tx.opts) { tx.opts = {}}
+
+    if (tx.opts.gasLimit) {
       gasLimit = tx.opts.gasLimit
     } else {
       try {

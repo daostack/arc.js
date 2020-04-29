@@ -26,7 +26,6 @@ describe('FundingRequest', () => {
 
   it('Create a proposal, accept it, execute it', async () => {
 
-    // we'll get a `FundingRequest` contract
     const fundingRequests = await arc
       .plugins({where: {name: 'FundingRequest'}}).pipe(first()).toPromise()
 
@@ -39,7 +38,6 @@ describe('FundingRequest', () => {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       descriptionHash: 'hello',
-      proposalType: 'FundingRequest',
       plugin: fundingRequestState.address
     }).send()
 
