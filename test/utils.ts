@@ -1,4 +1,6 @@
 import BN = require('bn.js')
+import { utils } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { IContractInfo, Proposal } from '../src'
@@ -8,8 +10,6 @@ import { IProposalOutcome } from '../src/proposal'
 import { Reputation } from '../src/reputation'
 import { LATEST_ARC_VERSION } from '../src/settings'
 import { Address } from '../src/types'
-import { JsonRpcProvider } from 'ethers/providers'
-import { utils } from 'ethers'
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
 export const graphqlHttpMetaProvider: string = 'http://127.0.0.1:8000/subgraphs'
@@ -43,11 +43,11 @@ export interface ITestAddresses {
     DAOToken: Address
     Reputation: Address
     Controller: Address
-    Schemes: {
+    Schemes: Array<{
       name: string
       alias: string
       address: Address
-    }[]
+    }>
   }
   queuedProposalId: string
   preBoostedProposalId: string
@@ -67,7 +67,7 @@ export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAdd
 
 export function getTestScheme(name: string): Address {
   const scheme = getTestAddresses().dao.Schemes.find(
-    scheme => scheme.name === name
+    (scheme) => scheme.name === name
   )
 
   if (!scheme) {
@@ -153,7 +153,7 @@ export async function createAProposal(
     periodLength: 0,
     periods: 1,
     reputationReward: toWei('10'),
-    scheme: getTestScheme("ContributionReward"),
+    scheme: getTestScheme('ContributionReward'),
     ...options
   }
 
@@ -170,7 +170,7 @@ export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const arc = await newArc()
   const addresses = getTestAddresses(version)
   const token = new Reputation(arc, addresses.organs.DemoReputation)
-  if (!arc.web3) throw new Error('Web3 provider not set')
+  if (!arc.web3) { throw new Error('Web3 provider not set') }
   const accounts = await arc.web3.listAccounts()
   await token.mint(accounts[1], new BN('99')).send()
 }
@@ -191,7 +191,7 @@ export async function waitUntilTrue(test: () => Promise<boolean> | boolean) {
 // Vote and vote and vote for proposal until it is accepted
 export async function voteToPassProposal(proposal: Proposal) {
   const arc = proposal.context
-  if (!arc.web3) throw new Error('Web3 provider not set')
+  if (!arc.web3) { throw new Error('Web3 provider not set') }
   const accounts = await arc.web3.listAccounts()
   // make sure the proposal is indexed
   await waitUntilTrue(async () => {
