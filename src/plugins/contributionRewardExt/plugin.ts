@@ -112,12 +112,10 @@ export class ContributionRewardExt extends ProposalPlugin<
 
     options.descriptionHash = await this.context.saveIPFSData(options)
 
-    if (options.plugin === undefined) {
-      throw new Error(`Missing argument "plugin" for ContributionRewardExt in Proposal.create()`)
-    }
+    const pluginId = options.plugin? options.plugin : this.id
 
     return {
-      contract: this.context.getContract(options.plugin),
+      contract: this.context.getContract(pluginId),
       method: 'proposeContributionReward',
       args: [
         options.descriptionHash || '',

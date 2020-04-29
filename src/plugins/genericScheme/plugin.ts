@@ -98,14 +98,13 @@ export class GenericScheme extends ProposalPlugin<
     if (options.value === undefined) {
       throw new Error(`Missing argument "value" for GenericScheme in Proposal.create()`)
     }
-    if (options.plugin === undefined) {
-      throw new Error(`Missing argument "plugin" for GenericScheme in Proposal.create()`)
-    }
+
+    const pluginId = options.plugin? options.plugin : this.id
 
     options.descriptionHash = await this.context.saveIPFSData(options)
 
     return {
-      contract: this.context.getContract(options.plugin),
+      contract: this.context.getContract(pluginId),
       method: 'proposeCall',
       args: [options.callData, options.value, options.descriptionHash]
     }

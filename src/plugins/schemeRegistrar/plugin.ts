@@ -129,13 +129,12 @@ export class SchemeRegistrar extends ProposalPlugin<
 
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {
     let msg: string
+
+    const pluginId = options.plugin? options.plugin : this.id
+
     switch (options.proposalType) {
       case 'SchemeRegistrarAdd':
       case 'SchemeRegistrarEdit':
-        if (options.plugin === undefined) {
-          msg = `Missing argument "plugin" for SchemeRegistrar in Proposal.create()`
-          throw Error(msg)
-        }
         if (options.parametersHash === undefined) {
           msg = `Missing argument "parametersHash" for SchemeRegistrar in Proposal.create()`
           throw Error(msg)
@@ -148,20 +147,16 @@ export class SchemeRegistrar extends ProposalPlugin<
         options.descriptionHash = await this.context.saveIPFSData(options)
 
         return {
-          contract: this.context.getContract(options.plugin),
+          contract: this.context.getContract(pluginId),
           method: 'proposeScheme',
           args: [options.schemeToRegister, options.permissions, options.descriptionHash]
         }
       case 'SchemeRegistrarRemove':
-        if (options.plugin === undefined) {
-          msg = `Missing argument "scheme" for SchemeRegistrar`
-          throw Error(msg)
-        }
 
         options.descriptionHash = await this.context.saveIPFSData(options)
 
         return {
-          contract: this.context.getContract(options.plugin),
+          contract: this.context.getContract(pluginId),
           method: 'proposeToRemoveScheme',
           args: [options.schemeToRegister, options.descriptionHash]
         }
