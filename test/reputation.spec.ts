@@ -1,9 +1,9 @@
 import BN from 'bn.js'
 import { first} from 'rxjs/operators'
+import { Address } from '../src/'
 import { Arc } from '../src/arc'
 import { Reputation } from '../src/reputation'
-import { Address } from '../src/'
-import { getTestAddresses, newArc, toWei, waitUntilTrue, ITestAddresses } from './utils'
+import { getTestAddresses, ITestAddresses, newArc, toWei, waitUntilTrue } from './utils'
 
 jest.setTimeout(20000)
 
@@ -21,7 +21,7 @@ describe('Reputation', () => {
     arc = await newArc()
     addresses = getTestAddresses()
     address = addresses.dao.Reputation
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     accounts = await arc.web3.listAccounts()
   })
 
@@ -35,7 +35,7 @@ describe('Reputation', () => {
     const reputation = new Reputation(arc, address)
     expect(reputation).toBeInstanceOf(Reputation)
     const state = await reputation.fetchState()
-    expect(Object.keys(state)).toEqual(['id','address', 'dao', 'totalSupply'])
+    expect(Object.keys(state)).toEqual(['id', 'address', 'dao', 'totalSupply'])
     const expected = {
        address: address.toLowerCase()
     }

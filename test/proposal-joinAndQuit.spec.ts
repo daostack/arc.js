@@ -30,7 +30,7 @@ describe('JoinAndQuit', () => {
   it('Create a proposal and check if it is indexed correctly', async () => {
 
     const accounts = await arc.web3?.listAccounts() as any[]
-    const proposedMember = accounts[9]
+    const proposedMember = accounts[8]
     arc.setAccount(proposedMember)
 
     const joinAndQuits = await arc
@@ -39,7 +39,6 @@ describe('JoinAndQuit', () => {
     const joinAndQuit = joinAndQuits[0] as JoinAndQuit
     const joinAndQuitState = await joinAndQuit.fetchState()
 
-    console.log(joinAndQuitState.pluginParams.fundingGoal.toString())
     expect(joinAndQuitState.pluginParams).toMatchObject({
       fundingToken: NULL_ADDRESS,
       fundingGoal: new BN(1000),
