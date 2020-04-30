@@ -39,18 +39,17 @@ describe('JoinAndQuit', () => {
     const joinAndQuit = joinAndQuits[0] as JoinAndQuit
     const joinAndQuitState = await joinAndQuit.fetchState()
 
+    console.log(joinAndQuitState.pluginParams.fundingGoal.toString())
     expect(joinAndQuitState.pluginParams).toMatchObject({
       fundingToken: NULL_ADDRESS,
-      fundingGoal: new BN('330000000000000000000000000000000000000000'),
+      fundingGoal: new BN(1000),
       minFeeToJoin: new BN(100),
-      memberReputation: new BN(100)
-
+      memberReputation: new BN(1000)
     })
     expect(Object.prototype.toString.call(joinAndQuitState.pluginParams.fundingGoalDeadline)).toBe('[object Date]')
 
     const dao = new DAO(arc, joinAndQuitState.dao.id)
 
-    // const contract = arc.getContract(joinAndQuitState.address)
     const fee = new BN(1000)
     const descriptionHash = 'hello'
 

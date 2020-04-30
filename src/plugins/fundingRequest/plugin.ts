@@ -113,7 +113,7 @@ export class FundingRequest
 
   public createProposalTransactionMap(): transactionResultHandler<any> {
     return async (receipt: ITransactionReceipt) => {
-      const args = getEventArgs(receipt, 'NewContributionProposal', 'ContributionReward.createProposal')
+      const args = getEventArgs(receipt, 'NewFundingProposal', 'FundingRequest.createProposal')
       const proposalId = args[1]
       return new FundingRequestProposal(this.context, proposalId)
     }
@@ -122,13 +122,11 @@ export class FundingRequest
   public createProposalErrorHandler(options: IProposalCreateOptionsFundingRequest): transactionErrorHandler {
     return async (err) => {
       if (err.message.match(/funding is not allowed yet/)) {
-        console.log(options)
         const state = await this.fetchState()
         const dao = state.dao.entity
         const joinAndQuit = (await dao.plugin({where: {name: 'JoinAndQuit'}}))
         const joinAndQuitState = await joinAndQuit.fetchState() as IJoinAndQuitState
-        console.log(`Funding goal: ${joinAndQuitState.pluginParams.fundingGoal.toString()}`)
-        console.log(`Funding goal: ${fromWei(joinAndQuitState.pluginParams.fundingGoal)}`)
+        return new Error(`${err.message}: funding goal: ${fromWei(joinAndQuitState.pluginParams.fundingGoal)}, deadline: ${joinAndQuitState.pluginParams.fundingGoalDeadline}`)
       }
       throw err
     }

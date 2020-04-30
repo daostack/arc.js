@@ -1,11 +1,11 @@
 import { first } from 'rxjs/operators'
 import {
   Arc,
-  DAO,
   FundingRequest,
   FundingRequestProposal,
   IProposalStage,
   IProposalState,
+  JoinAndQuit,
   NULL_ADDRESS,
   Proposal
   } from '../src'
@@ -25,9 +25,12 @@ describe('FundingRequest', () => {
     arc = await newArc()
   })
 
-  it('Create a proposal, accept it, execute it', async () => {
+  it('Create a proposal is not possible hwen funding gaol is not reached yet', async () => {
 
-    const fundingRequests = await arc
+    // get our test dao
+    const daos = await arc.daos({where: { name: 'Common test 2'}}).pipe(first()).toPromise()
+    const dao = daos[0]
+    const fundingRequests = await dao
       .plugins({where: {name: 'FundingRequest'}}).pipe(first()).toPromise()
 
     const fundingRequest = fundingRequests[0] as FundingRequest
@@ -37,44 +40,87 @@ describe('FundingRequest', () => {
       fundingToken: NULL_ADDRESS
     })
 
-    const dao = new DAO(arc, fundingRequestState.dao.id)
-
-    const tx = await fundingRequest.createProposal({
+    expect(fundingRequest.createProposal({
       amount: new BN(1000),
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       descriptionHash: 'hello',
       plugin: fundingRequestState.address
-    }).send()
+    }).send()).rejects.toThrow(/funding is not allowed yet/)
+  })
 
-    if (!tx.result) { throw new Error('Create proposal yielded no results') }
+  it.only('Create a proposal, accept it, execute it', async () => {
+      // get our test dao
+      const daos = await arc.daos({where: { name: 'Common test 1'}}).pipe(first()).toPromise()
+      const dao = daos[0]
 
-    const proposal = new FundingRequestProposal(arc, tx.result.id)
-    expect(proposal).toBeInstanceOf(Proposal)
+      const fundingRequest = await dao
+        .plugin({where: {name: 'FundingRequest'}}) as FundingRequest
+      const fundingRequestState = await fundingRequest.fetchState()
+      expect(fundingRequestState.pluginParams).toMatchObject({
+        fundingToken: NULL_ADDRESS
+      })
+      // transfer some money to this dao so that we are sure the funding goal is reached
+      const daoContract = await arc.getContract(dao.id)
+      const vaultAddress = await daoContract.vault()
+      // console.log(daoContract)
+      const sendTx = await arc.web3?.getSigner().sendTransaction({
+        to: vaultAddress,
+        value: '0x10000'
+      })
+      const receipt = await sendTx?.wait()
+      console.log(receipt)
+      // new dao balance
+      console.log(await arc.web3?.getBalance(vaultAddress))
+      console.log((await arc.web3?.getBalance('0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1')))
+      const balance = await arc.ethBalance(dao.id).pipe(first()).toPromise()
+      console.log(balance)
 
-    const states: IProposalState[] = []
-    const lastState = (): IProposalState => states[states.length - 1]
-    proposal.state({}).subscribe((pState: IProposalState) => {
-      states.push(pState)
-    })
-    await waitUntilTrue(() => !!lastState())
+      const joinAndQuit = await dao
+        .plugin({where: {name: 'JoinAndQuit'}}) as JoinAndQuit
+      const joinAndQuitState = await joinAndQuit.fetchState()
+      const joinAndQuitContract = arc.getContract(joinAndQuitState.address)
+      await (await joinAndQuitContract.setFundingGoalReachedFlag()).wait()
 
-    expect(lastState()).toMatchObject({
-      stage: IProposalStage.Queued
-    })
+      const tx = await fundingRequest.createProposal({
+        amount: new BN(1000),
+        beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+        dao: dao.id,
+        descriptionHash: 'hello',
+        plugin: fundingRequestState.address
+      }).send()
 
-    expect(lastState()).toMatchObject({
-      alreadyRedeemedEthPeriods: 0,
-      ethReward: toWei('300'),
-      nativeTokenReward: toWei('1'),
-      reputationReward: toWei('10')
-    })
+      if (!tx.result) { throw new Error('Create proposal yielded no results') }
+      console.log(`CREATED Proposal`)
+
+      const proposal = new FundingRequestProposal(arc, tx.result.id)
+      expect(proposal).toBeInstanceOf(Proposal)
+
+      const states: IProposalState[] = []
+      const lastState = (): IProposalState => states[states.length - 1]
+      proposal.state({}).subscribe((pState: IProposalState) => {
+        console.log(pState)
+        states.push(pState)
+      })
+      await waitUntilTrue(() => !!lastState())
+
+      expect(lastState()).toMatchObject({
+        stage: IProposalStage.Queued
+      })
+
+      expect(lastState()).toMatchObject({
+        alreadyRedeemedEthPeriods: 0,
+        ethReward: toWei('300'),
+        nativeTokenReward: toWei('1'),
+        reputationReward: toWei('10')
+      })
 
     // accept the proposal by voting the hell out of it
-    await voteToPassProposal(proposal)
+      return
+      await voteToPassProposal(proposal)
 
-    await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
-    expect(lastState()).toMatchObject({
+      await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
+      expect(lastState()).toMatchObject({
       stage: IProposalStage.Executed
     })
   })

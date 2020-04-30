@@ -68,7 +68,7 @@ export class JoinAndQuit
             minFeeToJoin,
             memberReputation,
             fundingGoal,
-            fundingGoalDeadLine
+            fundingGoalDeadline
           }
         }`
       }
@@ -91,8 +91,8 @@ export class JoinAndQuit
       fundingToken: item.joinAndQuitParams.fundingToken,
       minFeeToJoin: new BN(item.joinAndQuitParams.minFeeToJoin),
       memberReputation: new BN(item.joinAndQuitParams.memberReputation),
-      fundingGoal: new BN(item.joinAndQuitParams.fundingToken),
-      fundingGoalDeadline: secondSinceEpochToDate(item.joinAndQuitParams.fundingGoalDeadLine)
+      fundingGoal: new BN(item.joinAndQuitParams.fundingGoal),
+      fundingGoalDeadline: secondSinceEpochToDate(item.joinAndQuitParams.fundingGoalDeadline)
     }
 
     return {

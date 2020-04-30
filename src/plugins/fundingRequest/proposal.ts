@@ -33,7 +33,7 @@ export class FundingRequestProposal extends Proposal<IFundingRequestProposalStat
           fragment FundingRequestProposalFields on Proposal {
             fundingRequest {
               id
-              # dao { id }
+              dao { id }
               beneficiary
               amount
               executed
@@ -50,20 +50,19 @@ export class FundingRequestProposal extends Proposal<IFundingRequestProposalStat
   public static itemMap(context: Arc, item: any, query: DocumentNode): IFundingRequestProposalState | null {
 
     if (!item) { return null }
-    console.log(item)
-    const contributionRewardState = FundingRequest.itemMap(context, item.scheme, query)
+    const fundingRequestState = FundingRequest.itemMap(context, item.scheme, query)
 
-    if (!contributionRewardState) { return null }
+    if (!fundingRequestState) { return null }
 
-    const contributionReward = new FundingRequest(context, contributionRewardState)
-    const contributionRewardProposal = new FundingRequestProposal(context, item.id)
+    const fundingRequest = new FundingRequest(context, fundingRequestState)
+    const fundingRequestProposal = new FundingRequestProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
       context,
       item,
-      contributionReward,
-      contributionRewardProposal,
-      'ContributionReward'
+      fundingRequest,
+      fundingRequestProposal,
+      'FundingRequest'
     )
 
     if (baseState == null) { return null }
@@ -78,7 +77,6 @@ export class FundingRequestProposal extends Proposal<IFundingRequestProposalStat
       amount: new BN(item.fundingRequest.amount),
       executed: secondSinceEpochToDate(item.fundingRequest.executed),
       amountRedeemed: new BN(item.fundingRequest.amountRedeemed)
-
     }
   }
 
