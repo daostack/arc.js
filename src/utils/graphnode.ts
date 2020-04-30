@@ -236,8 +236,6 @@ export class GraphNodeObserver {
         })
         // subscribe to the results
         subscriptionSubscription = subscriptionObservable.subscribe((next: any) => {
-          console.log('GT DATA!')
-          console.log(next.data)
           apolloClient.writeQuery({
             data: next.data,
             query
