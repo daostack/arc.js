@@ -1,13 +1,10 @@
 import { getAddress } from 'ethers/utils'
-import { getAddress } from 'ethers/utils'
 import { first } from 'rxjs/operators'
 import { IProposalCreateOptionsCR } from '../src'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import {  IRewardState, Reward } from '../src/reward'
 import { IRewardState, Reward } from '../src/reward'
 import { createCRProposal, getTestDAO, getTestScheme, newArc, toWei } from './utils'
-import { getTestDAO, getTestScheme, newArc, toWei } from './utils'
 
 /**
  * Reward test
