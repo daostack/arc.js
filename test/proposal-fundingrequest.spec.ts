@@ -49,7 +49,7 @@ describe('FundingRequest', () => {
     }).send()).rejects.toThrow(/funding is not allowed yet/)
   })
 
-  it.only('Create a proposal, accept it, execute it', async () => {
+  it('Create a proposal, accept it, execute it', async () => {
       // get our test dao
       const daos = await arc.daos({where: { name: 'Common test 1'}}).pipe(first()).toPromise()
       const dao = daos[0]
@@ -68,13 +68,9 @@ describe('FundingRequest', () => {
         to: vaultAddress,
         value: '0x10000'
       })
-      const receipt = await sendTx?.wait()
-      console.log(receipt)
+      await sendTx?.wait()
       // new dao balance
-      console.log(await arc.web3?.getBalance(vaultAddress))
-      console.log((await arc.web3?.getBalance('0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1')))
-      const balance = await arc.ethBalance(dao.id).pipe(first()).toPromise()
-      console.log(balance)
+      // const balance = await arc.ethBalance(dao.id).pipe(first()).toPromise()
 
       const joinAndQuit = await dao
         .plugin({where: {name: 'JoinAndQuit'}}) as JoinAndQuit
@@ -91,7 +87,6 @@ describe('FundingRequest', () => {
       }).send()
 
       if (!tx.result) { throw new Error('Create proposal yielded no results') }
-      console.log(`CREATED Proposal`)
 
       const proposal = new FundingRequestProposal(arc, tx.result.id)
       expect(proposal).toBeInstanceOf(Proposal)

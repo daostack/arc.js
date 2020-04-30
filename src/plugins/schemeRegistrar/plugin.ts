@@ -130,7 +130,7 @@ export class SchemeRegistrar extends ProposalPlugin<
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {
     let msg: string
 
-    const pluginId = options.plugin? options.plugin : this.id
+    const pluginId = options.plugin ? options.plugin : this.id
 
     switch (options.proposalType) {
       case 'SchemeRegistrarAdd':

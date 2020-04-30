@@ -99,7 +99,7 @@ export class GenericScheme extends ProposalPlugin<
       throw new Error(`Missing argument "value" for GenericScheme in Proposal.create()`)
     }
 
-    const pluginId = options.plugin? options.plugin : this.id
+    const pluginId = options.plugin ? options.plugin : this.id
 
     options.descriptionHash = await this.context.saveIPFSData(options)
 
