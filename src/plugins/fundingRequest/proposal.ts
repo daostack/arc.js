@@ -49,7 +49,6 @@ export class FundingRequestProposal extends Proposal<IFundingRequestProposalStat
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IFundingRequestProposalState | null {
 
-    console.log(`tot tiem ${item}`)
     if (!item) { return null }
     const fundingRequestState = FundingRequest.itemMap(context, item.scheme, query)
 

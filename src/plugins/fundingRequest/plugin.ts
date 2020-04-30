@@ -73,7 +73,6 @@ export class FundingRequest
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IFundingRequestState | null {
     if (!item) {
-      console.log(`FundingRequest Plugin ItemMap failed. Query: ${query.loc?.source.body              }`)
       return null
     }
 

@@ -79,7 +79,6 @@ export class JoinAndQuit
 
   public static itemMap(context: Arc, item: any, query: DocumentNode): IJoinAndQuitState | null {
     if (!item) {
-      console.log(`JoinAndQuit Plugin ItemMap failed. Query: ${query.loc?.source.body              }`)
       return null
     }
 
