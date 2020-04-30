@@ -131,6 +131,9 @@ export class Arc extends GraphNodeObserver {
       this._web3 = signer.provider as JsonRpcProvider
       this.defaultAccount = signer
     } else {
+      if (provider["_metamask"]) {
+        provider.isMetaMask = true
+      }
       this._web3 = new EthersWeb3JsProvider(provider)
     }
 
@@ -167,7 +170,6 @@ export class Arc extends GraphNodeObserver {
         address
       }
     }`
-    // const result = await this.getObservableList(query, itemMap, apolloQueryOptions).pipe(first()).toPromise()
     const response = await this.sendQuery(query, apolloQueryOptions)
     const result = response.data.contractInfos as IContractInfo[]
     this.setContractInfos(result)
@@ -413,7 +415,7 @@ export class Arc extends GraphNodeObserver {
               observer.next(account)
               prevAccount = account
             }
-          })
+          }).catch(e => observer.error(e.error ? e.error : e))
         }, interval)
         return () => clearTimeout(timeout)
       }
