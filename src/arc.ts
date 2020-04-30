@@ -38,6 +38,7 @@ import {
   Token,
   transactionErrorHandler,
   transactionResultHandler,
+  Web3Client,
   Web3Provider
 } from './index'
 
@@ -83,6 +84,7 @@ export class Arc extends GraphNodeObserver {
    */
   public contractInfos: IContractInfo[]
 
+
   // accounts observed by ethBalance
   public observedAccounts: {
     [address: string]: {
@@ -92,6 +94,10 @@ export class Arc extends GraphNodeObserver {
       subscriptionsCount: number;
     };
   } = {}
+
+
+  private _web3Provider: Web3Provider = ''
+  private _web3: Web3Client | undefined = undefined
 
   constructor(options: {
     /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */

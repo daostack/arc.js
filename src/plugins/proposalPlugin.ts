@@ -70,9 +70,11 @@ export abstract class ProposalPlugin<
     return Proposal.search(this.context, options, apolloQueryOptions)
   }
 
-  protected abstract createProposalErrorHandler(
+  protected createProposalErrorHandler(
     options: TProposalCreateOptions
-  ): transactionErrorHandler
+  ): transactionErrorHandler {
+    return ((err) => err)
+  }
 
   protected abstract async createProposalTransaction(
     options: TProposalCreateOptions
