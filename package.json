@@ -1,6 +1,6 @@
 {
-  "name": "@daostack/client",
-  "version": "2.0.0-experimental.1",
+  "name": "@daostack/arc.js",
+  "version": "2.0.0-experimental.4",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",
@@ -14,7 +14,7 @@
   "author": "DAOstack <info@daostack.io>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/daostack/client"
+    "url": "https://github.com/daostack/arc.js"
   },
   "license": "MIT",
   "engines": {
@@ -72,8 +72,8 @@
     ]
   },
   "devDependencies": {
-    "@daostack/migration-experimental": "0.1.1-rc.11-v0",
-    "@daostack/test-env-experimental": "4.0.2",
+    "@daostack/migration-experimental": "0.1.1-rc.13-v1",
+    "@daostack/test-env-experimental": "4.0.4",
     "@types/graphql": "^14.2.2",
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/jest": "^24.0.15",

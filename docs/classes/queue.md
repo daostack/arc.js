@@ -1,4 +1,4 @@
-[@daostack/client - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [Queue](queue.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [Queue](queue.md)
 
 # Class: Queue
 
@@ -34,7 +34,7 @@
 
 \+ **new Queue**(`context`: [Arc](arc.md), `id`: string, `dao`: [DAO](dao.md)): *[Queue](queue.md)*
 
-*Defined in [src/queue.ts:89](https://github.com/daostack/client/blob/6c661ff/src/queue.ts#L89)*
+*Defined in [src/queue.ts:89](https://github.com/daostack/arc.js/blob/6c661ff/src/queue.ts#L89)*
 
 **Parameters:**
 
@@ -52,7 +52,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/queue.ts:92](https://github.com/daostack/client/blob/6c661ff/src/queue.ts#L92)*
+*Defined in [src/queue.ts:92](https://github.com/daostack/arc.js/blob/6c661ff/src/queue.ts#L92)*
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 • **dao**: *[DAO](dao.md)*
 
-*Defined in [src/queue.ts:94](https://github.com/daostack/client/blob/6c661ff/src/queue.ts#L94)*
+*Defined in [src/queue.ts:94](https://github.com/daostack/arc.js/blob/6c661ff/src/queue.ts#L94)*
 
 ___
 
@@ -68,7 +68,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/queue.ts:93](https://github.com/daostack/client/blob/6c661ff/src/queue.ts#L93)*
+*Defined in [src/queue.ts:93](https://github.com/daostack/arc.js/blob/6c661ff/src/queue.ts#L93)*
 
 ## Methods
 
@@ -76,7 +76,7 @@ ___
 
 ▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IQueueState](../interfaces/iqueuestate.md)›*
 
-*Defined in [src/queue.ts:99](https://github.com/daostack/client/blob/6c661ff/src/queue.ts#L99)*
+*Defined in [src/queue.ts:99](https://github.com/daostack/arc.js/blob/6c661ff/src/queue.ts#L99)*
 
 **Parameters:**
 
@@ -92,7 +92,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IQueueState](../interfaces/iqueuestate.md)›*
 
-*Defined in [src/queue.ts:103](https://github.com/daostack/client/blob/6c661ff/src/queue.ts#L103)*
+*Defined in [src/queue.ts:103](https://github.com/daostack/arc.js/blob/6c661ff/src/queue.ts#L103)*
 
 **Parameters:**
 
@@ -108,7 +108,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IQueueQueryOptions](../interfaces/iqueuequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Queue](queue.md)[]›*
 
-*Defined in [src/queue.ts:37](https://github.com/daostack/client/blob/6c661ff/src/queue.ts#L37)*
+*Defined in [src/queue.ts:37](https://github.com/daostack/arc.js/blob/6c661ff/src/queue.ts#L37)*
 
 Queue.search(context, options) searches for queue entities
 

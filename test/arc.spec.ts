@@ -17,6 +17,8 @@ import {
 } from './utils'
 
 import { BigNumber } from 'ethers/utils'
+import { Wallet } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
 
 jest.setTimeout(20000)
 
@@ -59,7 +61,11 @@ describe('Arc ', () => {
     await arc.approveForStaking(spender, amount).send()
 
     if (!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     arc.allowance(defaultAccount, spender).subscribe(
       (next: BN) => {
@@ -80,7 +86,11 @@ describe('Arc ', () => {
     await arc.approveForStaking(spender, amount).send()
 
     if (!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     arc.allowance(defaultAccount, spender).subscribe(
       (next: BN) => {
@@ -100,7 +110,11 @@ describe('Arc ', () => {
     await waitUntilTrue(() => addressesObserved.length > 0)
 
     if (!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     expect(addressesObserved[0]).toEqual(defaultAccount)
   })
@@ -213,5 +227,80 @@ describe('Arc ', () => {
     await arc.fetchContractInfos()
     const abi = arc.getABI({abiName: 'Redeemer', version: REDEEMER_CONTRACT_VERSIONS[0]})
     expect(abi[0].name).toEqual('redeem')
+  })
+
+  it('new Arc fails when a custom signer has no provider', async () => {
+    await expect(
+      newArc({
+        web3Provider: new Wallet(
+          '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52'
+        )
+      })
+    ).rejects.toThrow(
+      /Ethers Signer is missing a provider,/i
+    )
+  })
+
+  it('arc.getContract uses the custom signer', async () => {
+    const signer = new Wallet(
+      '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
+      new JsonRpcProvider('http://127.0.0.1:8545')
+    )
+
+    const arc = await newArc({
+      web3Provider: signer
+    })
+
+    const avatar = arc.getContract(getTestAddresses().dao.Avatar)
+
+    expect(await avatar.signer.getAddress())
+      .toEqual(await signer.getAddress())
+  })
+
+  it('arc.getAccount works with a custom signer', async () => {
+    const signer = new Wallet(
+      '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
+      new JsonRpcProvider('http://127.0.0.1:8545')
+    )
+
+    const arc = await newArc({
+      web3Provider: signer
+    })
+
+    expect(await arc.getAccount().pipe(first()).toPromise())
+      .toEqual(await signer.getAddress())
+  })
+
+  it('arc.setAccount fails when a custom signer is used', async () => {
+    const signer = new Wallet(
+      '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
+      new JsonRpcProvider('http://127.0.0.1:8545')
+    )
+
+    const arc = await newArc({
+      web3Provider: signer
+    })
+
+    const promisify = new Promise(() => {
+      arc.setAccount('0xADDRESS')
+    })
+
+    await expect(promisify).rejects.toThrow(
+      /The account cannot be set post-initialization when a custom Signer is being used/i
+    )
+  })
+
+  it('arc.getSigner returns the custom signer', async () => {
+    const signer = new Wallet(
+      '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
+      new JsonRpcProvider('http://127.0.0.1:8545')
+    )
+
+    const arc = await newArc({
+      web3Provider: signer
+    })
+
+    expect(await (await arc.getSigner().pipe(first()).toPromise()).getAddress())
+      .toEqual(await signer.getAddress())
   })
 })

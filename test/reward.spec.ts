@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers/utils'
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
@@ -48,7 +49,7 @@ describe('Reward', () => {
     result = await Reward.search(arc)
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(0)
-    
+
     // search does not care about case in the address
     result = await Reward.search(arc, { where: {beneficiary}})
         .pipe(first()).toPromise()

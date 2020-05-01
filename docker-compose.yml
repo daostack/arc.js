@@ -1,4 +1,4 @@
-# A composition of services that are needed to run the tests of the client
+# A composition of services that are needed to run the tests of the arc.js
 # This is for DEVELOPMENT, not production
 
 version: "3"
@@ -26,18 +26,18 @@ services:
       GRAPH_GRAPHQL_MAX_FIRST: '1000'
 
   ipfs:
-    image: daostack/test-env-experimental-ipfs:4.0.3
+    image: daostack/test-env-experimental-ipfs:4.0.4
     ports:
       - 5001:5001
 
   postgres:
-    image: daostack/test-env-experimental-postgres:4.0.3
+    image: daostack/test-env-experimental-postgres:4.0.4
     ports:
       - 9432:5432
     environment:
       POSTGRES_PASSWORD: 'letmein'
 
   ganache:
-    image: daostack/test-env-experimental-ganache:4.0.3
+    image: daostack/test-env-experimental-ganache:4.0.4
     ports:
       - 8545:8545
