@@ -12,6 +12,7 @@ import {
 import {
   BN,
   newArc,
+  voteToPassProposal,
   waitUntilTrue
  } from './utils'
 
@@ -30,8 +31,6 @@ describe('JoinAndQuit', () => {
   it('Create a proposal and check if it is indexed correctly', async () => {
 
     const accounts = await arc.web3?.listAccounts() as any[]
-    const proposedMember = accounts[8]
-    arc.setAccount(proposedMember)
 
     const joinAndQuits = await arc
       .plugins({where: {name: 'JoinAndQuit'}}).pipe(first()).toPromise()
@@ -51,14 +50,23 @@ describe('JoinAndQuit', () => {
 
     const fee = new BN(1000)
     const descriptionHash = 'hello'
+    const proposedMember = accounts[8]
+    arc.setAccount(proposedMember)
 
-    const tx = await joinAndQuit.createProposal({
-      fee,
-      descriptionHash,
-      dao: dao.id,
-      plugin: joinAndQuitState.address
-    }).send()
-
+    let tx
+    try {
+      tx = await joinAndQuit.createProposal({
+        fee,
+        descriptionHash,
+        dao: dao.id,
+        plugin: joinAndQuitState.address
+      }).send()
+    } catch (err) {
+      if (err.message.match(/already a member/)) {
+        throw Error(`This test is failing because is either already a member, or has a member request pending - please restart your docker container`)
+      }
+      throw err
+    }
     if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposal = new JoinAndQuitProposal(arc, tx.result.id)
@@ -80,11 +88,25 @@ describe('JoinAndQuit', () => {
     })
 
     // accept the proposal by voting the hell out of it
-    // await voteToPassProposal(proposal)
+    await voteToPassProposal(proposal)
 
-    // await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
-    // expect(lastState()).toMatchObject({
-    //   stage: IProposalStage.Executed
-    // })
+    await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
+    expect(lastState()).toMatchObject({
+      stage: IProposalStage.Executed
+    })
+
+    // now we can redeem the proposal
+    await proposal.redeem().send()
+
+    const member = await dao.member(proposedMember)
+
+    let memberState = await member.fetchState()
+    await waitUntilTrue(async () => {
+      memberState = await member.fetchState({ fetchPolicy: 'cache-only'}, true)
+      console.log(memberState)
+      return memberState.reputation.gt(new BN(0))
+    })
+    expect(memberState.reputation).toEqual(new BN(1000))
+
   })
 })

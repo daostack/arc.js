@@ -1,7 +1,8 @@
 import BN from 'bn.js'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
-import { Observable } from 'rxjs'
+import { from, Observable } from 'rxjs'
+import { concatMap } from 'rxjs/operators'
 import { IEntityRef } from '../../entity'
 import {
   Address,
@@ -9,9 +10,13 @@ import {
   DAO,
   IApolloQueryOptions,
   IProposalState,
+  ITransaction,
+  ITransactionReceipt,
   JoinAndQuit,
+  Operation,
   Plugin,
-  Proposal
+  Proposal,
+  toIOperationObservable
 } from '../../index'
 
 export interface IJoinAndQuitProposalState extends IProposalState {
@@ -100,4 +105,36 @@ export class JoinAndQuitProposal extends Proposal<IJoinAndQuitProposalState> {
       ) as Observable<IJoinAndQuitProposalState>
     return result
   }
+  /**
+   * Redeem this proposal after it was accepted
+   */
+  public redeem(): Operation<boolean> {
+    const mapReceipt = (receipt: ITransactionReceipt) => true
+
+    const createTransaction = async (): Promise<ITransaction> => {
+
+      const state = await this.fetchState()
+      const pluginState = await state.plugin.entity.fetchState()
+      const pluginAddress = pluginState.address
+      //  const pluginAddress = state.plugin.id
+      const contract = this.context.getContract(pluginAddress)
+      const method = 'redeemReputation'
+      const args: any[] = [this.id]
+
+      return {
+        contract,
+        method,
+        args
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt)
+      })
+    )
+
+    return toIOperationObservable(observable)
+  }
+
 }
