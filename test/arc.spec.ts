@@ -13,7 +13,8 @@ import {
   newArcWithoutEthereum,
   newArcWithoutGraphql,
   toWei,
-  waitUntilTrue
+  waitUntilTrue,
+  getTestAddresses
 } from './utils'
 
 import { BigNumber } from 'ethers/utils'

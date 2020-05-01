@@ -1,6 +1,6 @@
 import 'ethers/dist/shims'
 
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { Contract, Signer } from 'ethers'
 import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
@@ -40,7 +40,8 @@ import {
   Token,
   transactionErrorHandler,
   transactionResultHandler,
-  Web3Provider
+  Web3Provider,
+  Web3Client
 } from './index'
 
 export interface IArcOptions {
