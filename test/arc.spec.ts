@@ -1,24 +1,24 @@
 import BN from 'bn.js'
+import { Wallet } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
+import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
 import {
+  Address,
   Arc,
   Plugin,
-  REDEEMER_CONTRACT_VERSIONS,
-  Address
+  REDEEMER_CONTRACT_VERSIONS
 } from '../src/index'
 import {
   fromWei,
+  getTestAddresses,
   newArc,
   newArcWithoutEthereum,
   newArcWithoutGraphql,
   toWei,
   waitUntilTrue
 } from './utils'
-
-import { BigNumber } from 'ethers/utils'
-import { Wallet } from 'ethers'
-import { JsonRpcProvider } from 'ethers/providers'
 
 jest.setTimeout(20000)
 
@@ -60,9 +60,9 @@ describe('Arc ', () => {
     const amount = toWei(1001)
     await arc.approveForStaking(spender, amount).send()
 
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     let defaultAccount = await arc.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await arc.web3.getSigner().getAddress()
     }
@@ -85,9 +85,9 @@ describe('Arc ', () => {
     const amount = toWei(1001)
     await arc.approveForStaking(spender, amount).send()
 
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     let defaultAccount = await arc.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await arc.web3.getSigner().getAddress()
     }
@@ -109,9 +109,9 @@ describe('Arc ', () => {
     arc.getAccount().subscribe((address) => addressesObserved.push(address))
     await waitUntilTrue(() => addressesObserved.length > 0)
 
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     let defaultAccount = await arc.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await arc.web3.getSigner().getAddress()
     }
@@ -133,7 +133,7 @@ describe('Arc ', () => {
     const balances2: BN[] = []
     const balances3: BN[] = []
 
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     const address1 = await arc.web3.getSigner(1).getAddress()
     const address2 = await arc.web3.getSigner(2).getAddress()
@@ -148,7 +148,7 @@ describe('Arc ', () => {
     // send some ether to the test accounts
     async function sendEth(address: Address, amount: BN) {
 
-      if (!arc.web3) throw new Error('Web3 provider not set')
+      if (!arc.web3) { throw new Error('Web3 provider not set') }
 
       await arc.web3.getSigner().sendTransaction({
         gasPrice: 100000000000,
@@ -205,7 +205,7 @@ describe('Arc ', () => {
   it('arc.plugin() should work', async () => {
     const arc = await newArc()
     const pluginId = '0x124355'
-    const plugin = await arc.plugin(pluginId, "GenericScheme")
+    const plugin = await arc.plugin(pluginId, 'GenericScheme')
     expect(plugin).toBeInstanceOf(Plugin)
   })
 
