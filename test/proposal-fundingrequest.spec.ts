@@ -3,15 +3,18 @@ import {
   Arc,
   FundingRequest,
   FundingRequestProposal,
+  IFundingRequestProposalState,
   IProposalStage,
-  IProposalState,
   JoinAndQuit,
   NULL_ADDRESS,
   Proposal
   } from '../src'
-import { BN,
-  // getTestScheme,
-  newArc, toWei, voteToPassProposal, waitUntilTrue } from './utils'
+import {
+  BN,
+  newArc,
+  voteToPassProposal,
+  waitUntilTrue
+} from './utils'
 
 jest.setTimeout(60000)
 
@@ -63,7 +66,6 @@ describe('FundingRequest', () => {
       // transfer some money to this dao so that we are sure the funding goal is reached
       const daoContract = await arc.getContract(dao.id)
       const vaultAddress = await daoContract.vault()
-      // console.log(daoContract)
       const sendTx = await arc.web3?.getSigner().sendTransaction({
         to: vaultAddress,
         value: '0x10000'
@@ -77,10 +79,12 @@ describe('FundingRequest', () => {
       const joinAndQuitState = await joinAndQuit.fetchState()
       const joinAndQuitContract = arc.getContract(joinAndQuitState.address)
       await (await joinAndQuitContract.setFundingGoalReachedFlag()).wait()
+      const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
+      const amount = new BN(1000)
 
       const tx = await fundingRequest.createProposal({
-        amount: new BN(1000),
-        beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
+        amount,
+        beneficiary,
         dao: dao.id,
         descriptionHash: 'hello',
         plugin: fundingRequestState.address
@@ -91,32 +95,36 @@ describe('FundingRequest', () => {
       const proposal = new FundingRequestProposal(arc, tx.result.id)
       expect(proposal).toBeInstanceOf(Proposal)
 
-      const states: IProposalState[] = []
-      const lastState = (): IProposalState => states[states.length - 1]
-      proposal.state({}).subscribe((pState: IProposalState) => {
-        console.log(pState)
+      const states: IFundingRequestProposalState[] = []
+      const lastState = (): IFundingRequestProposalState => states[states.length - 1]
+      proposal.state({}).subscribe((pState: IFundingRequestProposalState) => {
         states.push(pState)
       })
       await waitUntilTrue(() => !!lastState())
 
-      expect(lastState()).toMatchObject({
+      let proposalState = lastState()
+      expect(proposalState).toMatchObject({
+        amount,
+        beneficiary,
+        amountRedeemed: new BN(0),
         stage: IProposalStage.Queued
       })
-
-      expect(lastState()).toMatchObject({
-        alreadyRedeemedEthPeriods: 0,
-        ethReward: toWei('300'),
-        nativeTokenReward: toWei('1'),
-        reputationReward: toWei('10')
-      })
-
-    // accept the proposal by voting the hell out of it
-      return
       await voteToPassProposal(proposal)
 
       await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
       expect(lastState()).toMatchObject({
-      stage: IProposalStage.Executed
-    })
+        stage: IProposalStage.Executed
+      })
+      // now we can redeem the proposal
+      await proposal.redeem().send()
+
+      await waitUntilTrue(async () => {
+        // for some reason that I cannot fathom, amountRedeemed is not updated from the subscripton
+        // so we fetch the state
+        proposalState  = await proposal.fetchState({fetchPolicy: 'no-cache'}, true)
+        return proposalState.amountRedeemed.gt(new BN(0))
+      })
+      expect(proposalState.amountRedeemed).toEqual(amount)
+
   })
 })
