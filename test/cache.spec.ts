@@ -85,14 +85,14 @@ describe('apolloClient caching checks', () => {
     let proposals = await Proposal.search(arc).pipe(first()).toPromise()
 
     proposals = proposals.filter((p) => {
-      
-      if(!p.coreState) throw new Error('Proposal coreState should not be null')
 
-      return p.coreState.votes.length > 1 && p.coreState.name === "ContributionReward"
+      if (!p.coreState) { throw new Error('Proposal coreState should not be null') }
+
+      return p.coreState.votes.length > 1 && p.coreState.name === 'ContributionReward'
     })
     const proposal = proposals[0]
 
-    if(!proposals[0].coreState) throw new Error('Proposal coreState should not be null')
+    if (!proposals[0].coreState) { throw new Error('Proposal coreState should not be null') }
 
     const vote = proposals[0].coreState.votes[0].entity
     const voteState = await vote.fetchState()
@@ -140,7 +140,7 @@ describe('apolloClient caching checks', () => {
 
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(0)
-    const daos = await arc.daos({}, { subscribe: false }).pipe(first()).toPromise()
+    const daos = await arc.daos({where: {reputationHoldersCount_gt: 1}}, { subscribe: false }).pipe(first()).toPromise()
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(1)
     const dao = daos[0]
