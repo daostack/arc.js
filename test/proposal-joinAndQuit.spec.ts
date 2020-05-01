@@ -50,7 +50,7 @@ describe('JoinAndQuit', () => {
 
     const fee = new BN(1000)
     const descriptionHash = 'hello'
-    const proposedMember = accounts[8]
+    const proposedMember = accounts[7].toLowerCase()
     arc.setAccount(proposedMember)
 
     let tx
@@ -81,7 +81,7 @@ describe('JoinAndQuit', () => {
 
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Queued,
-      proposedMember: proposedMember.toLowerCase(),
+      proposedMember,
       funding: fee,
       executed: false,
       reputationMinted: new BN(0)
