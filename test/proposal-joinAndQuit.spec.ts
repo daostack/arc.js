@@ -47,10 +47,11 @@ describe('JoinAndQuit', () => {
     expect(Object.prototype.toString.call(joinAndQuitState.pluginParams.fundingGoalDeadline)).toBe('[object Date]')
 
     const dao = new DAO(arc, joinAndQuitState.dao.id)
+    const daoState = await dao.fetchState()
 
     const fee = new BN(1000)
     const descriptionHash = 'hello'
-    const proposedMember = accounts[7].toLowerCase()
+    const proposedMember = accounts[daoState.memberCount + 1].toLowerCase()
     arc.setAccount(proposedMember)
 
     let tx
@@ -89,6 +90,7 @@ describe('JoinAndQuit', () => {
 
     // accept the proposal by voting the hell out of it
     await voteToPassProposal(proposal)
+    console.log('...')
 
     await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
     expect(lastState()).toMatchObject({
@@ -99,8 +101,10 @@ describe('JoinAndQuit', () => {
     await proposal.redeem().send()
 
     const member = await dao.member(proposedMember)
-
-    let memberState = await member.fetchState()
+    // member.state().subscribe((state) => {
+    //   memberState = state
+    // })
+    let memberState: any
     await waitUntilTrue(async () => {
       memberState = await member.fetchState({ fetchPolicy: 'cache-only'}, true)
       console.log(memberState)
