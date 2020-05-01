@@ -64,10 +64,12 @@ describe('FundingRequest', () => {
         fundingToken: NULL_ADDRESS
       })
       // transfer some money to this dao so that we are sure the funding goal is reached
-      const daoContract = await arc.getContract(dao.id)
-      const vaultAddress = await daoContract.vault()
+      // const daoContract = await arc.getContract(dao.id)
+      // const vaultAddress = await daoContract.vault()
+      const daoAddress = dao.id
       const sendTx = await arc.web3?.getSigner().sendTransaction({
-        to: vaultAddress,
+        to: daoAddress,
+        // to: vaultAddress,
         value: '0x10000'
       })
       await sendTx?.wait()

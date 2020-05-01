@@ -30,7 +30,7 @@ import {
 
 jest.setTimeout(40000)
 
-describe('Competition Proposal', () => {
+describe.skip('Competition Proposal', () => {
   let arc: Arc
   let dao: DAO
   let contributionRewardExt: ContributionRewardExt
