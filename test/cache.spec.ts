@@ -166,7 +166,7 @@ describe('apolloClient caching checks', () => {
     const memberState = await member.state({fetchPolicy: 'cache-only', subscribe: false}).pipe(first()).toPromise()
     expect(memberState.reputation.isZero()).toBeFalsy()
     // getting the member by address does not open a new subscription either
-    await dao.member(memberState.address).state({ subscribe: false}).pipe(first()).toPromise()
+    await dao.member(memberState).state({ subscribe: false}).pipe(first()).toPromise()
     expect(networkQueries.length).toEqual(2)
     expect(networkSubscriptions.length).toEqual(1)
 

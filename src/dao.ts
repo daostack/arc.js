@@ -31,7 +31,8 @@ import {
   Stake,
   toIOperationObservable,
   Token,
-  Vote
+  Vote,
+  IMemberState
 } from './index'
 
 export interface IDAOState {
@@ -226,31 +227,16 @@ export class DAO extends Entity<IDAOState> {
     return Member.search(this.context, options, apolloQueryOptions)
   }
 
-  public member(address: Address): Member {
-    if (this.coreState) {
-      // construct member with the reputationcontract address, if this is known
-      // so it can make use of the apollo cache
-      return new Member(this.context, {
-        id: address,
-        address,
-        contract: this.coreState.reputation.entity.address,
-        dao: {
-          id: this.id,
-          entity: new DAO(this.context, this.id)
-        },
-        reputation: this.coreState.reputationTotalSupply
-      })
-    } else {
-      return new Member(this.context, {
-        id: address,
-        address,
-        dao: {
-          id: this.id,
-          entity: new DAO(this.context, this.id)
-        },
-        reputation: new BN(0)
-      })
+  public member(idOrOpts: IMemberState | string): Member {
+    if(typeof idOrOpts !== 'string') {
+      if (this.coreState) {
+        // construct member with the reputationcontract address, if this is known
+        // so it can make use of the apollo cache
+        idOrOpts.reputation = this.coreState.reputationTotalSupply
+        idOrOpts.contract = this.coreState.reputation.entity.address
+      }
     }
+    return new Member(this.context, idOrOpts)
   }
 
   public proposals(

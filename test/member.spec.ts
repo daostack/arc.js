@@ -49,6 +49,7 @@ describe('Member', () => {
     const member = members[0]
     const memberState = await member.fetchState()
     expect(Number(memberState.reputation)).toBeGreaterThan(0)
+    expect(memberState.createdAt).not.toBeNaN()
     expect(memberState.dao.id).toBe(dao.id.toLowerCase())
   })
 
