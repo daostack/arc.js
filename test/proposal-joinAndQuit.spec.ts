@@ -51,7 +51,7 @@ describe('JoinAndQuit', () => {
 
     const fee = new BN(1000)
     const descriptionHash = 'hello'
-    const proposedMember = accounts[daoState.memberCount + 1].toLowerCase()
+    const proposedMember = accounts[daoState.memberCount + 2].toLowerCase()
     arc.setAccount(proposedMember)
 
     let tx
@@ -63,7 +63,7 @@ describe('JoinAndQuit', () => {
         plugin: joinAndQuitState.address
       }).send()
     } catch (err) {
-      if (err.message.match(/already a member/)) {
+      if (err.message.match(/already a member/) || err.message.match(/already a candidate/)) {
         throw Error(`This test is failing because is either already a member, or has a member request pending - please restart your docker container`)
       }
       throw err
@@ -90,26 +90,24 @@ describe('JoinAndQuit', () => {
 
     // accept the proposal by voting the hell out of it
     await voteToPassProposal(proposal)
-    console.log('...')
 
     await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Executed
     })
 
+    const memberCount = (await dao.fetchState({}, true)).memberCount
     // now we can redeem the proposal
     await proposal.redeem().send()
 
-    const member = await dao.member(proposedMember)
     // member.state().subscribe((state) => {
     //   memberState = state
     // })
-    let memberState: any
     await waitUntilTrue(async () => {
-      memberState = await member.fetchState({ fetchPolicy: 'cache-only'}, true)
-      console.log(memberState)
-      return memberState.reputation.gt(new BN(0))
+      return (await dao.fetchState({}, true)).memberCount > memberCount
     })
+    const member = await dao.member(proposedMember)
+    const memberState = await member.fetchState({ fetchPolicy: 'cache-only'}, true)
     expect(memberState.reputation).toEqual(new BN(1000))
 
   })
