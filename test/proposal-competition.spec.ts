@@ -769,7 +769,7 @@ describe('Competition Proposal', () => {
   })
 
   describe('competition.suggestions works', () => {
-    it('works', async () => {
+    it.skip('works', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { competition } = await createCompetition()
       // check if the competition has indeed some suggestions
@@ -814,8 +814,8 @@ describe('Competition Proposal', () => {
     })
   })
 
-  describe.only('competition.suggestions works also without resetting the cache', () => {
-    it.only('works', async () => {
+  describe('competition.suggestions works also without resetting the cache', () => {
+    it.skip('works', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { competition } =  await createCompetition()
       // check if the competition has indeed some suggestions
@@ -859,7 +859,7 @@ describe('Competition Proposal', () => {
   })
 
   describe('suggestion.votes works', () => {
-    it('works', async () => {
+    it.skip('works', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { suggestions } = await createCompetition()
   
