@@ -770,8 +770,8 @@ describe('Competition Proposal', () => {
     arc.setAccount(address0)
   })
 
-  describe('pre-fetching', () => {
-    it('competition.suggestions works', async () => {
+  describe('competition.suggestions works', () => {
+    it('run', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { competition } = await createCompetition()
       // check if the competition has indeed some suggestions
@@ -814,8 +814,10 @@ describe('Competition Proposal', () => {
       expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
   
     })
-  
-    it('competition.suggestions works also without resetting the cache', async () => {
+  })
+
+  describe('competition.suggestions works also without resetting the cache', () => {
+    it('works', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { competition } =  await createCompetition()
       // check if the competition has indeed some suggestions
@@ -857,8 +859,10 @@ describe('Competition Proposal', () => {
       expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
   
     })
+  })
 
-    it('suggestion.votes works', async () => {
+  describe('suggestion.votes works', () => {
+    it('works', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { suggestions } = await createCompetition()
   
