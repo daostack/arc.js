@@ -8,7 +8,6 @@ import {
   Competition,
   CompetitionSuggestion,
   CompetitionVote,
-  CONTRIBUTION_REWARD_DUMMY_VERSION,
   ContributionRewardExt,
   ContributionRewardExtProposal,
   DAO,
@@ -219,11 +218,8 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       }
 
       const state = await this.fetchState()
-      const pluginAddress = this.context.getContractInfoByName(
-        'ContributionReward',
-        CONTRIBUTION_REWARD_DUMMY_VERSION
-      ).address
-      const method = 'redeem'
+      const pluginAddress = (await state.plugin.entity.fetchState()).address
+      const method = 'redeemFromCRExt'
       const args = [pluginAddress, state.votingMachine, this.id, beneficiary]
 
       return {

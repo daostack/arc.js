@@ -28,7 +28,7 @@ import {
 import { BigNumber } from 'ethers/utils'
 import { inspect } from 'util'
 
-jest.setTimeout(40000)
+jest.setTimeout(10000)
 
 describe('Competition Proposal', () => {
   let arc: Arc
@@ -138,8 +138,6 @@ describe('Competition Proposal', () => {
     // accept the proposal by voting for et
     await voteToPassProposal(proposal)
     await proposal.redeemRewards().send()
-
-    //TODO: the scheme name in the following query is ContributionRewardExt, therefore thats the ItemMapper called.
 
     // find the competition
     const competitions = await Proposal.search(arc, { where: {id: proposal.id}}).pipe(first()).toPromise() as CompetitionProposal[]
@@ -555,9 +553,7 @@ describe('Competition Proposal', () => {
 
     const crExtBalanceBefore = await (await contributionRewardExt.ethBalance()).pipe(first()).toPromise()
 
-    try {
-      await suggestions[0].redeem().send()
-    } catch (e) { }
+    await suggestions[0].redeem().send()
 
     const afterBalanceBigNum = (await arc.web3.getBalance(beneficiary)).toString()
     let balanceAfter = new BN(afterBalanceBigNum)
@@ -790,15 +786,15 @@ describe('Competition Proposal', () => {
       // find a proposal in a scheme that has > 1 votes
       const { competition } = await createCompetition()
       // check if the competition has indeed some suggestions
-  
+
       const suggestions = await competition.suggestions().pipe(first()).toPromise()
       expect(suggestions.length).toBeGreaterThan(0)
-  
+
       // now we have our objects, reset the cache
       await (arc.apolloClient as any).cache.reset()
       expect((arc.apolloClient as any).cache.data.data).toEqual({})
-  
-        // // construct our superquery that will fill the cache
+
+      // // construct our superquery that will fill the cache
       const query = gql`query {
           proposals (where: { id: "${competition.id}"}) {
             ...ProposalFields
