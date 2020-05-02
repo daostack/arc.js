@@ -119,8 +119,6 @@ describe('Competition Proposal', () => {
     }
 
     // CREATE PROPOSAL
-
-    //TODO: this actually creates a CRExt proposal, not a competition one. Therefore, its fetchState itemMapper fails.
     const tx = await plugin.createProposal(proposalOptions).send()
 
     if(!tx.result) throw new Error("Create proposal yielded no results")
@@ -771,7 +769,7 @@ describe('Competition Proposal', () => {
   })
 
   describe('competition.suggestions works', () => {
-    it('run', async () => {
+    it('works', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { competition } = await createCompetition()
       // check if the competition has indeed some suggestions
@@ -816,12 +814,12 @@ describe('Competition Proposal', () => {
     })
   })
 
-  describe('competition.suggestions works also without resetting the cache', () => {
-    it('works', async () => {
+  describe.only('competition.suggestions works also without resetting the cache', () => {
+    it.only('works', async () => {
       // find a proposal in a scheme that has > 1 votes
       const { competition } =  await createCompetition()
       // check if the competition has indeed some suggestions
-  
+
       const suggestions = await competition.suggestions().pipe(first()).toPromise()
       expect(suggestions.length).toBeGreaterThan(0)
   
@@ -837,27 +835,26 @@ describe('Competition Proposal', () => {
               id
               suggestions {
                 ...CompetitionSuggestionFields
-                }
+              }
             }
           }
         }
         ${Proposal.baseFragment}
-        ${Plugin.baseFragment}
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
         `
-  
+
+      await new Promise(resolve => setTimeout(() => resolve(), 5000))
       await arc.sendQuery(query)
-  
+
         // now see if we can get our informatino directly from the cache
       const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
           .pipe(first()).toPromise()
       expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))
           .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
-  
+
       const cachedSuggestionState = await cachedSuggestions[0]
         .state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
       expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
-  
     })
   })
 
