@@ -11,6 +11,7 @@ import {
   concat,
   createGraphQlQuery,
   DAO,
+  Date,
   Entity,
   hexStringToUint8Array,
   IApolloQueryOptions,
@@ -24,8 +25,7 @@ import {
   Reward,
   Stake,
   toIOperationObservable,
-  Vote,
-  Date
+  Vote
 } from './index'
 
 export interface IMemberState {

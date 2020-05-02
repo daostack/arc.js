@@ -112,7 +112,7 @@ export class ContributionRewardExt extends ProposalPlugin<
 
     options.descriptionHash = await this.context.saveIPFSData(options)
 
-    const pluginId = options.plugin? options.plugin : this.id
+    const pluginId = options.plugin ? options.plugin : this.id
 
     return {
       contract: this.context.getContract(pluginId),

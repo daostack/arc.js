@@ -28,7 +28,7 @@ import {
 import { BigNumber } from 'ethers/utils'
 import { inspect } from 'util'
 
-jest.setTimeout(10000)
+jest.setTimeout(40000)
 
 describe('Competition Proposal', () => {
   let arc: Arc

@@ -40,8 +40,8 @@ import {
   Token,
   transactionErrorHandler,
   transactionResultHandler,
-  Web3Provider,
-  Web3Client
+  Web3Client,
+  Web3Provider
 } from './index'
 
 export interface IArcOptions {

@@ -15,6 +15,7 @@ import {
   ICommonQueryOptions,
   IEntityRef,
   IMemberQueryOptions,
+  IMemberState,
   IPluginQueryOptions,
   IProposalBaseCreateOptions,
   IProposalQueryOptions,
@@ -31,8 +32,7 @@ import {
   Stake,
   toIOperationObservable,
   Token,
-  Vote,
-  IMemberState
+  Vote
 } from './index'
 
 export interface IDAOState {
@@ -228,7 +228,7 @@ export class DAO extends Entity<IDAOState> {
   }
 
   public member(idOrOpts: IMemberState | string): Member {
-    if(typeof idOrOpts !== 'string') {
+    if (typeof idOrOpts !== 'string') {
       if (this.coreState) {
         // construct member with the reputationcontract address, if this is known
         // so it can make use of the apollo cache
