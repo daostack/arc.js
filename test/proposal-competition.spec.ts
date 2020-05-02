@@ -679,16 +679,6 @@ describe('Competition Proposal', () => {
     expect(suggestion4State.totalVotes).toEqual(new BN(0))
   })
 
-  //TODO: Is this test really necessary?
-  it.skip('CompetionScheme is recognized', async () => {
-    // we'll get a `ContributionRewardExt` contract that has a Compietion contract as a rewarder
-    const contributionRewardExts = await arc
-      .plugins({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
-    expect(contributionRewardExts.length).toEqual(1)
-    const scheme = contributionRewardExts[0]
-    expect(scheme).toBeInstanceOf(CompetitionPlugin)
-  })
-
   it('Can create a proposal using dao.createProposal', async () => {
     if (!arc.web3) throw Error('Web3 provider not set')
     const now = await getBlockTime(arc.web3)
@@ -813,7 +803,7 @@ describe('Competition Proposal', () => {
   
       await arc.sendQuery(query)
   
-        // now see if we can get our informatino directly from the cache
+      // now see if we can get our information directly from the cache
       const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
           .pipe(first()).toPromise()
       expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))

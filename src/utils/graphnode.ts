@@ -105,9 +105,9 @@ export function createApolloClient(options: {
         competitionSuggestion: (_, args, { getCacheKey }) => {
           return getCacheKey({ __typename: 'CompetitionSuggestion', id: args.id })
         },
-        // suggestion: (_, args, { getCacheKey }) => {
-        //   return getCacheKey({ __typename: 'CompetitionSuggestion', id: args.id })
-        // },
+        suggestion: (_, args, { getCacheKey }) => {
+          return getCacheKey({ __typename: 'CompetitionSuggestion', id: args.id })
+        },
         competitionVote: (_, args, { getCacheKey }) => {
           return getCacheKey({ __typename: 'CompetitionVote', id: args.id })
         },
