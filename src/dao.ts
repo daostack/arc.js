@@ -1,8 +1,8 @@
 import BN from 'bn.js'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
-import { from, Observable } from 'rxjs'
-import { concatMap, first, map } from 'rxjs/operators'
+import { Observable } from 'rxjs'
+import { first, map } from 'rxjs/operators'
 import {
   Address,
   AnyPlugin,
@@ -30,7 +30,6 @@ import {
   Reputation,
   Reward,
   Stake,
-  toIOperationObservable,
   Token,
   Vote
 } from './index'
@@ -283,7 +282,7 @@ export class DAO extends Entity<IDAOState> {
     return Stake.search(this.context, options, apolloQueryOptions)
   }
 
-  public createProposal(options: IProposalBaseCreateOptions) {
+  public async createProposal(options: IProposalBaseCreateOptions) {
     options.dao = this.id
 
     if (!options.plugin) {
@@ -294,11 +293,9 @@ export class DAO extends Entity<IDAOState> {
       daoAddress: options.dao,
       contractAddress: options.plugin
     })
-    const proposalObservable = from(this.proposalPlugin({ where: { id: pluginId } })).pipe(
-      first(),
-      concatMap((plugin) => plugin.createProposal(options))
-    )
 
-    return toIOperationObservable(proposalObservable)
+    const plugin = await this.proposalPlugin({ where: { id: pluginId } })
+
+    return plugin.createProposal(options)
   }
 }

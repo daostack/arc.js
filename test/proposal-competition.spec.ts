@@ -46,6 +46,7 @@ describe('Competition Proposal', () => {
     }
     const result = new Date()
     result.setTime(date.getTime() + (seconds * 1000))
+
     return result
   }
 
@@ -691,11 +692,10 @@ describe('Competition Proposal', () => {
   it('Can create a proposal using dao.createProposal', async () => {
     if (!arc.web3) throw Error('Web3 provider not set')
     const now = await getBlockTime(arc.web3)
-    const startTime = addSeconds(now, 3)
-    const competitionId = Plugin.calculateId({ daoAddress: dao.id, contractAddress: contributionRewardExtAddress })
+    const startTime = addSeconds(now, 2)
     const proposalOptions: IProposalCreateOptionsComp = {
       dao: dao.id,
-      endTime: addSeconds(startTime, 3000),
+      endTime: addSeconds(startTime, 200),
       ethReward,
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
@@ -703,19 +703,18 @@ describe('Competition Proposal', () => {
       numberOfVotesPerVoter: 3,
       reputationReward: toWei('10'),
       rewardSplit: [10, 10, 80],
-      plugin: competitionId,
+      plugin: contributionRewardExtAddress,
       startTime,
       suggestionsEndTime: addSeconds(startTime, 100),
       votingStartTime: addSeconds(startTime, 0)
     }
 
-    const plugin = new CompetitionPlugin(arc, competitionId)
-    const tx = await plugin.createProposal(proposalOptions).send()
+    const tx = await (await dao.createProposal(proposalOptions)).send()
 
     if(!tx.result) throw new Error('Create proposal yielded no results')
 
     const proposal = new CompetitionProposal(arc, tx.result.id)
-    expect(proposal).toBeInstanceOf(Proposal)
+    expect(proposal).toBeInstanceOf(CompetitionProposal)
   })
 
   it(`Beneficiary is recognized and different from suggestor`, async () => {

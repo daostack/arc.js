@@ -132,11 +132,15 @@ export function sendTransaction<T>(
 
     let gasLimit: number = 0
 
-    if (tx.opts?.gasLimit) {
+    if (!tx.opts) {
+      tx.opts = {}
+    }
+
+    if (tx.opts.gasLimit) {
       gasLimit = tx.opts.gasLimit
     } else {
       try {
-        gasLimit = (await contract.estimate[tx.method](...tx.args)).toNumber()
+        gasLimit = (await contract.estimate[tx.method](...tx.args, tx.opts)).toNumber()
       } catch (error) {
         await catchHandler(error, tx, await signer.getAddress())
       }
