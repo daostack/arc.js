@@ -800,7 +800,7 @@ describe('Competition Proposal', () => {
         ${Plugin.baseFragment}
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
         `
-  
+
       await arc.sendQuery(query)
   
       // now see if we can get our information directly from the cache

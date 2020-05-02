@@ -113,13 +113,13 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
 
         return new Plugins.unknown(arc, state)
       } else {
-        if (item.name === "ContributionRewardExt") {
+        if (item.name === 'ContributionRewardExt') {
           // Determine what type of plugin this is
           const rewarder = item.contributionRewardExtParams.rewarder
 
           try {
-            if (arc.getContractInfo(rewarder).name === "Competition") {
-              item.name = "Competition"
+            if (arc.getContractInfo(rewarder).name === 'Competition') {
+              item.name = 'Competition'
             }
           } catch (err) {
             // Continue as usual, creating a ContributionRewardExt class
