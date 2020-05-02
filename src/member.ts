@@ -24,13 +24,15 @@ import {
   Reward,
   Stake,
   toIOperationObservable,
-  Vote
+  Vote,
+  Date
 } from './index'
 
 export interface IMemberState {
   id: string
   address: Address
   contract?: Address
+  createdAt: Date
   dao: IEntityRef<DAO>
   reputation: BN
 }
@@ -53,6 +55,7 @@ export class Member extends Entity<IMemberState> {
         id
         address
         contract
+        createdAt
         dao {
           id
         }
@@ -112,9 +115,11 @@ export class Member extends Entity<IMemberState> {
     if (!item || item.id === undefined) {
       throw Error(`Member ItemMap failed. Query: ${query.loc?.source.body}`)
     }
+
     return {
       id: item.id,
       address: item.address,
+      createdAt: Number(item.createdAt),
       dao: {
         id: item.dao.id,
         entity: new DAO(context, item.dao.id)
@@ -272,6 +277,7 @@ export class Member extends Entity<IMemberState> {
         id: daoId,
         entity: new DAO(this.context, daoId)
       },
+      createdAt: opts.createdAt,
       reputation: opts.reputation
     }
     return this.coreState
