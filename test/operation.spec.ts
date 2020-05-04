@@ -59,7 +59,7 @@ describe('Operation', () => {
 
     expect(listOfUpdates[2].result ).toBeInstanceOf(Proposal)
 
-    expect(listOfUpdates[3].confirmations).toBeGreaterThanOrEqual(3)
+    expect(listOfUpdates[3].confirmations).toBeGreaterThanOrEqual(2)
     expect(listOfUpdates[3]).toMatchObject({
       state: ITransactionState.Mined
     })
