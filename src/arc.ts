@@ -416,6 +416,7 @@ export class Arc extends GraphNodeObserver {
     return Observable.create(async (observer: Observer<Address>) => {
       if (Signer.isSigner(this.defaultAccount)) {
         observer.next(await this.defaultAccount.getAddress())
+        return observer.complete()
       } else {
         const interval = 1000 /// poll once a second
         let account: Address
@@ -462,6 +463,7 @@ export class Arc extends GraphNodeObserver {
     return Observable.create((observer: Observer<Signer>) => {
       if (Signer.isSigner(this.defaultAccount)) {
         observer.next(this.defaultAccount)
+        return observer.complete()
       } else {
         const subscription = this.getAccount().subscribe((address) => {
           if (!this.web3) {

@@ -200,7 +200,7 @@ export class Token extends Entity<ITokenState> {
         await subscribe()
         return () => unsubscribe()
       } catch (e) {
-        observer.error(e)
+        return observer.error(e)
       }
     })
     observable.first = () => observable.pipe(first()).toPromise()

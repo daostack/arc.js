@@ -16,6 +16,7 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "target": "es5",
+    "noImplicitReturns": true,
     "typeRoots": [
       "node_modules/@types"
     ]
