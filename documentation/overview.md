@@ -102,7 +102,9 @@ Because the proposal is created with only an `id`, the arc.js will query the sub
 const proposal = new Proposal({
   id: '0x12455..',
   votingMachine: '0x1111..',
-  scheme: '0x12345...'
+  plugin: {
+    id: '0x12345...',
+    entity: new GenericScheme(arc, '0x12345...')
   }, arc)
 ```
 This will provide the instance with enough information to send transactions without having to query the subgraph for additional information.
@@ -122,6 +124,37 @@ dao.state().subscribe(
   (newState) => console.log(`This DAO has ${newState.memberCount} members`)
   )
 ```
+
+All entities implement also a `fetchState` method that returns a `Promise<EntityState>`. This is a useful shortcut that calls the `state` method describe above and returns a promise with the entity's state. It also mutates the entity instance and sets its `coreState` field to the state received. It is worth noting that the `fetchState` method admits a boolean flag, `refetch`, which defaults to false.
+
+* `refetch`: if false, it evaluates if the `coreState` is null, which is its default value. If it is indeed null, it queries for the entity state, assigns it to the instance and returns it. Else, it returns the `coreState`. If true, it will query for the entity state, assign it and return it. Should only be passed true if sure that the entity is indexed, else the state will return null and a runtime error will be thrown.
+
+The `fetchState` method does not populate the states of entity references inside said state. Such population would be done in a different call. For example: 
+
+```ts
+
+const proposal = new GenericSchemeProposal(arc, '0x12345...')
+const proposalState = await proposal.fetchState()
+
+const pluginState = proposalState.plugin.entity.coreState // evaluates to null
+const populatedPluginState = await proposalState.plugin.entity.fetchState() // evaluates to plugin state
+
+const state = proposalState.plugin.entity.coreState // evaluates to plugin state, because fetchState mutated the plugin instance
+
+```
+
+## Entity references
+
+Some entities store other entities in their state. An example of this would be `Proposal` which stores an instance of `Plugin` inside its state. These references follow the `IEntityRef<TEntity>` interface. Which is the following:
+
+```ts
+interface IEntityRef<TEntity> {
+  id: Address
+  entity: TEntity
+}
+```
+
+Therefore, to access the id of the plugin instance stored inside the proposal state, one would do `proposal.coreState.plugin.id`. To access the full object instance, it would be: `proposal.coreState.plugin.entity`
 
 ## Searching and observables
 
@@ -168,6 +201,16 @@ const observable =  dao.proposals() // all proposals in this dao
 const proposals = await observable.first() // returns a list of Proposal instances
 ```
 
+It is worth noting that since that all entity search methods query all of its interface defined fields. Therefore, resulting entities from a search will always have their `coreState` populated.
+
+## Item Mappers
+
+All entity classes have a static `itemMap` function which takes that entity's full result object from a query. This `itemMap` returns an instance of the entity's state.
+
+Each entity class performs an `itemMap` at the end of each `search` method call, to map the query result to the entity's state so an instance of this entity can be built with that state.
+
+It is worth noting that Plugins that do not have an exported class in the library, extending from the `Plugin` or `ProposalPlugin` abstract classes, will be instantiated as `UnknownPlugin` instances if received from a `Plugin.search` method call.
+
 ## Sending transactions
 
 One of the purposes of the arc.js library is to make help with interactions with the DAOstack Ethereum contracts.
@@ -177,7 +220,7 @@ Here is how you create a proposal in a DAO  for a contribution reward for a
 
 ```
 const DAO = new DAO('0x123DAOADDRESS')
-const tx = dao.createProposal({
+const tx = await dao.createProposal({
   beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
   ethReward: toWei('300'),
   nativeTokenReward: toWei('1'),
