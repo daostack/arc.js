@@ -3,7 +3,7 @@ import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
 import {
   Arc,
-  Competition as CompetitionPlugin,
+  CompetitionPlugin,
   CompetitionProposal,
   CompetitionSuggestion,
   CompetitionVote,
@@ -16,7 +16,7 @@ import {
   Plugin,
   IProposalCreateOptionsComp,
   getBlockTime,
-  ContributionRewardExt
+  ContributionRewardExtPlugin
 } from '../src'
 import {
   advanceTimeAndBlock,
@@ -33,7 +33,7 @@ jest.setTimeout(40000)
 describe('Competition Proposal', () => {
   let arc: Arc
   let dao: DAO
-  let contributionRewardExt: ContributionRewardExt
+  let contributionRewardExt: ContributionRewardExtPlugin
   let contributionRewardExtAddress: string
   let address0: string
   let address1: string
@@ -66,7 +66,7 @@ describe('Competition Proposal', () => {
     const contributionRewardExts = await arc
       .plugins({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
 
-    contributionRewardExt = contributionRewardExts[0] as ContributionRewardExt
+    contributionRewardExt = contributionRewardExts[0] as ContributionRewardExtPlugin
 
     const contributionRewardExtState = await contributionRewardExt.fetchState()
     contributionRewardExtAddress = contributionRewardExtState.address
@@ -330,7 +330,7 @@ describe('Competition Proposal', () => {
 
     if(!lastStatePlugin.coreState) throw new Error('Plugin coreState not defined')
 
-    // check sanity for scheme
+    // check sanity for plugin
     expect(pluginState.address).toEqual(lastStatePlugin.coreState.address)
 
     // redeem the proposal
@@ -770,7 +770,7 @@ describe('Competition Proposal', () => {
 
   describe('competition.suggestions works', () => {
     it.skip('works', async () => {
-      // find a proposal in a scheme that has > 1 votes
+      // find a proposal in a plugin that has > 1 votes
       const { competition } = await createCompetition()
       // check if the competition has indeed some suggestions
 
@@ -816,7 +816,7 @@ describe('Competition Proposal', () => {
 
   describe('competition.suggestions works also without resetting the cache', () => {
     it.skip('works', async () => {
-      // find a proposal in a scheme that has > 1 votes
+      // find a proposal in a plugin that has > 1 votes
       const { competition } =  await createCompetition()
       // check if the competition has indeed some suggestions
 
@@ -860,7 +860,7 @@ describe('Competition Proposal', () => {
 
   describe('suggestion.votes works', () => {
     it.skip('works', async () => {
-      // find a proposal in a scheme that has > 1 votes
+      // find a proposal in a plugin that has > 1 votes
       const { suggestions } = await createCompetition()
   
       await suggestions[0].vote().send()

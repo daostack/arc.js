@@ -30,13 +30,13 @@ export interface IRewardState {
 
 export interface IRewardQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string;
-    beneficiary?: Address;
-    dao?: Address;
-    proposal?: string;
-    createdAtAfter?: Date;
-    createdAtBefore?: Date;
-    [key: string]: any;
+    id?: string
+    beneficiary?: Address
+    dao?: Address
+    proposal?: string
+    createdAtAfter?: Date
+    createdAtBefore?: Date
+    [key: string]: any
   }
 }
 
@@ -76,8 +76,8 @@ export class Reward extends Entity<IRewardState> {
       options.where = {}
     }
 
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
-      const state = Reward.itemMap(arc, item, queryDoc)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = Reward.itemMap(arc, item, queriedId)
       return new Reward(arc, state)
     }
 
@@ -118,19 +118,20 @@ export class Reward extends Entity<IRewardState> {
       return context.getObservableObject(
         context,
         query,
-        (arc: Arc, r: any, queryDoc: DocumentNode) => {
+        (arc: Arc, r: any, queriedId?: string) => {
           if (!r) {
             return []
           }
           const rewards = r.gpRewards
 
           const itemMapper = (item: any) => {
-            const state = Reward.itemMap(arc, item, queryDoc)
+            const state = Reward.itemMap(arc, item, queriedId)
             return new Reward(arc, state)
           }
 
           return rewards.map(itemMapper)
         },
+        options.where?.id,
         apolloQueryOptions
       ) as Observable<Reward[]>
     } else {
@@ -144,14 +145,14 @@ export class Reward extends Entity<IRewardState> {
       `
     }
 
-    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
       Reward[]
     >
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IRewardState {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IRewardState {
     if (!item) {
-      throw Error(`Reward ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Reward ItemMap failed. ${queriedId && `Could not find Reward with id '${queriedId}'`}`)
     }
 
     return {
@@ -186,6 +187,7 @@ export class Reward extends Entity<IRewardState> {
       this.context,
       query,
       Reward.itemMap,
+      this.id,
       apolloQueryOptions
     )
   }

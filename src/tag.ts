@@ -20,8 +20,8 @@ export interface ITagState {
 
 export interface ITagQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string;
-    proposal?: string;
+    id?: string
+    proposal?: string
   }
 }
 
@@ -52,8 +52,8 @@ export class Tag extends Entity<ITagState> {
     }
     let where = ''
 
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
-      const state = Tag.itemMap(arc, item, queryDoc)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = Tag.itemMap(arc, item, queriedId)
       return new Tag(arc, state)
     }
 
@@ -93,17 +93,18 @@ export class Tag extends Entity<ITagState> {
       return context.getObservableObject(
         context,
         query,
-        (arc: Arc, r: any, queryDoc: DocumentNode) => {
+        (arc: Arc, r: any, queriedId?: string) => {
           if (!r) {
             // no such proposal was found
             return []
           }
           const itemMapper = (item: any) => {
-            const state = Tag.itemMap(arc, item, queryDoc)
+            const state = Tag.itemMap(arc, item, queriedId)
             return new Tag(arc, state)
           }
           return r.tags.map(itemMapper)
         },
+        options.where?.id,
         apolloQueryOptions
       ) as Observable<Tag[]>
     } else {
@@ -116,15 +117,15 @@ export class Tag extends Entity<ITagState> {
         ${Tag.fragments.TagFields}
       `
 
-      return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+      return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
         Tag[]
       >
     }
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): ITagState => {
+  public static itemMap = (context: Arc, item: any, queriedId?: string): ITagState => {
     if (!item) {
-      throw Error(`Tag ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Tag ItemMap failed. ${queriedId && `Could not find Tag with id '${queriedId}'`}`)
     }
 
     return {
@@ -149,6 +150,6 @@ export class Tag extends Entity<ITagState> {
       ${Tag.fragments.TagFields}
     `
 
-    return this.context.getObservableObject(this.context, query, Tag.itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, Tag.itemMap, this.id, apolloQueryOptions)
   }
 }

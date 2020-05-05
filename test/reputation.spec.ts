@@ -46,7 +46,7 @@ describe('Reputation', () => {
     expect.assertions(1)
     const reputation = new Reputation(arc, '0xe74f3c49c162c00ac18b022856e1a4ecc8947c42')
     await expect(reputation.state().toPromise()).rejects.toThrow(
-      /Reputation ItemMap failed/
+      /Could not find Reputation with id '0xe74f3c49c162c00ac18b022856e1a4ecc8947c42'/i
     )
   })
 

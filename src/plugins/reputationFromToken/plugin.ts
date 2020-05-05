@@ -1,4 +1,3 @@
-import { DocumentNode } from 'graphql'
 import { from } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
 import {
@@ -12,10 +11,10 @@ import {
   toIOperationObservable
 } from '../../index'
 
-export class ReputationFromToken extends Plugin<IPluginState> {
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IPluginState | null {
+export class ReputationFromTokenPlugin extends Plugin<IPluginState> {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IPluginState | null {
     if (!item) {
-      Logger.debug(`ReputationFromToken Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ReputationFromTokenPlugin ItemMap failed. ${queriedId && `Could not find ReputationFromTokenPlugin with id '${queriedId}'`}`)
       return null
     }
 

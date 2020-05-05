@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
@@ -30,10 +29,10 @@ export interface IQueueState {
 
 export interface IQueueQueryOptions extends ICommonQueryOptions {
   where?: {
-    dao?: Address;
-    votingMachine?: Address;
-    plugin?: Address;
-    [key: string]: any;
+    dao?: Address
+    votingMachine?: Address
+    plugin?: Address
+    [key: string]: any
   }
 }
 
@@ -79,24 +78,24 @@ export class Queue extends Entity<IQueueState> {
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) =>
+    const itemMap = (arc: Arc, item: any, queriedId?: string) =>
       new Queue(arc, item.id, new DAO(arc, item.dao.id))
 
-    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
       Queue[]
     >
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IQueueState {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IQueueState {
     if (!item) {
-      throw Error(`Queue ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Queue ItemMap failed. ${queriedId && `Could not find Queue with id '${queriedId}'`}`)
     }
     const threshold = realMathToNumber(new BN(item.threshold))
 
     const pluginState: IPluginState = Plugins[item.scheme.name].itemMap(
       context,
       item.scheme,
-      query
+      queriedId
     )
 
     if (!pluginState) {
@@ -154,6 +153,7 @@ export class Queue extends Entity<IQueueState> {
       this.context,
       query,
       Queue.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<IQueueState>
   }

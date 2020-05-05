@@ -96,7 +96,7 @@ describe('DAO', () => {
     expect.assertions(1)
     const dao = new DAO(arc, '0xfake')
     await expect(dao.state().toPromise()).rejects.toThrow(
-      /DAO ItemMap failed/
+      /Could not find DAO with id '0xfake'/i
     )
   })
 

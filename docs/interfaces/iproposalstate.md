@@ -170,7 +170,7 @@ ___
 
 ###  genericScheme
 
-• **genericScheme**: *[IGenericScheme](igenericscheme.md) | null*
+• **genericScheme**: *[IGenericPlugin](igenericscheme.md) | null*
 
 *Defined in [src/proposal.ts:81](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L81)*
 

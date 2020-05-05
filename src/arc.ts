@@ -1,7 +1,6 @@
-import 'ethers/dist/shims'
-
 import BN from 'bn.js'
 import { Contract, Signer } from 'ethers'
+import 'ethers/dist/shims'
 import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
@@ -14,6 +13,7 @@ import {
   DAO,
   Event,
   GraphNodeObserver,
+  IApolloClientOptions,
   IApolloQueryOptions,
   IDAOQueryOptions,
   IEventQueryOptions,
@@ -44,20 +44,14 @@ import {
   Web3Provider
 } from './index'
 
-export interface IArcOptions {
+export type IArcOptions = IApolloClientOptions & {
   /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
   contractInfos?: IContractInfo[]
-  graphqlHttpProvider?: string
-  graphqlWsProvider?: string
   ipfsProvider?: IPFSProvider
   web3Provider?: Web3Provider
-  /** this function will be called before a query is sent to the graphql provider */
-  graphqlPrefetchHook?: (query: any) => void
   /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
   graphqlSubscribeToQueries?: boolean
-  /** an apollo-retry-link instance as https://www.apollographql.com/docs/link/links/retry/#default-configuration */
-  graphqlRetryLink?: any,
-  graphqlErrHandler?: any
+
 }
 
 /**
@@ -89,11 +83,11 @@ export class Arc extends GraphNodeObserver {
   // accounts observed by ethBalance
   public observedAccounts: {
     [address: string]: {
-      observable?: Observable<BN>;
-      observer?: Observer<BN>;
-      lastBalance?: string;
-      subscriptionsCount: number;
-    };
+      observable?: Observable<BN>
+      observer?: Observer<BN>
+      lastBalance?: string
+      subscriptionsCount: number
+    }
   } = {}
 
   private _web3Provider: Web3Provider = ''
@@ -101,12 +95,12 @@ export class Arc extends GraphNodeObserver {
 
   constructor(options: IArcOptions) {
     super({
-      errHandler: options.graphqlErrHandler,
+      errHandler: options.errHandler,
       graphqlHttpProvider: options.graphqlHttpProvider,
       graphqlSubscribeToQueries: options.graphqlSubscribeToQueries,
       graphqlWsProvider: options.graphqlWsProvider,
-      prefetchHook: options.graphqlPrefetchHook,
-      retryLink: options.graphqlRetryLink
+      prefetchHook: options.prefetchHook,
+      retryLink: options.retryLink
     })
     this.ipfsProvider = options.ipfsProvider || ''
 
@@ -346,7 +340,10 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-  public getABI(opts: { address?: Address; abiName?: string; version?: string }): any[] {
+  public getABI(opts: { address?: Address
+      abiName?: string
+      version?: string
+    }): any[] {
     if (Object.values(opts).filter((value) => value !== undefined).length === 0) {
       throw Error('getABI needs at least one parameter passed')
     }
@@ -516,10 +513,10 @@ export class Arc extends GraphNodeObserver {
    * @return  a Promise that resolves in the IPFS Hash where the file is saved
    */
   public async saveIPFSData(options: {
-    title?: string;
-    url?: string;
-    description?: string;
-    tags?: string[];
+    title?: string
+    url?: string
+    description?: string
+    tags?: string[]
   }): Promise<string> {
     let ipfsDataToSave: object = {}
     if (options.title || options.url || options.description || options.tags !== undefined) {

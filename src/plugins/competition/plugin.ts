@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import { Observable } from 'rxjs'
 import {
   Address,
@@ -45,14 +44,14 @@ export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   votingStartTime: Date
 }
 
-export class Competition extends ProposalPlugin<
+export class CompetitionPlugin extends ProposalPlugin<
   IContributionRewardExtState,
   ICompetitionProposalState,
   IProposalCreateOptionsComp
 > {
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtState | null {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IContributionRewardExtState | null {
     if (!item) {
-      Logger.debug(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`CompetitionPlugin ItemMap failed. ${queriedId && `Could not find CompetitionPlugin with id '${queriedId}'`}`)
       return null
     }
 
@@ -81,7 +80,7 @@ export class Competition extends ProposalPlugin<
       )
     }
 
-    if (!Competition.isCompetitionPlugin(arc, state)) {
+    if (!CompetitionPlugin.isCompetitionPlugin(arc, state)) {
       throw Error(`We did not find a Competition contract at the rewarder address ${rewarder}`)
     }
     const contract = arc.getContract(rewarder)
@@ -128,7 +127,7 @@ export class Competition extends ProposalPlugin<
       throw Error(`No plugin was found with this id: ${this.id}`)
     }
 
-    const contract = Competition.getCompetitionContract(this.context, pluginState)
+    const contract = CompetitionPlugin.getCompetitionContract(this.context, pluginState)
 
     // check sanity -- is the competition contract actually
     const contributionRewardExtAddress = await contract.contributionRewardExt()
@@ -248,19 +247,19 @@ export class Competition extends ProposalPlugin<
     options: IProposalCreateOptionsComp
   ): Promise<ITransaction> {
     const context = this.context
-    const schemeState = await this.fetchState()
-    if (!schemeState) {
+    const pluginState = await this.fetchState()
+    if (!pluginState) {
       throw Error(`No scheme was found with this id: ${this.id}`)
     }
 
-    const contract = Competition.getCompetitionContract(this.context, schemeState)
+    const contract = CompetitionPlugin.getCompetitionContract(this.context, pluginState)
 
     // check sanity -- is the competition contract actually c
     const contributionRewardExtAddress = await contract.contributionRewardExt()
-    if (contributionRewardExtAddress.toLowerCase() !== schemeState.address) {
+    if (contributionRewardExtAddress.toLowerCase() !== pluginState.address) {
       throw Error(
         `This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${
-          schemeState.address
+          pluginState.address
         }`
       )
     }
