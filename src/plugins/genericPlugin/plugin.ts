@@ -1,4 +1,3 @@
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -36,37 +35,31 @@ export class GenericPlugin extends ProposalPlugin<
   IGenericPluginProposalState,
   IProposalCreateOptionsGS
 > {
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'GenericpluginParams',
-        fragment: gql`
-          fragment GenericpluginParams on ControllerScheme {
-            genericSchemeParams {
-              votingMachine
-              contractToCall
-              voteParams {
-                queuedVoteRequiredPercentage
-                queuedVotePeriodLimit
-                boostedVotePeriodLimit
-                preBoostedVotePeriodLimit
-                thresholdConst
-                limitExponentValue
-                quietEndingPeriod
-                proposingRepReward
-                votersReputationLossRatio
-                minimumDaoBounty
-                daoBountyConst
-                activationTime
-                voteOnBehalf
-              }
-            }
+  public static fragment = {
+    name: 'GenericpluginParams',
+    fragment: gql`
+      fragment GenericpluginParams on ControllerScheme {
+        genericSchemeParams {
+          votingMachine
+          contractToCall
+          voteParams {
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
           }
-        `
+        }
       }
-    }
-
-    return this.fragmentField
+    `
   }
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IGenericPluginState | null {
@@ -88,11 +81,6 @@ export class GenericPlugin extends ProposalPlugin<
       pluginParams: genericpluginParams
     }
   }
-
-  private static fragmentField: {
-    name: string
-    fragment: DocumentNode
-  } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsGS): Promise<ITransaction> {
     if (options.callData === undefined) {

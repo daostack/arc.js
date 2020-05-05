@@ -1,4 +1,3 @@
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
@@ -29,24 +28,19 @@ export interface IGenericPluginProposalState extends IProposalState {
 }
 
 export class GenericPluginProposal extends Proposal<IGenericPluginProposalState> {
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'GenericPluginProposalFields',
-        fragment: gql`
-          fragment GenericPluginProposalFields on Proposal {
-            genericScheme {
-              id
-              contractToCall
-              callData
-              executed
-              returnValue
-            }
-          }
-        `
+  public static fragment = {
+    name: 'GenericPluginProposalFields',
+    fragment: gql`
+      fragment GenericPluginProposalFields on Proposal {
+        genericScheme {
+          id
+          contractToCall
+          callData
+          executed
+          returnValue
+        }
       }
-    }
-    return this.fragmentField
+    `
   }
 
   public static itemMap(
@@ -88,11 +82,6 @@ export class GenericPluginProposal extends Proposal<IGenericPluginProposalState>
       returnValue: item.genericScheme.returnValue
     }
   }
-
-  private static fragmentField: {
-    name: string
-    fragment: DocumentNode
-  } | undefined
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<IGenericPluginProposalState> {
     const query = gql`query ProposalState

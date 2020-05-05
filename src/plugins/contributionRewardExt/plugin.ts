@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
@@ -43,38 +42,33 @@ export class ContributionRewardExtPlugin extends ProposalPlugin<
   IContributionRewardExtProposalState,
   IProposalCreateOptionsCRExt
 > {
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'ContributionRewardExtParams',
-        fragment: gql`
-          fragment ContributionRewardExtParams on ControllerScheme {
-            contributionRewardExtParams {
-              id
-              votingMachine
-              voteParams {
-                id
-                queuedVoteRequiredPercentage
-                queuedVotePeriodLimit
-                boostedVotePeriodLimit
-                preBoostedVotePeriodLimit
-                thresholdConst
-                limitExponentValue
-                quietEndingPeriod
-                proposingRepReward
-                votersReputationLossRatio
-                minimumDaoBounty
-                daoBountyConst
-                activationTime
-                voteOnBehalf
-              }
-              rewarder
-            }
+  public static fragment = {
+    name: 'ContributionRewardExtParams',
+    fragment: gql`
+      fragment ContributionRewardExtParams on ControllerScheme {
+        contributionRewardExtParams {
+          id
+          votingMachine
+          voteParams {
+            id
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
           }
-        `
+          rewarder
+        }
       }
-    }
-    return this.fragmentField
+    `
   }
 
   public static itemMap(
@@ -100,11 +94,6 @@ export class ContributionRewardExtPlugin extends ProposalPlugin<
       pluginParams: contributionRewardExtParams
     }
   }
-
-  private static fragmentField: {
-    name: string
-    fragment: DocumentNode
-  } | undefined
 
   public async createProposalTransaction(
     options: IProposalCreateOptionsCRExt

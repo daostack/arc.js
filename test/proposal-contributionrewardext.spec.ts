@@ -24,7 +24,7 @@ describe('ContributionReward Ext', () => {
 
   it.skip('Create a proposal, accept it, execute it', async () => {
     // TODO: we are skipping this test, because we do not ahve at this point a contributionrewardext
-    // contract in our test environment that is not a Competition scheme..
+    // contract in our test environment that is not a Competition plugin..
 
     // we'll get a `ContributionRewardExt` contract
     const contributionRewardExts = await arc

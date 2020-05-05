@@ -330,7 +330,7 @@ describe('Competition Proposal', () => {
 
     if(!lastStatePlugin.coreState) throw new Error('Plugin coreState not defined')
 
-    // check sanity for scheme
+    // check sanity for plugin
     expect(pluginState.address).toEqual(lastStatePlugin.coreState.address)
 
     // redeem the proposal
@@ -770,7 +770,7 @@ describe('Competition Proposal', () => {
 
   describe('competition.suggestions works', () => {
     it.skip('works', async () => {
-      // find a proposal in a scheme that has > 1 votes
+      // find a proposal in a plugin that has > 1 votes
       const { competition } = await createCompetition()
       // check if the competition has indeed some suggestions
 
@@ -816,7 +816,7 @@ describe('Competition Proposal', () => {
 
   describe('competition.suggestions works also without resetting the cache', () => {
     it.skip('works', async () => {
-      // find a proposal in a scheme that has > 1 votes
+      // find a proposal in a plugin that has > 1 votes
       const { competition } =  await createCompetition()
       // check if the competition has indeed some suggestions
 
@@ -860,7 +860,7 @@ describe('Competition Proposal', () => {
 
   describe('suggestion.votes works', () => {
     it.skip('works', async () => {
-      // find a proposal in a scheme that has > 1 votes
+      // find a proposal in a plugin that has > 1 votes
       const { suggestions } = await createCompetition()
   
       await suggestions[0].vote().send()

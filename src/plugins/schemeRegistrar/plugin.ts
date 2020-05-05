@@ -1,4 +1,3 @@
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -28,7 +27,7 @@ export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
   proposalType: 'SchemeRegistrarAdd' | 'SchemeRegistrarEdit' | 'SchemeRegistrarRemove'
   parametersHash?: string
   permissions?: string
-  schemeToRegister?: Address
+  pluginToRegister?: Address
 }
 
 export class SchemeRegistrarPlugin extends ProposalPlugin<
@@ -36,51 +35,45 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
   ISchemeRegistrarProposalState,
   IProposalCreateOptionsSR
 > {
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'SchemeRegistrarParams',
-        fragment: gql`
-          fragment SchemeRegistrarParams on ControllerScheme {
-            schemeRegistrarParams {
-              votingMachine
-              voteRemoveParams {
-                queuedVoteRequiredPercentage
-                queuedVotePeriodLimit
-                boostedVotePeriodLimit
-                preBoostedVotePeriodLimit
-                thresholdConst
-                limitExponentValue
-                quietEndingPeriod
-                proposingRepReward
-                votersReputationLossRatio
-                minimumDaoBounty
-                daoBountyConst
-                activationTime
-                voteOnBehalf
-              }
-              voteRegisterParams {
-                queuedVoteRequiredPercentage
-                queuedVotePeriodLimit
-                boostedVotePeriodLimit
-                preBoostedVotePeriodLimit
-                thresholdConst
-                limitExponentValue
-                quietEndingPeriod
-                proposingRepReward
-                votersReputationLossRatio
-                minimumDaoBounty
-                daoBountyConst
-                activationTime
-                voteOnBehalf
-              }
-            }
+  public static fragment = {
+    name: 'SchemeRegistrarParams',
+    fragment: gql`
+      fragment SchemeRegistrarParams on ControllerScheme {
+        schemeRegistrarParams {
+          votingMachine
+          voteRemoveParams {
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
           }
-        `
+          voteRegisterParams {
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
+          }
+        }
       }
-    }
-
-    return this.fragmentField
+    `
   }
 
   public static itemMap(arc: Arc, item: any, queriedId?: string): ISchemeRegistrarState | null {
@@ -125,11 +118,6 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
     }
   }
 
-  private static fragmentField: {
-    name: string
-    fragment: DocumentNode
-  } | undefined
-
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {
     let msg: string
 
@@ -152,7 +140,7 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
         return {
           contract: this.context.getContract(pluginId),
           method: 'proposeScheme',
-          args: [options.schemeToRegister, options.permissions, options.descriptionHash]
+          args: [options.pluginToRegister, options.permissions, options.descriptionHash]
         }
       case 'SchemeRegistrarRemove':
 
@@ -161,7 +149,7 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
         return {
           contract: this.context.getContract(pluginId),
           method: 'proposeToRemoveScheme',
-          args: [options.schemeToRegister, options.descriptionHash]
+          args: [options.pluginToRegister, options.descriptionHash]
         }
     }
   }

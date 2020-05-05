@@ -1,4 +1,3 @@
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
 import { concatMap, first } from 'rxjs/operators'
@@ -47,35 +46,29 @@ export interface ICompetitionProposalState extends IContributionRewardExtProposa
 }
 
 export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'CompetitionProposalFields',
-        fragment: gql`
-          fragment CompetitionProposalFields on Proposal {
-            competition {
-              id
-              admin
-              endTime
-              contract
-              suggestionsEndTime
-              createdAt
-              numberOfWinningSuggestions
-              numberOfVotesPerVoters
-              numberOfWinners
-              rewardSplit
-              snapshotBlock
-              startTime
-              totalSuggestions
-              totalVotes
-              votingStartTime
-            }
-          }
-        `
+  public static fragment = {
+    name: 'CompetitionProposalFields',
+    fragment: gql`
+      fragment CompetitionProposalFields on Proposal {
+        competition {
+          id
+          admin
+          endTime
+          contract
+          suggestionsEndTime
+          createdAt
+          numberOfWinningSuggestions
+          numberOfVotesPerVoters
+          numberOfWinners
+          rewardSplit
+          snapshotBlock
+          startTime
+          totalSuggestions
+          totalVotes
+          votingStartTime
+        }
       }
-    }
-
-    return this.fragmentField
+    `
   }
 
   public static itemMap(
@@ -141,11 +134,6 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       votingStartTime: secondSinceEpochToDate(item.competition.votingStartTime)
     }
   }
-
-  private static fragmentField: {
-    name: string
-    fragment: DocumentNode 
-  } | undefined
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<ICompetitionProposalState> {
     const query = gql`query ProposalState

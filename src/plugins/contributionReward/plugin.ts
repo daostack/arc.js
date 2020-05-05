@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -43,38 +42,32 @@ export class ContributionRewardPlugin extends ProposalPlugin<
   IContributionRewardProposalState,
   IProposalCreateOptionsCR
 > {
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'ContributionRewardParams',
-        fragment: gql`
-          fragment ContributionRewardParams on ControllerScheme {
-            contributionRewardParams {
-              id
-              votingMachine
-              voteParams {
-                id
-                queuedVoteRequiredPercentage
-                queuedVotePeriodLimit
-                boostedVotePeriodLimit
-                preBoostedVotePeriodLimit
-                thresholdConst
-                limitExponentValue
-                quietEndingPeriod
-                proposingRepReward
-                votersReputationLossRatio
-                minimumDaoBounty
-                daoBountyConst
-                activationTime
-                voteOnBehalf
-              }
-            }
+  public static fragment = {
+    name: 'ContributionRewardParams',
+    fragment: gql`
+      fragment ContributionRewardParams on ControllerScheme {
+        contributionRewardParams {
+          id
+          votingMachine
+          voteParams {
+            id
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
           }
-        `
+        }
       }
-    }
-
-    return this.fragmentField
+    `
   }
 
   public static itemMap(
@@ -99,11 +92,6 @@ export class ContributionRewardPlugin extends ProposalPlugin<
       pluginParams: contributionRewardParams
     }
   }
-
-  private static fragmentField: {
-    name: string
-    fragment: DocumentNode
-  } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {
     options.descriptionHash = await this.context.saveIPFSData(options)

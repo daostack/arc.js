@@ -75,15 +75,15 @@ export function sleep(ms: number) {
 }
 
 export function getTestScheme(name: PluginName): Address {
-  const scheme = getTestAddresses().dao.Schemes.find(
-    (scheme) => scheme.name === name
+  const plugin = getTestAddresses().dao.Schemes.find(
+    (plugin) => plugin.name === name
   )
 
-  if (!scheme) {
-    throw Error(`Test scheme is missing ${name}`)
+  if (!plugin) {
+    throw Error(`Test plugin is missing ${name}`)
   }
 
-  return scheme.address
+  return plugin.address
 }
 
 export async function getOptions(web3: JsonRpcProvider) {

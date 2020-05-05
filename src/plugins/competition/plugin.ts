@@ -247,19 +247,19 @@ export class CompetitionPlugin extends ProposalPlugin<
     options: IProposalCreateOptionsComp
   ): Promise<ITransaction> {
     const context = this.context
-    const schemeState = await this.fetchState()
-    if (!schemeState) {
+    const pluginState = await this.fetchState()
+    if (!pluginState) {
       throw Error(`No scheme was found with this id: ${this.id}`)
     }
 
-    const contract = CompetitionPlugin.getCompetitionContract(this.context, schemeState)
+    const contract = CompetitionPlugin.getCompetitionContract(this.context, pluginState)
 
     // check sanity -- is the competition contract actually c
     const contributionRewardExtAddress = await contract.contributionRewardExt()
-    if (contributionRewardExtAddress.toLowerCase() !== schemeState.address) {
+    if (contributionRewardExtAddress.toLowerCase() !== pluginState.address) {
       throw Error(
         `This ContributionRewardExt/Competition combo is malconfigured: expected ${contributionRewardExtAddress.toLowerCase()} to equal ${
-          schemeState.address
+          pluginState.address
         }`
       )
     }

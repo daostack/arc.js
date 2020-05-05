@@ -80,7 +80,8 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     return this.baseFragmentField
   }
 
-  public static fragment: { name: string
+  public static fragment: {
+    name: string
     fragment: DocumentNode 
   } | undefined
 

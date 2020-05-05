@@ -15,12 +15,12 @@ import {
 
 export interface ISchemeRegistrarProposalState extends IProposalState {
   id: string
-  schemeToRegister: Address
-  schemeToRegisterPermission: string
-  schemeToRemove: string
+  pluginToRegister: Address
+  pluginToRegisterPermission: string
+  pluginToRemove: string
   decision: number
-  schemeRegistered: boolean
-  schemeRemoved: boolean
+  pluginRegistered: boolean
+  pluginRemoved: boolean
 }
 
 export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalState> {
@@ -29,27 +29,21 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
     fragment: DocumentNode
   } | undefined
 
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'SchemeRegistrarProposalFields',
-        fragment: gql`
-          fragment SchemeRegistrarProposalFields on Proposal {
-            schemeRegistrar {
-              id
-              schemeToRegister
-              schemeToRegisterPermission
-              schemeToRemove
-              decision
-              schemeRegistered
-              schemeRemoved
-            }
-          }
-        `
+  public static fragment = {
+    name: 'SchemeRegistrarProposalFields',
+    fragment: gql`
+      fragment SchemeRegistrarProposalFields on Proposal {
+        schemeRegistrar {
+          id
+          schemeToRegister
+          schemeToRegisterPermission
+          schemeToRemove
+          decision
+          schemeRegistered
+          schemeRemoved
+        }
       }
-    }
-
-    return this.fragmentField
+    `
   }
 
   protected static itemMap(
@@ -107,11 +101,11 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
     return {
       ...baseState,
       decision: item.schemeRegistrar.decision,
-      schemeRegistered: item.schemeRegistrar.schemeRegistered,
-      schemeRemoved: item.schemeRegistrar.schemeRemoved,
-      schemeToRegister: item.schemeRegistrar.schemeToRegister,
-      schemeToRegisterPermission: item.schemeRegistrar.schemeToRegisterPermission,
-      schemeToRemove: item.schemeRegistrar.schemeToRemove
+      pluginRegistered: item.schemeRegistrar.schemeRegistered,
+      pluginRemoved: item.schemeRegistrar.schemeRemoved,
+      pluginToRegister: item.schemeRegistrar.schemeToRegister,
+      pluginToRegisterPermission: item.schemeRegistrar.schemeToRegisterPermission,
+      pluginToRemove: item.schemeRegistrar.schemeToRemove
     }
   }
 
