@@ -235,7 +235,7 @@ export async function voteToPassProposal(proposal: AnyProposal) {
     return !!state
   })
 
-  for (let i = 0; i <= 3; i++) {
+  for (let i = 0; i <= 5; i++) {
     try {
       arc.setAccount(accounts[i])
       await proposal.vote(IProposalOutcome.Pass).send()

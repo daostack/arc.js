@@ -51,7 +51,7 @@ describe('JoinAndQuit', () => {
 
     const fee = new BN(1000)
     const descriptionHash = 'hello'
-    const proposedMember = accounts[daoState.memberCount + 2].toLowerCase()
+    const proposedMember = accounts[daoState.memberCount].toLowerCase()
     arc.setAccount(proposedMember)
 
     let tx
@@ -88,27 +88,28 @@ describe('JoinAndQuit', () => {
       reputationMinted: new BN(0)
     })
 
-    // accept the proposal by voting the hell out of it
     await voteToPassProposal(proposal)
 
-    await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
+    await waitUntilTrue(async () => {
+      // for some reason that I cannot fathom, amountRedeemed is not updated from the subscripton
+      // so we fetch the state
+      const proposalState  = await proposal.fetchState({fetchPolicy: 'no-cache'}, true)
+      states.push(proposalState)
+      return proposalState.stage === IProposalStage.Executed
+    })
+
+    // await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Executed
     })
 
     const memberCount = (await dao.fetchState({}, true)).memberCount
-    // now we can redeem the proposal
+    // now we can redeem the proposal, which should make the proposed member a member
     await proposal.redeem().send()
-
-    // member.state().subscribe((state) => {
-    //   memberState = state
-    // })
     await waitUntilTrue(async () => {
-      return (await dao.fetchState({}, true)).memberCount > memberCount
+      const state = await dao.fetchState({fetchPolicy: 'no-cache'}, true)
+      return state.memberCount > memberCount
     })
-    // const member = await dao.member(proposedMember)
-    // const memberState = await member.fetchState({ fetchPolicy: 'cache-only'}, true)
-    // expect(memberState.reputation).toEqual(new BN(1000))
 
   })
 })
