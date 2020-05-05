@@ -1,24 +1,30 @@
 import { first} from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IExecutionState,
-  IProposalCreateOptions,
+import { 
+  Arc,
+  DAO,
   IProposalOutcome,
   IProposalStage,
   IProposalState,
-  IProposalType,
-  Proposal } from '../src/proposal'
-import { IContributionReward } from '../src/schemes/contributionReward'
+  Proposal, 
+  ContributionRewardProposal,
+  AnyProposal,
+  IProposalCreateOptionsCR,
+  ContributionRewardPlugin,
+  IContributionRewardProposalState,
+  IExecutionState
+  } from '../src'
 
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { createAProposal,
   fromWei,
   getTestAddresses,
+  getTestScheme,
   ITestAddresses,
   newArc,
   toWei,
   voteToPassProposal,
-  waitUntilTrue
+  waitUntilTrue,
+  createCRProposal
 } from './utils'
 import { getAddress } from 'ethers/utils'
 
@@ -30,19 +36,22 @@ describe('Proposal', () => {
   let arc: Arc
   let addresses: ITestAddresses
   let dao: DAO
-  let executedProposal: Proposal
-  let queuedProposal: Proposal
-  let preBoostedProposal: Proposal
+  let executedProposal: ContributionRewardProposal
+  let queuedProposal: ContributionRewardProposal
+  let preBoostedProposal: ContributionRewardProposal
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = await getTestAddresses(arc)
-    const { Avatar, executedProposalId, queuedProposalId, preBoostedProposalId } = addresses.test
-    dao = arc.dao(Avatar.toLowerCase())
+    addresses = await getTestAddresses()
+    const { executedProposalId, queuedProposalId, preBoostedProposalId } = addresses
+    dao = arc.dao(addresses.dao.Avatar.toLowerCase())
     // check if the executedProposalId indeed has the correct state
-    executedProposal = await dao.proposal(executedProposalId)
-    queuedProposal = await dao.proposal(queuedProposalId)
-    preBoostedProposal = await dao.proposal(preBoostedProposalId)
+    executedProposal = new ContributionRewardProposal(arc, executedProposalId)
+    await executedProposal.fetchState()
+    queuedProposal = new ContributionRewardProposal(arc, queuedProposalId)
+    await queuedProposal.fetchState()
+    preBoostedProposal = new ContributionRewardProposal(arc, preBoostedProposalId)
+    await preBoostedProposal.fetchState()
   })
 
   it('get list of proposals', async () => {
@@ -69,14 +78,14 @@ describe('Proposal', () => {
     expect(ls1.length).toBeGreaterThan(3)
     const state0 = await ls1[0].fetchState()
     const state1 = await ls1[1].fetchState()
-    expect(state0.createdAt).toBeLessThanOrEqual(state1.createdAt)
+    expect(state0.createdAt as number).toBeLessThanOrEqual(state1.createdAt as number)
 
     const ls2 = await dao.proposals({ orderBy: 'createdAt', orderDirection: 'desc'}).pipe(first()).toPromise()
     const state3 = await ls2[0].fetchState()
     const state2 = await ls2[1].fetchState()
-    expect(state2.createdAt).toBeLessThanOrEqual(state3.createdAt)
+    expect(state2.createdAt as number).toBeLessThanOrEqual(state3.createdAt as number)
 
-    expect(state1.createdAt).toBeLessThanOrEqual(state2.createdAt)
+    expect(state1.createdAt as number).toBeLessThanOrEqual(state2.createdAt as number)
   })
 
   it('proposal.search() accepts expiresInQueueAt argument', async () => {
@@ -90,26 +99,20 @@ describe('Proposal', () => {
 
   it('proposal.search() accepts scheme argument', async () => {
     const state = await queuedProposal.fetchState()
-    const l1 = await Proposal.search(arc, { where: { scheme: state.scheme.id}}).pipe(first()).toPromise()
+    const l1 = await Proposal.search(arc, { where: { scheme: state.plugin.id}}).pipe(first()).toPromise()
     expect(l1.length).toBeGreaterThan(0)
   })
 
   it('proposal.search() accepts type argument', async () => {
-    let ls: Proposal[]
-    ls = await Proposal.search(arc, { where: {type: IProposalType.ContributionReward}}).pipe(first()).toPromise()
+    let ls: AnyProposal[]
+    ls = await Proposal.search(arc, { where: {type: "ContributionReward"}}).pipe(first()).toPromise()
     expect(ls.length).toBeGreaterThan(0)
-    ls = await Proposal.search(arc, { where: {type: IProposalType.GenericScheme}}).pipe(first()).toPromise()
-    expect(ls.length).toBeGreaterThan(0)
-    ls = await Proposal.search(arc, { where: {type: IProposalType.SchemeRegistrarAdd}}).pipe(first()).toPromise()
-    // expect(ls.length).toEqual(0)
-    ls = await Proposal.search(arc, { where: {type: IProposalType.SchemeRegistrarRemove}}).pipe(first()).toPromise()
-    // expect(ls.length).toEqual(0)
   })
 
   it('proposal.search ignores case in address', async () => {
     const proposalState = await queuedProposal.fetchState()
     const proposer = proposalState.proposer
-    let result: Proposal[]
+    let result: AnyProposal[]
 
     result = await Proposal.search(arc, { where: {proposer, id: queuedProposal.id}}).pipe(first()).toPromise()
     expect(result.length).toEqual(1)
@@ -139,7 +142,8 @@ describe('Proposal', () => {
 
   it('get list of redeemable proposals for a user', async () => {
     // check if the executedProposalId indeed has the correct state
-    const proposal = await dao.proposal(executedProposal.id)
+    const searched = await Proposal.search(arc, { where: { id: executedProposal.id} }).pipe(first()).toPromise()
+    const proposal = searched[0]
     const proposalState = await proposal.fetchState()
     expect(proposalState.accountsWithUnclaimedRewards.length).toEqual(4)
     const someAccount = proposalState.accountsWithUnclaimedRewards[1]
@@ -153,11 +157,12 @@ describe('Proposal', () => {
       id: proposal.id
     }}).pipe(first()).toPromise()
 
-    expect(shouldBeJustThisExecutedProposal.map((p: Proposal) => p.id)).toEqual([proposal.id])
+    expect(shouldBeJustThisExecutedProposal.map((p: AnyProposal) => p.id)).toEqual([proposal.id])
   })
 
   it('state should be available before the data is indexed', async () => {
-    const options = {
+    const options: IProposalCreateOptionsCR = {
+      dao: dao.id,
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
@@ -166,33 +171,49 @@ describe('Proposal', () => {
       periodLength: 0,
       periods: 1,
       reputationReward: toWei('10'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      plugin: getTestScheme("ContributionReward")
     }
 
-    const response = await (dao as DAO).createProposal(options as IProposalCreateOptions).send()
-    const proposal = response.result as Proposal
+    const proposal = await createCRProposal(arc, options)
 
-    const proposalState = await proposal.fetchState()
     // the state is null because the proposal has not been indexed yet
-    expect(proposalState).toEqual(null)
+    // TODO: so is this test supposed to fail?
+    await expect(proposal.fetchState()).rejects.toThrow(
+      /Fetch state returned null. Entity not indexed yet or does not exist with this id/i
+    )
   })
 
   it('Check queued proposal state is correct', async () => {
 
     const proposal = preBoostedProposal
+
+    //make sure proposal is indexed
+    const proposalStates: IContributionRewardProposalState[] = []
+
+    proposal.state({}).pipe(first()).subscribe((result: IContributionRewardProposalState) => {
+      if(result) {
+        proposalStates.push(result)
+      }
+    })
+
+    await waitUntilTrue(() => proposalStates.length > 0)
+
     const pState = await proposal.fetchState()
+    const plugin = pState.plugin.entity as ContributionRewardPlugin
     expect(proposal).toBeInstanceOf(Proposal)
 
-    const contributionReward = pState.contributionReward as IContributionReward
-    expect(fromWei(contributionReward.nativeTokenReward)).toEqual('10.0')
+    expect(fromWei(pState.nativeTokenReward)).toEqual('10.0')
     expect(fromWei(pState.stakesAgainst)).toEqual('100.0')
     expect(fromWei(pState.stakesFor)).toEqual('1000.0')
-    expect(fromWei(contributionReward.reputationReward)).toEqual('10.0')
-    expect(fromWei(contributionReward.ethReward)).toEqual('10.0')
-    expect(fromWei(contributionReward.externalTokenReward)).toEqual('10.0')
+    expect(fromWei(pState.reputationReward)).toEqual('10.0')
+    expect(fromWei(pState.ethReward)).toEqual('10.0')
+    expect(fromWei(pState.externalTokenReward)).toEqual('10.0')
     expect(fromWei(pState.votesFor)).toEqual('0.0')
     expect(fromWei(pState.votesAgainst)).toEqual('0.0')
 
+
+    //TODO: This comparison one makes the heap run out of memory, probably because of entityRef stringifying
+    
     expect(pState).toMatchObject({
         boostedAt: 0,
         description: '',
@@ -222,27 +243,32 @@ describe('Proposal', () => {
         url: '',
         winningOutcome: IProposalOutcome.Fail
     })
-    expect(pState.contributionReward).toMatchObject({
-        beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
-        periodLength: 0,
-        periods: 1
-    })
-    expect(pState.scheme).toMatchObject({
-        canDelegateCall: false,
-        canManageGlobalConstraints: false,
-        canRegisterSchemes: false,
-        dao: dao.id,
-        name: 'ContributionReward'
-    })
-    expect(pState.scheme.contributionRewardParams).toBeTruthy()
-    expect(pState.scheme.contributionRewardExtParams).toBeFalsy()
-    expect(pState.queue.threshold).toBeGreaterThan(0)
+
+    expect(pState.beneficiary).toEqual('0xffcf8fdee72ac11b5c542428b35eef5769c409f0')
+    expect(pState.periodLength).toEqual(0)
+    expect(pState.periods).toEqual(1)
+
+    const pluginState = await pState.plugin.entity.fetchState()
+
+    expect(pluginState.canDelegateCall).toEqual(false)
+    expect(pluginState.canManageGlobalConstraints).toEqual(false)
+    expect(pluginState.canRegisterPlugins).toEqual(false)
+    expect(pluginState.dao.id).toEqual(dao.id)
+    expect(pluginState.name).toEqual('ContributionReward')
+
+    if(!plugin.coreState) throw new Error("Plugin coreState is not defined")
+
+    expect(plugin.coreState.pluginParams).toBeTruthy()
+
+    if(!pState.queue.entity.coreState) throw new Error("Queue coreState is not defined")
+
+    expect(pState.queue.entity.coreState.threshold).toBeGreaterThan(0)
     // check if the upstakeNeededToPreBoost value is correct
     //  (S+/S-) > AlphaConstant^NumberOfBoostedProposal.
-    const boostedProposals = await pState.dao
+    const boostedProposals = await pState.dao.entity
       .proposals({ where: {stage: IProposalStage.Boosted}}).pipe(first()).toPromise()
     const numberOfBoostedProposals = boostedProposals.length
-    expect(pState.queue.threshold.toString())
+    expect(pState.queue.entity.coreState.threshold.toString())
       .toEqual(Math.pow(pState.genesisProtocolParams.thresholdConst, numberOfBoostedProposals).toString())
 
     // expect(pState.stakesFor.add(pState.upstakeNeededToPreBoost).div(pState.stakesAgainst).toString())
@@ -257,7 +283,7 @@ describe('Proposal', () => {
     expect(pState.upstakeNeededToPreBoost).toEqual(new BN(0))
     // check if the upstakeNeededToPreBoost value is correct
     //  (S+/S-) > AlphaConstant^NumberOfBoostedProposal.
-    const boostedProposals = await pState.dao
+    const boostedProposals = await pState.dao.entity
       .proposals({ where: {stage: IProposalStage.Boosted}}).pipe(first()).toPromise()
     const numberOfBoostedProposals = boostedProposals.length
 
@@ -279,7 +305,11 @@ describe('Proposal', () => {
     const stakeAmount = toWei('18')
 
     if(!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     await proposal.stakingToken().mint(defaultAccount, stakeAmount).send()
     const votingMachine = await proposal.votingMachine()
@@ -296,6 +326,7 @@ describe('Proposal', () => {
     const proposal = await createAProposal()
     // vote with several accounts
     await voteToPassProposal(proposal)
+    await new Promise((resolve) => setTimeout(() => resolve(), 1000))
     const votes = await proposal.votes({}, { fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
     expect(votes.length).toBeGreaterThanOrEqual(1)
     // @ts-ignore
@@ -309,7 +340,7 @@ describe('Proposal', () => {
     // TODO: write this test!
     const states: IProposalState[] = []
     const proposal = await createAProposal()
-    proposal.state().subscribe(
+    proposal.state({}).subscribe(
       (state: any) => {
         states.push(state)
       },

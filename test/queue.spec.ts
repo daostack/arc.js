@@ -1,8 +1,7 @@
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { Queue } from '../src/queue'
+import { inspect } from 'util'
 import { getTestAddresses, getTestDAO, ITestAddresses,  newArc } from './utils'
+import { ContributionRewardProposal, Arc, DAO, Queue } from '../src'
 
 jest.setTimeout(20000)
 
@@ -17,7 +16,7 @@ describe('Queue', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = await getTestAddresses(arc)
+    addresses = await getTestAddresses()
     dao = await getTestDAO()
   })
 
@@ -51,12 +50,15 @@ describe('Queue', () => {
   })
 
   it('Queue.state() should be equal to proposal.state().queue', async () => {
-    const { queuedProposalId } = addresses.test
-    const proposal = await dao.proposal(queuedProposalId)
+    const { queuedProposalId } = addresses
+    const proposal = await new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
-    const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.dao)
+    const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.entity.dao)
     const queueState = await queue.fetchState()
-    expect(proposalState.queue).toEqual(queueState)
+
+    if(!proposalState.queue.entity.coreState) throw new Error("Proposal's queue coreState not defined")
+
+    expect(inspect(proposalState.queue.entity.coreState)).toBe(inspect(queueState))
   })
 
   it('paging and sorting works', async () => {
@@ -71,4 +73,5 @@ describe('Queue', () => {
     const ls3 = await Queue.search(arc, {  orderBy: 'id', orderDirection: 'desc'}).pipe(first()).toPromise()
     expect(ls3[0].id >= ls3[1].id).toBeTruthy()
   })
+
 })

@@ -5,7 +5,7 @@ jest.setTimeout(20000)
 /**
  * Tests to see if the apollo retry link works as expected
  */
-describe('client handles errors', () => {
+describe('arc.js handles errors', () => {
 
   it('will retry on failed connection', async () => {
     // get all DAOs
@@ -30,7 +30,7 @@ describe('client handles errors', () => {
 
     const arc = new Arc({
       graphqlHttpProvider,
-      graphqlRetryLink: retryLink,
+      retryLink: retryLink,
       graphqlWsProvider,
       ipfsProvider: '',
       web3Provider: 'http://127.0.0.1:8545'

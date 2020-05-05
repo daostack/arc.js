@@ -1,46 +1,52 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
-import { Arc, IApolloQueryOptions } from './arc'
-import { DAO } from './dao'
-import { ISchemeState, Scheme } from './scheme'
-import { Address, ICommonQueryOptions, IStateful } from './types'
-import { createGraphQlQuery, isAddress, realMathToNumber } from './utils'
+import {
+  Address,
+  AnyPlugin,
+  Arc,
+  createGraphQlQuery,
+  DAO,
+  Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  IEntityRef,
+  IPluginState,
+  isAddress,
+  Plugin,
+  Plugins,
+  realMathToNumber
+} from './index'
 
 export interface IQueueState {
-  dao: DAO
+  dao: IEntityRef<DAO>
   id: string
   name: string
-  scheme: ISchemeState
+  plugin: IEntityRef<AnyPlugin>
   threshold: number
   votingMachine: Address
 }
 
 export interface IQueueQueryOptions extends ICommonQueryOptions {
   where?: {
-    dao?: Address,
+    dao?: Address
     votingMachine?: Address
-    scheme?: Address
+    plugin?: Address
     [key: string]: any
   }
 }
 
-export class Queue implements IStateful<IQueueState> {
-
-  /**
-   * Queue.search(context, options) searches for queue entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IQueueQueryOptions
-   * @return         an observable of Queue objects
-   */
+export class Queue extends Entity<IQueueState> {
   public static search(
     context: Arc,
     options: IQueueQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Queue[]> {
-    if (!options.where) { options.where = {} }
+    if (!options.where) {
+      options.where = {}
+    }
     let where = ''
+
     for (const key of Object.keys(options.where)) {
       if (options[key] === undefined) {
         continue
@@ -64,40 +70,65 @@ export class Queue implements IStateful<IQueueState> {
             id
           }
           scheme {
-            id
-            address
-            name
-            numberOfBoostedProposals
-            numberOfPreBoostedProposals
-            numberOfQueuedProposals
+            ...PluginFields
           }
         }
       }
+
+      ${Plugin.baseFragment}
     `
 
-    const itemMap = (item: any): Queue|null => {
-      // we must filter explictly by name as the subgraph does not return the name
+    const itemMap = (arc: Arc, item: any, queriedId?: string) =>
+      new Queue(arc, item.id, new DAO(arc, item.dao.id))
 
-      return new Queue(
-        context,
-        item.id,
-        new DAO(context, item.dao.id)
-      )
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
+      Queue[]
+    >
+  }
+
+  public static itemMap(context: Arc, item: any, queriedId?: string): IQueueState {
+    if (!item) {
+      throw Error(`Queue ItemMap failed. ${queriedId && `Could not find Queue with id '${queriedId}'`}`)
+    }
+    const threshold = realMathToNumber(new BN(item.threshold))
+
+    const pluginState: IPluginState = Plugins[item.scheme.name].itemMap(
+      context,
+      item.scheme,
+      queriedId
+    )
+
+    if (!pluginState) {
+      throw new Error('Queue\'s plugin state is null')
     }
 
-    return context.getObservableList(query, itemMap, apolloQueryOptions) as Observable<Queue[]>
+    const plugin = new Plugins[item.scheme.name](context, pluginState)
+    const dao = new DAO(context, item.dao.id)
+    return {
+      dao: {
+        id: dao.id,
+        entity: dao
+      },
+      id: item.id,
+      name: item.scheme.name,
+      plugin: {
+        id: item.scheme.id,
+        entity: plugin
+      },
+      threshold,
+      votingMachine: item.votingMachine
+    }
   }
 
-  constructor(
-    public context: Arc,
-    public id: string,
-    public dao: DAO
-  ) {
+  constructor(context: Arc, idOrOpts: string | IQueueState, public dao: DAO) {
+    super(context, idOrOpts)
     this.context = context
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IQueueState> {
-    return await this.state(apolloQueryOptions).pipe(first()).toPromise()
+    if (typeof idOrOpts === 'string') {
+      this.id = idOrOpts
+    } else {
+      this.id = idOrOpts.id
+      this.setState(idOrOpts as IQueueState)
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IQueueState> {
@@ -109,31 +140,21 @@ export class Queue implements IStateful<IQueueState> {
             id
           }
           scheme {
-            ...SchemeFields
+            ...PluginFields
           }
           votingMachine
           threshold
         }
       }
-      ${Scheme.fragments.SchemeFields}
+      ${Plugin.baseFragment}
     `
 
-    const itemMap = (item: any): IQueueState => {
-      if (!item) {
-        throw Error(`No gpQueue with id ${this.id} was found`)
-      }
-      const threshold = realMathToNumber(new BN(item.threshold))
-      const scheme = Scheme.itemMap(this.context, item.scheme) as ISchemeState
-      return {
-        dao: item.dao.id,
-        id: item.id,
-        name: scheme.name,
-        scheme,
-        threshold,
-        votingMachine: item.votingMachine
-      }
-    }
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<IQueueState>
+    return this.context.getObservableObject(
+      this.context,
+      query,
+      Queue.itemMap,
+      this.id,
+      apolloQueryOptions
+    ) as Observable<IQueueState>
   }
 }

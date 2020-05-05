@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IContributionRewardExt](icontributionrewardext.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IContributionRewardExt](icontributionrewardext.md)
 
 # Interface: IContributionRewardExt
 
@@ -33,7 +33,7 @@
 
 • **alreadyRedeemedEthPeriods**: *number*
 
-*Defined in [src/schemes/contributionRewardExt.ts:21](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L21)*
+*Defined in [src/schemes/contributionRewardExt.ts:21](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L21)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **alreadyRedeemedExternalTokenPeriods**: *number*
 
-*Defined in [src/schemes/contributionRewardExt.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L20)*
+*Defined in [src/schemes/contributionRewardExt.ts:20](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L20)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **alreadyRedeemedNativeTokenPeriods**: *number*
 
-*Defined in [src/schemes/contributionRewardExt.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L18)*
+*Defined in [src/schemes/contributionRewardExt.ts:18](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L18)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **alreadyRedeemedReputationPeriods**: *number*
 
-*Defined in [src/schemes/contributionRewardExt.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L19)*
+*Defined in [src/schemes/contributionRewardExt.ts:19](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L19)*
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **beneficiary**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/contributionRewardExt.ts:10](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L10)*
+*Defined in [src/schemes/contributionRewardExt.ts:10](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L10)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **ethReward**: *BN*
 
-*Defined in [src/schemes/contributionRewardExt.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L13)*
+*Defined in [src/schemes/contributionRewardExt.ts:13](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L13)*
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 • **ethRewardLeft**: *BN*
 
-*Defined in [src/schemes/contributionRewardExt.ts:24](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L24)*
+*Defined in [src/schemes/contributionRewardExt.ts:24](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L24)*
 
 ___
 
@@ -89,7 +89,7 @@ ___
 
 • **externalToken**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/contributionRewardExt.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L12)*
+*Defined in [src/schemes/contributionRewardExt.ts:12](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L12)*
 
 ___
 
@@ -97,7 +97,7 @@ ___
 
 • **externalTokenReward**: *BN*
 
-*Defined in [src/schemes/contributionRewardExt.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L11)*
+*Defined in [src/schemes/contributionRewardExt.ts:11](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L11)*
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 • **externalTokenRewardLeft**: *BN*
 
-*Defined in [src/schemes/contributionRewardExt.ts:25](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L25)*
+*Defined in [src/schemes/contributionRewardExt.ts:25](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L25)*
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 • **nativeTokenReward**: *BN*
 
-*Defined in [src/schemes/contributionRewardExt.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L14)*
+*Defined in [src/schemes/contributionRewardExt.ts:14](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L14)*
 
 ___
 
@@ -121,7 +121,7 @@ ___
 
 • **nativeTokenRewardLeft**: *BN*
 
-*Defined in [src/schemes/contributionRewardExt.ts:23](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L23)*
+*Defined in [src/schemes/contributionRewardExt.ts:23](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L23)*
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 • **periodLength**: *number*
 
-*Defined in [src/schemes/contributionRewardExt.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L16)*
+*Defined in [src/schemes/contributionRewardExt.ts:16](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L16)*
 
 ___
 
@@ -137,7 +137,7 @@ ___
 
 • **periods**: *number*
 
-*Defined in [src/schemes/contributionRewardExt.ts:15](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L15)*
+*Defined in [src/schemes/contributionRewardExt.ts:15](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L15)*
 
 ___
 
@@ -145,7 +145,7 @@ ___
 
 • **reputationChangeLeft**: *BN*
 
-*Defined in [src/schemes/contributionRewardExt.ts:22](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L22)*
+*Defined in [src/schemes/contributionRewardExt.ts:22](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L22)*
 
 ___
 
@@ -153,4 +153,4 @@ ___
 
 • **reputationReward**: *BN*
 
-*Defined in [src/schemes/contributionRewardExt.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionRewardExt.ts#L17)*
+*Defined in [src/schemes/contributionRewardExt.ts:17](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L17)*

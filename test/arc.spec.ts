@@ -1,22 +1,25 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
-import Arc from '../src/index'
-import { Proposal } from '../src/proposal'
-import { Scheme } from '../src/scheme'
-import { REDEEMER_CONTRACT_VERSIONS } from '../src/settings'
-import { Address } from '../src/types'
+import {
+  Arc,
+  Plugin,
+  REDEEMER_CONTRACT_VERSIONS,
+  Address
+} from '../src/index'
 import {
   fromWei,
-  getTestAddresses,
   newArc,
   newArcWithoutEthereum,
   newArcWithoutGraphql,
   toWei,
-  waitUntilTrue
+  waitUntilTrue,
+  getTestAddresses
 } from './utils'
 
 import { BigNumber } from 'ethers/utils'
+import { Wallet } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
 
 jest.setTimeout(20000)
 
@@ -59,7 +62,11 @@ describe('Arc ', () => {
     await arc.approveForStaking(spender, amount).send()
 
     if (!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     arc.allowance(defaultAccount, spender).subscribe(
       (next: BN) => {
@@ -80,7 +87,11 @@ describe('Arc ', () => {
     await arc.approveForStaking(spender, amount).send()
 
     if (!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     arc.allowance(defaultAccount, spender).subscribe(
       (next: BN) => {
@@ -100,7 +111,11 @@ describe('Arc ', () => {
     await waitUntilTrue(() => addressesObserved.length > 0)
 
     if (!arc.web3) throw new Error('Web3 provider not set')
-    const defaultAccount = arc.defaultAccount ? arc.defaultAccount : await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     expect(addressesObserved[0]).toEqual(defaultAccount)
   })
@@ -181,30 +196,24 @@ describe('Arc ', () => {
     expect(Object.keys(arc.observedAccounts).length).toEqual(0)
   })
 
-  it('arc.proposal() should work', async () => {
-    const arc = await newArc()
-    const proposal = arc.proposal(getTestAddresses(arc).test.executedProposalId)
-    expect(proposal).toBeInstanceOf(Proposal)
-  })
-
   it('arc.proposals() should work', async () => {
     const arc = await newArc()
     const proposals = await arc.proposals().pipe(first()).toPromise()
     expect(typeof proposals).toEqual(typeof [])
-    expect(proposals.length).toBeGreaterThanOrEqual(6)
+    expect(proposals.length).toBeGreaterThanOrEqual(4)
   })
 
-  it('arc.scheme() should work', async () => {
+  it('arc.plugin() should work', async () => {
     const arc = await newArc()
-    const schemeId = '0x124355'
-    const scheme = await arc.scheme(schemeId)
-    expect(scheme).toBeInstanceOf(Scheme)
+    const pluginId = '0x124355'
+    const plugin = await arc.plugin(pluginId, "GenericScheme")
+    expect(plugin).toBeInstanceOf(Plugin)
   })
 
-  it('arc.schemes() should work', async () => {
+  it('arc.plugins() should work', async () => {
     const arc = await newArc()
-    const schemes = await arc.schemes().pipe(first()).toPromise()
-    expect(schemes.length).toBeGreaterThan(0)
+    const plugins = await arc.plugins().pipe(first()).toPromise()
+    expect(plugins.length).toBeGreaterThan(0)
   })
 
   it('arc.fetchContractInfos() should return lower case addresses', async () => {
@@ -217,7 +226,82 @@ describe('Arc ', () => {
   it('arc.getABI works', async () => {
     const arc = await newArc()
     await arc.fetchContractInfos()
-    const abi = arc.getABI(undefined, 'Redeemer', REDEEMER_CONTRACT_VERSIONS[0])
+    const abi = arc.getABI({abiName: 'Redeemer', version: REDEEMER_CONTRACT_VERSIONS[0]})
     expect(abi[0].name).toEqual('redeem')
+  })
+
+  it('new Arc fails when a custom signer has no provider', async () => {
+    await expect(
+      newArc({
+        web3Provider: new Wallet(
+          '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52'
+        )
+      })
+    ).rejects.toThrow(
+      /Ethers Signer is missing a provider,/i
+    )
+  })
+
+  it('arc.getContract uses the custom signer', async () => {
+    const signer = new Wallet(
+      '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
+      new JsonRpcProvider('http://127.0.0.1:8545')
+    )
+
+    const arc = await newArc({
+      web3Provider: signer
+    })
+
+    const avatar = arc.getContract(getTestAddresses().dao.Avatar)
+
+    expect(await avatar.signer.getAddress())
+      .toEqual(await signer.getAddress())
+  })
+
+  it('arc.getAccount works with a custom signer', async () => {
+    const signer = new Wallet(
+      '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
+      new JsonRpcProvider('http://127.0.0.1:8545')
+    )
+
+    const arc = await newArc({
+      web3Provider: signer
+    })
+
+    expect(await arc.getAccount().pipe(first()).toPromise())
+      .toEqual(await signer.getAddress())
+  })
+
+  it('arc.setAccount fails when a custom signer is used', async () => {
+    const signer = new Wallet(
+      '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
+      new JsonRpcProvider('http://127.0.0.1:8545')
+    )
+
+    const arc = await newArc({
+      web3Provider: signer
+    })
+
+    const promisify = new Promise(() => {
+      arc.setAccount('0xADDRESS')
+    })
+
+    await expect(promisify).rejects.toThrow(
+      /The account cannot be set post-initialization when a custom Signer is being used/i
+    )
+  })
+
+  it('arc.getSigner returns the custom signer', async () => {
+    const signer = new Wallet(
+      '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
+      new JsonRpcProvider('http://127.0.0.1:8545')
+    )
+
+    const arc = await newArc({
+      web3Provider: signer
+    })
+
+    expect(await (await arc.getSigner().pipe(first()).toPromise()).getAddress())
+      .toEqual(await signer.getAddress())
   })
 })

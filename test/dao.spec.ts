@@ -1,14 +1,16 @@
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IProposalStage, Proposal } from '../src/proposal'
-import { fromWei,
-  getTestAddresses,
+import { Arc, IProposalCreateOptionsCR, AnyProposal } from '../src'
+import { DAO } from '../src'
+import { IProposalStage, Proposal } from '../src'
+import { 
+  fromWei,
   getTestDAO,
+  getTestScheme,
   newArc,
   newArcWithoutGraphql,
   toWei,
-  waitUntilTrue
+  waitUntilTrue,
+  createCRProposal
 } from './utils'
 import { BigNumber } from 'ethers/utils'
 
@@ -42,14 +44,14 @@ describe('DAO', () => {
 
   it('fetchAllData in DAO.search works', async () => {
     let result: DAO[]
-    result = await DAO.search(arc, {}, { fetchAllData: true}).pipe(first()).toPromise()
+    result = await DAO.search(arc).pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(1)
   })
 
   it('should be possible to get the token balance of the DAO', async () => {
     const dao = await getTestDAO()
     const { token } = await dao.fetchState()
-    const balance = await token.balanceOf(dao.id).pipe(first()).toPromise()
+    const balance = await token.entity.balanceOf(dao.id).pipe(first()).toPromise()
     expect(fromWei(balance)).toEqual('0.0')
   })
 
@@ -71,7 +73,6 @@ describe('DAO', () => {
     const state = await dao.fetchState()
     expect(Object.keys(state)).toEqual([
       'address',
-      'dao',
       'id',
       'memberCount',
       'name',
@@ -95,7 +96,7 @@ describe('DAO', () => {
     expect.assertions(1)
     const dao = new DAO(arc, '0xfake')
     await expect(dao.state().toPromise()).rejects.toThrow(
-      'Could not find a DAO with id 0xfake'
+      /Could not find DAO with id '0xfake'/i
     )
   })
 
@@ -103,7 +104,11 @@ describe('DAO', () => {
     const dao = await getTestDAO()
 
     if(!arc.web3) throw new Error("Web3 provider not set")
-    const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     const member = await dao.member(defaultAccount)
     expect(typeof member).toEqual(typeof [])
@@ -117,12 +122,6 @@ describe('DAO', () => {
     const member = members[3]
     const memberState = await member.fetchState()
     expect(Number(fromWei(memberState.reputation))).toBeGreaterThan(0)
-  })
-
-  it('dao.proposal() should work', async () => {
-    const dao = await getTestDAO()
-    const proposal = await dao.proposal(getTestAddresses(arc).test.executedProposalId)
-    expect(proposal).toBeInstanceOf(Proposal)
   })
 
   it('dao.proposals() should work', async () => {
@@ -148,7 +147,7 @@ describe('DAO', () => {
 
   it('createProposal should work', async () => {
     const dao = await getTestDAO(arc)
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       ethReward: toWei('300'),
@@ -156,12 +155,12 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      plugin: getTestScheme("ContributionReward")
     }
 
-    const response = await dao.createProposal(options).send()
-    const proposal = response.result as Proposal
-    let proposals: Proposal[] = []
+    const proposal = await createCRProposal(arc, options)
+
+    let proposals: AnyProposal[] = []
     const proposalIsIndexed = async () => {
       proposals = await Proposal.search(arc, {where: {id: proposal.id}}, { fetchPolicy: 'network-only'})
         .pipe(first()).toPromise()
@@ -175,7 +174,7 @@ describe('DAO', () => {
   it.skip('createProposal should work without a graphql connection', async () => {
     const arcWithoutGraphql = await newArcWithoutGraphql()
     const dao = await getTestDAO(arcWithoutGraphql)
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       ethReward: toWei('300'),
@@ -183,27 +182,26 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      plugin: getTestScheme("ContributionReward")
     }
 
-    await dao.createProposal(options).send()
+    await createCRProposal(arc, options)
   })
 
-  it('dao.schemes() should work', async () => {
+  it('dao.plugins() should work', async () => {
     const dao = await getTestDAO()
-    let schemes = await dao.schemes().pipe(first()).toPromise()
-    expect(typeof schemes).toEqual(typeof [])
-    expect(schemes.length).toBeGreaterThanOrEqual(3)
-    schemes = await dao.schemes({ where: {name: 'ContributionReward'}}).pipe(first()).toPromise()
-    expect(schemes.length).toBeGreaterThanOrEqual(1)
+    let plugins = await dao.plugins().pipe(first()).toPromise()
+    expect(typeof plugins).toEqual(typeof [])
+    expect(plugins.length).toBeGreaterThanOrEqual(3)
+    plugins = await dao.plugins({ where: {name: 'ContributionReward'}}).pipe(first()).toPromise()
+    expect(plugins.length).toBeGreaterThanOrEqual(1)
   })
 
   it('dao.ethBalance() should work', async () => {
     const dao = await getTestDAO()
-    const previousBalance = await dao.ethBalance().pipe(first()).toPromise()
+    const previousBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     if(!arc.web3) throw new Error("Web3 provider not set")
-    //const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
 
     await arc.web3.getSigner().sendTransaction({
       gasLimit: 4000000,
@@ -211,7 +209,8 @@ describe('DAO', () => {
       to: dao.id,
       value: new BigNumber(toWei('1').toString()).toHexString()
     })
-    const newBalance = await dao.ethBalance().pipe(first()).toPromise()
+
+    const newBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     expect(Number(fromWei(newBalance.sub(previousBalance)))).toBe(1)
   })

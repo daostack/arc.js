@@ -6,8 +6,7 @@ import {
 import { TransactionResponse } from 'ethers/providers'
 import { Observable, Observer } from 'rxjs'
 import { first, take } from 'rxjs/operators'
-import { Arc } from './arc'
-import { Logger } from './logger'
+import { Arc, Logger } from '../index'
 
 export interface ITransaction {
   contract: Contract
@@ -21,10 +20,7 @@ export interface ITransaction {
   }
 }
 
-export {
-  ITransactionReceipt,
-  ITransactionEvent
-}
+export { ITransactionReceipt, ITransactionEvent }
 
 export enum ITransactionState {
   Sending,
@@ -97,6 +93,26 @@ export function sendTransaction<T>(
   mapReceipt: transactionResultHandler<T>,
   errorHandler: transactionErrorHandler
 ): Operation<T> {
+  const methodInfo = tx.contract.interface.functions[tx.method]
+
+  if (methodInfo === undefined) {
+    throw Error(
+      `Trying to call non-existent function named '${tx.method}' at address ${tx.contract.address}`
+    )
+  }
+
+  if (methodInfo.type === 'call') {
+    throw Error(
+      `Trying to send a transaction to a pure function named '${tx.method}' at address ${tx.contract.address}`
+    )
+  }
+
+  if (methodInfo.inputs.length !== tx.args.length) {
+    throw Error(
+      `Incorrect number of arguments. Expected ${methodInfo.inputs.length} for method '${tx.method}', ` +
+        `got ${tx.args.length}.\nInputs: ${JSON.stringify(methodInfo.inputs, null, 2)}`
+    )
+  }
 
   const observable = Observable.create(async (observer: Observer<ITransactionUpdate<T>>) => {
     const catchHandler = async (error: Error, transaction: ITransaction, from?: string) => {
@@ -112,19 +128,19 @@ export function sendTransaction<T>(
     const signer = await context.getSigner().pipe(first()).toPromise()
 
     // Construct a new contract with the current signer
-    const contract = new Contract(
-      tx.contract.address,
-      tx.contract.interface,
-      signer
-    )
+    const contract = new Contract(tx.contract.address, tx.contract.interface, signer)
 
     let gasLimit: number = 0
 
-    if (tx.opts?.gasLimit) {
+    if (!tx.opts) {
+      tx.opts = {}
+    }
+
+    if (tx.opts.gasLimit) {
       gasLimit = tx.opts.gasLimit
     } else {
       try {
-        gasLimit = (await contract.estimate[tx.method](...tx.args)).toNumber()
+        gasLimit = (await contract.estimate[tx.method](...tx.args, tx.opts)).toNumber()
       } catch (error) {
         await catchHandler(error, tx, await signer.getAddress())
       }
@@ -193,7 +209,9 @@ export function sendTransaction<T>(
 
     // Subscribe to new blocks, and look for new confirmations on our transaction
     const onNewBlock = async (blockNumber: number) => {
-      const { confirmations: latestConfirmations } = await web3.getTransactionReceipt(response.hash as string)
+      const { confirmations: latestConfirmations } = await web3.getTransactionReceipt(
+        response.hash as string
+      )
 
       if (!latestConfirmations || confirmations >= latestConfirmations) {
         // Wait for a new block, as there are no new confirmations
@@ -226,7 +244,6 @@ export function sendTransaction<T>(
 }
 
 export function toIOperationObservable<T>(observable: Observable<T>): IOperationObservable<T> {
-
   // the 3rd update we get from the observable is the confirmation that it is mined
   // @ts-ignore
   observable.send = () => observable.pipe(take(3)).toPromise()
@@ -234,14 +251,16 @@ export function toIOperationObservable<T>(observable: Observable<T>): IOperation
   return observable
 }
 
-export function getEvent(receipt: ITransactionReceipt, eventName: string, codeScope: string): ITransactionEvent {
+export function getEvent(
+  receipt: ITransactionReceipt,
+  eventName: string,
+  codeScope: string
+): ITransactionEvent {
   if (!receipt.events || receipt.events.length === 0) {
     throw Error(`${codeScope}: missing events in receipt`)
   }
 
-  const event = receipt.events.find(
-    (e: ITransactionEvent) => e.event === eventName
-  )
+  const event = receipt.events.find((e: ITransactionEvent) => e.event === eventName)
 
   if (!event) {
     throw Error(`${codeScope}: missing ${eventName} event`)
@@ -250,7 +269,11 @@ export function getEvent(receipt: ITransactionReceipt, eventName: string, codeSc
   return event
 }
 
-export function getEventArgs(receipt: ITransactionReceipt, eventName: string, codeScope: string): any[] {
+export function getEventArgs(
+  receipt: ITransactionReceipt,
+  eventName: string,
+  codeScope: string
+): any[] {
   return getEventAndArgs(receipt, eventName, codeScope)[1]
 }
 

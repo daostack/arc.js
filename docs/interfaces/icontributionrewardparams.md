@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IContributionRewardParams](icontributionrewardparams.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IContributionRewardParams](icontributionrewardparams.md)
 
 # Interface: IContributionRewardParams
 
@@ -19,9 +19,9 @@
 
 • **voteParams**: *[IGenesisProtocolParams](igenesisprotocolparams.md)*
 
-*Defined in [src/schemes/base.ts:59](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L59)*
+*Defined in [src/schemes/base.ts:51](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L51)*
 
-*Defined in [src/scheme.ts:61](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L61)*
+*Defined in [src/scheme.ts:58](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L58)*
 
 ___
 
@@ -29,6 +29,6 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/base.ts:58](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L58)*
+*Defined in [src/schemes/base.ts:50](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L50)*
 
-*Defined in [src/scheme.ts:60](https://github.com/dorgtech/client/blob/19b4373/src/scheme.ts#L60)*
+*Defined in [src/scheme.ts:57](https://github.com/daostack/arc.js/blob/6c661ff/src/scheme.ts#L57)*

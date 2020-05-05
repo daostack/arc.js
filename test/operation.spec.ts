@@ -1,6 +1,7 @@
-import { ITransactionState, ITransactionUpdate } from '../src/operation'
-import { Proposal } from '../src/proposal'
-import { getTestAddresses, getTestDAO, mineANewBlock, toWei, waitUntilTrue } from './utils'
+import { ITransactionState, ITransactionUpdate } from '../src/'
+import { Proposal, IProposalCreateOptionsCR, ContributionRewardPlugin } from '../src'
+import { getTestDAO, mineANewBlock, toWei, waitUntilTrue, getTestScheme } from './utils'
+import { IContributionRewardProposalState } from '../src/plugins/contributionReward/proposal'
 
 jest.setTimeout(20000)
 
@@ -9,20 +10,22 @@ describe('Operation', () => {
   it('returns the correct sequence of states', async () => {
     const dao = await getTestDAO()
     const arc = dao.context
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      scheme: getTestAddresses(arc).base.ContributionReward
+      plugin: getTestScheme("ContributionReward")
     }
 
+    const plugin = new ContributionRewardPlugin(arc, getTestScheme("ContributionReward"))
+
     // collect the first 4 results of the observable in a a listOfUpdates array
-    const listOfUpdates: Array<ITransactionUpdate<Proposal>> = []
-    dao.createProposal(options).subscribe(
-      (next: ITransactionUpdate<Proposal>) => listOfUpdates.push(next)
+    const listOfUpdates: Array<ITransactionUpdate<Proposal<IContributionRewardProposalState>>> = []
+    plugin.createProposal(options).subscribe(
+      (next: ITransactionUpdate<Proposal<IContributionRewardProposalState>>) => listOfUpdates.push(next)
     )
 
     // wait for the transaction to be mined
@@ -56,7 +59,7 @@ describe('Operation', () => {
 
     expect(listOfUpdates[2].result ).toBeInstanceOf(Proposal)
 
-    expect(listOfUpdates[3].confirmations).toBeGreaterThanOrEqual(3)
+    expect(listOfUpdates[3].confirmations).toBeGreaterThanOrEqual(2)
     expect(listOfUpdates[3]).toMatchObject({
       state: ITransactionState.Mined
     })

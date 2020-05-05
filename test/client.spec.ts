@@ -1,7 +1,6 @@
 import { ApolloClient } from 'apollo-client'
 import gql from 'graphql-tag'
-import { Arc } from '../src/arc'
-import { createApolloClient } from '../src/graphnode'
+import { createApolloClient, Arc } from '../src'
 import { getContractAddressesFromMigration, graphqlHttpProvider, graphqlWsProvider, mintSomeReputation, waitUntilTrue } from './utils'
 import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 
@@ -73,10 +72,10 @@ describe('apolloClient', () => {
     await mintSomeReputation()
 
     // we should have received two reputation events
-    await waitUntilTrue(() => cntr === 2 )
+    await waitUntilTrue(() => cntr >= 2 )
 
     expect(returnedData.length).toBeGreaterThan(0)
-    expect(cntr).toEqual(2)
+    expect(cntr).toBeGreaterThanOrEqual(2)
     subscription.unsubscribe()
   })
 

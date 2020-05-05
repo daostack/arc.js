@@ -1,9 +1,9 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { first} from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { Reputation } from '../src/reputation'
-import { Address } from '../src/types'
-import { getTestAddresses, newArc, toWei, waitUntilTrue } from './utils'
+import { Address } from '../src/'
+import { getTestAddresses, newArc, toWei, waitUntilTrue, ITestAddresses } from './utils'
 
 jest.setTimeout(20000)
 
@@ -12,14 +12,14 @@ jest.setTimeout(20000)
  */
 describe('Reputation', () => {
 
-  let addresses: any
+  let addresses: ITestAddresses
   let arc: Arc
   let address: Address
   let accounts: string[]
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = getTestAddresses(arc)
+    addresses = getTestAddresses()
     address = addresses.dao.Reputation
     if (!arc.web3) throw new Error('Web3 provider not set')
     accounts = await arc.web3.listAccounts()
@@ -35,7 +35,7 @@ describe('Reputation', () => {
     const reputation = new Reputation(arc, address)
     expect(reputation).toBeInstanceOf(Reputation)
     const state = await reputation.fetchState()
-    expect(Object.keys(state)).toEqual(['address', 'dao', 'totalSupply'])
+    expect(Object.keys(state)).toEqual(['id','address', 'dao', 'totalSupply'])
     const expected = {
        address: address.toLowerCase()
     }
@@ -46,7 +46,7 @@ describe('Reputation', () => {
     expect.assertions(1)
     const reputation = new Reputation(arc, '0xe74f3c49c162c00ac18b022856e1a4ecc8947c42')
     await expect(reputation.state().toPromise()).rejects.toThrow(
-      'Could not find a reputation contract with address 0xe74f3c49c162c00ac18b022856e1a4ecc8947c42'
+      /Could not find Reputation with id '0xe74f3c49c162c00ac18b022856e1a4ecc8947c42'/i
     )
   })
 
@@ -58,7 +58,7 @@ describe('Reputation', () => {
   })
 
   it('mint() works', async () => {
-    const reputation = new Reputation(arc, addresses.test.organs.DemoReputation)
+    const reputation = new Reputation(arc, addresses.organs.DemoReputation)
     const reputationBefore = new BN((await reputation.contract().balanceOf(accounts[3])).toString())
     await reputation.mint(accounts[3], toWei(1)).send()
     await reputation.mint(accounts[3], new BN('1')).send()
@@ -71,14 +71,14 @@ describe('Reputation', () => {
   })
 
   it('mint() throws a meaningful error if the sender is not the contract owner', async () => {
-    const reputation = new Reputation(arc, addresses.test.Reputation)
+    const reputation = new Reputation(arc, addresses.dao.Reputation)
     await expect(reputation.mint(accounts[3], toWei(1)).send()).rejects.toThrow(
       /is not the owner/i
     )
   })
 
   it('reputationOf throws a meaningful error if an invalid address is provided', async () => {
-    const reputation = new Reputation(arc, addresses.test.Reputation)
+    const reputation = new Reputation(arc, addresses.dao.Reputation)
     await expect(() => reputation.reputationOf('0xInvalidAddress')).toThrow(
       /not a valid address/i
     )
@@ -96,7 +96,7 @@ describe('Reputation', () => {
 
     const expectedAddresses = [
       address,
-      addresses.test.Reputation
+      addresses.dao.Reputation
     ]
 
     expectedAddresses.forEach((expectedAddress) => {

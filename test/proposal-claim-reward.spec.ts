@@ -1,14 +1,12 @@
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IProposalOutcome, IProposalStage, IProposalState, Proposal } from '../src/proposal'
+import { Arc, DAO, IProposalOutcome, IProposalStage, IProposalState, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericPlugin, GenericPluginProposal, IGenericPluginProposalState } from '../src'
 
-import BN = require('bn.js')
-import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION, newArc,
-  toWei, voteToPassProposal, waitUntilTrue } from './utils'
+import BN from 'bn.js'
+import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, newArc,
+  toWei, voteToPassProposal, waitUntilTrue, createCRProposal, getTestScheme } from './utils'
 import { BigNumber } from 'ethers/utils'
-import { Contract, ethers } from 'ethers'
-import { Scheme } from '../src'
+import { ethers } from 'ethers'
+import { ContributionRewardProposal } from '../src'
 
 jest.setTimeout(60000)
 
@@ -19,7 +17,7 @@ describe('Claim rewards', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    testAddresses = getTestAddresses(arc)
+    testAddresses = getTestAddresses()
     dao = await getTestDAO()
   })
 
@@ -41,39 +39,37 @@ describe('Claim rewards', () => {
       value: new BigNumber(ethReward.toString()).toHexString()
     })
 
-    const daoBalance = await arc.web3.getBalance(dao.id)
+    const daoBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     const daoEthBalance = new BN(daoBalance.toString())
     expect(Number(daoEthBalance.toString())).toBeGreaterThanOrEqual(Number(ethReward.toString()))
 
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary,
       dao: dao.id,
       ethReward,
-      externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward,
       reputationReward,
-      scheme: testAddresses.base.ContributionReward
+      plugin: getTestScheme("ContributionReward")
     }
 
-    const response = await dao.createProposal(options).send()
-    const proposal = response.result as Proposal
+    const proposal = await createCRProposal(arc, options)
 
     // vote for the proposal
     await voteToPassProposal(proposal)
     // check if proposal is indeed accepted etc
-    proposal.state().subscribe(((next) => states.push(next)))
+    proposal.state({}).subscribe(((next) => states.push(next)))
 
     await waitUntilTrue(() => {
       return lastState() && lastState().stage === IProposalStage.Executed
     })
 
-    const daoState = await firstResult(dao.state())
-    const prevNativeTokenBalance = await firstResult(daoState.token.balanceOf(beneficiary))
+    const daoState = await dao.fetchState()
+    const prevNativeTokenBalance = await firstResult(daoState.token.entity.balanceOf(beneficiary))
     const reputationBalances: Array<BN> = []
 
-    daoState.reputation.reputationOf(beneficiary).subscribe((next: BN) => {
+    daoState.reputation.entity.reputationOf(beneficiary).subscribe((next: BN) => {
       reputationBalances.push(next)
     })
 
@@ -82,7 +78,7 @@ describe('Claim rewards', () => {
 
     await proposal.redeemRewards(beneficiary).send()
 
-    const newNativeTokenBalance = await firstResult(daoState.token.balanceOf(beneficiary))
+    const newNativeTokenBalance = await firstResult(daoState.token.entity.balanceOf(beneficiary))
     expect(newNativeTokenBalance.sub(prevNativeTokenBalance).toString()).toEqual(nativeTokenReward.toString())
 
     const newBalance = await arc.web3.getBalance(beneficiary)
@@ -98,31 +94,31 @@ describe('Claim rewards', () => {
 
   it('works for external token', async () => {
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    const externalTokenAddress = testAddresses.base.GEN
     const externalTokenReward = new BN(12345)
 
-    await arc.GENToken().transfer(dao.id, externalTokenReward).send()
+    const gen = arc.GENToken()
+    await gen.transfer(dao.id, externalTokenReward).send()
     const daoBalance =  await firstResult(arc.GENToken().balanceOf(dao.id))
     expect(Number(daoBalance.toString())).toBeGreaterThanOrEqual(Number(externalTokenReward.toString()))
-    const options = {
+    const options: IProposalCreateOptionsCR = {
       beneficiary,
       dao: dao.id,
       ethReward: new BN(0),
-      externalTokenAddress,
+      externalTokenAddress: gen.address,
       externalTokenReward,
       nativeTokenReward: new BN(0),
       reputationReward: new BN(0),
-      scheme: testAddresses.base.ContributionReward
+      plugin: getTestScheme("ContributionReward")
     }
 
-    const response = await dao.createProposal(options).send()
-    const proposal = response.result as Proposal
+    const proposal = await createCRProposal(arc, options)
 
     // vote for the proposal with all the votest
     await voteToPassProposal(proposal)
     // check if prposal is indeed accepted etc
     const states: IProposalState[] = []
-    proposal.state().subscribe(((next) => states.push(next)))
+
+    proposal.state({}).subscribe(((next) => states.push(next)))
     const lastState = () => states[states.length - 1]
 
     await waitUntilTrue(() => {
@@ -138,44 +134,61 @@ describe('Claim rewards', () => {
 
   })
 
+  //TODO: check this one
   it('redeemRewards should also work without providing a "beneficiary" argument', async () => {
-    const proposal: Proposal = await createAProposal()
+    const proposal = await createAProposal()
     await proposal.redeemRewards().send()
   })
 
   it('redeemRewards should also work for expired proposals', async () => {
-     const proposal: Proposal = await arc.proposal(testAddresses.test.queuedProposalId)
+     const proposal = new ContributionRewardProposal(arc, testAddresses.queuedProposalId)
      await proposal.redeemRewards().send()
   })
 
   it('works with non-CR proposal', async () => {
 
-    const version = '0.0.1-rc.32'
-    testAddresses = getTestAddresses(arc)
-    // dao = await getTestDAO()
-    const ugenericSchemes = await arc.schemes({where: {name: "UGenericScheme", version}}).pipe(first()).toPromise()
-    const ugenericScheme = ugenericSchemes[0] as Scheme
-    const ugenericSchemeState = await ugenericScheme.fetchState()
-    dao  = new DAO(arc, ugenericSchemeState.dao)
+    testAddresses = getTestAddresses()
+    const genericSchemes = await arc.plugins({where: {name: 'GenericScheme' }}).pipe(first()).toPromise()
+    const genericScheme = genericSchemes[0] as GenericPlugin
+    const genericSchemeState = await genericScheme.state({}).pipe(first()).toPromise()
+
+    dao  = new DAO(arc, genericSchemeState.dao.id)
 
     const beneficiary = await arc.getAccount().pipe(first()).toPromise()
     const stakeAmount = new BN(123456789)
     await arc.GENToken().transfer(dao.id, stakeAmount).send()
-    const actionMockABI = arc.getABI(undefined, 'ActionMock', LATEST_ARC_VERSION)
+    const actionMockABI = arc.getABI({abiName: 'ActionMock', version: LATEST_ARC_VERSION})
 
     if(!arc.web3) throw new Error("Web3 provider not set")
 
-    const actionMock = new Contract(testAddresses.test.ActionMock.toString(), actionMockABI, arc.web3.getSigner())
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
-    const proposal = await createAProposal(dao, {
+    const tx = await genericScheme.createProposal({
       callData,
-      scheme: ugenericSchemeState.address,
-      schemeToRegister: actionMock.address,
+      dao: dao.id,
+      plugin: genericSchemeState.address,
       value: 0
-    })
+    }).send()
 
-    const proposalState = await proposal.fetchState()
+    if(!tx.result) throw new Error('Response yielded no result')
+
+    const proposal = new GenericPluginProposal(arc, tx.result.id)
+    const proposalStates: IGenericPluginProposalState[] = []
+
+    proposal.state({}).subscribe(
+      (next) => {
+        if (next) {
+          proposalStates.push(next)
+        }
+      },
+      (error: Error) => { throw error }
+    )
+
+    // wait until the propsal is indexed
+    await waitUntilTrue(() => proposalStates.length > 0)
+
+    const proposalState = proposalStates[0]
+
     await arc.GENToken().approveForStaking(proposalState.votingMachine, stakeAmount).send()
     await proposal.stake(IProposalOutcome.Pass, stakeAmount).send()
 
@@ -183,7 +196,7 @@ describe('Claim rewards', () => {
     await voteToPassProposal(proposal)
     // check if prposal is indeed accepted etc
     const states: IProposalState[] = []
-    proposal.state().subscribe(((next) => states.push(next)))
+    proposal.state({}).subscribe(((next) => states.push(next)))
     const lastState = () => states[states.length - 1]
 
     await waitUntilTrue(() => {

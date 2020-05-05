@@ -1,6 +1,4 @@
-import { IProposalOutcome } from '../src/proposal'
-import { Reward } from '../src/reward'
-import { Vote } from '../src/vote'
+import { IProposalOutcome, Reward, Vote } from '../src'
 import { createAProposal,
   voteToPassProposal,
   waitUntilTrue
@@ -36,7 +34,11 @@ describe('Vote on a ContributionReward', () => {
 
     if(!proposal.context.web3) throw new Error('Web3 provider not set')
 
-    const defaultAccount = proposal.context.defaultAccount? proposal.context.defaultAccount : await proposal.context.web3.getSigner().getAddress()
+    let defaultAccount = await proposal.context.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await proposal.context.web3.getSigner().getAddress()
+    }
 
     await waitUntilTrue(() => lastRewards().length > 1)
     expect(lastRewards().map((r: Reward) => (r.coreState as any).beneficiary))

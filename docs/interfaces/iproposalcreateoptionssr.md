@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IProposalCreateOptionsSR](iproposalcreateoptionssr.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IProposalCreateOptionsSR](iproposalcreateoptionssr.md)
 
 # Interface: IProposalCreateOptionsSR
 
@@ -15,7 +15,6 @@
 * [dao](iproposalcreateoptionssr.md#dao)
 * [description](iproposalcreateoptionssr.md#optional-description)
 * [descriptionHash](iproposalcreateoptionssr.md#optional-descriptionhash)
-* [parametersHash](iproposalcreateoptionssr.md#optional-parametershash)
 * [permissions](iproposalcreateoptionssr.md#optional-permissions)
 * [proposalType](iproposalcreateoptionssr.md#optional-proposaltype)
 * [scheme](iproposalcreateoptionssr.md#optional-scheme)
@@ -32,7 +31,7 @@
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[dao](iproposalbasecreateoptions.md#dao)*
 
-*Defined in [src/proposal.ts:959](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L959)*
+*Defined in [src/proposal.ts:961](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L961)*
 
 ___
 
@@ -42,7 +41,7 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[description](iproposalbasecreateoptions.md#optional-description)*
 
-*Defined in [src/proposal.ts:960](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L960)*
+*Defined in [src/proposal.ts:962](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L962)*
 
 ___
 
@@ -52,15 +51,7 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[descriptionHash](iproposalbasecreateoptions.md#optional-descriptionhash)*
 
-*Defined in [src/proposal.ts:961](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L961)*
-
-___
-
-### `Optional` parametersHash
-
-• **parametersHash**? : *undefined | string*
-
-*Defined in [src/schemes/schemeRegistrar.ts:22](https://github.com/dorgtech/client/blob/19b4373/src/schemes/schemeRegistrar.ts#L22)*
+*Defined in [src/proposal.ts:963](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L963)*
 
 ___
 
@@ -68,7 +59,7 @@ ___
 
 • **permissions**? : *undefined | string*
 
-*Defined in [src/schemes/schemeRegistrar.ts:23](https://github.com/dorgtech/client/blob/19b4373/src/schemes/schemeRegistrar.ts#L23)*
+*Defined in [src/schemes/schemeRegistrar.ts:21](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/schemeRegistrar.ts#L21)*
 
 ___
 
@@ -78,7 +69,7 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[proposalType](iproposalbasecreateoptions.md#optional-proposaltype)*
 
-*Defined in [src/proposal.ts:966](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L966)*
+*Defined in [src/proposal.ts:968](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L968)*
 
 ___
 
@@ -88,7 +79,7 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[scheme](iproposalbasecreateoptions.md#optional-scheme)*
 
-*Defined in [src/proposal.ts:964](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L964)*
+*Defined in [src/proposal.ts:966](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L966)*
 
 ___
 
@@ -96,7 +87,7 @@ ___
 
 • **schemeToRegister**? : *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/schemeRegistrar.ts:24](https://github.com/dorgtech/client/blob/19b4373/src/schemes/schemeRegistrar.ts#L24)*
+*Defined in [src/schemes/schemeRegistrar.ts:22](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/schemeRegistrar.ts#L22)*
 
 ___
 
@@ -106,7 +97,7 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[tags](iproposalbasecreateoptions.md#optional-tags)*
 
-*Defined in [src/proposal.ts:963](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L963)*
+*Defined in [src/proposal.ts:965](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L965)*
 
 ___
 
@@ -116,7 +107,7 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[title](iproposalbasecreateoptions.md#optional-title)*
 
-*Defined in [src/proposal.ts:962](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L962)*
+*Defined in [src/proposal.ts:964](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L964)*
 
 ___
 
@@ -126,4 +117,4 @@ ___
 
 *Inherited from [IProposalBaseCreateOptions](iproposalbasecreateoptions.md).[url](iproposalbasecreateoptions.md#optional-url)*
 
-*Defined in [src/proposal.ts:965](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L965)*
+*Defined in [src/proposal.ts:967](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L967)*

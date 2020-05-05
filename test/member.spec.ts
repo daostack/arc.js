@@ -2,9 +2,9 @@ import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO, IDAOState } from '../src/dao'
 import { IMemberState, Member } from '../src/member'
-import { IProposalOutcome, Proposal } from '../src/proposal'
+import { IProposalOutcome, AnyProposal } from '../src'
 import { Stake } from '../src/stake'
-import { Address } from '../src/types'
+import { Address } from '../src/'
 import { Vote } from '../src/vote'
 import { createAProposal, fromWei,
   getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
@@ -27,13 +27,17 @@ describe('Member', () => {
     daoState = await dao.fetchState()
 
     if(!arc.web3) throw new Error("Web3 provider not set")
-    defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+    defaultAccount = await arc.getDefaultAddress() as string
+
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
   })
 
   it('Member is instantiable', () => {
     const member = new Member(arc, Member.calculateId({
       address: defaultAccount,
-      contract: daoState.reputation.address
+      contract: daoState.reputation.entity.address
     }))
     expect(member).toBeInstanceOf(Member)
     const memberFromId = new Member(arc, '0xsomeId')
@@ -45,7 +49,8 @@ describe('Member', () => {
     const member = members[0]
     const memberState = await member.fetchState()
     expect(Number(memberState.reputation)).toBeGreaterThan(0)
-    expect(memberState.dao).toBe(dao.id.toLowerCase())
+    expect(memberState.createdAt).not.toBeNaN()
+    expect(memberState.dao.id).toBe(dao.id.toLowerCase())
   })
 
   it('Member is usable without knowing id or contract', async () => {
@@ -53,7 +58,7 @@ describe('Member', () => {
     const member = members[0]
     const memberState = await member.fetchState()
     const newMember = new Member(arc, Member.calculateId({
-      contract: daoState.reputation.address,
+      contract: daoState.reputation.entity.address,
       address: memberState.address
     }))
     const newMemberState = await newMember.fetchState()
@@ -61,9 +66,9 @@ describe('Member', () => {
   })
 
   it('Member proposals() works', async () => {
-    const member = new Member(arc, Member.calculateId({ address: defaultAccount, contract: daoState.reputation.address }))
-    let proposals: Proposal[] = []
-    member.proposals().subscribe((next: Proposal[]) => proposals = next)
+    const member = new Member(arc, Member.calculateId({ address: defaultAccount, contract: daoState.reputation.entity.address }))
+    let proposals: AnyProposal[] = []
+    member.proposals().subscribe((next: AnyProposal[]) => proposals = next)
     // wait until the proposal has been indexed
     await waitUntilTrue(() => proposals.length > 0)
 
@@ -74,15 +79,17 @@ describe('Member', () => {
   it('Member stakes() works', async () => {
     if (!arc.web3) throw new Error('Web3 provider not set')
     const stakerAccount = await arc.web3.getSigner(0).getAddress()
-    const member = new Member(arc, Member.calculateId({ address: stakerAccount, contract: daoState.reputation.address}))
+    const member = new Member(arc, Member.calculateId({ address: stakerAccount, contract: daoState.reputation.entity.address}))
     const proposal = await createAProposal()
     const stakingToken =  await proposal.stakingToken()
+
     // mint tokens with defaultAccount
     await stakingToken.mint(stakerAccount, toWei('10000')).send()
     // switch the defaultAccount to a fresh one
 
     stakingToken.context.defaultAccount = stakerAccount
     const votingMachine = await proposal.votingMachine()
+
     await stakingToken.approveForStaking(votingMachine.address, toWei('1000')).send()
 
     await proposal.stake(IProposalOutcome.Pass, toWei('99')).send()
@@ -91,9 +98,11 @@ describe('Member', () => {
       (next: Stake[]) => { stakes = next }
     )
     // wait until the proposal has been indexed
+
     await waitUntilTrue(() => stakes.length > 0)
 
     expect(stakes.length).toBeGreaterThan(0)
+
     const stakeState = await stakes[0].fetchState()
     expect(stakeState.staker).toEqual(stakerAccount.toLowerCase())
     expect(fromWei(stakeState.amount)).toEqual('99.0')
@@ -104,7 +113,7 @@ describe('Member', () => {
   it('Member votes() works', async () => {
     const member = new Member(arc, Member.calculateId({
       address: defaultAccount,
-      contract: daoState.reputation.address
+      contract: daoState.reputation.entity.address
     }))
     const proposal = await createAProposal()
     const votes: Vote[][] = []
@@ -116,7 +125,7 @@ describe('Member', () => {
     const proposalIds: string[] = []
     await Promise.all(votes[votes.length - 1].map(async (vote) => {
       const voteState = await vote.fetchState()
-      proposalIds.push(voteState.proposal)
+      proposalIds.push(voteState.proposal.id)
     }))
     expect(proposalIds).toContain(proposal.id)
   })

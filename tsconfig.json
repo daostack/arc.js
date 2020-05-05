@@ -2,7 +2,7 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "lib": ["es2016", "es2017", "dom", "esnext.asynciterable"],
-    "module":"commonjs",
+    "module":"CommonJS",
     "moduleResolution": "node",
     "declaration": true,
     "declarationDir": "dist/types",
@@ -12,9 +12,11 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
+    "esModuleInterop": true,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "target": "es5",
+    "noImplicitReturns": true,
     "typeRoots": [
       "node_modules/@types"
     ]

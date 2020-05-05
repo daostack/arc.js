@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IApproval](iapproval.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IApproval](iapproval.md)
 
 # Interface: IApproval
 
@@ -23,7 +23,7 @@
 
 • **contract**: *[Address](../globals.md#address)*
 
-*Defined in [src/token.ts:32](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L32)*
+*Defined in [src/token.ts:32](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L32)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **id**: *[Hash](../globals.md#hash)*
 
-*Defined in [src/token.ts:30](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L30)*
+*Defined in [src/token.ts:30](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L30)*
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 • **owner**: *[Address](../globals.md#address)*
 
-*Defined in [src/token.ts:33](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L33)*
+*Defined in [src/token.ts:33](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L33)*
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **spender**: *[Address](../globals.md#address)*
 
-*Defined in [src/token.ts:34](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L34)*
+*Defined in [src/token.ts:34](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L34)*
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **txHash**: *[Hash](../globals.md#hash)*
 
-*Defined in [src/token.ts:31](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L31)*
+*Defined in [src/token.ts:31](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L31)*
 
 ___
 
@@ -63,4 +63,4 @@ ___
 
 • **value**: *BN*
 
-*Defined in [src/token.ts:35](https://github.com/dorgtech/client/blob/19b4373/src/token.ts#L35)*
+*Defined in [src/token.ts:35](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L35)*

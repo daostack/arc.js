@@ -1,71 +1,89 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { concatMap, first, map } from 'rxjs/operators'
-import { Arc } from './arc'
-import { IApolloQueryOptions } from './graphnode'
-import { IMemberQueryOptions, Member } from './member'
-import { toIOperationObservable } from './operation'
-import { IProposalCreateOptions, IProposalQueryOptions, Proposal } from './proposal'
-import { Reputation } from './reputation'
-import { IRewardQueryOptions, Reward } from './reward'
-import { ISchemeQueryOptions, Scheme } from './scheme'
-import { SchemeBase } from './schemes/base'
-import { IStakeQueryOptions, Stake } from './stake'
-import { Token } from './token'
-import { Address, ICommonQueryOptions, IStateful } from './types'
-import { createGraphQlQuery, isAddress } from './utils'
-import { IVoteQueryOptions, Vote } from './vote'
+import { first, map } from 'rxjs/operators'
+import {
+  Address,
+  AnyPlugin,
+  AnyProposal,
+  AnyProposalPlugin,
+  Arc,
+  createGraphQlQuery,
+  Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  IEntityRef,
+  IMemberQueryOptions,
+  IMemberState,
+  IPluginQueryOptions,
+  IProposalBaseCreateOptions,
+  IProposalQueryOptions,
+  IRewardQueryOptions,
+  isAddress,
+  IStakeQueryOptions,
+  IVoteQueryOptions,
+  Member,
+  Plugin,
+  Proposal,
+  ProposalPlugin,
+  Reputation,
+  Reward,
+  Stake,
+  Token,
+  Vote
+} from './index'
 
 export interface IDAOState {
-  id: Address,
-  address: Address, // address of the avatar
-  name: string,
-  register: 'na'|'proposed'|'registered'|'unRegistered',
-  reputation: Reputation,
-  token: Token,
-  tokenName: string,
+  id: Address
+  address: Address // address of the avatar
+  name: string
+  register: 'na' | 'proposed' | 'registered' | 'unRegistered'
+  reputation: IEntityRef<Reputation>
+  token: IEntityRef<Token>
+  tokenName: string
   tokenSymbol: string
-  memberCount: number,
-  reputationTotalSupply: BN,
-  tokenTotalSupply: BN,
-  dao?: DAO,
-  numberOfQueuedProposals: number,
-  numberOfPreBoostedProposals: number,
+  memberCount: number
+  reputationTotalSupply: BN
+  tokenTotalSupply: BN
+  numberOfQueuedProposals: number
+  numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
 }
 
 export interface IDAOQueryOptions extends ICommonQueryOptions {
   where?: {
-    address?: Address,
-    name?: string,
-    register?: 'na'|'proposed'|'registered'|'unRegistered',
-    [key: string]: any
+    address?: Address;
+    name?: string;
+    register?: 'na' | 'proposed' | 'registered' | 'unRegistered';
+    [key: string]: any;
   }
 }
 
-export class DAO implements IStateful<IDAOState> {
+export class DAO extends Entity<IDAOState> {
   public static fragments = {
     DAOFields: gql`
       fragment DAOFields on DAO {
         id
         name
-        nativeReputation { id, totalSupply }
-        nativeToken { id, name, symbol, totalSupply }
+        nativeReputation {
+          id
+          totalSupply
+        }
+        nativeToken {
+          id
+          name
+          symbol
+          totalSupply
+        }
         numberOfQueuedProposals
         numberOfPreBoostedProposals
         numberOfBoostedProposals
         register
         reputationHoldersCount
-    }`
+      }
+    `
   }
 
-  /**
-   * DAO.search(context, options) searches for DAO entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IDAOQueryOptions
-   * @return         an observable of DAO objects
-   */
   public static search(
     context: Arc,
     options: IDAOQueryOptions = {},
@@ -89,79 +107,50 @@ export class DAO implements IStateful<IDAOState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    let query
-    if (apolloQueryOptions.fetchAllData === true) {
-      query = gql`query SearchDaosWithAllData {
-        daos ${createGraphQlQuery(options, where)} {
-          ...DAOFields
-          }
+    const query = gql`query SearchDaosWithAllData {
+      daos ${createGraphQlQuery(options, where)} {
+        ...DAOFields
         }
-        ${DAO.fragments.DAOFields}`
-    } else {
-      query = gql`query SearchDaoIds {
-        daos ${createGraphQlQuery(options, where)} {
-          id
-        }
-      }`
+      }
+      ${DAO.fragments.DAOFields}`
 
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = DAO.itemMap(arc, item, queriedId)
+      return new DAO(arc, state)
     }
 
-    return context.getObservableList(
-      query,
-      (r: any) => {
-        if (apolloQueryOptions.fetchAllData) {
-          const reputation = new Reputation(context, r.nativeReputation.id)
-          const token = new Token(context, r.nativeToken.id)
-          return new DAO(context, {
-            address: r.id,
-            id: r.id,
-            memberCount: Number(r.reputationHoldersCount),
-            name: r.name,
-            numberOfBoostedProposals: Number(r.numberOfBoostedProposals),
-            numberOfPreBoostedProposals: Number(r.numberOfPreBoostedProposals),
-            numberOfQueuedProposals: Number(r.numberOfQueuedProposals),
-            register: r.register,
-            reputation,
-            reputationTotalSupply: new BN(r.nativeReputation.totalSupply),
-            token,
-            tokenName: r.nativeToken.name,
-            tokenSymbol: r.nativeToken.symbol,
-            tokenTotalSupply: r.nativeToken.totalSupply
-          })
-        } else {
-          return new DAO(context, r.id)
-        }
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions)
+  }
+
+  public static itemMap = (context: Arc, item: any, queriedId?: string): IDAOState => {
+    if (!item) {
+      throw Error(`DAO ItemMap failed. ${queriedId && `Could not find DAO with id '${queriedId}'`}`)
+    }
+
+    return {
+      address: item.id,
+      id: item.id,
+      memberCount: Number(item.reputationHoldersCount),
+      name: item.name,
+      numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
+      numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
+      numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
+      register: item.register,
+      reputation: {
+        id: item.nativeReputation.id,
+        entity: new Reputation(context, item.nativeReputation.id)
       },
-      apolloQueryOptions
-    )
-  }
-
-  public id: Address
-  public coreState: IDAOState|undefined
-
-  constructor(public context: Arc, idOrOpts: Address|IDAOState) {
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts.toLowerCase()
-    } else {
-      this.id = idOrOpts.address
-      this.setState(idOrOpts)
+      reputationTotalSupply: new BN(item.nativeReputation.totalSupply),
+      token: {
+        id: item.nativeToken.id,
+        entity: new Token(context, item.nativeToken.id)
+      },
+      tokenName: item.nativeToken.name,
+      tokenSymbol: item.nativeToken.symbol,
+      tokenTotalSupply: item.nativeToken.totalSupply
     }
   }
 
-  public setState(opts: IDAOState) {
-    this.coreState = opts
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IDAOState> {
-    const state =  await this.state(apolloQueryOptions).pipe(first()).toPromise()
-    this.setState(state)
-    return state
-  }
-
-  /**
-   * get the current state of the DAO
-   * @return an Observable of IDAOState
-   */
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IDAOState> {
     const query = gql`query DAOById {
         dao(id: "${this.id}") {
@@ -171,58 +160,57 @@ export class DAO implements IStateful<IDAOState> {
       ${DAO.fragments.DAOFields}
      `
 
-    const itemMap = (item: any): IDAOState => {
-      if (item === null) {
-        throw Error(`Could not find a DAO with id ${this.id}`)
-      }
-      const reputation = new Reputation(this.context, item.nativeReputation.id)
-      const token = new Token(this.context, item.nativeToken.id)
-      const state = {
-        address: item.id,
-        dao: this,
-        id: item.id,
-        memberCount: Number(item.reputationHoldersCount),
-        name: item.name,
-        numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
-        numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
-        numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-        register: item.register,
-        reputation,
-        reputationTotalSupply: new BN(item.nativeReputation.totalSupply),
-        token,
-        tokenName: item.nativeToken.name,
-        tokenSymbol: item.nativeToken.symbol,
-        tokenTotalSupply: item.nativeToken.totalSupply
-      }
-      this.setState(state)
-      return state
-    }
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, DAO.itemMap, this.id, apolloQueryOptions)
   }
 
-  /*
-   * return the nativeReputation of the DAO
-   * @returns an (Observable) that returns a Reputation instance
-   */
   public nativeReputation(): Observable<Reputation> {
-    return this.state().pipe(first()).pipe(map((r) => r.reputation))
+    return this.state()
+      .pipe(first())
+      .pipe(map((r) => r.reputation.entity))
   }
 
-  public schemes(
-    options: ISchemeQueryOptions = {},
+  public async ethBalance(): Promise<Observable<BN>> {
+    const avatar = this.context.getContract(this.id)
+    return this.context.ethBalance(await avatar.vault())
+  }
+
+  public plugins(
+    options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<SchemeBase[]> {
-    if (!options.where) { options.where = {}}
+  ): Observable<AnyPlugin[]> {
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.dao = this.id
-    return Scheme.search(this.context, options, apolloQueryOptions)
+    return Plugin.search(this.context, options, apolloQueryOptions)
   }
 
-  public async scheme(options: ISchemeQueryOptions): Promise<SchemeBase> {
-    const schemes = await this.schemes(options).pipe(first()).toPromise()
-    if (schemes.length === 1) {
-      return schemes[0]
+  public proposalPlugins(
+    options: IPluginQueryOptions = {},
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Observable<AnyProposalPlugin[]> {
+    if (!options.where) {
+      options.where = {}
+    }
+    options.where.dao = this.id
+    return ProposalPlugin.search(this.context, options, apolloQueryOptions)
+  }
+
+  public async plugin(options: IPluginQueryOptions): Promise<AnyPlugin> {
+    const plugins = await this.plugins(options).pipe(first()).toPromise()
+    if (plugins.length === 1) {
+      return plugins[0]
     } else {
-      throw Error('Could not find a unique scheme satisfying these options')
+      throw Error('Could not find a unique plugin satisfying these options')
+    }
+  }
+
+  public async proposalPlugin(options: IPluginQueryOptions): Promise<AnyProposalPlugin> {
+    const plugins = await this.proposalPlugins(options).pipe(first()).toPromise()
+    if (plugins.length === 1) {
+      return plugins[0]
+    } else {
+      throw Error('Could not find a unique plugin satisfying these options')
     }
   }
 
@@ -230,62 +218,29 @@ export class DAO implements IStateful<IDAOState> {
     options: IMemberQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Member[]> {
-    if (!options.where) { options.where = {} }
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.dao = this.id
     return Member.search(this.context, options, apolloQueryOptions)
   }
 
-  public member(address: Address): Member {
-    if (this.coreState) {
-      // construct member with the reputationcontract address, if this is known
-      // so it can make use of the apollo cache
-      return new Member(this.context, {
-        address,
-        contract: this.coreState.reputation.address,
-        reputation: this.coreState.reputationTotalSupply
-      })
-    } else {
-      return new Member(this.context, { address, dao: this.id, reputation: new BN(0)})
-    }
-  }
-
-  /**
-   * create a new proposal in this DAO
-   * @param  options [description]
-   * @return a Proposal instance
-   */
-  public createProposal(options: IProposalCreateOptions) {
-    options.dao = this.id
-
-    if (!options.scheme) {
-      throw Error(`dao.createProposal(options): options must include an address for "scheme"`)
-    }
-
-    const schemesQuery = this.schemes(
-      { where: {
-        address: options.scheme,
-        dao: options.dao
-      }}
-    )
-
-    const observable = schemesQuery.pipe(
-      first(),
-      concatMap((schemes) => {
-        if (schemes && schemes.length > 0) {
-          return schemes[0].createProposal(options)
-        } else {
-          throw Error(`No scheme with address ${options.scheme} is registered with dao ${options.dao}`)
-        }
+  public member(idOrOpts: IMemberState | string): Member {
+    if (typeof idOrOpts !== 'string') {
+      if (this.coreState) {
+        // construct member with the reputationcontract address, if this is known
+        // so it can make use of the apollo cache
+        idOrOpts.reputation = this.coreState.reputationTotalSupply
+        idOrOpts.contract = this.coreState.reputation.entity.address
       }
-    ))
-
-    return toIOperationObservable(observable)
+    }
+    return new Member(this.context, idOrOpts)
   }
 
   public proposals(
     options: IProposalQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<Proposal[]> {
+  ): Observable<AnyProposal[]> {
     if (!options.where) {
       options.where = {}
     }
@@ -293,15 +248,13 @@ export class DAO implements IStateful<IDAOState> {
     return Proposal.search(this.context, options, apolloQueryOptions)
   }
 
-  public proposal(proposalId: string ): Proposal {
-    return new Proposal(this.context, proposalId)
-  }
-
   public rewards(
     options: IRewardQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Reward[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.dao = this.id
     return Reward.search(this.context, options, apolloQueryOptions)
   }
@@ -310,7 +263,9 @@ export class DAO implements IStateful<IDAOState> {
     options: IVoteQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Vote[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.dao = this.id
     return Vote.search(this.context, options, apolloQueryOptions)
   }
@@ -319,17 +274,27 @@ export class DAO implements IStateful<IDAOState> {
     options: IStakeQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Stake[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) {
+      options.where = {}
+    }
     options.where.dao = this.id
     return Stake.search(this.context, options, apolloQueryOptions)
   }
 
-  /**
-   * get (an observable of) the Ether balance of the DAO from the web3Provider
-   *
-   * @return an observable stream of BN number instances
-   */
-  public ethBalance(): Observable<BN> {
-    return this.context.ethBalance(this.id)
+  public async createProposal(options: IProposalBaseCreateOptions) {
+    options.dao = this.id
+
+    if (!options.plugin) {
+      throw Error(`dao.createProposal(options): options must include an address for "plugin"`)
+    }
+
+    const pluginId = Plugin.calculateId({
+      daoAddress: options.dao,
+      contractAddress: options.plugin
+    })
+
+    const plugin = await this.proposalPlugin({ where: { id: pluginId } })
+
+    return plugin.createProposal(options)
   }
 }

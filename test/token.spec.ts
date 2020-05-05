@@ -1,6 +1,7 @@
 import { first} from 'rxjs/operators'
-import { Address, Arc, Token  } from '../src'
-import BN = require('bn.js')
+import { Arc, Token  } from '../src'
+import { Address } from '../src/'
+import BN from 'bn.js'
 import { fromWei, getTestAddresses, ITestAddresses,
    newArc, toWei, waitUntilTrue } from './utils'
 
@@ -15,7 +16,7 @@ describe('Token', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = getTestAddresses(arc)
+    addresses = getTestAddresses()
     address = addresses.dao.DAOToken
   })
 
@@ -28,7 +29,7 @@ describe('Token', () => {
   it('get the token state', async () => {
     const token = new Token(arc, address)
     const state = await token.fetchState()
-    expect(Object.keys(state)).toEqual(['address', 'name', 'owner', 'symbol', 'totalSupply'])
+    expect(Object.keys(state)).toEqual(['id', 'address', 'name', 'owner', 'symbol', 'totalSupply'])
     const expected = {
        address: address.toLowerCase(),
        owner: addresses.dao.Avatar.toLowerCase()
@@ -40,7 +41,7 @@ describe('Token', () => {
     expect.assertions(1)
     const token = new Token(arc, '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
     await expect(token.state().toPromise()).rejects.toThrow(
-      'Could not find a token contract with address 0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
+      /Could not find Token with id '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'/i
     )
   })
 
@@ -58,7 +59,7 @@ describe('Token', () => {
   })
 
   it('mint some new tokens', async () => {
-    const token = new Token(arc, addresses.test.organs.DemoDAOToken)
+    const token = new Token(arc, addresses.organs.DemoDAOToken)
     const account = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
     // check if the currentAccount is the owner of the contract
     const balances: Array<BN> = []
@@ -95,7 +96,11 @@ describe('Token', () => {
 
     if(!arc.web3) throw new Error("Web3 provider not set")
 
-    const defaultAccount = arc.defaultAccount? arc.defaultAccount: await arc.web3.getSigner().getAddress()
+    let defaultAccount = await arc.getDefaultAddress()
+    
+    if (!defaultAccount) {
+      defaultAccount = await arc.web3.getSigner().getAddress()
+    }
 
     token.allowance(defaultAccount, someAddress).subscribe(
       (next: any) => allowances.push(next)
@@ -109,9 +114,8 @@ describe('Token', () => {
 
   it('get balance of a non-existing token', async () => {
     const token = new Token(arc, '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
-    const promise = token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
-      .pipe(first()).toPromise()
-    await expect(promise).rejects.toThrow(new RegExp("^contract not deployed"))
+    await expect(token.balanceOf('0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1').pipe(first()).toPromise())
+      .rejects.toThrow(/No contract with address/i)
   })
 
   it('paging and sorting works', async () => {

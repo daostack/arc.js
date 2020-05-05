@@ -1,7 +1,7 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { IProposalOutcome, Proposal } from '../src/proposal'
+import { IProposalOutcome, ContributionRewardProposal } from '../src/'
 import { Vote } from '../src/vote'
 import { createAProposal, firstResult,
   getTestAddresses, getTestDAO, ITestAddresses,
@@ -14,14 +14,15 @@ describe('Vote on a ContributionReward', () => {
   let arc: Arc
   let addresses: ITestAddresses
   let dao: DAO
-  let executedProposal: Proposal
+  let executedProposal: ContributionRewardProposal
 
   beforeAll(async () => {
     arc = await newArc()
-    addresses = await getTestAddresses(arc)
+    addresses = await getTestAddresses()
     dao = await getTestDAO()
-    const { executedProposalId} = addresses.test
-    executedProposal = await dao.proposal(executedProposalId)
+    const { executedProposalId } = addresses
+    executedProposal = new ContributionRewardProposal(arc, executedProposalId)
+    await executedProposal.fetchState()
   })
 
   it('works and gets indexed', async () => {
@@ -45,7 +46,7 @@ describe('Vote on a ContributionReward', () => {
     expect(votes.length).toEqual(1)
     const vote = votes[0]
     const voteState = await vote.fetchState()
-    expect(voteState.proposal).toEqual(proposal.id)
+    expect(voteState.proposal.id).toEqual(proposal.id)
     expect(voteState.outcome).toEqual(IProposalOutcome.Pass)
   })
 
@@ -80,7 +81,7 @@ describe('Vote on a ContributionReward', () => {
 
   it('throws a meaningful error if the proposal does not exist', async () => {
     // a non-existing proposal
-    const proposal = new Proposal(
+    const proposal = new ContributionRewardProposal(
       arc,
       '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
     )
@@ -88,9 +89,7 @@ describe('Vote on a ContributionReward', () => {
     if (!arc.web3) throw new Error('Web3 provider not set')
     proposal.context.defaultAccount = await arc.web3.getSigner(2).getAddress()
     await expect(proposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/No proposal/i*/
+      /Fetch state returned null. Entity not indexed yet or does not exist with this id/i
     )
   })
 
@@ -99,13 +98,15 @@ describe('Vote on a ContributionReward', () => {
     await expect(executedProposal.execute().send()).rejects.toThrow(
       // TODO: uncomment when Ethers.js supports revert reasons, see thread:
       // https://github.com/ethers-io/ethers.js/issues/446
-      /*/already executed/i*/
+      // /already executed/i
+      /transaction: revert/i
     )
 
     await expect(executedProposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
       // TODO: uncomment when Ethers.js supports revert reasons, see thread:
       // https://github.com/ethers-io/ethers.js/issues/446
-      /*/already executed/i*/
+      // /already executed/i
+      /transaction: revert/i
     )
   })
 

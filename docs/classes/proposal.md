@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [Proposal](proposal.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [Proposal](proposal.md)
 
 # Class: Proposal
 
@@ -51,7 +51,7 @@
 
 \+ **new Proposal**(`context`: [Arc](arc.md), `idOrOpts`: string | [IProposalState](../interfaces/iproposalstate.md)): *[Proposal](proposal.md)*
 
-*Defined in [src/proposal.ts:334](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L334)*
+*Defined in [src/proposal.ts:333](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L333)*
 
 **Parameters:**
 
@@ -68,7 +68,7 @@ Name | Type |
 
 • **context**: *[Arc](arc.md)*
 
-*Defined in [src/proposal.ts:332](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L332)*
+*Defined in [src/proposal.ts:331](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L331)*
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 • **coreState**: *[IProposalState](../interfaces/iproposalstate.md) | undefined*
 
-*Defined in [src/proposal.ts:334](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L334)*
+*Defined in [src/proposal.ts:333](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L333)*
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/proposal.ts:333](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L333)*
+*Defined in [src/proposal.ts:332](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L332)*
 
 ## Methods
 
@@ -92,7 +92,7 @@ ___
 
 ▸ **execute**(): *[Operation](../globals.md#operation)‹undefined›*
 
-*Defined in [src/proposal.ts:863](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L863)*
+*Defined in [src/proposal.ts:865](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L865)*
 
 call the 'execute()' function on the votingMachine.
 the main purpose of this function is to set the stage of the proposals
@@ -108,7 +108,7 @@ ___
 
 ▸ **executeBoosted**(): *[Operation](../globals.md#operation)‹undefined›*
 
-*Defined in [src/proposal.ts:897](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L897)*
+*Defined in [src/proposal.ts:899](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L899)*
 
 **Returns:** *[Operation](../globals.md#operation)‹undefined›*
 
@@ -118,7 +118,7 @@ ___
 
 ▸ **fetchState**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Promise‹[IProposalState](../interfaces/iproposalstate.md)›*
 
-*Defined in [src/proposal.ts:352](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L352)*
+*Defined in [src/proposal.ts:351](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L351)*
 
 **Parameters:**
 
@@ -134,7 +134,7 @@ ___
 
 ▸ **redeemRewards**(`beneficiary?`: [Address](../globals.md#address)): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [src/proposal.ts:799](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L799)*
+*Defined in [src/proposal.ts:807](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L807)*
 
 [redeemRewards description] Execute the proposal and distribute the rewards
 to the beneficiary.
@@ -156,7 +156,7 @@ ___
 
 ▸ **redeemerContract**(): *Contract‹›*
 
-*Defined in [src/proposal.ts:605](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L605)*
+*Defined in [src/proposal.ts:613](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L613)*
 
 [redeemerContract description]
 
@@ -170,7 +170,7 @@ ___
 
 ▸ **rewards**(`options`: [IRewardQueryOptions](../interfaces/irewardqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Reward](reward.md)[]›*
 
-*Defined in [src/proposal.ts:782](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L782)*
+*Defined in [src/proposal.ts:790](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L790)*
 
 **Parameters:**
 
@@ -187,7 +187,7 @@ ___
 
 ▸ **scheme**(): *Promise‹Contract‹››*
 
-*Defined in [src/proposal.ts:588](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L588)*
+*Defined in [src/proposal.ts:588](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L588)*
 
 **Returns:** *Promise‹Contract‹››*
 
@@ -199,7 +199,7 @@ ___
 
 ▸ **setState**(`opts`: [IProposalState](../interfaces/iproposalstate.md)): *void*
 
-*Defined in [src/proposal.ts:348](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L348)*
+*Defined in [src/proposal.ts:347](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L347)*
 
 **Parameters:**
 
@@ -215,7 +215,7 @@ ___
 
 ▸ **stake**(`outcome`: [IProposalOutcome](../enums/iproposaloutcome.md), `amount`: BN): *[Operation](../globals.md#operation)‹[Stake](stake.md)›*
 
-*Defined in [src/proposal.ts:708](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L708)*
+*Defined in [src/proposal.ts:715](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L715)*
 
 Stake on this proposal
 
@@ -236,7 +236,7 @@ ___
 
 ▸ **stakes**(`options`: [IStakeQueryOptions](../interfaces/istakequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Stake](stake.md)[]›*
 
-*Defined in [src/proposal.ts:696](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L696)*
+*Defined in [src/proposal.ts:703](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L703)*
 
 **Parameters:**
 
@@ -253,7 +253,7 @@ ___
 
 ▸ **stakingToken**(): *[Token](token.md)‹›*
 
-*Defined in [src/proposal.ts:692](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L692)*
+*Defined in [src/proposal.ts:699](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L699)*
 
 **Returns:** *[Token](token.md)‹›*
 
@@ -263,7 +263,7 @@ ___
 
 ▸ **state**(`apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[IProposalState](../interfaces/iproposalstate.md)›*
 
-*Defined in [src/proposal.ts:363](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L363)*
+*Defined in [src/proposal.ts:365](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L365)*
 
 `state` is an observable of the proposal state
 
@@ -281,7 +281,7 @@ ___
 
 ▸ **vote**(`outcome`: [IProposalOutcome](../enums/iproposaloutcome.md), `amount`: number): *[Operation](../globals.md#operation)‹[Vote](vote.md) | null›*
 
-*Defined in [src/proposal.ts:633](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L633)*
+*Defined in [src/proposal.ts:641](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L641)*
 
 Vote for this proposal
 
@@ -302,7 +302,7 @@ ___
 
 ▸ **votes**(`options`: [IVoteQueryOptions](../interfaces/ivotequeryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Vote](vote.md)[]›*
 
-*Defined in [src/proposal.ts:620](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L620)*
+*Defined in [src/proposal.ts:628](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L628)*
 
 **Parameters:**
 
@@ -319,7 +319,7 @@ ___
 
 ▸ **votingMachine**(): *Promise‹Contract‹››*
 
-*Defined in [src/proposal.ts:597](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L597)*
+*Defined in [src/proposal.ts:597](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L597)*
 
 [votingMachine description]
 
@@ -333,7 +333,7 @@ ___
 
 ▸ **search**(`context`: [Arc](arc.md), `options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Proposal](proposal.md)[]›*
 
-*Defined in [src/proposal.ts:243](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L243)*
+*Defined in [src/proposal.ts:242](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L242)*
 
 Search for proposals
 
@@ -358,7 +358,7 @@ For example:
 
 ### ▪ **fragments**: *object*
 
-*Defined in [src/proposal.ts:110](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L110)*
+*Defined in [src/proposal.ts:110](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L110)*
 
 ###  ProposalFields
 
@@ -458,7 +458,6 @@ For example:
       schemeRegistrar {
         id
         schemeToRegister
-        schemeToRegisterParamsHash
         schemeToRegisterPermission
         schemeToRemove
         decision
@@ -483,4 +482,4 @@ For example:
       winningOutcome
     }`
 
-*Defined in [src/proposal.ts:111](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L111)*
+*Defined in [src/proposal.ts:111](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L111)*

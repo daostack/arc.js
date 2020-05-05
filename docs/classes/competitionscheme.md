@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [CompetitionScheme](competitionscheme.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [CompetitionScheme](competitionscheme.md)
 
 # Class: CompetitionScheme
 
@@ -32,6 +32,7 @@
 * [createProposalErrorHandler](competitionscheme.md#protected-createproposalerrorhandler)
 * [createProposalTransaction](competitionscheme.md#protected-createproposaltransaction)
 * [createProposalTransactionMap](competitionscheme.md#protected-createproposaltransactionmap)
+* [ethBalance](competitionscheme.md#ethbalance)
 * [fetchState](competitionscheme.md#fetchstate)
 * [getCompetitionContract](competitionscheme.md#getcompetitioncontract)
 * [proposals](competitionscheme.md#proposals)
@@ -52,7 +53,7 @@
 
 *Inherited from [SchemeBase](schemebase.md).[constructor](schemebase.md#constructor)*
 
-*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
+*Defined in [src/schemes/base.ts:210](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L210)*
 
 **Parameters:**
 
@@ -71,7 +72,7 @@ Name | Type |
 
 *Inherited from [SchemeBase](schemebase.md).[ReputationFromToken](schemebase.md#reputationfromtoken)*
 
-*Defined in [src/schemes/base.ts:240](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L240)*
+*Defined in [src/schemes/base.ts:210](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L210)*
 
 ___
 
@@ -81,7 +82,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[context](schemebase.md#context)*
 
-*Defined in [src/schemes/base.ts:242](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L242)*
+*Defined in [src/schemes/base.ts:212](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L212)*
 
 ___
 
@@ -91,7 +92,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[coreState](schemebase.md#corestate)*
 
-*Defined in [src/schemes/base.ts:239](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L239)*
+*Defined in [src/schemes/base.ts:209](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L209)*
 
 ___
 
@@ -101,7 +102,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[id](schemebase.md#id)*
 
-*Defined in [src/schemes/base.ts:238](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L238)*
+*Defined in [src/schemes/base.ts:208](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L208)*
 
 ## Methods
 
@@ -109,7 +110,7 @@ ___
 
 ▸ **competitions**(`options`: [IProposalQueryOptions](../interfaces/iproposalqueryoptions.md), `apolloQueryOptions`: [IApolloQueryOptions](../interfaces/iapolloqueryoptions.md)): *Observable‹[Competition](competition.md)[]›*
 
-*Defined in [src/schemes/competition.ts:187](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L187)*
+*Defined in [src/schemes/competition.ts:180](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L180)*
 
 Return a list of competitions in this scheme.
 
@@ -130,7 +131,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposal](schemebase.md#createproposal)*
 
-*Defined in [src/schemes/competition.ts:203](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L203)*
+*Defined in [src/schemes/competition.ts:196](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L196)*
 
 create a proposal for starting a Competition
 
@@ -152,7 +153,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalErrorHandler](schemebase.md#protected-abstract-createproposalerrorhandler)*
 
-*Defined in [src/schemes/competition.ts:399](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L399)*
+*Defined in [src/schemes/competition.ts:410](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L410)*
 
 **Parameters:**
 
@@ -170,7 +171,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransaction](schemebase.md#protected-abstract-createproposaltransaction)*
 
-*Defined in [src/schemes/competition.ts:330](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L330)*
+*Defined in [src/schemes/competition.ts:341](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L341)*
 
 **Parameters:**
 
@@ -188,9 +189,23 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[createProposalTransactionMap](schemebase.md#protected-abstract-createproposaltransactionmap)*
 
-*Defined in [src/schemes/competition.ts:391](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L391)*
+*Defined in [src/schemes/competition.ts:402](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L402)*
 
 **Returns:** *[transactionResultHandler](../globals.md#transactionresulthandler)‹[Proposal](proposal.md)›*
+
+___
+
+###  ethBalance
+
+▸ **ethBalance**(): *Promise‹Observable‹BN››*
+
+*Defined in [src/schemes/competition.ts:323](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L323)*
+
+get (an observable of) the Ether balance of the Competition from the web3Provider
+
+**Returns:** *Promise‹Observable‹BN››*
+
+an observable stream of BN number instances
 
 ___
 
@@ -200,7 +215,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[fetchState](schemebase.md#fetchstate)*
 
-*Defined in [src/schemes/base.ts:257](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L257)*
+*Defined in [src/schemes/base.ts:227](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L227)*
 
 fetch the static state from the subgraph
 
@@ -220,7 +235,7 @@ ___
 
 ▸ **getCompetitionContract**(): *Promise‹Contract‹››*
 
-*Defined in [src/schemes/competition.ts:207](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L207)*
+*Defined in [src/schemes/competition.ts:200](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L200)*
 
 **Returns:** *Promise‹Contract‹››*
 
@@ -232,7 +247,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[proposals](schemebase.md#proposals)*
 
-*Defined in [src/schemes/base.ts:295](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L295)*
+*Defined in [src/schemes/base.ts:262](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L262)*
 
 **Parameters:**
 
@@ -249,7 +264,7 @@ ___
 
 ▸ **redeemSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹boolean›*
 
-*Defined in [src/schemes/competition.ts:285](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L285)*
+*Defined in [src/schemes/competition.ts:278](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L278)*
 
 **Parameters:**
 
@@ -269,7 +284,7 @@ ___
 
 *Inherited from [SchemeBase](schemebase.md).[setState](schemebase.md#setstate)*
 
-*Defined in [src/schemes/base.ts:269](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L269)*
+*Defined in [src/schemes/base.ts:236](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L236)*
 
 **Parameters:**
 
@@ -287,7 +302,7 @@ ___
 
 *Overrides [SchemeBase](schemebase.md).[state](schemebase.md#abstract-state)*
 
-*Defined in [src/schemes/competition.ts:102](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L102)*
+*Defined in [src/schemes/competition.ts:102](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L102)*
 
 **Parameters:**
 
@@ -303,7 +318,7 @@ ___
 
 ▸ **voteSuggestion**(`options`: object): *[Operation](../globals.md#operation)‹[CompetitionVote](competitionvote.md)›*
 
-*Defined in [src/schemes/competition.ts:222](https://github.com/dorgtech/client/blob/19b4373/src/schemes/competition.ts#L222)*
+*Defined in [src/schemes/competition.ts:215](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L215)*
 
 Vote for the suggestion that is, in the current scheme, identified by  suggestionId
 
@@ -327,7 +342,7 @@ Name | Type |
 
 *Inherited from [SchemeBase](schemebase.md).[fragments](schemebase.md#static-fragments)*
 
-*Defined in [src/schemes/base.ts:107](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L107)*
+*Defined in [src/schemes/base.ts:97](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L97)*
 
 ###  SchemeFields
 
@@ -341,7 +356,6 @@ Name | Type |
       canRegisterSchemes
       canUpgradeController
       canManageGlobalConstraints
-      paramsHash
       contributionRewardParams {
         id
         votingMachine
@@ -438,26 +452,7 @@ Name | Type |
       numberOfQueuedProposals
       numberOfPreBoostedProposals
       numberOfBoostedProposals
-      uGenericSchemeParams {
-        votingMachine
-        contractToCall
-        voteParams {
-          queuedVoteRequiredPercentage
-          queuedVotePeriodLimit
-          boostedVotePeriodLimit
-          preBoostedVotePeriodLimit
-          thresholdConst
-          limitExponentValue
-          quietEndingPeriod
-          proposingRepReward
-          votersReputationLossRatio
-          minimumDaoBounty
-          daoBountyConst
-          activationTime
-          voteOnBehalf
-        }
-      }
       version
     }`
 
-*Defined in [src/schemes/base.ts:108](https://github.com/dorgtech/client/blob/19b4373/src/schemes/base.ts#L108)*
+*Defined in [src/schemes/base.ts:98](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L98)*

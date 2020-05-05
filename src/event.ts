@@ -1,9 +1,13 @@
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
-import { Arc, IApolloQueryOptions } from './arc'
-import { Address, ICommonQueryOptions, IStateful } from './types'
-import { createGraphQlQuery } from './utils'
+import {
+  Address,
+  Arc,
+  createGraphQlQuery,
+  Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions
+} from './index'
 
 export interface IEventState {
   id: string
@@ -11,51 +15,69 @@ export interface IEventState {
   proposal: string
   user: string
   type: string
-  data: {[key: string]: any}
+  data: { [key: string]: any }
   timestamp: string
 }
 
 export interface IEventQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string,
-    dao?: Address,
-    proposal?: string,
-    user?: Address
-    [key: string]: any
+    id?: string;
+    dao?: Address;
+    proposal?: string;
+    user?: Address;
+    [key: string]: any;
   }
 }
 
-export class Event implements IStateful<IEventState> {
-
+export class Event extends Entity<IEventState> {
   public static fragments = {
-    EventFields: gql`fragment EventFields on Event {
-      id
-      dao {
+    EventFields: gql`
+      fragment EventFields on Event {
         id
+        dao {
+          id
+        }
+        type
+        data
+        user
+        proposal {
+          id
+        }
+        timestamp
       }
-      type
-      data
-      user
-      proposal {
-        id
-      }
-      timestamp
-    }`
+    `
   }
 
-  /**
-   * Event.search(context, options) searches for reward entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IEventQueryOptions
-   * @return         an observable of Event objects
-   */
   public static search(
     context: Arc,
     options: IEventQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Event[]> {
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = Event.itemMap(arc, item, queriedId)
+      return new Event(arc, state)
+    }
 
-    const itemMap = (item: any) => new Event(context, {
+    const query = gql`query EventSearch {
+        events ${createGraphQlQuery(options)}
+        {
+          ...EventFields
+        }
+      }
+      ${Event.fragments.EventFields}
+    `
+
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
+      Event[]
+    >
+  }
+
+  public static itemMap(context: Arc, item: any, queriedId?: string): IEventState {
+    if (!item) {
+      throw Error(`Event ItemMap failed. ${queriedId && `Could not find Event with id '${queriedId}'`}`)
+    }
+
+    return {
       dao: item.dao.id,
       data: JSON.parse(item.data),
       id: item.id,
@@ -63,40 +85,10 @@ export class Event implements IStateful<IEventState> {
       timestamp: item.timestamp,
       type: item.type,
       user: item.user
-    })
-
-    let query
-    query = gql`query EventSearch
-      {
-        events ${createGraphQlQuery(options)} {
-          ...EventFields
-        }
-      }
-      ${Event.fragments.EventFields}
-      `
-
-    return context.getObservableList(
-      query,
-      itemMap,
-      apolloQueryOptions
-    ) as Observable<Event[]>
-  }
-
-  public id: string
-  public coreState: IEventState | undefined
-
-  constructor(public context: Arc, public idOrOpts: string | IEventState) {
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
     }
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable < IEventState > {
-
+  public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IEventState> {
     const query = gql`
       query EventState {
         event (id: "${this.id}")
@@ -107,30 +99,6 @@ export class Event implements IStateful<IEventState> {
       ${Event.fragments.EventFields}
     `
 
-    const itemMap = (item: any): IEventState => {
-      const state = {
-        dao: item.dao.id,
-        data: JSON.parse(item.data),
-        id: item.id,
-        proposal: item.proposal && item.proposal.id,
-        timestamp: item.timestamp,
-        type: item.type,
-        user: item.user
-      }
-      this.setState(state)
-      return state
-    }
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
-  }
-
-  public setState(opts: IEventState) {
-    this.coreState = opts
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise < IEventState > {
-    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-    this.setState(state)
-    return state
+    return this.context.getObservableObject(this.context, query, Event.itemMap, this.id, apolloQueryOptions)
   }
 }

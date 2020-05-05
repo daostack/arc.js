@@ -5,7 +5,8 @@ import {
   IProposalStage,
   IProposalState,
   Proposal,
-  Scheme
+  ContributionRewardExtPlugin,
+  ContributionRewardExtProposal
   } from '../src'
 import { newArc, toWei, voteToPassProposal, waitUntilTrue } from './utils'
 
@@ -23,20 +24,17 @@ describe('ContributionReward Ext', () => {
 
   it.skip('Create a proposal, accept it, execute it', async () => {
     // TODO: we are skipping this test, because we do not ahve at this point a contributionrewardext
-    // contract in our test environment that is not a Competition scheme..
+    // contract in our test environment that is not a Competition plugin..
 
     // we'll get a `ContributionRewardExt` contract
-    const ARC_VERSION = '0.0.1-rc.36'
-    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
-    // find the corresponding scheme object
     const contributionRewardExts = await arc
-      .schemes({where: {address: contributionRewardExtContract.address}}).pipe(first()).toPromise()
+      .plugins({where: {name: "ContributionRewardExt"}}).pipe(first()).toPromise()
 
-    const contributionRewardExt = contributionRewardExts[0] as Scheme
+    const contributionRewardExt = contributionRewardExts[0] as ContributionRewardExtPlugin
     const contributionRewardExtState = await contributionRewardExt.fetchState()
-    const dao = new DAO(arc, contributionRewardExtState.dao)
+    const dao = new DAO(arc, contributionRewardExtState.dao.id)
 
-    const tx = await dao.createProposal({
+    const tx = await contributionRewardExt.createProposal({
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       ethReward: toWei('300'),
@@ -44,16 +42,19 @@ describe('ContributionReward Ext', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      scheme: contributionRewardExtState.address,
-      value: 0
+      plugin: contributionRewardExtState.address,
+      //TODO: proposer?
+      proposer: ''
     }).send()
-    let proposal = tx.result
+
+    if(!tx.result) throw new Error("Create proposal yielded no results")
+
+    let proposal = new ContributionRewardExtProposal(arc, tx.result.id)
     expect(proposal).toBeInstanceOf(Proposal)
-    proposal = proposal as Proposal
 
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
-    proposal.state().subscribe((pState: IProposalState) => {
+    proposal.state({}).subscribe((pState: IProposalState) => {
       states.push(pState)
     })
     await waitUntilTrue(() => !!lastState())
@@ -61,7 +62,7 @@ describe('ContributionReward Ext', () => {
     expect(lastState()).toMatchObject({
       stage: IProposalStage.Queued
     })
-    expect(lastState().contributionReward).toMatchObject({
+    expect(lastState()).toMatchObject({
       alreadyRedeemedEthPeriods: 0,
       ethReward: toWei('300'),
       nativeTokenReward: toWei('1'),

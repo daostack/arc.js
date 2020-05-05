@@ -1,14 +1,21 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { Arc, IApolloQueryOptions } from './arc'
-import { DAOTOKEN_CONTRACT_VERSION } from './settings'
-import { Address, Hash, ICommonQueryOptions, IStateful } from './types'
-import { createGraphQlQuery, isAddress } from './utils'
+import {
+  Address,
+  Arc,
+  createGraphQlQuery,
+  Entity,
+  Hash,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  isAddress
+} from './index'
 
 export interface ITokenState {
+  id: Address
   address: Address
   name: string
   owner: Address
@@ -42,20 +49,15 @@ export interface IAllowance {
   amount: BN
 }
 
-export class Token implements IStateful<ITokenState> {
-
-  /**
-   * Token.search(context, options) searches for token entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. ITokenQueryOptions
-   * @return         an observable of Token objects
-   */
+export class Token extends Entity<ITokenState> {
   public static search(
     context: Arc,
     options: ITokenQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Token[]> {
-    if (!options.where) { options.where = {}}
+    if (!options.where) {
+      options.where = {}
+    }
     let where = ''
     for (const key of Object.keys(options.where)) {
       if (options[key] === undefined) {
@@ -79,24 +81,42 @@ export class Token implements IStateful<ITokenState> {
     }`
 
     return context.getObservableList(
+      context,
       query,
-      (r: any) => new Token(context, r.id),
+      (arc: Arc, r: any, queriedId?: string) => new Token(arc, r.id),
+      options.where?.id,
       apolloQueryOptions
     ) as Observable<Token[]>
   }
 
-  public address: string
-
-  constructor(public context: Arc, public id: Address) {
-    if (!id) {
-      throw Error(`No address provided - cannot create Token instance`)
+  public static itemMap = (context: Arc, item: any, queriedId?: string): ITokenState => {
+    if (!item) {
+      throw Error(`Token ItemMap failed. ${queriedId && `Could not find Token with id '${queriedId}'`}`)
     }
-    isAddress(id)
-    this.address = id
+    return {
+      id: item.id,
+      address: item.id,
+      name: item.name,
+      owner: item.dao.id,
+      symbol: item.symbol,
+      totalSupply: new BN(item.totalSupply)
+    }
   }
 
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ITokenState> {
-    return this.state(apolloQueryOptions).pipe(first()).toPromise()
+  public address: string
+
+  constructor(context: Arc, idOrOpts: string | ITokenState) {
+    super(context, idOrOpts)
+    if (typeof idOrOpts === 'string') {
+      isAddress(idOrOpts)
+      this.address = idOrOpts
+      this.id = idOrOpts
+    } else {
+      isAddress(idOrOpts.address)
+      this.address = idOrOpts.address
+      this.id = idOrOpts.address
+      this.setState(idOrOpts)
+    }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<ITokenState> {
@@ -112,27 +132,17 @@ export class Token implements IStateful<ITokenState> {
       }
     }`
 
-    const itemMap = (item: any): ITokenState => {
-      if (item === null) {
-        throw Error(`Could not find a token contract with address ${this.address.toLowerCase()}`)
-      }
-      return {
-        address: item.id,
-        name: item.name,
-        owner: item.dao.id,
-        symbol: item.symbol,
-        totalSupply: new BN(item.totalSupply)
-      }
-    }
-    return  this.context.getObservableObject(query, itemMap, apolloQueryOptions) as Observable<ITokenState>
+    return this.context.getObservableObject(
+      this.context,
+      query,
+      Token.itemMap,
+      this.address.toLowerCase(),
+      apolloQueryOptions
+    ) as Observable<ITokenState>
   }
 
-  /*
-   * get a web3 contract instance for this token
-   */
   public contract() {
-    const abi = this.context.getABI(undefined, `DAOToken`, DAOTOKEN_CONTRACT_VERSION)
-    return this.context.getContract(this.address, abi)
+    return this.context.getContract(this.address)
   }
 
   public balanceOf(owner: string): Observable<BN> {
@@ -141,50 +151,58 @@ export class Token implements IStateful<ITokenState> {
         // check if there is actually a contract deployed there
         const code = await this.context.web3.getCode(this.address)
         if (code === '0x') {
-          return new Error(`Cannot get balanceOf(): there is no contract at this address ${this.address}`)
+          return new Error(
+            `Cannot get balanceOf(): there is no contract at this address ${this.address}`
+          )
         }
       }
       return err
     }
     const observable = Observable.create(async (observer: Observer<BN>) => {
-      const contract = this.contract()
+      try {
+        const contract = this.contract()
 
-      const toFilter = contract.filters.Transfer(null, owner)
-      const onTransferTo = (data: any) => {
-        contract.balanceOf(owner).then((newBalance: BigNumber) => {
-          observer.next(new BN(newBalance.toString()))
-        })
-      }
+        const toFilter = contract.filters.Transfer(null, owner)
+        const onTransferTo = (data: any) => {
+          contract.balanceOf(owner).then((newBalance: BigNumber) => {
+            observer.next(new BN(newBalance.toString()))
+          })
+        }
 
-      const fromFilter = contract.filters.Transfer(owner)
-      const onTransferFrom = (data: any) => {
-        contract.balanceOf(owner).then((newBalance: number) => {
-          observer.next(new BN(newBalance.toString()))
-        })
-      }
+        const fromFilter = contract.filters.Transfer(owner)
+        const onTransferFrom = (data: any) => {
+          contract.balanceOf(owner).then((newBalance: number) => {
+            observer.next(new BN(newBalance.toString()))
+          })
+        }
 
-      const unsubscribe = () => {
-        contract.removeListener(toFilter, onTransferTo)
-        contract.removeListener(fromFilter, onTransferFrom)
+        const unsubscribe = () => {
+          contract.removeListener(toFilter, onTransferTo)
+          contract.removeListener(fromFilter, onTransferFrom)
+        }
+        const subscribe = () =>
+          contract
+            .balanceOf(owner)
+            .then((balance: BigNumber) => {
+              if (!balance) {
+                observer.error(`balanceOf ${owner} returned null`)
+              }
+              observer.next(new BN(balance.toString()))
+              contract.on(toFilter, onTransferTo)
+              contract.on(fromFilter, onTransferFrom)
+            })
+            .catch(async (err: Error) => {
+              if (err.message.match(/connection not open/g)) {
+                observer.error(await errHandler(err))
+              } else {
+                observer.error(await errHandler(err))
+              }
+            })
+        await subscribe()
+        return () => unsubscribe()
+      } catch (e) {
+        return observer.error(e)
       }
-      const subscribe = () => contract.balanceOf(owner)
-        .then((balance: BigNumber) => {
-          if (balance === null) {
-            observer.error(`balanceOf ${owner} returned null`)
-          }
-          observer.next(new BN(balance.toString()))
-          contract.on(toFilter, onTransferTo)
-          contract.on(fromFilter, onTransferFrom)
-        })
-        .catch(async (err: Error) => {
-          if (err.message.match(/connection not open/g)) {
-            observer.error(await errHandler(err))
-          } else {
-            observer.error(await errHandler(err))
-          }
-        })
-      await subscribe()
-      return () => unsubscribe()
     })
     observable.first = () => observable.pipe(first()).toPromise()
     return observable
@@ -202,15 +220,18 @@ export class Token implements IStateful<ITokenState> {
         })
       }
 
-      contract.allowance(owner, spender)
+      contract
+        .allowance(owner, spender)
         .then((balance: BigNumber) => {
-          if (balance === null) {
+          if (!balance) {
             observer.error(`balanceOf ${owner} returned null`)
           }
           observer.next(new BN(balance.toString()))
           contract.on(filter, onApproval)
         })
-        .catch((err: Error) => { observer.error(err)})
+        .catch((err: Error) => {
+          observer.error(err)
+        })
       return () => {
         contract.removeListener(filter, onApproval)
       }
@@ -221,7 +242,7 @@ export class Token implements IStateful<ITokenState> {
     return this.context.sendTransaction({
       contract: this.contract(),
       method: 'mint',
-      args: [ beneficiary, amount.toString() ]
+      args: [beneficiary, amount.toString()]
     })
   }
 
@@ -229,7 +250,7 @@ export class Token implements IStateful<ITokenState> {
     return this.context.sendTransaction({
       contract: this.contract(),
       method: 'transfer',
-      args: [ beneficiary, amount.toString() ]
+      args: [beneficiary, amount.toString()]
     })
   }
 
@@ -237,7 +258,7 @@ export class Token implements IStateful<ITokenState> {
     return this.context.sendTransaction({
       contract: this.contract(),
       method: 'approve',
-      args: [ spender, amount.toString() ]
+      args: [spender, amount.toString()]
     })
   }
 }

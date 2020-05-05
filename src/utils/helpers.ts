@@ -1,11 +1,10 @@
 import { Observable as ZenObservable } from 'apollo-link'
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { utils } from 'ethers'
-import { JsonRpcProvider } from 'ethers/providers'
-import * as WebSocket from 'isomorphic-ws'
+import WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
-import { ITransactionEvent } from './operation'
-import { Address, ICommonQueryOptions } from './types'
+import { Address, ICommonQueryOptions, ITransactionEvent } from '../index'
+import { Web3Client } from './types'
 
 const checkAddress = (address: string) => {
   try {
@@ -76,7 +75,6 @@ export function stringToUint8Array(str: string) {
 
 // function lifted and adapted from @daostack/subgraph/src/utils to generate unique ids
 export function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
-
   const out = new Uint8Array(a.length + b.length)
   for (let i = 0; i < a.length; i++) {
     out[i] = a[i]
@@ -91,10 +89,9 @@ export function eventId(event: ITransactionEvent): string {
   if (!event.transactionHash || !event.logIndex) {
     throw new Error('Event must have both transactionHash and logIndex')
   }
-  const hash = utils.keccak256(concat(
-    stringToUint8Array(event.transactionHash),
-    stringToUint8Array(event.logIndex.toString())
-  ))
+  const hash = utils.keccak256(
+    concat(stringToUint8Array(event.transactionHash), stringToUint8Array(event.logIndex.toString()))
+  )
   return hash
 }
 
@@ -171,23 +168,25 @@ export function createGraphQlQuery(options: ICommonQueryOptions, where: string =
   }
 }
 
-export function createGraphQlWhereQuery(where?: {[key: string]: string|string[]|null}) {
+export function createGraphQlWhereQuery(where?: { [key: string]: string | string[] | null }) {
   let result = ''
-  if (!where) { where = {}}
+  if (!where) {
+    where = {}
+  }
   for (const key of Object.keys(where)) {
     if (where[key] === undefined) {
       continue
     }
 
     let value = where[key]
-    if (value === null) {
-      result += `${key}: ${value}\n`
-    } else if (key === 'dao' || key === 'address') {
+    if (key === 'dao' || key === 'address') {
       isAddress(value as string)
       value = (value as string).toLowerCase()
       result += `${key}: "${value}"\n`
     } else if (key.endsWith('_in') || key.endsWith('_not_in')) {
       value = JSON.stringify(value)
+      result += `${key}: ${value}\n`
+    } else if (!value) {
       result += `${key}: ${value}\n`
     } else {
       result += `${key}: "${value}"\n`
@@ -223,9 +222,9 @@ export function secondSinceEpochToDate(seconds: number): Date {
  * @param {*} web3
  * @returns
  */
-export async function getBlockTime(web3: JsonRpcProvider) {
+export async function getBlockTime(web3: Web3Client) {
   const block = await web3.getBlock('latest')
-  const blockTime = new Date(block.timestamp * 1000)
+  const blockTime = secondSinceEpochToDate(block.timestamp)
   const now = new Date()
   now.setMilliseconds(0)
   if (now < blockTime) {

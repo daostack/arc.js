@@ -1,7 +1,7 @@
 # Querying The Graph
 
 
-One of the two purposes of the client library is to make it easy to query the subgraph that contains the index of DAOstack data (the other purpose it to make it easy to write to the DAOstack contracts).
+One of the two purposes of the arc.js library is to make it easy to query the subgraph that contains the index of DAOstack data (the other purpose it to make it easy to write to the DAOstack contracts).
 
 ## Query examples:
 
@@ -13,13 +13,13 @@ proposal.state()
 
 ## What this does
 
-Calling each of these function by itself will not actually send the qeury to the server.
+Calling each of these function by itself will not actually send the query to the server.
 Instead, each query returns an *observable*, to which you can subscribe.
 Only at that moment will the server be queried:
 
 ```
 const observable = arc.daos()
-// only in the nexzt line will a query be sent to the server
+// only in the next line will a query be sent to the server
 const subscription = arc.daos.subscribe((daos) => console.log(`we found ${daos.length} results`))
 ```
 

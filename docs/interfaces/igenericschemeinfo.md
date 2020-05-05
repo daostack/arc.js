@@ -1,10 +1,10 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IGenericSchemeInfo](igenericschemeinfo.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IGenericPluginInfo](igenericschemeinfo.md)
 
-# Interface: IGenericSchemeInfo
+# Interface: IGenericPluginInfo
 
 ## Hierarchy
 
-* **IGenericSchemeInfo**
+* **IGenericPluginInfo**
 
 ## Index
 
@@ -20,7 +20,7 @@
 
 • **contractToCall**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/genericScheme.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/schemes/genericScheme.ts#L12)*
+*Defined in [src/schemes/genericScheme.ts:12](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/genericScheme.ts#L12)*
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [src/schemes/genericScheme.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/schemes/genericScheme.ts#L11)*
+*Defined in [src/schemes/genericScheme.ts:11](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/genericScheme.ts#L11)*
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 • **votingMachine**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/genericScheme.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/schemes/genericScheme.ts#L13)*
+*Defined in [src/schemes/genericScheme.ts:13](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/genericScheme.ts#L13)*

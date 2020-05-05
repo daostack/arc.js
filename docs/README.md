@@ -1,25 +1,25 @@
-[@daostack/client - v0.2.64](README.md) › [Globals](globals.md)
+[@daostack/arc.js - v2.0.0-experimental.1](README.md) › [Globals](globals.md)
 
-# @daostack/client - v0.2.64
+# @daostack/arc.js - v2.0.0-experimental.1
 
-[![Build Status](https://travis-ci.com/daostack/client.svg?token=aXt9zApRNkfx8zDMypWx&branch=master)](https://travis-ci.com/daostack/client)
+[![Build Status](https://travis-ci.com/daostack/arc.js.svg?token=aXt9zApRNkfx8zDMypWx&branch=master)](https://travis-ci.com/daostack/arc.js)
 
-# DAOstack Client
+# DAOstack arc.js
 
-The DAOStack Client is a nodejs library to work with the DAOstack ecosystem
+The DAOStack arc.js is a nodejs library to work with the DAOstack ecosystem
 * Convenience functions to interact with the [DAOstack contracts](https://github.com/daostack/arc): create proposals, and vote and stake on them
-* A client library for the [DAOstack subgraph](https://github.com/daostack/subgraph) - search for daos, proposals
+* A arc.js library for the [DAOstack subgraph](https://github.com/daostack/subgraph) - search for daos, proposals
 
 ## Usage
 
 In your nodejs project run
 
 ```
-npm install --save @daostack/client
+npm install --save @daostack/arc.js
 ```
 now you can do:
 ```
-import { Arc } from '@daostack/client'
+import { Arc } from '@daostack/arc.js'
 
 // create an Arc instance
 const arc = new Arc({

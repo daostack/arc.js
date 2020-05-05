@@ -1,9 +1,6 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
-import { DAO } from '../src/dao'
-import { IProposalOutcome, IProposalStage, Proposal } from '../src/proposal'
-import { Stake } from '../src/stake'
+import { Stake, Arc, DAO, IProposalOutcome, IProposalStage, ContributionRewardProposal } from '../src/'
 import { createAProposal,
   // getTestAddresses,
   getTestDAO,
@@ -65,9 +62,7 @@ describe('Stake on a ContributionReward', () => {
       .mint(accounts[2], toWei('100').toString())
     proposal.context.defaultAccount = accounts[2]
     await expect(proposal.stake(IProposalOutcome.Pass, toWei('100')).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/insufficient allowance/i*/
+      /insufficient balance/i
     )
   })
 
@@ -75,24 +70,20 @@ describe('Stake on a ContributionReward', () => {
     const proposal = await createAProposal(dao)
     proposal.context.defaultAccount = accounts[4]
     await expect(proposal.stake(IProposalOutcome.Pass, toWei('10000000')).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/insufficient balance/i*/
+      /insufficient balance/i
     )
   })
 
   it('throws a meaningful error if the proposal does not exist', async () => {
     // a non-existing proposal
-    const proposal = new Proposal(
+    const proposal = new ContributionRewardProposal(
       arc,
       '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
     )
 
     proposal.context.defaultAccount = accounts[2]
     await expect(proposal.stake(IProposalOutcome.Pass, new BN(10000000)).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/No proposal/i*/
+      /Fetch state returned null. Entity not indexed yet or does not exist with this id/i
     )
   })
 
@@ -104,12 +95,9 @@ describe('Stake on a ContributionReward', () => {
     }
     const boostedProposal = boostedProposals[0]
     const state = await boostedProposal.fetchState()
-    console.log(state)
     expect(state.stage).toEqual(IProposalStage.Boosted)
     await expect(boostedProposal.stake(IProposalOutcome.Pass, new BN(10000000)).send()).rejects.toThrow(
-      // TODO: uncomment when Ethers.js supports revert reasons, see thread:
-      // https://github.com/ethers-io/ethers.js/issues/446
-      /*/boosted/i*/
+      /boosted/i
     )
   })
 

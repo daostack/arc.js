@@ -1,77 +1,85 @@
-import BN = require('bn.js')
+import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
-import { Arc, IApolloQueryOptions } from './arc'
-import { Address, ICommonQueryOptions, IStateful } from './types'
-import { createGraphQlQuery, isAddress } from './utils'
+import {
+  Address,
+  Arc,
+  createGraphQlQuery,
+  Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  isAddress
+} from './index'
 
 export interface IRewardState {
-  id: string,
-  beneficiary: Address,
-  createdAt: Date,
-  proposalId: string,
-  reputationForVoter: BN,
-  tokensForStaker: BN,
-  daoBountyForStaker: BN,
-  reputationForProposer: BN,
-  tokenAddress: Address,
-  reputationForVoterRedeemedAt: number,
-  tokensForStakerRedeemedAt: number,
-  reputationForProposerRedeemedAt: number,
+  id: string
+  beneficiary: Address
+  createdAt: Date
+  proposalId: string
+  reputationForVoter: BN
+  tokensForStaker: BN
+  daoBountyForStaker: BN
+  reputationForProposer: BN
+  tokenAddress: Address
+  reputationForVoterRedeemedAt: number
+  tokensForStakerRedeemedAt: number
+  reputationForProposerRedeemedAt: number
   daoBountyForStakerRedeemedAt: number
 }
 
 export interface IRewardQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string,
-    beneficiary?: Address,
-    dao?: Address,
-    proposal?: string,
-    createdAtAfter?: Date,
-    createdAtBefore?: Date,
+    id?: string
+    beneficiary?: Address
+    dao?: Address
+    proposal?: string
+    createdAtAfter?: Date
+    createdAtBefore?: Date
     [key: string]: any
   }
 }
 
-export class Reward implements IStateful<IRewardState> {
-
+export class Reward extends Entity<IRewardState> {
   public static fragments = {
-    RewardFields: gql`fragment RewardFields on GPReward {
-      id
-      createdAt
-      dao {
+    RewardFields: gql`
+      fragment RewardFields on GPReward {
         id
+        createdAt
+        dao {
+          id
+        }
+        beneficiary
+        daoBountyForStaker
+        proposal {
+          id
+        }
+        reputationForVoter
+        reputationForVoterRedeemedAt
+        reputationForProposer
+        reputationForProposerRedeemedAt
+        tokenAddress
+        tokensForStaker
+        tokensForStakerRedeemedAt
+        daoBountyForStakerRedeemedAt
       }
-      beneficiary
-      daoBountyForStaker
-      proposal {
-         id
-      }
-      reputationForVoter
-      reputationForVoterRedeemedAt
-      reputationForProposer
-      reputationForProposerRedeemedAt
-      tokenAddress
-      tokensForStaker
-      tokensForStakerRedeemedAt
-      daoBountyForStakerRedeemedAt
-    }`
+    `
   }
 
-  /**
-   * Reward.search(context, options) searches for reward entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. IRewardQueryOptions
-   * @return         an observable of Reward objects
-   */
   public static search(
     context: Arc,
     options: IRewardQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Reward[]> {
     let where = ''
-    if (!options.where) { options.where = {}}
+    if (!options.where) {
+      options.where = {}
+    }
+
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = Reward.itemMap(arc, item, queriedId)
+      return new Reward(arc, state)
+    }
 
     const proposalId = options.where.proposal
     // if we are searching for stakes on a specific proposal (a common case), we
@@ -94,23 +102,7 @@ export class Reward implements IStateful<IRewardState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    const itemMap = (item: any) => new Reward(context, {
-      beneficiary: item.beneficiary,
-      createdAt: item.createdAt,
-      daoBountyForStaker: new BN(item.daoBountyForStaker),
-      daoBountyForStakerRedeemedAt: Number(item.daoBountyForStakerRedeemedAt),
-      id: item.id,
-      proposalId: item.proposal.id,
-      reputationForProposer: new BN(item.reputationForProposer),
-      reputationForProposerRedeemedAt: Number(item.reputationForProposerRedeemedAt),
-      reputationForVoter: new BN(item.reputationForVoter),
-      reputationForVoterRedeemedAt: Number(item.reputationForVoterRedeemedAt),
-      tokenAddress: item.tokenAddress,
-      tokensForStaker: new BN(item.tokensForStaker),
-      tokensForStakerRedeemedAt: Number(item.tokensForStakerRedeemedAt)
-    })
-
-    let query
+    let query: DocumentNode
     if (proposalId) {
       query = gql`query RewardSearchFromProposal
       {
@@ -124,14 +116,22 @@ export class Reward implements IStateful<IRewardState> {
       ${Reward.fragments.RewardFields}
       `
       return context.getObservableObject(
+        context,
         query,
-        (r: any) => {
-          if (r === null) {
+        (arc: Arc, r: any, queriedId?: string) => {
+          if (!r) {
             return []
           }
           const rewards = r.gpRewards
-          return rewards.map(itemMap)
+
+          const itemMapper = (item: any) => {
+            const state = Reward.itemMap(arc, item, queriedId)
+            return new Reward(arc, state)
+          }
+
+          return rewards.map(itemMapper)
         },
+        options.where?.id,
         apolloQueryOptions
       ) as Observable<Reward[]>
     } else {
@@ -145,28 +145,34 @@ export class Reward implements IStateful<IRewardState> {
       `
     }
 
-    return context.getObservableList(
-      query,
-      itemMap,
-      apolloQueryOptions
-    ) as Observable<Reward[]>
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
+      Reward[]
+    >
   }
 
-  public id: string
-  public coreState: IRewardState|undefined
+  public static itemMap(context: Arc, item: any, queriedId?: string): IRewardState {
+    if (!item) {
+      throw Error(`Reward ItemMap failed. ${queriedId && `Could not find Reward with id '${queriedId}'`}`)
+    }
 
-  constructor(public context: Arc, public idOrOpts: string|IRewardState) {
-    this.context = context
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
+    return {
+      beneficiary: item.beneficiary,
+      createdAt: item.createdAt,
+      daoBountyForStaker: new BN(item.daoBountyForStaker),
+      daoBountyForStakerRedeemedAt: Number(item.daoBountyForStakerRedeemedAt),
+      id: item.id,
+      proposalId: item.proposal.id,
+      reputationForProposer: new BN(item.reputationForProposer),
+      reputationForProposerRedeemedAt: Number(item.reputationForProposerRedeemedAt),
+      reputationForVoter: new BN(item.reputationForVoter),
+      reputationForVoterRedeemedAt: Number(item.reputationForVoterRedeemedAt),
+      tokenAddress: item.tokenAddress,
+      tokensForStaker: new BN(item.tokensForStaker),
+      tokensForStakerRedeemedAt: Number(item.tokensForStakerRedeemedAt)
     }
   }
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IRewardState> {
-
     const query = gql`
       query RewardState {
         gpreward (id: "${this.id}")
@@ -177,36 +183,12 @@ export class Reward implements IStateful<IRewardState> {
       ${Reward.fragments.RewardFields}
     `
 
-    const itemMap = (item: any): IRewardState => {
-      const state = {
-        beneficiary: item.beneficiary,
-        createdAt: item.createdAt,
-        daoBountyForStaker: new BN(item.daoBountyForStaker),
-        daoBountyForStakerRedeemedAt: Number(item.daoBountyForStakerRedeemedAt),
-        id: item.id,
-        proposalId: item.proposal.id,
-        reputationForProposer: new BN(item.reputationForProposer),
-        reputationForProposerRedeemedAt: Number(item.reputationForProposerRedeemedAt),
-        reputationForVoter: new BN(item.reputationForVoter),
-        reputationForVoterRedeemedAt: Number(item.reputationForVoterRedeemedAt),
-        tokenAddress: item.tokenAddress,
-        tokensForStaker: new BN(item.tokensForStaker),
-        tokensForStakerRedeemedAt: Number(item.tokensForStakerRedeemedAt)
-      }
-      this.setState(state)
-      return state
-    }
-
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
-  }
-
-  public setState(opts: IRewardState) {
-    this.coreState = opts
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<IRewardState> {
-    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-    this.setState(state)
-    return state
+    return this.context.getObservableObject(
+      this.context,
+      query,
+      Reward.itemMap,
+      this.id,
+      apolloQueryOptions
+    )
   }
 }

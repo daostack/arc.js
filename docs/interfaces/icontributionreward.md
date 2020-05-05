@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IContributionReward](icontributionreward.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IContributionReward](icontributionreward.md)
 
 # Interface: IContributionReward
 
@@ -33,7 +33,7 @@
 
 • **alreadyRedeemedEthPeriods**: *number*
 
-*Defined in [src/schemes/contributionReward.ts:24](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L24)*
+*Defined in [src/schemes/contributionReward.ts:24](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L24)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **alreadyRedeemedExternalTokenPeriods**: *number*
 
-*Defined in [src/schemes/contributionReward.ts:23](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L23)*
+*Defined in [src/schemes/contributionReward.ts:23](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L23)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **alreadyRedeemedNativeTokenPeriods**: *number*
 
-*Defined in [src/schemes/contributionReward.ts:21](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L21)*
+*Defined in [src/schemes/contributionReward.ts:21](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L21)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **alreadyRedeemedReputationPeriods**: *number*
 
-*Defined in [src/schemes/contributionReward.ts:22](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L22)*
+*Defined in [src/schemes/contributionReward.ts:22](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L22)*
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **beneficiary**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/contributionReward.ts:13](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L13)*
+*Defined in [src/schemes/contributionReward.ts:13](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L13)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **ethReward**: *BN*
 
-*Defined in [src/schemes/contributionReward.ts:16](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L16)*
+*Defined in [src/schemes/contributionReward.ts:16](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L16)*
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 • **ethRewardLeft**: *BN | null*
 
-*Defined in [src/schemes/contributionReward.ts:27](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L27)*
+*Defined in [src/schemes/contributionReward.ts:27](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L27)*
 
 ___
 
@@ -89,7 +89,7 @@ ___
 
 • **externalToken**: *[Address](../globals.md#address)*
 
-*Defined in [src/schemes/contributionReward.ts:15](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L15)*
+*Defined in [src/schemes/contributionReward.ts:15](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L15)*
 
 ___
 
@@ -97,7 +97,7 @@ ___
 
 • **externalTokenReward**: *BN*
 
-*Defined in [src/schemes/contributionReward.ts:14](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L14)*
+*Defined in [src/schemes/contributionReward.ts:14](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L14)*
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 • **externalTokenRewardLeft**: *BN | null*
 
-*Defined in [src/schemes/contributionReward.ts:28](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L28)*
+*Defined in [src/schemes/contributionReward.ts:28](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L28)*
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 • **nativeTokenReward**: *BN*
 
-*Defined in [src/schemes/contributionReward.ts:17](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L17)*
+*Defined in [src/schemes/contributionReward.ts:17](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L17)*
 
 ___
 
@@ -121,7 +121,7 @@ ___
 
 • **nativeTokenRewardLeft**: *BN | null*
 
-*Defined in [src/schemes/contributionReward.ts:26](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L26)*
+*Defined in [src/schemes/contributionReward.ts:26](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L26)*
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 • **periodLength**: *number*
 
-*Defined in [src/schemes/contributionReward.ts:19](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L19)*
+*Defined in [src/schemes/contributionReward.ts:19](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L19)*
 
 ___
 
@@ -137,7 +137,7 @@ ___
 
 • **periods**: *number*
 
-*Defined in [src/schemes/contributionReward.ts:18](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L18)*
+*Defined in [src/schemes/contributionReward.ts:18](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L18)*
 
 ___
 
@@ -145,7 +145,7 @@ ___
 
 • **reputationChangeLeft**: *BN | null*
 
-*Defined in [src/schemes/contributionReward.ts:25](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L25)*
+*Defined in [src/schemes/contributionReward.ts:25](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L25)*
 
 ___
 
@@ -153,4 +153,4 @@ ___
 
 • **reputationReward**: *BN*
 
-*Defined in [src/schemes/contributionReward.ts:20](https://github.com/dorgtech/client/blob/19b4373/src/schemes/contributionReward.ts#L20)*
+*Defined in [src/schemes/contributionReward.ts:20](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionReward.ts#L20)*

@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [ITagState](itagstate.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [ITagState](itagstate.md)
 
 # Interface: ITagState
 
@@ -20,7 +20,7 @@
 
 • **id**: *string*
 
-*Defined in [src/tag.ts:10](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L10)*
+*Defined in [src/tag.ts:10](https://github.com/daostack/arc.js/blob/6c661ff/src/tag.ts#L10)*
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 • **numberOfProposals**: *number*
 
-*Defined in [src/tag.ts:11](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L11)*
+*Defined in [src/tag.ts:11](https://github.com/daostack/arc.js/blob/6c661ff/src/tag.ts#L11)*
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 • **proposals**? : *[Proposal](../classes/proposal.md)[]*
 
-*Defined in [src/tag.ts:12](https://github.com/dorgtech/client/blob/19b4373/src/tag.ts#L12)*
+*Defined in [src/tag.ts:12](https://github.com/daostack/arc.js/blob/6c661ff/src/tag.ts#L12)*

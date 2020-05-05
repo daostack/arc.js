@@ -1,4 +1,4 @@
-[@daostack/client - v0.2.64](../README.md) › [Globals](../globals.md) › [IProposalBaseCreateOptions](iproposalbasecreateoptions.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IProposalBaseCreateOptions](iproposalbasecreateoptions.md)
 
 # Interface: IProposalBaseCreateOptions
 
@@ -11,8 +11,6 @@
   ↳ [IProposalCreateOptionsCR](iproposalcreateoptionscr.md)
 
   ↳ [IProposalCreateOptionsCRExt](iproposalcreateoptionscrext.md)
-
-  ↳ [IProposalCreateOptionsGS](iproposalcreateoptionsgs.md)
 
   ↳ [IProposalCreateOptionsGS](iproposalcreateoptionsgs.md)
 
@@ -37,7 +35,7 @@
 
 • **dao**: *[Address](../globals.md#address)*
 
-*Defined in [src/proposal.ts:959](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L959)*
+*Defined in [src/proposal.ts:961](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L961)*
 
 ___
 
@@ -45,7 +43,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [src/proposal.ts:960](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L960)*
+*Defined in [src/proposal.ts:962](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L962)*
 
 ___
 
@@ -53,7 +51,7 @@ ___
 
 • **descriptionHash**? : *undefined | string*
 
-*Defined in [src/proposal.ts:961](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L961)*
+*Defined in [src/proposal.ts:963](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L963)*
 
 ___
 
@@ -61,7 +59,7 @@ ___
 
 • **proposalType**? : *[IProposalType](../globals.md#const-iproposaltype) | "competition"*
 
-*Defined in [src/proposal.ts:966](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L966)*
+*Defined in [src/proposal.ts:968](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L968)*
 
 ___
 
@@ -69,7 +67,7 @@ ___
 
 • **scheme**? : *[Address](../globals.md#address)*
 
-*Defined in [src/proposal.ts:964](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L964)*
+*Defined in [src/proposal.ts:966](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L966)*
 
 ___
 
@@ -77,7 +75,7 @@ ___
 
 • **tags**? : *string[]*
 
-*Defined in [src/proposal.ts:963](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L963)*
+*Defined in [src/proposal.ts:965](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L965)*
 
 ___
 
@@ -85,7 +83,7 @@ ___
 
 • **title**? : *undefined | string*
 
-*Defined in [src/proposal.ts:962](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L962)*
+*Defined in [src/proposal.ts:964](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L964)*
 
 ___
 
@@ -93,4 +91,4 @@ ___
 
 • **url**? : *undefined | string*
 
-*Defined in [src/proposal.ts:965](https://github.com/dorgtech/client/blob/19b4373/src/proposal.ts#L965)*
+*Defined in [src/proposal.ts:967](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L967)*

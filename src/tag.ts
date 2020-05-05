@@ -1,46 +1,61 @@
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
-import { first } from 'rxjs/operators'
-import { Arc, IApolloQueryOptions } from './arc'
-import { Proposal } from './proposal'
-import { ICommonQueryOptions, IStateful } from './types'
-import { createGraphQlQuery } from './utils'
+import {
+  AnyProposal,
+  Arc,
+  createGraphQlQuery,
+  Entity,
+  IApolloQueryOptions,
+  ICommonQueryOptions,
+  IEntityRef,
+  Proposals
+} from './index'
 
 export interface ITagState {
   id: string
   numberOfProposals: number
-  proposals?: Proposal[]
+  proposals?: Array<IEntityRef<AnyProposal>>
 }
 
 export interface ITagQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string,
+    id?: string
     proposal?: string
   }
 }
 
-export class Tag implements IStateful<ITagState> {
+export class Tag extends Entity<ITagState> {
   public static fragments = {
-    TagFields: gql`fragment TagFields on Tag {
-      id
-      numberOfProposals
-      proposals { id }
-    }`
+    TagFields: gql`
+      fragment TagFields on Tag {
+        id
+        numberOfProposals
+        proposals {
+          id
+          scheme {
+            id
+            name
+          }
+        }
+      }
+    `
   }
 
-  /**
-   * Tag.search(context, options) searches for stake entities
-   * @param  context an Arc instance that provides connection information
-   * @param  options the query options, cf. ITagQueryOptions
-   * @return         an observable of Tag objects
-   */
   public static search(
     context: Arc,
     options: ITagQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable <Tag[]> {
-    if (!options.where) { options.where = {}}
+  ): Observable<Tag[]> {
+    if (!options.where) {
+      options.where = {}
+    }
     let where = ''
+
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = Tag.itemMap(arc, item, queriedId)
+      return new Tag(arc, state)
+    }
 
     const proposalId = options.where.proposal
     // if we are searching for stakes on a specific proposal (a common case), we
@@ -56,20 +71,17 @@ export class Tag implements IStateful<ITagState> {
       where += `${key}: "${options.where[key] as string}"\n`
     }
 
-    let query
-    const itemMap = (r: any) => {
-      return new Tag(context, {
-        id: r.id,
-        numberOfProposals: Number(r.numberOfProposals),
-        proposals: r.proposals.map((id: string) => new Proposal(context, id))
-      })
-    }
+    let query: DocumentNode
 
     if (proposalId) {
       query = gql`query TagsSearchFromProposal
         {
           proposal (id: "${proposalId}") {
             id
+            scheme {
+              id
+              name
+            }
             tags ${createGraphQlQuery(options, where)} {
               ...TagFields
             }
@@ -79,13 +91,20 @@ export class Tag implements IStateful<ITagState> {
       `
 
       return context.getObservableObject(
+        context,
         query,
-        (r: any) => {
-          if (r === null) { // no such proposal was found
+        (arc: Arc, r: any, queriedId?: string) => {
+          if (!r) {
+            // no such proposal was found
             return []
           }
-          return r.tags.map(itemMap)
+          const itemMapper = (item: any) => {
+            const state = Tag.itemMap(arc, item, queriedId)
+            return new Tag(arc, state)
+          }
+          return r.tags.map(itemMapper)
         },
+        options.where?.id,
         apolloQueryOptions
       ) as Observable<Tag[]>
     } else {
@@ -98,26 +117,26 @@ export class Tag implements IStateful<ITagState> {
         ${Tag.fragments.TagFields}
       `
 
-      return context.getObservableList(
-        query,
-        itemMap,
-        apolloQueryOptions
-      ) as Observable<Tag[]>
+      return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
+        Tag[]
+      >
     }
   }
 
-  public id: string|undefined
-  public coreState: ITagState|undefined
+  public static itemMap = (context: Arc, item: any, queriedId?: string): ITagState => {
+    if (!item) {
+      throw Error(`Tag ItemMap failed. ${queriedId && `Could not find Tag with id '${queriedId}'`}`)
+    }
 
-  constructor(
-    public context: Arc,
-    idOrOpts: string|ITagState
-  ) {
-    if (typeof idOrOpts === 'string') {
-      this.id = idOrOpts
-    } else {
-      this.id = idOrOpts.id
-      this.setState(idOrOpts)
+    return {
+      id: item.id,
+      numberOfProposals: Number(item.numberOfProposals),
+      proposals: item.proposals.map((proposal: any) => {
+        return {
+          id: proposal.id,
+          entity: new Proposals[proposal.scheme.name](context, proposal.id)
+        }
+      })
     }
   }
 
@@ -131,29 +150,6 @@ export class Tag implements IStateful<ITagState> {
       ${Tag.fragments.TagFields}
     `
 
-    const itemMap = (item: any): ITagState => {
-      if (item === null) {
-        throw Error(`Could not find a Tag with id ${this.id}`)
-      }
-
-      const state = {
-        id: item.id,
-        numberOfProposals: Number(item.numberOfProposals),
-        proposals: item.proposals.map((id: string) => new Proposal(this.context, id))
-      }
-      this.setState(state)
-      return state
-    }
-    return this.context.getObservableObject(query, itemMap, apolloQueryOptions)
-  }
-
-  public setState(opts: ITagState) {
-    this.coreState = opts
-  }
-
-  public async fetchState(apolloQueryOptions: IApolloQueryOptions = {}): Promise<ITagState> {
-    const state = await this.state(apolloQueryOptions).pipe(first()).toPromise()
-    this.setState(state)
-    return state
+    return this.context.getObservableObject(this.context, query, Tag.itemMap, this.id, apolloQueryOptions)
   }
 }

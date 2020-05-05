@@ -1,8 +1,7 @@
 import { getMainDefinition } from 'apollo-utilities'
-import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
-import { Member, Proposal, Scheme, Stake } from '../src'
-import { createApolloClient } from '../src/graphnode'
+import { Member, Proposal } from '../src'
+import { createApolloClient } from '../src/'
 import { Vote } from '../src/vote'
 import { graphqlHttpProvider, graphqlWsProvider, newArc } from './utils'
 
@@ -12,51 +11,53 @@ jest.setTimeout(20000)
  */
 describe('apolloClient caching checks', () => {
 
-  let arc: any
   let networkSubscriptions: any[] = []
   let networkQueries: any[] = []
 
   beforeEach(async () => {
     networkSubscriptions = []
     networkQueries = []
-    arc = await newArc({
+  })
+
+  it('pre-fetching DAOs works', async () => {
+    const arc = await newArc({
       graphqlHttpProvider,
       graphqlWsProvider,
       ipfsProvider: '',
       web3Provider: 'http://127.0.0.1:8545'
     })
-  })
-
-  it('pre-fetching DAOs works', async () => {
-    // get all DAOs
-    const daos = await arc.daos().pipe(first()).toPromise()
-
-    // we will still hit the server when getting the DAO state, because the previous query did not fetch all state data
-    // so the next line with 'cache-only' will throw an Error
-    const p = arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
-    expect(p).rejects.toThrow()
 
     // now get all the DAOs with defailed data
-    await arc.daos({}, { fetchAllData: true }).pipe(first()).toPromise()
+    const daos = await arc.daos().pipe(first()).toPromise()
+
     // now we have all data in the cache - and we can get the whole state from the cache without error
-    await arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+    const p = arc.dao(daos[0].id).state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+    expect(p).resolves.toBeTruthy()
   })
 
   it('pre-fetching Proposals works', async () => {
+    const arc = await newArc({
+      graphqlHttpProvider,
+      graphqlWsProvider,
+      ipfsProvider: '',
+      web3Provider: 'http://127.0.0.1:8545'
+    })
 
+    // now get all the DAOs with detailed data
     const proposals = await Proposal.search(arc).pipe(first()).toPromise()
     const proposal = proposals[0]
-    // so the next line with 'cache-only' will throw an Error
-    const p = proposal.state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
-    expect(p).rejects.toThrow()
-
-    // now get all the DAOs with defailed data
-    await Proposal.search(arc, {}, { fetchAllData: true }).pipe(first()).toPromise()
     // now we have all data in the cache - and we can get the whole state from the cache without error
-    await proposal.state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+    const p = proposal.state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
+    expect(p).resolves.toBeTruthy()
   })
 
   it('pre-fetching Members with Member.search() works', async () => {
+    const arc = await newArc({
+      graphqlHttpProvider,
+      graphqlWsProvider,
+      ipfsProvider: '',
+      web3Provider: 'http://127.0.0.1:8545'
+    })
 
     // get all members of the dao
     const members = await Member.search(arc).pipe(first()).toPromise()
@@ -69,45 +70,39 @@ describe('apolloClient caching checks', () => {
   })
 
   it('pre-fetching ProposalVotes works', async () => {
-    // find a proposal in a scheme that has > 1 votes
-    let proposals = await Proposal.search(arc, {}, { fetchAllData: true }).pipe(first()).toPromise()
-    // @ts-ignore
-    proposals = proposals.filter((p) => p.coreState.votes.length > 1)
+    const arc = await newArc({
+      graphqlHttpProvider,
+      graphqlWsProvider,
+      ipfsProvider: '',
+      web3Provider: 'http://127.0.0.1:8545'
+    })
+
+    if (!arc.apolloClient) {
+      throw Error('ApolloClient is missing on Arc')
+    }
+
+    // find a proposal in a plugin that has > 1 votes
+    let proposals = await Proposal.search(arc).pipe(first()).toPromise()
+
+    proposals = proposals.filter((p) => {
+      
+      if(!p.coreState) throw new Error('Proposal coreState should not be null')
+
+      return p.coreState.votes.length > 1 && p.coreState.name === "ContributionReward"
+    })
     const proposal = proposals[0]
-    // @ts-ignore
-    const vote = new Vote(arc, proposals[0].coreState.votes[0])
+
+    if(!proposals[0].coreState) throw new Error('Proposal coreState should not be null')
+
+    const vote = proposals[0].coreState.votes[0].entity
     const voteState = await vote.fetchState()
     const voterAddress = voteState.voter
-    const proposalState = await proposal.fetchState()
-    const scheme = new Scheme(arc, proposalState.scheme.id)
 
     // now we have our objects, reset the cache
     await arc.apolloClient.cache.reset()
-    expect(arc.apolloClient.cache.data.data).toEqual({})
+    expect((arc.apolloClient.cache as any).data.data).toEqual({})
 
-    // construct our superquery
-    const query = gql`query {
-      proposals (where: { scheme: "${scheme.id}"}){
-        ...ProposalFields
-        stakes { ...StakeFields }
-        votes (where: { voter: "${voterAddress}"}) {
-          ...VoteFields
-          }
-        }
-      }
-      ${Proposal.fragments.ProposalFields}
-      ${Vote.fragments.VoteFields}
-      ${Stake.fragments.StakeFields}
-      ${Scheme.fragments.SchemeFields}
-    `
-    // let subscribed = false
-    // arc.getObservable(query, { subscribe: true, fetchPolicy: 'no-cache'}).subscribe((x: any) => {
-    //   subscribed = true
-    // })
-    // await waitUntilTrue(() => subscribed)
-    await arc.sendQuery(query)
-
-    const proposalVotes = await proposal.votes({ where: { voter: voterAddress}}, { fetchPolicy: 'cache-only'})
+    const proposalVotes = await proposal.votes({ where: { voter: voterAddress}})
       .pipe(first()).toPromise()
     expect(proposalVotes.map((v: Vote) => v.id)).toEqual([vote.id])
 
@@ -121,12 +116,19 @@ describe('apolloClient caching checks', () => {
   })
 
   it('pre-fetching Members with dao.members() works', async () => {
+    const arc = await newArc({
+      graphqlHttpProvider,
+      graphqlWsProvider,
+      ipfsProvider: '',
+      web3Provider: 'http://127.0.0.1:8545'
+    })
 
     arc.apolloClient = createApolloClient({
       graphqlHttpProvider,
       graphqlWsProvider,
       prefetchHook: (query: any) => {
         const definition = getMainDefinition(query)
+
         // @ts-ignore
         if (definition.operation === 'subscription') {
           networkSubscriptions.push(definition)
@@ -138,7 +140,7 @@ describe('apolloClient caching checks', () => {
 
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(0)
-    const daos = await arc.daos({}, { subscribe: false, fetchAllData: true}).pipe(first()).toPromise()
+    const daos = await arc.daos({}, { subscribe: false }).pipe(first()).toPromise()
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(1)
     const dao = daos[0]
@@ -164,7 +166,7 @@ describe('apolloClient caching checks', () => {
     const memberState = await member.state({fetchPolicy: 'cache-only', subscribe: false}).pipe(first()).toPromise()
     expect(memberState.reputation.isZero()).toBeFalsy()
     // getting the member by address does not open a new subscription either
-    await dao.member(memberState.address).state({ subscribe: false}).pipe(first()).toPromise()
+    await dao.member(memberState).state({ subscribe: false}).pipe(first()).toPromise()
     expect(networkQueries.length).toEqual(2)
     expect(networkSubscriptions.length).toEqual(1)
 
