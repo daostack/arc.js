@@ -13,7 +13,7 @@ and to the [DAOstack subgraph](https://github.com/daostack/subgraph) (an index o
 ```sh
 npm install @daostack/arc.js
 ```
-The arc.js package can be used as a dependency for developing a arc.js application
+The arc.js package can be used as a dependency for developing an arc.js application
 (we are using it to build a [React application](https://github.com/daostack/alchemy) called [Alchemy](https://alchemy.daostack.io)),
 but it can also be used for writing nodejs scripts that interact with the contracts or for querying data from the subgraph.
 
@@ -23,7 +23,7 @@ but it can also be used for writing nodejs scripts that interact with the contra
 The arc.js library provides a number of Classes that represent a the DAOstack basic entities - these are the basic building blocks of a DAO.
 
 A  `DAO` has a number of `Member`, which are holders of reputation (from the `Reputation` contract) and can cast a `Vote` on a  `Proposal`.
-Proposals are always made in a `Scheme` - that determines the conditions and effects of executing a proposal, typically by ordering them in a  `Queue`.
+Proposals are always made in a `Plugin` - that determines the conditions and effects of executing a ]proposal, typically by ordering them in a  `Queue`.
 Users can also put a `Stake` on the outcome of a proposal, and claim one or more `Reward` if they vote or stake effectively.
 
 
@@ -66,7 +66,7 @@ similarly, the `web3` and `ipfs` providers can be omitted when the library is on
 
 
 
-### Proposals, Schemes, Votes, Stakes, Queues, etc
+### Proposals, Plugins, Votes, Stakes, Queues, etc
 
 
 All basic Entity classes in the arc.js library implement a number of common functions.
@@ -252,4 +252,4 @@ const voteTransaction = await proposal.vote(...).send()
 const vote = voteTransaction.result // an instance of Vote
 ```
 
-For more docuemntatation, see the generated docs [TODO]
+For more documentation, see the generated docs [../docs/globals.md]
