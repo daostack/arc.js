@@ -3,7 +3,7 @@ import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
 import {
   Arc,
-  Competition as CompetitionPlugin,
+  CompetitionPlugin,
   CompetitionProposal,
   CompetitionSuggestion,
   CompetitionVote,
@@ -16,7 +16,7 @@ import {
   Plugin,
   IProposalCreateOptionsComp,
   getBlockTime,
-  ContributionRewardExt
+  ContributionRewardExtPlugin
 } from '../src'
 import {
   advanceTimeAndBlock,
@@ -33,7 +33,7 @@ jest.setTimeout(40000)
 describe('Competition Proposal', () => {
   let arc: Arc
   let dao: DAO
-  let contributionRewardExt: ContributionRewardExt
+  let contributionRewardExt: ContributionRewardExtPlugin
   let contributionRewardExtAddress: string
   let address0: string
   let address1: string
@@ -66,7 +66,7 @@ describe('Competition Proposal', () => {
     const contributionRewardExts = await arc
       .plugins({ where: { name: "ContributionRewardExt" } }).pipe(first()).toPromise()
 
-    contributionRewardExt = contributionRewardExts[0] as ContributionRewardExt
+    contributionRewardExt = contributionRewardExts[0] as ContributionRewardExtPlugin
 
     const contributionRewardExtState = await contributionRewardExt.fetchState()
     contributionRewardExtAddress = contributionRewardExtState.address

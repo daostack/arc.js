@@ -7,7 +7,7 @@ import {
   Address,
   Arc,
   CONTRIBUTION_REWARD_DUMMY_VERSION,
-  ContributionRewardExt,
+  ContributionRewardExtPlugin,
   IApolloQueryOptions,
   IProposalState,
   ITransaction,
@@ -70,13 +70,13 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
         new BN(item.contributionReward.reputationChangeLeft)) ||
       null
 
-    const contributionRewardExtState = ContributionRewardExt.itemMap(context, item.scheme, query)
+    const contributionRewardExtState = ContributionRewardExtPlugin.itemMap(context, item.scheme, query)
 
     if (!contributionRewardExtState) {
       return null
     }
 
-    const contributionRewardExt = new ContributionRewardExt(context, contributionRewardExtState)
+    const contributionRewardExt = new ContributionRewardExtPlugin(context, contributionRewardExtState)
     const contributionRewardExtProposal = new ContributionRewardExtProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(

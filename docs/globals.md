@@ -57,9 +57,9 @@
 * [IDAOState](interfaces/idaostate.md)
 * [IEventQueryOptions](interfaces/ieventqueryoptions.md)
 * [IEventState](interfaces/ieventstate.md)
-* [IGenericScheme](interfaces/igenericscheme.md)
-* [IGenericSchemeInfo](interfaces/igenericschemeinfo.md)
-* [IGenericSchemeParams](interfaces/igenericschemeparams.md)
+* [IGenericPlugin](interfaces/igenericscheme.md)
+* [IGenericPluginInfo](interfaces/igenericschemeinfo.md)
+* [IGenericPluginParams](interfaces/igenericschemeparams.md)
 * [IGenesisProtocolParams](interfaces/igenesisprotocolparams.md)
 * [IMemberQueryOptions](interfaces/imemberqueryoptions.md)
 * [IMemberState](interfaces/imemberstate.md)
@@ -198,7 +198,7 @@ ___
 
 ###  IProposalType
 
-Ƭ **IProposalType**: *[ContributionReward](globals.md#contributionreward) | [GenericScheme](globals.md#genericscheme) | [SchemeRegistrarAdd](globals.md#schemeregistraradd) | [SchemeRegistrarEdit](globals.md#schemeregistraredit) | [SchemeRegistrarRemove](globals.md#schemeregistrarremove)*
+Ƭ **IProposalType**: *[ContributionReward](globals.md#contributionreward) | [GenericPlugin](globals.md#genericscheme) | [SchemeRegistrarAdd](globals.md#schemeregistraradd) | [SchemeRegistrarEdit](globals.md#schemeregistraredit) | [SchemeRegistrarRemove](globals.md#schemeregistrarremove)*
 
 *Defined in [src/proposal.ts:33](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L33)*
 
@@ -908,9 +908,9 @@ an Observable instance
 
 *Defined in [src/schemes/contributionRewardExt.ts:39](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L39)*
 
-###  GenericScheme
+###  GenericPlugin
 
-• **GenericScheme**: = "GenericScheme"
+• **GenericPlugin**: = "GenericPlugin"
 
 *Defined in [src/schemes/genericScheme.ts:30](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/genericScheme.ts#L30)*
 

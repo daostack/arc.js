@@ -79,7 +79,6 @@ export class Member extends Entity<IMemberState> {
     }
 
     if (options.where.id) {
-      // TODO: check what is the return of this
       return new Member(context, options.where.id).state().pipe(map((r: any) => [r]))
     } else {
       let where = ''

@@ -1,6 +1,8 @@
 import 'ethers/dist/shims'
-
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
+import { RetryLink } from 'apollo-link-retry'
+import { ErrorHandler } from 'apollo-link-error'
 import { Contract, Signer } from 'ethers'
 import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
@@ -52,12 +54,12 @@ export interface IArcOptions {
   ipfsProvider?: IPFSProvider
   web3Provider?: Web3Provider
   /** this function will be called before a query is sent to the graphql provider */
-  graphqlPrefetchHook?: (query: any) => void
+  graphqlPrefetchHook?: (query: DocumentNode) => void
   /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
   graphqlSubscribeToQueries?: boolean
   /** an apollo-retry-link instance as https://www.apollographql.com/docs/link/links/retry/#default-configuration */
-  graphqlRetryLink?: any,
-  graphqlErrHandler?: any
+  graphqlRetryLink?: RetryLink,
+  graphqlErrHandler?: ErrorHandler
 }
 
 /**
@@ -89,11 +91,11 @@ export class Arc extends GraphNodeObserver {
   // accounts observed by ethBalance
   public observedAccounts: {
     [address: string]: {
-      observable?: Observable<BN>;
-      observer?: Observer<BN>;
-      lastBalance?: string;
-      subscriptionsCount: number;
-    };
+      observable?: Observable<BN>
+      observer?: Observer<BN>
+      lastBalance?: string
+      subscriptionsCount: number
+    }
   } = {}
 
   private _web3Provider: Web3Provider = ''
@@ -346,7 +348,10 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-  public getABI(opts: { address?: Address; abiName?: string; version?: string }): any[] {
+  public getABI(opts: { address?: Address
+      abiName?: string
+      version?: string 
+    }): any[] {
     if (Object.values(opts).filter((value) => value !== undefined).length === 0) {
       throw Error('getABI needs at least one parameter passed')
     }
@@ -516,10 +521,10 @@ export class Arc extends GraphNodeObserver {
    * @return  a Promise that resolves in the IPFS Hash where the file is saved
    */
   public async saveIPFSData(options: {
-    title?: string;
-    url?: string;
-    description?: string;
-    tags?: string[];
+    title?: string
+    url?: string
+    description?: string
+    tags?: string[]
   }): Promise<string> {
     let ipfsDataToSave: object = {}
     if (options.title || options.url || options.description || options.tags !== undefined) {

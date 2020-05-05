@@ -45,7 +45,7 @@ export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   votingStartTime: Date
 }
 
-export class Competition extends ProposalPlugin<
+export class CompetitionPlugin extends ProposalPlugin<
   IContributionRewardExtState,
   ICompetitionProposalState,
   IProposalCreateOptionsComp
@@ -81,7 +81,7 @@ export class Competition extends ProposalPlugin<
       )
     }
 
-    if (!Competition.isCompetitionPlugin(arc, state)) {
+    if (!CompetitionPlugin.isCompetitionPlugin(arc, state)) {
       throw Error(`We did not find a Competition contract at the rewarder address ${rewarder}`)
     }
     const contract = arc.getContract(rewarder)
@@ -128,7 +128,7 @@ export class Competition extends ProposalPlugin<
       throw Error(`No plugin was found with this id: ${this.id}`)
     }
 
-    const contract = Competition.getCompetitionContract(this.context, pluginState)
+    const contract = CompetitionPlugin.getCompetitionContract(this.context, pluginState)
 
     // check sanity -- is the competition contract actually
     const contributionRewardExtAddress = await contract.contributionRewardExt()
@@ -253,7 +253,7 @@ export class Competition extends ProposalPlugin<
       throw Error(`No scheme was found with this id: ${this.id}`)
     }
 
-    const contract = Competition.getCompetitionContract(this.context, schemeState)
+    const contract = CompetitionPlugin.getCompetitionContract(this.context, schemeState)
 
     // check sanity -- is the competition contract actually c
     const contributionRewardExtAddress = await contract.contributionRewardExt()

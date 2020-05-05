@@ -22,8 +22,8 @@ import {
 
 export interface IContributionRewardState extends IPluginState {
   pluginParams: {
-    votingMachine: Address;
-    voteParams: IGenesisProtocolParams;
+    votingMachine: Address
+    voteParams: IGenesisProtocolParams
   }
 }
 
@@ -38,7 +38,7 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
   periods?: any
 }
 
-export class ContributionReward extends ProposalPlugin<
+export class ContributionRewardPlugin extends ProposalPlugin<
   IContributionRewardState,
   IContributionRewardProposalState,
   IProposalCreateOptionsCR
@@ -100,7 +100,10 @@ export class ContributionReward extends ProposalPlugin<
     }
   }
 
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
+  private static fragmentField: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {
     options.descriptionHash = await this.context.saveIPFSData(options)

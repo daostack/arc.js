@@ -30,12 +30,12 @@ export interface IVoteState {
 
 export interface IVoteQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string;
-    voter?: Address;
-    outcome?: IProposalOutcome;
-    proposal?: string;
-    dao?: Address;
-    [key: string]: any;
+    id?: string
+    voter?: Address
+    outcome?: IProposalOutcome
+    proposal?: string
+    dao?: Address
+    [key: string]: any
   }
 }
 

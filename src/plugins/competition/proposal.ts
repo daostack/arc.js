@@ -5,10 +5,10 @@ import { concatMap, first } from 'rxjs/operators'
 import {
   Address,
   Arc,
-  Competition,
+  CompetitionPlugin,
   CompetitionSuggestion,
   CompetitionVote,
-  ContributionRewardExt,
+  ContributionRewardExtPlugin,
   ContributionRewardExtProposal,
   DAO,
   getEventArgs,
@@ -94,13 +94,13 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       )
     }
 
-    const competitionState = ContributionRewardExt.itemMap(context, item.scheme, query)
+    const competitionState = ContributionRewardExtPlugin.itemMap(context, item.scheme, query)
 
     if (!competitionState) {
       return null
     }
 
-    const competition = new Competition(context, competitionState)
+    const competition = new CompetitionPlugin(context, competitionState)
     const competitionProposal = new CompetitionProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -142,7 +142,10 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
     }
   }
 
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
+  private static fragmentField: {
+    name: string
+    fragment: DocumentNode 
+  } | undefined
 
   public state(apolloQueryOptions: IApolloQueryOptions): Observable<ICompetitionProposalState> {
     const query = gql`query ProposalState
@@ -239,11 +242,11 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
   }
 
   public createSuggestion(options: {
-    title: string;
-    description: string;
-    beneficiary?: Address;
-    tags?: string[];
-    url?: string;
+    title: string
+    description: string
+    beneficiary?: Address
+    tags?: string[]
+    url?: string
   }): Operation<CompetitionSuggestion> {
     const mapReceipt = async (receipt: ITransactionReceipt) => {
       const pluginState = await this.getState()
@@ -257,7 +260,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
     const errorHandler = async (err: Error) => {
       const pluginState = await this.getState()
-      const contract = Competition.getCompetitionContract(this.context, pluginState)
+      const contract = CompetitionPlugin.getCompetitionContract(this.context, pluginState)
       const proposal = await contract.proposals(this.id)
       if (!proposal) {
         throw Error(`A proposal with id ${this.id} does not exist`)
@@ -270,7 +273,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
         options.beneficiary = await this.context.getAccount().pipe(first()).toPromise()
       }
       const pluginState = await this.getState()
-      const contract = Competition.getCompetitionContract(this.context, pluginState)
+      const contract = CompetitionPlugin.getCompetitionContract(this.context, pluginState)
       const descriptionHash = await this.context.saveIPFSData(options)
       return {
         contract,
@@ -289,7 +292,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
   }
 
   public voteSuggestion(options: {
-    suggestionId: number; // this is the suggestion COUNTER
+    suggestionId: number // this is the suggestion COUNTER
   }): Operation<CompetitionVote> {
     const mapReceipt = (receipt: ITransactionReceipt) => {
       const [proposal, suggestionId, voter, reputation] = getEventArgs(
@@ -315,7 +318,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
     const errorHandler = async (err: Error) => {
       const pluginState = await this.getState()
-      const contract = await Competition.getCompetitionContract(this.context, pluginState)
+      const contract = await CompetitionPlugin.getCompetitionContract(this.context, pluginState)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (
@@ -342,7 +345,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
     const createTransaction = async (): Promise<ITransaction> => {
       const pluginState = await this.getState()
-      const contract = await Competition.getCompetitionContract(this.context, pluginState)
+      const contract = await CompetitionPlugin.getCompetitionContract(this.context, pluginState)
       return {
         contract,
         method: 'vote',
@@ -360,7 +363,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
   }
 
   public redeemSuggestion(options: {
-    suggestionId: number; // this is the suggestion COUNTER
+    suggestionId: number // this is the suggestion COUNTER
   }): Operation<boolean> {
     const mapReceipt = (receipt: ITransactionReceipt) => {
       if (!receipt.events || receipt.events.length === 0) {
@@ -372,7 +375,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
     const errorHandler = async (err: Error) => {
       const pluginState = await this.getState()
-      const contract = await Competition.getCompetitionContract(this.context, pluginState)
+      const contract = await CompetitionPlugin.getCompetitionContract(this.context, pluginState)
       // see if the suggestionId does exist in the contract
       const suggestion = await contract.suggestions(options.suggestionId)
       if (
@@ -386,7 +389,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
     const createTransaction = async (): Promise<ITransaction> => {
       const pluginState = await this.getState()
-      const contract = await Competition.getCompetitionContract(this.context, pluginState)
+      const contract = await CompetitionPlugin.getCompetitionContract(this.context, pluginState)
       return {
         contract,
         method: 'redeem',
@@ -411,7 +414,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
 
   public errorHandler = async (err: Error) => {
     const pluginState = await this.getState()
-    const contract = Competition.getCompetitionContract(this.context, pluginState)
+    const contract = CompetitionPlugin.getCompetitionContract(this.context, pluginState)
     const proposal = await contract.proposals(this.id)
     if (!proposal) {
       throw Error(`A proposal with id ${this.id} does not exist`)

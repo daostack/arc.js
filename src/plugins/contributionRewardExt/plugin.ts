@@ -22,9 +22,9 @@ import {
 
 export interface IContributionRewardExtState extends IPluginState {
   pluginParams: {
-    votingMachine: Address;
-    voteParams: IGenesisProtocolParams;
-    rewarder: Address;
+    votingMachine: Address
+    voteParams: IGenesisProtocolParams
+    rewarder: Address
   }
 }
 
@@ -38,7 +38,7 @@ export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions 
   proposer: Address
 }
 
-export class ContributionRewardExt extends ProposalPlugin<
+export class ContributionRewardExtPlugin extends ProposalPlugin<
   IContributionRewardExtState,
   IContributionRewardExtProposalState,
   IProposalCreateOptionsCRExt
@@ -101,7 +101,10 @@ export class ContributionRewardExt extends ProposalPlugin<
     }
   }
 
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
+  private static fragmentField: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   public async createProposalTransaction(
     options: IProposalCreateOptionsCRExt

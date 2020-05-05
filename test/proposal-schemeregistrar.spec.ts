@@ -8,7 +8,7 @@ import {
   ISchemeRegistrarProposalState,
   IProposalCreateOptionsSR,
   Plugin,
-  SchemeRegistrar,
+  SchemeRegistrarPlugin,
   AnyPlugin
   } from '../src'
 import { firstResult, getTestDAO,
@@ -43,7 +43,7 @@ describe('Proposal', () => {
       proposalType: "SchemeRegistrarAdd"
     }
 
-    const plugin = new SchemeRegistrar(arc, getTestScheme("SchemeRegistrar"))
+    const plugin = new SchemeRegistrarPlugin(arc, getTestScheme("SchemeRegistrar"))
 
     const tx = await plugin.createProposal(options).send()
 
@@ -83,10 +83,10 @@ describe('Proposal', () => {
     })
 
     // we now expect our new scheme to appear in the schemes collection
-    const registeredPlugins = await firstResult(Plugin.search(arc, {where: { dao: dao.id }})) as SchemeRegistrar[]
+    const registeredPlugins = await firstResult(Plugin.search(arc, {where: { dao: dao.id }})) as SchemeRegistrarPlugin[]
     const registeredPluginsAddresses: string[] = []
     await Promise.all(
-      registeredPlugins.map(async (x: SchemeRegistrar) => {
+      registeredPlugins.map(async (x: SchemeRegistrarPlugin) => {
         const state = await x.fetchState()
         registeredPluginsAddresses.push(state.address)
       })
@@ -97,7 +97,7 @@ describe('Proposal', () => {
 
     // we create a new proposal now to edit the scheme
 
-    const schemeRegistrarPlugin = registeredPlugins.find((rp: AnyPlugin) => rp instanceof (SchemeRegistrar)) as SchemeRegistrar
+    const schemeRegistrarPlugin = registeredPlugins.find((rp: AnyPlugin) => rp instanceof (SchemeRegistrarPlugin)) as SchemeRegistrarPlugin
 
     const editProposalOptions: IProposalCreateOptionsSR = {
       dao: dao.id,

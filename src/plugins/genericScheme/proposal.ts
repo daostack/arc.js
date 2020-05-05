@@ -6,7 +6,7 @@ import {
   Address,
   Arc,
   CONTRIBUTION_REWARD_DUMMY_VERSION,
-  GenericScheme,
+  GenericPlugin,
   IApolloQueryOptions,
   IProposalState,
   ITransaction,
@@ -20,7 +20,7 @@ import {
   toIOperationObservable
 } from '../../index'
 
-export interface IGenericSchemeProposalState extends IProposalState {
+export interface IGenericPluginProposalState extends IProposalState {
   id: string
   contractToCall: Address
   callData: string
@@ -28,13 +28,13 @@ export interface IGenericSchemeProposalState extends IProposalState {
   returnValue: string
 }
 
-export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState> {
+export class GenericPluginProposal extends Proposal<IGenericPluginProposalState> {
   public static get fragment() {
     if (!this.fragmentField) {
       this.fragmentField = {
-        name: 'GenericSchemeProposalFields',
+        name: 'GenericPluginProposalFields',
         fragment: gql`
-          fragment GenericSchemeProposalFields on Proposal {
+          fragment GenericPluginProposalFields on Proposal {
             genericScheme {
               id
               contractToCall
@@ -53,20 +53,20 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
     context: Arc,
     item: any,
     query: DocumentNode
-  ): IGenericSchemeProposalState | null {
+  ): IGenericPluginProposalState | null {
     if (!item) {
-      Logger.debug(`GenericScheme Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`GenericPlugin Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 
-    const genericSchemeState = GenericScheme.itemMap(context, item.scheme, query)
+    const genericSchemeState = GenericPlugin.itemMap(context, item.scheme, query)
 
     if (!genericSchemeState) {
       return null
     }
 
-    const genericScheme = new GenericScheme(context, genericSchemeState)
-    const genericSchemeProposal = new GenericSchemeProposal(context, item.id)
+    const genericScheme = new GenericPlugin(context, genericSchemeState)
+    const genericSchemeProposal = new GenericPluginProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
       context,
@@ -89,9 +89,12 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
     }
   }
 
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
+  private static fragmentField: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IGenericSchemeProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IGenericPluginProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {
@@ -111,9 +114,9 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
     const result = this.context.getObservableObject(
       this.context,
       query,
-      GenericSchemeProposal.itemMap,
+      GenericPluginProposal.itemMap,
       apolloQueryOptions
-    ) as Observable<IGenericSchemeProposalState>
+    ) as Observable<IGenericPluginProposalState>
     return result
   }
 

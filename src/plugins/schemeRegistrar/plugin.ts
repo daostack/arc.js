@@ -18,9 +18,9 @@ import {
 
 export interface ISchemeRegistrarState extends IPluginState {
   pluginParams: {
-    votingMachine: Address;
-    voteRemoveParams: IGenesisProtocolParams;
-    voteRegisterParams: IGenesisProtocolParams;
+    votingMachine: Address
+    voteRemoveParams: IGenesisProtocolParams
+    voteRegisterParams: IGenesisProtocolParams
   }
 }
 
@@ -31,7 +31,7 @@ export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
   schemeToRegister?: Address
 }
 
-export class SchemeRegistrar extends ProposalPlugin<
+export class SchemeRegistrarPlugin extends ProposalPlugin<
   ISchemeRegistrarState,
   ISchemeRegistrarProposalState,
   IProposalCreateOptionsSR
@@ -125,7 +125,10 @@ export class SchemeRegistrar extends ProposalPlugin<
     }
   }
 
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
+  private static fragmentField: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {
     let msg: string

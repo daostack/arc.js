@@ -3,9 +3,9 @@ import gql from 'graphql-tag'
 import {
   Address,
   Arc,
-  GenericSchemeProposal,
+  GenericPluginProposal,
   getEventArgs,
-  IGenericSchemeProposalState,
+  IGenericPluginProposalState,
   IGenesisProtocolParams,
   IPluginState,
   IProposalBaseCreateOptions,
@@ -18,11 +18,11 @@ import {
   transactionResultHandler
 } from '../../index'
 
-export interface IGenericSchemeState extends IPluginState {
+export interface IGenericPluginState extends IPluginState {
   pluginParams: {
-    votingMachine: Address;
-    contractToCall: Address;
-    voteParams: IGenesisProtocolParams;
+    votingMachine: Address
+    contractToCall: Address
+    voteParams: IGenesisProtocolParams
   }
 }
 
@@ -31,9 +31,9 @@ export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   value?: number
 }
 
-export class GenericScheme extends ProposalPlugin<
-  IGenericSchemeState,
-  IGenericSchemeProposalState,
+export class GenericPlugin extends ProposalPlugin<
+  IGenericPluginState,
+  IGenericPluginProposalState,
   IProposalCreateOptionsGS
 > {
   public static get fragment() {
@@ -69,9 +69,9 @@ export class GenericScheme extends ProposalPlugin<
     return this.fragmentField
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IGenericSchemeState | null {
+  public static itemMap(context: Arc, item: any, query: DocumentNode): IGenericPluginState | null {
     if (!item) {
-      Logger.debug(`GenericScheme Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`GenericPlugin Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
       return null
     }
 
@@ -89,14 +89,17 @@ export class GenericScheme extends ProposalPlugin<
     }
   }
 
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
+  private static fragmentField: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsGS): Promise<ITransaction> {
     if (options.callData === undefined) {
-      throw new Error(`Missing argument "callData" for GenericScheme in Proposal.create()`)
+      throw new Error(`Missing argument "callData" for GenericPlugin in Proposal.create()`)
     }
     if (options.value === undefined) {
-      throw new Error(`Missing argument "value" for GenericScheme in Proposal.create()`)
+      throw new Error(`Missing argument "value" for GenericPlugin in Proposal.create()`)
     }
 
     const pluginId = options.plugin ? options.plugin : this.id
@@ -112,9 +115,9 @@ export class GenericScheme extends ProposalPlugin<
 
   public createProposalTransactionMap(): transactionResultHandler<any> {
     return async (receipt: ITransactionReceipt) => {
-      const args = getEventArgs(receipt, 'NewCallProposal', 'GenericScheme.createProposal')
+      const args = getEventArgs(receipt, 'NewCallProposal', 'GenericPlugin.createProposal')
       const proposalId = args[1]
-      return new GenericSchemeProposal(this.context, proposalId)
+      return new GenericPluginProposal(this.context, proposalId)
     }
   }
 }

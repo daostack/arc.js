@@ -1,6 +1,14 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
-import { IProposalStage, AnyPlugin, ContributionReward, SchemeRegistrar, GenericScheme, ContributionRewardProposal, IContributionRewardState } from '../src'
+import {
+  IProposalStage,
+  AnyPlugin,
+  ContributionRewardPlugin,
+  SchemeRegistrarPlugin,
+  GenericPlugin,
+  ContributionRewardProposal,
+  IContributionRewardState
+} from '../src'
 import { IPluginState, Plugin } from '../src'
 import { firstResult, getTestAddresses, getTestDAO,  ITestAddresses, newArc, getTestScheme } from './utils'
 
@@ -75,7 +83,7 @@ describe('Scheme', () => {
       .search(arc, {where: {dao: dao.id, name: 'ContributionReward'}})
       .pipe(first()).toPromise()
 
-    const scheme = result[0] as ContributionReward
+    const scheme = result[0] as ContributionRewardPlugin
     const state = await scheme.fetchState()
     expect(state).toMatchObject({
       address: getTestScheme("ContributionReward").toLowerCase(),
@@ -90,7 +98,7 @@ describe('Scheme', () => {
       .search(arc, {where: {dao: dao.id, name: 'SchemeRegistrar'}})
       .pipe(first()).toPromise()
 
-    const plugin = result[0] as SchemeRegistrar
+    const plugin = result[0] as SchemeRegistrarPlugin
     const state = await plugin.fetchState()
     expect(state).toMatchObject({
       address: getTestScheme("SchemeRegistrar").toLowerCase(),
@@ -99,12 +107,12 @@ describe('Scheme', () => {
     })
   })
 
-  it('Scheme.state() is working for GenericScheme plugins', async () => {
+  it('Scheme.state() is working for GenericPlugin plugins', async () => {
     const result = await Plugin
       .search(arc, {where: {name: 'GenericScheme'}})
       .pipe(first()).toPromise()
 
-    const scheme = result[0] as GenericScheme
+    const scheme = result[0] as GenericPlugin
     const state = await scheme.fetchState()
     expect(state).toMatchObject({
       id: scheme.id,
@@ -116,7 +124,7 @@ describe('Scheme', () => {
     const { queuedProposalId } = testAddresses
     const proposal = new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
-    const plugins: ContributionReward[] = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
+    const plugins: ContributionRewardPlugin[] = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
     const schemeState: IContributionRewardState = await firstResult(plugins[0].state())
     expect(schemeState).toMatchObject(proposalState.plugin.entity.coreState as IContributionRewardState)
   })

@@ -10,7 +10,7 @@ import {
   Plugin,
   Proposal,
   ProposalName,
-  SchemeRegistrar
+  SchemeRegistrarPlugin
 } from '../../index'
 
 export interface ISchemeRegistrarProposalState extends IProposalState {
@@ -24,7 +24,10 @@ export interface ISchemeRegistrarProposalState extends IProposalState {
 }
 
 export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalState> {
-  protected static fragmentField: { name: string; fragment: DocumentNode } | undefined
+  protected static fragmentField: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   public static get fragment() {
     if (!this.fragmentField) {
@@ -80,13 +83,13 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       )
     }
 
-    const schemeRegistrarState = SchemeRegistrar.itemMap(context, item.scheme, query)
+    const schemeRegistrarState = SchemeRegistrarPlugin.itemMap(context, item.scheme, query)
 
     if (!schemeRegistrarState) {
       return null
     }
 
-    const schemeRegistrar = new SchemeRegistrar(context, schemeRegistrarState)
+    const schemeRegistrar = new SchemeRegistrarPlugin(context, schemeRegistrarState)
     const schemeRegistrarProposal = new SchemeRegistrarProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(

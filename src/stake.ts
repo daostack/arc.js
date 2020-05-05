@@ -28,12 +28,12 @@ export interface IStakeState {
 
 export interface IStakeQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string;
-    staker?: Address;
-    dao?: Address;
-    proposal?: string;
-    createdAt?: number;
-    [key: string]: any;
+    id?: string
+    staker?: Address
+    dao?: Address
+    proposal?: string
+    createdAt?: number
+    [key: string]: any
   }
 }
 

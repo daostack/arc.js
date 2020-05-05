@@ -5,7 +5,7 @@ import {
   IProposalStage,
   IProposalState,
   Proposal,
-  ContributionRewardExt,
+  ContributionRewardExtPlugin,
   ContributionRewardExtProposal
   } from '../src'
 import { newArc, toWei, voteToPassProposal, waitUntilTrue } from './utils'
@@ -30,7 +30,7 @@ describe('ContributionReward Ext', () => {
     const contributionRewardExts = await arc
       .plugins({where: {name: "ContributionRewardExt"}}).pipe(first()).toPromise()
 
-    const contributionRewardExt = contributionRewardExts[0] as ContributionRewardExt
+    const contributionRewardExt = contributionRewardExts[0] as ContributionRewardExtPlugin
     const contributionRewardExtState = await contributionRewardExt.fetchState()
     const dao = new DAO(arc, contributionRewardExtState.dao.id)
 

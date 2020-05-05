@@ -45,12 +45,12 @@ export interface ICompetitionSuggestionState {
 
 export interface ICompetitionSuggestionQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string; // id of the competition
-    proposal?: string; // id of the proposal
-    suggestionId?: number; // the "suggestionId" is a counter that is unique to the scheme
+    id?: string // id of the competition
+    proposal?: string // id of the proposal
+    suggestionId?: number // the "suggestionId" is a counter that is unique to the scheme
     // - and is not to be confused with suggestion.id
-    positionInWinnerList?: number | null;
-    positionInWinnerList_not?: number | null;
+    positionInWinnerList?: number | null
+    positionInWinnerList_not?: number | null
   }
 }
 
@@ -140,7 +140,10 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     }
   }
 
-  public static calculateId(opts: { plugin: Address; suggestionId: number }): string {
+  public static calculateId(opts: {
+      plugin: Address
+      suggestionId: number
+    }): string {
     const seed = concat(
       hexStringToUint8Array(opts.plugin.toLowerCase()),
       hexStringToUint8Array(Number(opts.suggestionId).toString(16))
@@ -192,7 +195,10 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
 
   constructor(
     context: Arc,
-    idOrOpts: string | { suggestionId: number; plugin: string } | ICompetitionSuggestionState
+    idOrOpts: string | {
+      suggestionId: number
+      plugin: string 
+    } | ICompetitionSuggestionState
   ) {
     if (typeof idOrOpts === 'string') {
       super(context, idOrOpts)
@@ -203,7 +209,10 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
         Object.keys(idOrOpts).includes('suggestionId')
       ) {
         const id = CompetitionSuggestion.calculateId(
-          idOrOpts as { suggestionId: number; plugin: string }
+          idOrOpts as { 
+            suggestionId: number
+            plugin: string 
+          }
         )
         super(context, id)
         this.id = id

@@ -10,7 +10,7 @@ import {
   Reputation,
   Address,
   IContractInfo,
-  ContributionReward,
+  ContributionRewardPlugin,
   ContributionRewardProposal,
   AnyProposal,
   IProposalCreateOptionsCR,
@@ -167,7 +167,7 @@ export async function createAProposal(
     ...options
   }
 
-  const plugin = new ContributionReward(
+  const plugin = new ContributionRewardPlugin(
     dao.context, 
     getTestScheme("ContributionReward")
   )
@@ -190,7 +190,7 @@ export async function createCRProposal(
   options: IProposalCreateOptionsCR,
   pluginId: Address = getTestScheme("ContributionReward")
 ) {
-  const plugin = new ContributionReward(context, pluginId)
+  const plugin = new ContributionRewardPlugin(context, pluginId)
   const response = await plugin.createProposal(options).send()
 
   if(!response.result) throw new Error('Response yielded no results')

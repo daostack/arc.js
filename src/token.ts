@@ -26,11 +26,11 @@ export interface ITokenState {
 
 export interface ITokenQueryOptions extends ICommonQueryOptions {
   where?: {
-    address?: Address;
-    name?: string;
-    owner?: Address;
-    symbol?: string;
-    [key: string]: any;
+    address?: Address
+    name?: string
+    owner?: Address
+    symbol?: string
+    [key: string]: any
   }
 }
 

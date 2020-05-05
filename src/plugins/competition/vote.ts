@@ -23,11 +23,11 @@ export interface ICompetitionVoteState {
 
 export interface ICompetitionVoteQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string;
-    suggestion?: string;
-    voter?: Address;
-    proposal?: string;
-    proposal_not?: string | null;
+    id?: string
+    suggestion?: string
+    voter?: Address
+    proposal?: string
+    proposal_not?: string | null
   }
 }
 

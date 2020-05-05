@@ -20,8 +20,8 @@ export interface ITagState {
 
 export interface ITagQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string;
-    proposal?: string;
+    id?: string
+    proposal?: string
   }
 }
 

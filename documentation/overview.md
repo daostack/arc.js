@@ -104,7 +104,7 @@ const proposal = new Proposal({
   votingMachine: '0x1111..',
   plugin: {
     id: '0x12345...',
-    entity: new GenericScheme(arc, '0x12345...')
+    entity: new GenericPlugin(arc, '0x12345...')
   }, arc)
 ```
 This will provide the instance with enough information to send transactions without having to query the subgraph for additional information.
@@ -133,7 +133,7 @@ The `fetchState` method does not populate the states of entity references inside
 
 ```ts
 
-const proposal = new GenericSchemeProposal(arc, '0x12345...')
+const proposal = new GenericPluginProposal(arc, '0x12345...')
 const proposalState = await proposal.fetchState()
 
 const pluginState = proposalState.plugin.entity.coreState // evaluates to null

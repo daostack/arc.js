@@ -36,15 +36,15 @@ export interface IPluginState {
 
 export interface IPluginQueryOptions extends ICommonQueryOptions {
   where?: {
-    address?: Address;
-    canDelegateCall?: boolean;
-    canRegisterPlugins?: boolean;
-    canUpgradeController?: boolean;
-    canManageGlobalConstraints?: boolean;
-    dao?: Address;
-    id?: string;
-    name?: string;
-    [key: string]: any;
+    address?: Address
+    canDelegateCall?: boolean
+    canRegisterPlugins?: boolean
+    canUpgradeController?: boolean
+    canManageGlobalConstraints?: boolean
+    dao?: Address
+    id?: string
+    name?: string
+    [key: string]: any
   }
 }
 
@@ -80,7 +80,9 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     return this.baseFragmentField
   }
 
-  public static fragment: { name: string; fragment: DocumentNode } | undefined
+  public static fragment: { name: string
+    fragment: DocumentNode 
+  } | undefined
 
   public static search<TPluginState extends IPluginState>(
     context: Arc,
@@ -140,7 +142,10 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     >
   }
 
-  public static calculateId(opts: { daoAddress: Address; contractAddress: Address }): string {
+  public static calculateId(opts: { 
+      daoAddress: Address
+      contractAddress: Address 
+    }): string {
     const seed = concat(
       hexStringToUint8Array(opts.daoAddress.toLowerCase()),
       hexStringToUint8Array(opts.contractAddress.toLowerCase())
