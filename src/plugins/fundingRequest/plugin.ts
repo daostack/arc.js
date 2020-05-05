@@ -125,6 +125,12 @@ export class FundingRequest
         const dao = state.dao.entity
         const joinAndQuit = (await dao.plugin({where: {name: 'JoinAndQuit'}}))
         const joinAndQuitState = await joinAndQuit.fetchState() as IJoinAndQuitState
+        const deadline = joinAndQuitState.pluginParams.fundingGoalDeadline
+        const now = new Date()
+        if (deadline < now) {
+          return new Error(`${err.message}: fundingGoal deadline ${deadline} has passed before reaching the funding goal`)
+
+        }
         return new Error(`${err.message}: funding goal: ${fromWei(joinAndQuitState.pluginParams.fundingGoal)}, deadline: ${joinAndQuitState.pluginParams.fundingGoalDeadline}`)
       }
       throw err
