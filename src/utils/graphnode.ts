@@ -2,12 +2,12 @@ import { defaultDataIdFromObject, InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient, ApolloQueryResult } from 'apollo-client'
 import {
   ApolloLink,
+  DocumentNode,
   FetchResult,
   Observable as ZenObservable,
-  split,
-  DocumentNode
+  split
 } from 'apollo-link'
-import { onError, ErrorHandler } from 'apollo-link-error'
+import { ErrorHandler, onError } from 'apollo-link-error'
 import { HttpLink } from 'apollo-link-http'
 import { RetryLink } from 'apollo-link-retry'
 import { WebSocketLink } from 'apollo-link-ws'
@@ -49,7 +49,7 @@ export function createApolloClient(options: IApolloClientOptions) {
   let wsLink: WebSocketLink
   let wsOrHttpLink: ApolloLink
 
-  if(options.graphqlWsProvider) {
+  if (options.graphqlWsProvider) {
     wsLink = new WebSocketLink({
       options: {
         reconnect: true

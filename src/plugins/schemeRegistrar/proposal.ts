@@ -24,10 +24,6 @@ export interface ISchemeRegistrarProposalState extends IProposalState {
 }
 
 export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalState> {
-  protected static fragmentField: {
-    name: string
-    fragment: DocumentNode
-  } | undefined
 
   public static fragment = {
     name: 'SchemeRegistrarProposalFields',
@@ -45,6 +41,10 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       }
     `
   }
+  protected static fragmentField: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   protected static itemMap(
     context: Arc,

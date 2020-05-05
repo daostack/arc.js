@@ -197,7 +197,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     context: Arc,
     idOrOpts: string | {
       suggestionId: number
-      plugin: string 
+      plugin: string
     } | ICompetitionSuggestionState
   ) {
     if (typeof idOrOpts === 'string') {
@@ -209,9 +209,9 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
         Object.keys(idOrOpts).includes('suggestionId')
       ) {
         const id = CompetitionSuggestion.calculateId(
-          idOrOpts as { 
+          idOrOpts as {
             suggestionId: number
-            plugin: string 
+            plugin: string
           }
         )
         super(context, id)

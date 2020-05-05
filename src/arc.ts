@@ -1,6 +1,6 @@
-import 'ethers/dist/shims'
 import BN from 'bn.js'
 import { Contract, Signer } from 'ethers'
+import 'ethers/dist/shims'
 import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
@@ -13,6 +13,7 @@ import {
   DAO,
   Event,
   GraphNodeObserver,
+  IApolloClientOptions,
   IApolloQueryOptions,
   IDAOQueryOptions,
   IEventQueryOptions,
@@ -40,8 +41,7 @@ import {
   transactionErrorHandler,
   transactionResultHandler,
   Web3Client,
-  Web3Provider,
-  IApolloClientOptions
+  Web3Provider
 } from './index'
 
 export type IArcOptions = IApolloClientOptions & {
@@ -51,7 +51,7 @@ export type IArcOptions = IApolloClientOptions & {
   web3Provider?: Web3Provider
   /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
   graphqlSubscribeToQueries?: boolean
-  
+
 }
 
 /**
@@ -342,7 +342,7 @@ export class Arc extends GraphNodeObserver {
 
   public getABI(opts: { address?: Address
       abiName?: string
-      version?: string 
+      version?: string
     }): any[] {
     if (Object.values(opts).filter((value) => value !== undefined).length === 0) {
       throw Error('getABI needs at least one parameter passed')

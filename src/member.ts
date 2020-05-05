@@ -127,9 +127,9 @@ export class Member extends Entity<IMemberState> {
     }
   }
 
-  public static calculateId(opts: { 
+  public static calculateId(opts: {
       contract: Address
-      address: Address 
+      address: Address
     }): string {
     const seed = concat(
       hexStringToUint8Array(opts.contract.toLowerCase()),

@@ -82,7 +82,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
 
   public static fragment: {
     name: string
-    fragment: DocumentNode 
+    fragment: DocumentNode
   } | undefined
 
   public static search<TPluginState extends IPluginState>(
@@ -143,9 +143,9 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     >
   }
 
-  public static calculateId(opts: { 
+  public static calculateId(opts: {
       daoAddress: Address
-      contractAddress: Address 
+      contractAddress: Address
     }): string {
     const seed = concat(
       hexStringToUint8Array(opts.daoAddress.toLowerCase()),

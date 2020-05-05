@@ -64,7 +64,8 @@ export class GenericPlugin extends ProposalPlugin<
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IGenericPluginState | null {
     if (!item) {
-      Logger.debug(`GenericPlugin ItemMap failed. ${queriedId && `Could not find GenericPlugin with id '${queriedId}'`}`)
+      Logger.debug(`GenericPlugin ItemMap failed.
+       ${queriedId && `Could not find GenericPlugin with id '${queriedId}'`}`)
       return null
     }
 

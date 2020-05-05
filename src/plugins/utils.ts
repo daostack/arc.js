@@ -1,9 +1,9 @@
 import {
   CompetitionPlugin,
   CompetitionProposal,
-  ContributionRewardPlugin,
   ContributionRewardExtPlugin,
   ContributionRewardExtProposal,
+  ContributionRewardPlugin,
   ContributionRewardProposal,
   GenericPlugin,
   GenericPluginProposal,
