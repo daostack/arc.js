@@ -183,6 +183,9 @@ export function createGraphQlWhereQuery(where?: { [key: string]: string | string
       isAddress(value as string)
       value = (value as string).toLowerCase()
       result += `${key}: "${value}"\n`
+    } else if (where[key] === "true" || where[key] === "false") {
+      const flag: boolean = where[key] === "true"
+      result += `${key}: ${flag}`
     } else if (key.endsWith('_in') || key.endsWith('_not_in')) {
       value = JSON.stringify(value)
       result += `${key}: ${value}\n`
