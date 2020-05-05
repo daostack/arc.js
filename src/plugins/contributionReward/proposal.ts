@@ -6,7 +6,7 @@ import { concatMap } from 'rxjs/operators'
 import {
   Address,
   Arc,
-  ContributionReward,
+  ContributionRewardPlugin,
   IApolloQueryOptions,
   IProposalState,
   ITransaction,
@@ -76,10 +76,10 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
   public static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): IContributionRewardProposalState | null {
     if (!item) {
-      Logger.debug(`ContributionReward Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ContributionRewardProposal ItemMap failed. ${queriedId && `Could not find ContributionRewardProposal with id '${queriedId}'`}`)
       return null
     }
 
@@ -100,13 +100,13 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
         new BN(item.contributionReward.reputationChangeLeft)) ||
       null
 
-    const contributionRewardState = ContributionReward.itemMap(context, item.scheme, query)
+    const contributionRewardState = ContributionRewardPlugin.itemMap(context, item.scheme, queriedId)
 
     if (!contributionRewardState) {
       return null
     }
 
-    const contributionReward = new ContributionReward(context, contributionRewardState)
+    const contributionReward = new ContributionRewardPlugin(context, contributionRewardState)
     const contributionRewardProposal = new ContributionRewardProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -148,7 +148,10 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
     }
   }
 
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
+  private static fragmentField: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   public state(
     apolloQueryOptions: IApolloQueryOptions
@@ -173,6 +176,7 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
       this.context,
       query,
       ContributionRewardProposal.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<IContributionRewardProposalState>
     return result

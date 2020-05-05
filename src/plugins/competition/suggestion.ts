@@ -1,6 +1,5 @@
 import BN from 'bn.js'
 import { utils } from 'ethers'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { concatMap, first } from 'rxjs/operators'
@@ -45,12 +44,12 @@ export interface ICompetitionSuggestionState {
 
 export interface ICompetitionSuggestionQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string; // id of the competition
-    proposal?: string; // id of the proposal
-    suggestionId?: number; // the "suggestionId" is a counter that is unique to the scheme
+    id?: string // id of the competition
+    proposal?: string // id of the proposal
+    suggestionId?: number // the "suggestionId" is a counter that is unique to the scheme
     // - and is not to be confused with suggestion.id
-    positionInWinnerList?: number | null;
-    positionInWinnerList_not?: number | null;
+    positionInWinnerList?: number | null
+    positionInWinnerList_not?: number | null
   }
 }
 
@@ -88,8 +87,8 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     options: ICompetitionSuggestionQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<CompetitionSuggestion[]> {
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
-      const state = CompetitionSuggestion.itemMap(arc, item, queryDoc)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = CompetitionSuggestion.itemMap(arc, item, queriedId)
       return new CompetitionSuggestion(arc, state)
     }
 
@@ -112,16 +111,17 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       return context.getObservableObject(
         context,
         query,
-        (arc: Arc, r: any, queryDoc: DocumentNode) => {
+        (arc: Arc, r: any, queriedId?: string) => {
           if (!r) {
             // no such proposal was found
             return []
           }
           const itemMapper = (item: any) =>
-            new CompetitionSuggestion(arc, CompetitionSuggestion.itemMap(context, item, queryDoc))
+            new CompetitionSuggestion(arc, CompetitionSuggestion.itemMap(context, item, queriedId))
 
           return r.suggestions.map(itemMapper)
         },
+        options.where?.id,
         apolloQueryOptions
       ) as Observable<CompetitionSuggestion[]>
     } else {
@@ -134,13 +134,16 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
         ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
       `
 
-      return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+      return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
         CompetitionSuggestion[]
       >
     }
   }
 
-  public static calculateId(opts: { plugin: Address; suggestionId: number }): string {
+  public static calculateId(opts: {
+      plugin: Address
+      suggestionId: number
+    }): string {
     const seed = concat(
       hexStringToUint8Array(opts.plugin.toLowerCase()),
       hexStringToUint8Array(Number(opts.suggestionId).toString(16))
@@ -151,10 +154,10 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
   private static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): ICompetitionSuggestionState {
     if (!item) {
-      throw Error(`Competition Suggestion ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Competition Suggestion ItemMap failed. ${queriedId && `Could not find Competition Suggestion with id '${queriedId}'`}`)
     }
 
     let redeemedAt: Date | null = null
@@ -192,7 +195,10 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
 
   constructor(
     context: Arc,
-    idOrOpts: string | { suggestionId: number; plugin: string } | ICompetitionSuggestionState
+    idOrOpts: string | {
+      suggestionId: number
+      plugin: string
+    } | ICompetitionSuggestionState
   ) {
     if (typeof idOrOpts === 'string') {
       super(context, idOrOpts)
@@ -203,7 +209,10 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
         Object.keys(idOrOpts).includes('suggestionId')
       ) {
         const id = CompetitionSuggestion.calculateId(
-          idOrOpts as { suggestionId: number; plugin: string }
+          idOrOpts as {
+            suggestionId: number
+            plugin: string
+          }
         )
         super(context, id)
         this.id = id
@@ -233,6 +242,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       this.context,
       query,
       CompetitionSuggestion.itemMap,
+      this.id,
       apolloQueryOptions
     )
   }

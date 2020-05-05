@@ -8,7 +8,7 @@ import {
   ISchemeRegistrarProposalState,
   IProposalCreateOptionsSR,
   Plugin,
-  SchemeRegistrar,
+  SchemeRegistrarPlugin,
   AnyPlugin
   } from '../src'
 import { firstResult, getTestDAO,
@@ -29,7 +29,7 @@ describe('Proposal', () => {
 
   it('Check proposal state is correct', async () => {
     const dao = await getTestDAO()
-    const schemeToRegister = Wallet.createRandom().address.toLowerCase()
+    const pluginToRegister = Wallet.createRandom().address.toLowerCase()
     const proposalToAddStates: IProposalState[] = []
     const lastProposalToAddState = (): IProposalState => proposalToAddStates[proposalToAddStates.length - 1]
 
@@ -39,11 +39,11 @@ describe('Proposal', () => {
       parametersHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       permissions: '0x0000001f',
       plugin: getTestScheme("SchemeRegistrar"),
-      schemeToRegister,
+      pluginToRegister,
       proposalType: "SchemeRegistrarAdd"
     }
 
-    const plugin = new SchemeRegistrar(arc, getTestScheme("SchemeRegistrar"))
+    const plugin = new SchemeRegistrarPlugin(arc, getTestScheme("SchemeRegistrar"))
 
     const tx = await plugin.createProposal(options).send()
 
@@ -60,11 +60,11 @@ describe('Proposal', () => {
 
     expect(lastProposalToAddState()).toMatchObject({
       decision: null,
-      schemeRegistered: null,
-      schemeRemoved: null,
-      schemeToRegister,
-      schemeToRegisterPermission: '0x0000001f',
-      schemeToRemove: null
+      pluginRegistered: null,
+      pluginRemoved: null,
+      pluginToRegister,
+      pluginToRegisterPermission: '0x0000001f',
+      pluginToRemove: null
     })
 
     expect(lastProposalToAddState().type).toEqual('SchemeRegistrarAdd')
@@ -73,31 +73,31 @@ describe('Proposal', () => {
     await voteToPassProposal(proposalToAdd)
 
     await proposalToAdd.execute()
-    await waitUntilTrue(() => (lastProposalToAddState() as ISchemeRegistrarProposalState).schemeRegistered)
+    await waitUntilTrue(() => (lastProposalToAddState() as ISchemeRegistrarProposalState).pluginRegistered)
     expect(lastProposalToAddState()).toMatchObject({
       stage: IProposalStage.Executed
     })
     expect(lastProposalToAddState()).toMatchObject({
       decision: '1',
-      schemeRegistered: true
+      pluginRegistered: true
     })
 
     // we now expect our new scheme to appear in the schemes collection
-    const registeredPlugins = await firstResult(Plugin.search(arc, {where: { dao: dao.id }})) as SchemeRegistrar[]
+    const registeredPlugins = await firstResult(Plugin.search(arc, {where: { dao: dao.id }})) as SchemeRegistrarPlugin[]
     const registeredPluginsAddresses: string[] = []
     await Promise.all(
-      registeredPlugins.map(async (x: SchemeRegistrar) => {
+      registeredPlugins.map(async (x: SchemeRegistrarPlugin) => {
         const state = await x.fetchState()
         registeredPluginsAddresses.push(state.address)
       })
     )
     
     //TODO: how to create a plugin?
-    expect(registeredPluginsAddresses).toContain(schemeToRegister)
+    expect(registeredPluginsAddresses).toContain(pluginToRegister)
 
     // we create a new proposal now to edit the scheme
 
-    const schemeRegistrarPlugin = registeredPlugins.find((rp: AnyPlugin) => rp instanceof (SchemeRegistrar)) as SchemeRegistrar
+    const schemeRegistrarPlugin = registeredPlugins.find((rp: AnyPlugin) => rp instanceof (SchemeRegistrarPlugin)) as SchemeRegistrarPlugin
 
     const editProposalOptions: IProposalCreateOptionsSR = {
       dao: dao.id,
@@ -105,7 +105,7 @@ describe('Proposal', () => {
       parametersHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       permissions: '0x0000001f',
       plugin: getTestScheme("SchemeRegistrar"),
-      schemeToRegister: schemeToRegister.toLowerCase(),
+      pluginToRegister: pluginToRegister.toLowerCase(),
       proposalType: "SchemeRegistrarEdit"
     }
 
@@ -126,11 +126,11 @@ describe('Proposal', () => {
     expect(lastProposalToEditState()).toMatchObject({
       decision: null,
       // id: '0x11272ed228de85c4fd14ab467f1f8c6d6936ce3854e240f9a93c9deb95f243e6',
-      schemeRegistered: null,
-      schemeRemoved: null,
-      schemeToRegister,
-      schemeToRegisterPermission: '0x0000001f',
-      schemeToRemove: null
+      pluginRegistered: null,
+      pluginRemoved: null,
+      pluginToRegister,
+      pluginToRegisterPermission: '0x0000001f',
+      pluginToRemove: null
     })
     expect(lastProposalToEditState().type).toEqual('SchemeRegistrarEdit')
 
@@ -139,7 +139,7 @@ describe('Proposal', () => {
     const removeProposalOptions: IProposalCreateOptionsSR = {
       dao: dao.id,
       plugin: getTestScheme("SchemeRegistrar"),
-      schemeToRegister,
+      pluginToRegister,
       proposalType: "SchemeRegistrarRemove"
     }
 
@@ -161,26 +161,26 @@ describe('Proposal', () => {
 
     expect(lastProposalToRemoveState()).toMatchObject({
       decision: null,
-      schemeRegistered: null,
-      schemeRemoved: null,
-      schemeToRegister: null,
-      schemeToRegisterPermission: null,
-      schemeToRemove: schemeToRegister.toLowerCase()
+      pluginRegistered: null,
+      pluginRemoved: null,
+      pluginToRegister: null,
+      pluginToRegisterPermission: null,
+      pluginToRemove: pluginToRegister.toLowerCase()
     })
 
     // accept the proposal by voting the hell out of it
     await voteToPassProposal(proposalToRemove)
     await proposalToRemove.execute()
-    await waitUntilTrue(() => (lastProposalToRemoveState() as ISchemeRegistrarProposalState).schemeRemoved)
+    await waitUntilTrue(() => (lastProposalToRemoveState() as ISchemeRegistrarProposalState).pluginRemoved)
     expect(lastProposalToRemoveState()).toMatchObject({
       stage: IProposalStage.Executed
     })
     expect(lastProposalToRemoveState()).toMatchObject({
       decision: '1',
-      schemeRegistered: null,
-      schemeRemoved: true,
-      schemeToRegisterPermission: null,
-      schemeToRemove: schemeToRegister.toLowerCase()
+      pluginRegistered: null,
+      pluginRemoved: true,
+      pluginToRegisterPermission: null,
+      pluginToRemove: pluginToRegister.toLowerCase()
     })
     expect(lastProposalToRemoveState().type).toEqual('SchemeRegistrarRemove')
 

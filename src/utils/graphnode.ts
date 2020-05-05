@@ -7,7 +7,7 @@ import {
   Observable as ZenObservable,
   split
 } from 'apollo-link'
-import { onError } from 'apollo-link-error'
+import { ErrorHandler, onError } from 'apollo-link-error'
 import { HttpLink } from 'apollo-link-http'
 import { RetryLink } from 'apollo-link-retry'
 import { WebSocketLink } from 'apollo-link-ws'
@@ -29,39 +29,50 @@ export interface IObservable<T> extends Observable<T> {
   first: () => T
 }
 
-export function createApolloClient(options: {
-  graphqlHttpProvider: string;
-  graphqlWsProvider: string;
-  prefetchHook?: (query: any) => any; // a callback function that will be called for each query sent to the link
-  errHandler?: (event: any) => any;
-  retryLink?: any; // apollo retry link instance
-}) {
+export interface IApolloClientOptions {
+  graphqlHttpProvider?: string
+  graphqlWsProvider?: string
+  /** this function will be called before a query is sent to the graphql provider */
+  prefetchHook?: (query: DocumentNode) => any // a callback function that will be called for each query sent to the link
+  errHandler?: ErrorHandler
+  /** an apollo-retry-link instance as https://www.apollographql.com/docs/link/links/retry/#default-configuration */
+  retryLink?: RetryLink // apollo retry link instance
+}
+
+export function createApolloClient(options: IApolloClientOptions) {
   const httpLink = new HttpLink({
     credentials: 'same-origin',
     fetch,
     uri: options.graphqlHttpProvider
   })
 
-  const wsLink = new WebSocketLink({
-    options: {
-      reconnect: true
-    },
-    uri: options.graphqlWsProvider,
-    webSocketImpl: WebSocket
-  })
+  let wsLink: WebSocketLink
+  let wsOrHttpLink: ApolloLink
 
-  const wsOrHttpLink = split(
-    // split based on operation type
-    ({ query }) => {
-      if (options.prefetchHook) {
-        options.prefetchHook(query)
-      }
-      const definition = getMainDefinition(query)
-      return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
-    },
-    wsLink,
-    httpLink
-  )
+  if (options.graphqlWsProvider) {
+    wsLink = new WebSocketLink({
+      options: {
+        reconnect: true
+      },
+      uri: options.graphqlWsProvider,
+      webSocketImpl: WebSocket
+    })
+
+    wsOrHttpLink = split(
+      ({ query }) => {
+        if (options.prefetchHook) {
+          options.prefetchHook(query)
+        }
+        const definition = getMainDefinition(query)
+        return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
+      },
+      wsLink,
+      httpLink
+    )
+  } else {
+    wsOrHttpLink = httpLink
+  }
+
   // we can also add error handling
   if (!options.retryLink) {
     options.retryLink = new RetryLink({
@@ -105,9 +116,9 @@ export function createApolloClient(options: {
         competitionSuggestion: (_, args, { getCacheKey }) => {
           return getCacheKey({ __typename: 'CompetitionSuggestion', id: args.id })
         },
-        // suggestion: (_, args, { getCacheKey }) => {
-        //   return getCacheKey({ __typename: 'CompetitionSuggestion', id: args.id })
-        // },
+        suggestion: (_, args, { getCacheKey }) => {
+          return getCacheKey({ __typename: 'CompetitionSuggestion', id: args.id })
+        },
         competitionVote: (_, args, { getCacheKey }) => {
           return getCacheKey({ __typename: 'CompetitionVote', id: args.id })
         },
@@ -163,12 +174,12 @@ export class GraphNodeObserver {
   public graphqlSubscribeToQueries?: boolean
 
   constructor(options: {
-    graphqlHttpProvider?: string;
-    graphqlWsProvider?: string;
-    graphqlSubscribeToQueries?: boolean;
-    prefetchHook?: any;
-    errHandler?: any;
-    retryLink?: any;
+    graphqlHttpProvider?: string
+    graphqlWsProvider?: string
+    graphqlSubscribeToQueries?: boolean
+    prefetchHook?: any
+    errHandler?: any
+    retryLink?: any
   }) {
     this.graphqlSubscribeToQueries =
       options.graphqlSubscribeToQueries === undefined || options.graphqlSubscribeToQueries
@@ -294,7 +305,8 @@ export class GraphNodeObserver {
   public getObservableList(
     context: Arc,
     query: any,
-    itemMap: (context: Arc, o: object, query: DocumentNode) => object | null,
+    itemMap: (context: Arc, o: object, queriedId?: string) => object | null,
+    queriedId?: string,
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
@@ -306,7 +318,7 @@ export class GraphNodeObserver {
         return r.data[entity]
       }),
       map((rs: object[]) =>
-        rs.map((item: object) => itemMap(context, item, query)).filter((x) => x !== null)
+        rs.map((item: object) => itemMap(context, item, queriedId)).filter((x) => x !== null)
       )
     )
     observable.first = () => observable.pipe(first()).toPromise()
@@ -355,7 +367,8 @@ export class GraphNodeObserver {
   public getObservableObject(
     context: Arc,
     query: any,
-    itemMap: (context: Arc, o: object, query: DocumentNode) => object | null,
+    itemMap: (context: Arc, o: object, queriedId?: string) => object | null,
+    queriedId?: string,
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
@@ -367,7 +380,7 @@ export class GraphNodeObserver {
         }
         return r.data[entity]
       }),
-      map((object: object) => itemMap(context, object, query))
+      map((object: object) => itemMap(context, object, queriedId))
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable

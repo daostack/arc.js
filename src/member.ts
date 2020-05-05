@@ -1,6 +1,5 @@
 import BN from 'bn.js'
 import { utils } from 'ethers'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { map } from 'rxjs/operators'
@@ -11,6 +10,7 @@ import {
   concat,
   createGraphQlQuery,
   DAO,
+  Date,
   Entity,
   hexStringToUint8Array,
   IApolloQueryOptions,
@@ -31,15 +31,16 @@ export interface IMemberState {
   id: string
   address: Address
   contract?: Address
+  createdAt: Date
   dao: IEntityRef<DAO>
   reputation: BN
 }
 
 export interface IMemberQueryOptions extends ICommonQueryOptions {
   where?: {
-    id?: string;
-    address?: Address;
-    dao?: Address;
+    id?: string
+    address?: Address
+    dao?: Address
   }
 }
 
@@ -53,6 +54,7 @@ export class Member extends Entity<IMemberState> {
         id
         address
         contract
+        createdAt
         dao {
           id
         }
@@ -70,13 +72,12 @@ export class Member extends Entity<IMemberState> {
       options.where = {}
     }
 
-    const itemMap = (arc: Arc, item: any, query: DocumentNode) => {
-      const state = Member.itemMap(arc, item, query)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = Member.itemMap(arc, item, queriedId)
       return new Member(arc, state)
     }
 
     if (options.where.id) {
-      // TODO: check what is the return of this
       return new Member(context, options.where.id).state().pipe(map((r: any) => [r]))
     } else {
       let where = ''
@@ -104,17 +105,19 @@ export class Member extends Entity<IMemberState> {
         ${Member.fragments.ReputationHolderFields}
       `
 
-      return context.getObservableList(context, query, itemMap, apolloQueryOptions)
+      return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions)
     }
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IMemberState {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IMemberState {
     if (!item || item.id === undefined) {
-      throw Error(`Member ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Member ItemMap failed. ${queriedId && `Could not find Member with id '${queriedId}'`}`)
     }
+
     return {
       id: item.id,
       address: item.address,
+      createdAt: Number(item.createdAt),
       dao: {
         id: item.dao.id,
         entity: new DAO(context, item.dao.id)
@@ -124,7 +127,10 @@ export class Member extends Entity<IMemberState> {
     }
   }
 
-  public static calculateId(opts: { contract: Address; address: Address }): string {
+  public static calculateId(opts: {
+      contract: Address
+      address: Address
+    }): string {
     const seed = concat(
       hexStringToUint8Array(opts.contract.toLowerCase()),
       hexStringToUint8Array(opts.address.toLowerCase())
@@ -151,6 +157,7 @@ export class Member extends Entity<IMemberState> {
         this.context,
         query,
         Member.itemMap,
+        this.id,
         apolloQueryOptions
       )
     } else {
@@ -173,7 +180,7 @@ export class Member extends Entity<IMemberState> {
     return this.context.getObservableObject(
       this.context,
       query,
-      (arc: Arc, items: any, queryDoc: DocumentNode) => {
+      (arc: Arc, items: any, queriedId?: string) => {
         if (items.length) {
           if (!this.coreState) {
             throw new Error('Member state is not set')
@@ -182,8 +189,9 @@ export class Member extends Entity<IMemberState> {
           return new Member(arc, this.coreState)
         }
 
-        return Member.itemMap(arc, items[0], queryDoc)
+        return Member.itemMap(arc, items[0], queriedId)
       },
+      this.id,
       apolloQueryOptions
     ) as Observable<IMemberState>
   }
@@ -272,6 +280,7 @@ export class Member extends Entity<IMemberState> {
         id: daoId,
         entity: new DAO(this.context, daoId)
       },
+      createdAt: opts.createdAt,
       reputation: opts.reputation
     }
     return this.coreState

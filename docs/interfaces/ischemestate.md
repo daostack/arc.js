@@ -112,7 +112,7 @@ ___
 
 ### `Optional` genericSchemeParams
 
-• **genericSchemeParams**? : *[IGenericSchemeParams](igenericschemeparams.md)*
+• **genericSchemeParams**? : *[IGenericPluginParams](igenericschemeparams.md)*
 
 *Defined in [src/schemes/base.ts:31](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L31)*
 
@@ -172,7 +172,7 @@ ___
 
 ### `Optional` schemeParams
 
-• **schemeParams**? : *IGenericSchemeParams | IContributionRewardParams | IContributionRewardExtParams | ISchemeRegisterParams*
+• **schemeParams**? : *IGenericPluginParams | IContributionRewardParams | IContributionRewardExtParams | ISchemeRegisterParams*
 
 *Defined in [src/schemes/base.ts:40](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/base.ts#L40)*
 

@@ -1,10 +1,10 @@
 import { Observable as ZenObservable } from 'apollo-link'
 import BN from 'bn.js'
 import { utils } from 'ethers'
-import { JsonRpcProvider } from 'ethers/providers'
 import WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
 import { Address, ICommonQueryOptions, ITransactionEvent } from '../index'
+import { Web3Client } from './types'
 
 const checkAddress = (address: string) => {
   try {
@@ -222,9 +222,9 @@ export function secondSinceEpochToDate(seconds: number): Date {
  * @param {*} web3
  * @returns
  */
-export async function getBlockTime(web3: JsonRpcProvider) {
+export async function getBlockTime(web3: Web3Client) {
   const block = await web3.getBlock('latest')
-  const blockTime = new Date(block.timestamp * 1000)
+  const blockTime = secondSinceEpochToDate(block.timestamp)
   const now = new Date()
   now.setMilliseconds(0)
   if (now < blockTime) {

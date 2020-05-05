@@ -2,7 +2,7 @@ import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import { Address, Arc, IApolloQueryOptions } from './index'
 
-interface IEntityState {
+export interface IEntityState {
   id: string
 }
 

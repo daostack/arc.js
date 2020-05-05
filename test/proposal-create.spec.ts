@@ -141,7 +141,7 @@ describe('Create a ContributionReward proposal', () => {
       url: 'http://swift.org/modest'
     }
 
-    await expect(anotherDAO.createProposal(options).send()).rejects.toThrowError(
+    await expect((await anotherDAO.createProposal(options)).send()).rejects.toThrowError(
       /No ipfsProvider set/i
     )
   })

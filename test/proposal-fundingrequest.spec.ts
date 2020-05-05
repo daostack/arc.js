@@ -54,8 +54,23 @@ describe('FundingRequest', () => {
 
   it('Create a proposal, accept it, execute it', async () => {
       // get our test dao
+      if (!arc.web3) { throw new Error('Web3 provider not set') }
+
       const daos = await arc.daos({where: { name: 'Common test 1'}}).pipe(first()).toPromise()
       const dao = daos[0]
+
+      const daoAddress = dao.id
+      console.log(`sending to ${daoAddress}`)
+      const sendTx2 = await arc.web3.getSigner().sendTransaction({
+        to: daoAddress,
+        value: '0x10000000000000'
+      })
+      const response = await sendTx2.wait()
+      console.log(response)
+       // new dao balance
+      const balance2 = await arc.ethBalance(daoAddress).pipe(first()).toPromise()
+      console.log(await arc.web3.getBalance(daoAddress))
+      console.log(balance2.toString())
 
       const fundingRequest = await dao
         .plugin({where: {name: 'FundingRequest'}}) as FundingRequest
@@ -63,24 +78,31 @@ describe('FundingRequest', () => {
       expect(fundingRequestState.pluginParams).toMatchObject({
         fundingToken: NULL_ADDRESS
       })
+      console.log(fundingRequestState)
       // transfer some money to this dao so that we are sure the funding goal is reached
-      // const daoContract = await arc.getContract(dao.id)
-      // const vaultAddress = await daoContract.vault()
-      const daoAddress = dao.id
-      const sendTx = await arc.web3?.getSigner().sendTransaction({
-        to: daoAddress,
-        // to: vaultAddress,
-        value: '0x10000'
+      const daoContract = await arc.getContract(dao.id)
+      const vaultAddress = await daoContract.vault()
+      // const daoAddress = dao.id
+      const sendTx = await arc.web3.getSigner().sendTransaction({
+        // to: daoAddress,
+        to: vaultAddress,
+        value: '0x10000000000000'
       })
-      await sendTx?.wait()
-      // new dao balance
-      // const balance = await arc.ethBalance(dao.id).pipe(first()).toPromise()
+
+      console.log(await sendTx.wait())
+      const balance = await arc.ethBalance(vaultAddress).pipe(first()).toPromise()
+      console.log(balance.toString())
 
       const joinAndQuit = await dao
         .plugin({where: {name: 'JoinAndQuit'}}) as JoinAndQuit
       const joinAndQuitState = await joinAndQuit.fetchState()
+      console.log(joinAndQuitState)
       const joinAndQuitContract = arc.getContract(joinAndQuitState.address)
       await (await joinAndQuitContract.setFundingGoalReachedFlag()).wait()
+
+      const value = await daoContract.db('FUNDED_BEFORE_DEADLINE')
+      console.log(value)
+      console.log('-------------------------------------------------------------------')
       const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
       const amount = new BN(1000)
 

@@ -1,10 +1,10 @@
-[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IGenericSchemeParams](igenericschemeparams.md)
+[@daostack/arc.js - v2.0.0-experimental.1](../README.md) › [Globals](../globals.md) › [IGenericPluginParams](igenericschemeparams.md)
 
-# Interface: IGenericSchemeParams
+# Interface: IGenericPluginParams
 
 ## Hierarchy
 
-* **IGenericSchemeParams**
+* **IGenericPluginParams**
 
 ## Index
 

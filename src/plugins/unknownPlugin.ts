@@ -1,12 +1,11 @@
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { Arc, DAO, IApolloQueryOptions, IPluginState, Logger, Plugin } from '../index'
 
 export class UnknownPlugin extends Plugin<IPluginState> {
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IPluginState | null {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IPluginState | null {
     if (!item) {
-      Logger.debug(`Uknown Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`Unknown Plugin ItemMap failed. ${queriedId && `Could not find Unknown Plugin with id '${queriedId}'`}`)
       return null
     }
 
@@ -55,6 +54,7 @@ export class UnknownPlugin extends Plugin<IPluginState> {
       this.context,
       query,
       UnknownPlugin.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<IPluginState>
   }

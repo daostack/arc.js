@@ -5,7 +5,7 @@ import {
   IProposalStage,
   IProposalState,
   Proposal,
-  ContributionRewardExt,
+  ContributionRewardExtPlugin,
   ContributionRewardExtProposal
   } from '../src'
 import { newArc, toWei, voteToPassProposal, waitUntilTrue } from './utils'
@@ -24,13 +24,13 @@ describe('ContributionReward Ext', () => {
 
   it.skip('Create a proposal, accept it, execute it', async () => {
     // TODO: we are skipping this test, because we do not ahve at this point a contributionrewardext
-    // contract in our test environment that is not a Competition scheme..
+    // contract in our test environment that is not a Competition plugin..
 
     // we'll get a `ContributionRewardExt` contract
     const contributionRewardExts = await arc
       .plugins({where: {name: "ContributionRewardExt"}}).pipe(first()).toPromise()
 
-    const contributionRewardExt = contributionRewardExts[0] as ContributionRewardExt
+    const contributionRewardExt = contributionRewardExts[0] as ContributionRewardExtPlugin
     const contributionRewardExtState = await contributionRewardExt.fetchState()
     const dao = new DAO(arc, contributionRewardExtState.dao.id)
 

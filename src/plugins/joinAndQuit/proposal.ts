@@ -51,7 +51,7 @@ export class JoinAndQuitProposal extends Proposal<IJoinAndQuitProposalState> {
     return this.fragmentField
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IJoinAndQuitProposalState | null {
+  public static itemMap(context: Arc, item: any, query?: string): IJoinAndQuitProposalState | null {
 
     if (!item) { return null }
 
@@ -101,7 +101,7 @@ export class JoinAndQuitProposal extends Proposal<IJoinAndQuitProposalState> {
     `
 
     const result = this.context.getObservableObject(
-      this.context, query, JoinAndQuitProposal.itemMap, apolloQueryOptions
+      this.context, query, JoinAndQuitProposal.itemMap, this.id, apolloQueryOptions
       ) as Observable<IJoinAndQuitProposalState>
     return result
   }

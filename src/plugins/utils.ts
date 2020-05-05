@@ -1,14 +1,14 @@
 import {
-  Competition,
+  CompetitionPlugin,
   CompetitionProposal,
-  ContributionReward,
-  ContributionRewardExt,
+  ContributionRewardExtPlugin,
   ContributionRewardExtProposal,
+  ContributionRewardPlugin,
   ContributionRewardProposal,
   FundingRequest,
   FundingRequestProposal,
-  GenericScheme,
-  GenericSchemeProposal,
+  GenericPlugin,
+  GenericPluginProposal,
   IPluginState,
   IProposalBaseCreateOptions,
   IProposalCreateOptionsComp,
@@ -24,32 +24,32 @@ import {
   Plugin,
   Proposal,
   ProposalPlugin,
-  ReputationFromToken,
-  SchemeRegistrar,
+  ReputationFromTokenPlugin,
+  SchemeRegistrarPlugin,
   SchemeRegistrarProposal,
   UnknownPlugin
 } from '../index'
 
 export const ProposalPlugins = {
-  GenericScheme,
-  SchemeRegistrar,
-  ContributionReward,
-  ContributionRewardExt,
-  Competition,
   FundingRequest,
-  JoinAndQuit
+  JoinAndQuit,
+  GenericScheme: GenericPlugin,
+  SchemeRegistrar: SchemeRegistrarPlugin,
+  ContributionReward: ContributionRewardPlugin,
+  ContributionRewardExt: ContributionRewardExtPlugin,
+  Competition: CompetitionPlugin
 }
 
 export const Plugins = {
   ...ProposalPlugins,
-  ReputationFromToken,
+  ReputationFromToken: ReputationFromTokenPlugin,
   unknown: UnknownPlugin
 }
 
 export type PluginName = keyof typeof Plugins
 
 export const Proposals = {
-  GenericScheme: GenericSchemeProposal,
+  GenericScheme: GenericPluginProposal,
   ContributionReward: ContributionRewardProposal,
   Competition: CompetitionProposal,
   ContributionRewardExt: ContributionRewardExtProposal,

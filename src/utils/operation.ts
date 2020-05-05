@@ -14,10 +14,10 @@ export interface ITransaction {
   method: string
   args: any[]
   opts?: {
-    gasLimit?: number;
-    gasPrice?: number;
-    value?: number;
-    nonce?: number;
+    gasLimit?: number
+    gasPrice?: number
+    value?: number
+    nonce?: number
   }
 }
 
@@ -133,7 +133,9 @@ export function sendTransaction<T>(
 
     let gasLimit: number = 0
 
-    if (!tx.opts) { tx.opts = {}}
+    if (!tx.opts) {
+      tx.opts = {}
+    }
 
     if (tx.opts.gasLimit) {
       gasLimit = tx.opts.gasLimit

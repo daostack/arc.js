@@ -10,52 +10,49 @@ import {
   Plugin,
   Proposal,
   ProposalName,
-  SchemeRegistrar
+  SchemeRegistrarPlugin
 } from '../../index'
 
 export interface ISchemeRegistrarProposalState extends IProposalState {
   id: string
-  schemeToRegister: Address
-  schemeToRegisterPermission: string
-  schemeToRemove: string
+  pluginToRegister: Address
+  pluginToRegisterPermission: string
+  pluginToRemove: string
   decision: number
-  schemeRegistered: boolean
-  schemeRemoved: boolean
+  pluginRegistered: boolean
+  pluginRemoved: boolean
 }
 
 export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalState> {
-  protected static fragmentField: { name: string; fragment: DocumentNode } | undefined
 
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'SchemeRegistrarProposalFields',
-        fragment: gql`
-          fragment SchemeRegistrarProposalFields on Proposal {
-            schemeRegistrar {
-              id
-              schemeToRegister
-              schemeToRegisterPermission
-              schemeToRemove
-              decision
-              schemeRegistered
-              schemeRemoved
-            }
-          }
-        `
+  public static fragment = {
+    name: 'SchemeRegistrarProposalFields',
+    fragment: gql`
+      fragment SchemeRegistrarProposalFields on Proposal {
+        schemeRegistrar {
+          id
+          schemeToRegister
+          schemeToRegisterPermission
+          schemeToRemove
+          decision
+          schemeRegistered
+          schemeRemoved
+        }
       }
-    }
-
-    return this.fragmentField
+    `
   }
+  protected static fragmentField: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   protected static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): ISchemeRegistrarProposalState | null {
     if (!item) {
-      Logger.debug(`SchemeRegistrar Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`SchemeRegistrarProposal ItemMap failed. ${queriedId && `Could not find SchemeRegistrarProposal with id '${queriedId}'`}`)
       return null
     }
 
@@ -80,13 +77,13 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       )
     }
 
-    const schemeRegistrarState = SchemeRegistrar.itemMap(context, item.scheme, query)
+    const schemeRegistrarState = SchemeRegistrarPlugin.itemMap(context, item.scheme, queriedId)
 
     if (!schemeRegistrarState) {
       return null
     }
 
-    const schemeRegistrar = new SchemeRegistrar(context, schemeRegistrarState)
+    const schemeRegistrar = new SchemeRegistrarPlugin(context, schemeRegistrarState)
     const schemeRegistrarProposal = new SchemeRegistrarProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
@@ -104,11 +101,11 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
     return {
       ...baseState,
       decision: item.schemeRegistrar.decision,
-      schemeRegistered: item.schemeRegistrar.schemeRegistered,
-      schemeRemoved: item.schemeRegistrar.schemeRemoved,
-      schemeToRegister: item.schemeRegistrar.schemeToRegister,
-      schemeToRegisterPermission: item.schemeRegistrar.schemeToRegisterPermission,
-      schemeToRemove: item.schemeRegistrar.schemeToRemove
+      pluginRegistered: item.schemeRegistrar.schemeRegistered,
+      pluginRemoved: item.schemeRegistrar.schemeRemoved,
+      pluginToRegister: item.schemeRegistrar.schemeToRegister,
+      pluginToRegisterPermission: item.schemeRegistrar.schemeToRegisterPermission,
+      pluginToRemove: item.schemeRegistrar.schemeToRemove
     }
   }
 
@@ -133,6 +130,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       this.context,
       query,
       SchemeRegistrarProposal.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<ISchemeRegistrarProposalState>
   }

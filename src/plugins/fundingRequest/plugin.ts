@@ -71,7 +71,7 @@ export class FundingRequest
     return this.fragmentField
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IFundingRequestState | null {
+  public static itemMap(context: Arc, item: any, query?: string): IFundingRequestState | null {
     if (!item) {
       return null
     }

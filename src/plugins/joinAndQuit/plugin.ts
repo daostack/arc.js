@@ -37,8 +37,10 @@ export interface IProposalCreateOptionsJoinAndQuit extends IProposalBaseCreateOp
   fee: BN
 }
 
-export class JoinAndQuit
-  extends ProposalPlugin<IJoinAndQuitState, IJoinAndQuitProposalState, IProposalCreateOptionsJoinAndQuit> {
+export class JoinAndQuit extends ProposalPlugin<
+  IJoinAndQuitState,
+  IJoinAndQuitProposalState,
+  IProposalCreateOptionsJoinAndQuit> {
 
   public static get fragment() {
     if (!this.fragmentField) {
@@ -77,7 +79,7 @@ export class JoinAndQuit
     return this.fragmentField
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IJoinAndQuitState | null {
+  public static itemMap(context: Arc, item: any, query?: string): IJoinAndQuitState | null {
     if (!item) {
       return null
     }

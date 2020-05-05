@@ -1,8 +1,7 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
-import { from, Observable } from 'rxjs'
-import { concatMap, first, map } from 'rxjs/operators'
+import { Observable } from 'rxjs'
+import { first, map } from 'rxjs/operators'
 import {
   Address,
   AnyPlugin,
@@ -15,6 +14,7 @@ import {
   ICommonQueryOptions,
   IEntityRef,
   IMemberQueryOptions,
+  IMemberState,
   IPluginQueryOptions,
   IProposalBaseCreateOptions,
   IProposalQueryOptions,
@@ -29,7 +29,6 @@ import {
   Reputation,
   Reward,
   Stake,
-  toIOperationObservable,
   Token,
   Vote
 } from './index'
@@ -115,17 +114,17 @@ export class DAO extends Entity<IDAOState> {
       }
       ${DAO.fragments.DAOFields}`
 
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
-      const state = DAO.itemMap(arc, item, queryDoc)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = DAO.itemMap(arc, item, queriedId)
       return new DAO(arc, state)
     }
 
-    return context.getObservableList(context, query, itemMap, apolloQueryOptions)
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions)
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): IDAOState => {
+  public static itemMap = (context: Arc, item: any, queriedId?: string): IDAOState => {
     if (!item) {
-      throw Error(`DAO ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`DAO ItemMap failed. ${queriedId && `Could not find DAO with id '${queriedId}'`}`)
     }
 
     return {
@@ -161,7 +160,7 @@ export class DAO extends Entity<IDAOState> {
       ${DAO.fragments.DAOFields}
      `
 
-    return this.context.getObservableObject(this.context, query, DAO.itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, DAO.itemMap, this.id, apolloQueryOptions)
   }
 
   public nativeReputation(): Observable<Reputation> {
@@ -226,31 +225,16 @@ export class DAO extends Entity<IDAOState> {
     return Member.search(this.context, options, apolloQueryOptions)
   }
 
-  public member(address: Address): Member {
-    if (this.coreState) {
-      // construct member with the reputationcontract address, if this is known
-      // so it can make use of the apollo cache
-      return new Member(this.context, {
-        id: address,
-        address,
-        contract: this.coreState.reputation.entity.address,
-        dao: {
-          id: this.id,
-          entity: new DAO(this.context, this.id)
-        },
-        reputation: this.coreState.reputationTotalSupply
-      })
-    } else {
-      return new Member(this.context, {
-        id: address,
-        address,
-        dao: {
-          id: this.id,
-          entity: new DAO(this.context, this.id)
-        },
-        reputation: new BN(0)
-      })
+  public member(idOrOpts: IMemberState | string): Member {
+    if (typeof idOrOpts !== 'string') {
+      if (this.coreState) {
+        // construct member with the reputationcontract address, if this is known
+        // so it can make use of the apollo cache
+        idOrOpts.reputation = this.coreState.reputationTotalSupply
+        idOrOpts.contract = this.coreState.reputation.entity.address
+      }
     }
+    return new Member(this.context, idOrOpts)
   }
 
   public proposals(
@@ -297,7 +281,7 @@ export class DAO extends Entity<IDAOState> {
     return Stake.search(this.context, options, apolloQueryOptions)
   }
 
-  public createProposal(options: IProposalBaseCreateOptions) {
+  public async createProposal(options: IProposalBaseCreateOptions) {
     options.dao = this.id
 
     if (!options.plugin) {
@@ -308,11 +292,9 @@ export class DAO extends Entity<IDAOState> {
       daoAddress: options.dao,
       contractAddress: options.plugin
     })
-    const proposalObservable = from(this.proposalPlugin({ where: { id: pluginId } })).pipe(
-      first(),
-      concatMap((plugin) => plugin.createProposal(options))
-    )
 
-    return toIOperationObservable(proposalObservable)
+    const plugin = await this.proposalPlugin({ where: { id: pluginId } })
+
+    return plugin.createProposal(options)
   }
 }

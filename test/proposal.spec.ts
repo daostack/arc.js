@@ -9,7 +9,7 @@ import {
   ContributionRewardProposal,
   AnyProposal,
   IProposalCreateOptionsCR,
-  ContributionReward,
+  ContributionRewardPlugin,
   IContributionRewardProposalState,
   IExecutionState
   } from '../src'
@@ -199,7 +199,7 @@ describe('Proposal', () => {
     await waitUntilTrue(() => proposalStates.length > 0)
 
     const pState = await proposal.fetchState()
-    const plugin = pState.plugin.entity as ContributionReward
+    const plugin = pState.plugin.entity as ContributionRewardPlugin
     expect(proposal).toBeInstanceOf(Proposal)
 
     expect(fromWei(pState.nativeTokenReward)).toEqual('10.0')

@@ -7,7 +7,7 @@ import {
   Address,
   AnyProposal,
   Arc,
-  ContributionReward,
+  ContributionRewardPlugin,
   ContributionRewardProposal,
   DAO,
   IContractInfo,
@@ -79,15 +79,15 @@ export function sleep(ms: number) {
 }
 
 export function getTestScheme(name: PluginName): Address {
-  const scheme = getTestAddresses().dao.Schemes.find(
-    (scheme) => scheme.name === name
+  const plugin = getTestAddresses().dao.Schemes.find(
+    (plugin) => plugin.name === name
   )
 
-  if (!scheme) {
-    throw Error(`Test scheme is missing ${name}`)
+  if (!plugin) {
+    throw Error(`Test plugin is missing ${name}`)
   }
 
-  return scheme.address
+  return plugin.address
 }
 
 export async function getOptions(web3: JsonRpcProvider) {
@@ -171,7 +171,7 @@ export async function createAProposal(
     ...options
   }
 
-  const plugin = new ContributionReward(
+  const plugin = new ContributionRewardPlugin(
     dao.context,
     getTestScheme('ContributionReward')
   )
@@ -194,7 +194,7 @@ export async function createCRProposal(
   options: IProposalCreateOptionsCR,
   pluginId: Address = getTestScheme('ContributionReward')
 ) {
-  const plugin = new ContributionReward(context, pluginId)
+  const plugin = new ContributionRewardPlugin(context, pluginId)
   const response = await plugin.createProposal(options).send()
 
   if (!response.result) { throw new Error('Response yielded no results') }

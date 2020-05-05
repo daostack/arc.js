@@ -1,5 +1,5 @@
 import { ITransactionState, ITransactionUpdate } from '../src/'
-import { Proposal, IProposalCreateOptionsCR, ContributionReward } from '../src'
+import { Proposal, IProposalCreateOptionsCR, ContributionRewardPlugin } from '../src'
 import { getTestDAO, mineANewBlock, toWei, waitUntilTrue, getTestScheme } from './utils'
 import { IContributionRewardProposalState } from '../src/plugins/contributionReward/proposal'
 
@@ -20,7 +20,7 @@ describe('Operation', () => {
       plugin: getTestScheme("ContributionReward")
     }
 
-    const plugin = new ContributionReward(arc, getTestScheme("ContributionReward"))
+    const plugin = new ContributionRewardPlugin(arc, getTestScheme("ContributionReward"))
 
     // collect the first 4 results of the observable in a a listOfUpdates array
     const listOfUpdates: Array<ITransactionUpdate<Proposal<IContributionRewardProposalState>>> = []
@@ -59,7 +59,7 @@ describe('Operation', () => {
 
     expect(listOfUpdates[2].result ).toBeInstanceOf(Proposal)
 
-    expect(listOfUpdates[3].confirmations).toBeGreaterThanOrEqual(3)
+    expect(listOfUpdates[3].confirmations).toBeGreaterThanOrEqual(2)
     expect(listOfUpdates[3]).toMatchObject({
       state: ITransactionState.Mined
     })

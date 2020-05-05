@@ -52,7 +52,7 @@ export class FundingRequestProposal extends Proposal<IFundingRequestProposalStat
     return this.fragmentField
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IFundingRequestProposalState | null {
+  public static itemMap(context: Arc, item: any, query?: string): IFundingRequestProposalState | null {
     if (!item) { return null }
     const fundingRequestState = FundingRequest.itemMap(context, item.scheme, query)
 
@@ -104,7 +104,7 @@ export class FundingRequestProposal extends Proposal<IFundingRequestProposalStat
     `
 
     const result = this.context.getObservableObject(
-      this.context, query, FundingRequestProposal.itemMap, apolloQueryOptions
+      this.context, query, FundingRequestProposal.itemMap, this.id, apolloQueryOptions
       ) as Observable<IFundingRequestProposalState>
     return result
   }

@@ -13,7 +13,7 @@ and to the [DAOstack subgraph](https://github.com/daostack/subgraph) (an index o
 ```sh
 npm install @daostack/arc.js
 ```
-The arc.js package can be used as a dependency for developing a arc.js application
+The arc.js package can be used as a dependency for developing an arc.js application
 (we are using it to build a [React application](https://github.com/daostack/alchemy) called [Alchemy](https://alchemy.daostack.io)),
 but it can also be used for writing nodejs scripts that interact with the contracts or for querying data from the subgraph.
 
@@ -23,7 +23,7 @@ but it can also be used for writing nodejs scripts that interact with the contra
 The arc.js library provides a number of Classes that represent a the DAOstack basic entities - these are the basic building blocks of a DAO.
 
 A  `DAO` has a number of `Member`, which are holders of reputation (from the `Reputation` contract) and can cast a `Vote` on a  `Proposal`.
-Proposals are always made in a `Scheme` - that determines the conditions and effects of executing a proposal, typically by ordering them in a  `Queue`.
+Proposals are always made in a `Plugin` - that determines the conditions and effects of executing a ]proposal, typically by ordering them in a  `Queue`.
 Users can also put a `Stake` on the outcome of a proposal, and claim one or more `Reward` if they vote or stake effectively.
 
 
@@ -66,7 +66,7 @@ similarly, the `web3` and `ipfs` providers can be omitted when the library is on
 
 
 
-### Proposals, Schemes, Votes, Stakes, Queues, etc
+### Proposals, Plugins, Votes, Stakes, Queues, etc
 
 
 All basic Entity classes in the arc.js library implement a number of common functions.
@@ -102,7 +102,9 @@ Because the proposal is created with only an `id`, the arc.js will query the sub
 const proposal = new Proposal({
   id: '0x12455..',
   votingMachine: '0x1111..',
-  scheme: '0x12345...'
+  plugin: {
+    id: '0x12345...',
+    entity: new GenericPlugin(arc, '0x12345...')
   }, arc)
 ```
 This will provide the instance with enough information to send transactions without having to query the subgraph for additional information.
@@ -121,6 +123,37 @@ proposal.state().subscribe(
 dao.state().subscribe(
   (newState) => console.log(`This DAO has ${newState.memberCount} members`)
   )
+```
+
+All entities implement also a `fetchState` method that returns a `Promise<EntityState>`. This is a useful shortcut that calls the `state` method describe above and returns a promise with the entity's state. It also mutates the entity instance and sets its `coreState` field to the state received. 
+
+It is worth noting that the `fetchState` method admits a boolean flag, `refetch`, which defaults to false. If true, the cached coreState is ignored and a new query is made to the subgraph. Should only be passed true if sure that the entity is indexed, else the state will return null and a runtime error will be thrown.
+
+## Entity references
+
+Some entities store other entities in their state. An example of this would be `Proposal` which stores an instance of `Plugin` inside its state. These references follow the `IEntityRef<TEntity>` interface. Which is the following:
+
+```ts
+interface IEntityRef<TEntity> {
+  id: Address
+  entity: TEntity
+}
+```
+
+Therefore, to access the id of the plugin instance stored inside the proposal state, one would do `proposal.coreState.plugin.id`. To access the full object instance, it would be: `proposal.coreState.plugin.entity`
+
+The `fetchState` method does not populate the states of entity references inside said state. Such population would be done in a different call. For example: 
+
+```ts
+
+const proposal = new GenericPluginProposal(arc, '0x12345...')
+const proposalState = await proposal.fetchState()
+
+const pluginState = proposalState.plugin.entity.coreState // evaluates to null
+const populatedPluginState = await proposalState.plugin.entity.fetchState() // evaluates to plugin state
+
+const state = proposalState.plugin.entity.coreState // evaluates to plugin state, because fetchState mutated the plugin instance
+
 ```
 
 ## Searching and observables
@@ -168,6 +201,16 @@ const observable =  dao.proposals() // all proposals in this dao
 const proposals = await observable.first() // returns a list of Proposal instances
 ```
 
+It is worth noting that since that all entity search methods query all of its interface defined fields. Therefore, resulting entities from a search will always have their `coreState` populated.
+
+## Item Mappers
+
+All entity classes have a static `itemMap` function which takes that entity's full result object from a query. This `itemMap` returns an instance of the entity's state.
+
+Each entity class performs an `itemMap` at the end of each `search` method call, to map the query result to the entity's state so an instance of this entity can be built with that state.
+
+It is worth noting that Plugin types that are added to a DAO, but are not implemented in this library, will be instatiated as `UnknownPlugin`s.
+
 ## Sending transactions
 
 One of the purposes of the arc.js library is to make help with interactions with the DAOstack Ethereum contracts.
@@ -177,14 +220,14 @@ Here is how you create a proposal in a DAO  for a contribution reward for a
 
 ```
 const DAO = new DAO('0x123DAOADDRESS')
-const tx = dao.createProposal({
+const tx = await dao.createProposal({
   beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
   ethReward: toWei('300'),
   nativeTokenReward: toWei('1'),
   periodLength: 0,
   periods: 1,
   reputationReward: toWei('10'),
-  scheme: '0xContributionRewardAddress' // address of a contribution reward scheme that is registered with this DAO
+  plugin: '0xContributionRewardAddress' // address of a contribution reward plugin that is registered with this DAO
 })
 ```
 
@@ -209,4 +252,4 @@ const voteTransaction = await proposal.vote(...).send()
 const vote = voteTransaction.result // an instance of Vote
 ```
 
-For more docuemntatation, see the generated docs [TODO]
+For more documentation, see the generated docs [../docs/globals.md]
