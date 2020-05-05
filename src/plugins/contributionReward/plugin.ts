@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -22,8 +21,8 @@ import {
 
 export interface IContributionRewardState extends IPluginState {
   pluginParams: {
-    votingMachine: Address;
-    voteParams: IGenesisProtocolParams;
+    votingMachine: Address
+    voteParams: IGenesisProtocolParams
   }
 }
 
@@ -38,52 +37,46 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
   periods?: any
 }
 
-export class ContributionReward extends ProposalPlugin<
+export class ContributionRewardPlugin extends ProposalPlugin<
   IContributionRewardState,
   IContributionRewardProposalState,
   IProposalCreateOptionsCR
 > {
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'ContributionRewardParams',
-        fragment: gql`
-          fragment ContributionRewardParams on ControllerScheme {
-            contributionRewardParams {
-              id
-              votingMachine
-              voteParams {
-                id
-                queuedVoteRequiredPercentage
-                queuedVotePeriodLimit
-                boostedVotePeriodLimit
-                preBoostedVotePeriodLimit
-                thresholdConst
-                limitExponentValue
-                quietEndingPeriod
-                proposingRepReward
-                votersReputationLossRatio
-                minimumDaoBounty
-                daoBountyConst
-                activationTime
-                voteOnBehalf
-              }
-            }
+  public static fragment = {
+    name: 'ContributionRewardParams',
+    fragment: gql`
+      fragment ContributionRewardParams on ControllerScheme {
+        contributionRewardParams {
+          id
+          votingMachine
+          voteParams {
+            id
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
           }
-        `
+        }
       }
-    }
-
-    return this.fragmentField
+    `
   }
 
   public static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): IContributionRewardState | null {
     if (!item) {
-      Logger.debug(`ContributionReward Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ContributionRewardPlugin ItemMap failed. ${queriedId && `Could not find ContributionRewardPlugin with id '${queriedId}'`}`)
       return null
     }
 
@@ -99,8 +92,6 @@ export class ContributionReward extends ProposalPlugin<
       pluginParams: contributionRewardParams
     }
   }
-
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {
     options.descriptionHash = await this.context.saveIPFSData(options)

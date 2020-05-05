@@ -1,15 +1,23 @@
 import { first } from 'rxjs/operators'
 import { Arc } from '../src/arc'
-import { IProposalStage, AnyPlugin, ContributionReward, SchemeRegistrar, GenericScheme, ContributionRewardProposal, IContributionRewardState } from '../src'
+import {
+  IProposalStage,
+  AnyPlugin,
+  ContributionRewardPlugin,
+  SchemeRegistrarPlugin,
+  GenericPlugin,
+  ContributionRewardProposal,
+  IContributionRewardState
+} from '../src'
 import { IPluginState, Plugin } from '../src'
 import { firstResult, getTestAddresses, getTestDAO,  ITestAddresses, newArc, getTestScheme } from './utils'
 
 jest.setTimeout(20000)
 
 /**
- * Scheme test
+ * Plugin test
  */
-describe('Scheme', () => {
+describe('Plugin', () => {
 
   let arc: Arc
   let testAddresses: ITestAddresses
@@ -19,7 +27,7 @@ describe('Scheme', () => {
     testAddresses = await getTestAddresses()
   })
 
-  it('Schemes are searchable', async () => {
+  it('Plugins are searchable', async () => {
     const dao = await getTestDAO()
     let result: AnyPlugin[]
     result = await Plugin.search(arc, {where: {dao: dao.id, name_not: null}})
@@ -27,7 +35,7 @@ describe('Scheme', () => {
 
     expect(result.length).toBeGreaterThanOrEqual(3)
 
-    // the schemes have their static state set
+    // the plugins have their static state set
     const state = await result[0].fetchState()
     expect(state.name).toBeTruthy()
     expect(state.address).toBeTruthy()
@@ -75,11 +83,11 @@ describe('Scheme', () => {
       .search(arc, {where: {dao: dao.id, name: 'ContributionReward'}})
       .pipe(first()).toPromise()
 
-    const scheme = result[0] as ContributionReward
-    const state = await scheme.fetchState()
+    const plugin = result[0] as ContributionRewardPlugin
+    const state = await plugin.fetchState()
     expect(state).toMatchObject({
       address: getTestScheme("ContributionReward").toLowerCase(),
-      id: scheme.id,
+      id: plugin.id,
       name: 'ContributionReward'
     })
   })
@@ -90,7 +98,7 @@ describe('Scheme', () => {
       .search(arc, {where: {dao: dao.id, name: 'SchemeRegistrar'}})
       .pipe(first()).toPromise()
 
-    const plugin = result[0] as SchemeRegistrar
+    const plugin = result[0] as SchemeRegistrarPlugin
     const state = await plugin.fetchState()
     expect(state).toMatchObject({
       address: getTestScheme("SchemeRegistrar").toLowerCase(),
@@ -99,26 +107,26 @@ describe('Scheme', () => {
     })
   })
 
-  it('Scheme.state() is working for GenericScheme plugins', async () => {
+  it('Plugin.state() is working for GenericPlugin plugins', async () => {
     const result = await Plugin
       .search(arc, {where: {name: 'GenericScheme'}})
       .pipe(first()).toPromise()
 
-    const scheme = result[0] as GenericScheme
-    const state = await scheme.fetchState()
+    const plugin = result[0] as GenericPlugin
+    const state = await plugin.fetchState()
     expect(state).toMatchObject({
-      id: scheme.id,
+      id: plugin.id,
       name: 'GenericScheme'
     })
   })
 
-  it('state() should be equal to proposal.state().scheme', async () => {
+  it('state() should be equal to proposal.state().plugin', async () => {
     const { queuedProposalId } = testAddresses
     const proposal = new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
-    const plugins: ContributionReward[] = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
-    const schemeState: IContributionRewardState = await firstResult(plugins[0].state())
-    expect(schemeState).toMatchObject(proposalState.plugin.entity.coreState as IContributionRewardState)
+    const plugins: ContributionRewardPlugin[] = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
+    const pluginState: IContributionRewardState = await firstResult(plugins[0].state())
+    expect(pluginState).toMatchObject(proposalState.plugin.entity.coreState as IContributionRewardState)
   })
 
   it('numberOfProposals counts are correct', async () =>  {
@@ -126,18 +134,18 @@ describe('Scheme', () => {
     const proposal = new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
     const plugins = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
-    const scheme = plugins[0]
-    const schemeState = await firstResult(scheme.state())
+    const plugin = plugins[0]
+    const pluginState = await firstResult(plugin.state())
 
-    const queuedProposals = await scheme.proposals({ where: { stage: IProposalStage.Queued}, first: 1000})
+    const queuedProposals = await plugin.proposals({ where: { stage: IProposalStage.Queued}, first: 1000})
       .pipe(first()).toPromise()
-    expect(schemeState.numberOfQueuedProposals).toEqual(queuedProposals.length)
-    const preBoostedProposals = await scheme.proposals({ where: { stage: IProposalStage.PreBoosted}, first: 1000})
+    expect(pluginState.numberOfQueuedProposals).toEqual(queuedProposals.length)
+    const preBoostedProposals = await plugin.proposals({ where: { stage: IProposalStage.PreBoosted}, first: 1000})
       .pipe(first()).toPromise()
-    expect(schemeState.numberOfPreBoostedProposals).toEqual(preBoostedProposals.length)
-    const boostedProposals = await scheme.proposals({ where: { stage: IProposalStage.Boosted}, first: 1000})
+    expect(pluginState.numberOfPreBoostedProposals).toEqual(preBoostedProposals.length)
+    const boostedProposals = await plugin.proposals({ where: { stage: IProposalStage.Boosted}, first: 1000})
       .pipe(first()).toPromise()
-    expect(schemeState.numberOfBoostedProposals).toEqual(boostedProposals.length)
+    expect(pluginState.numberOfBoostedProposals).toEqual(boostedProposals.length)
   })
 
   //TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it. 

@@ -36,15 +36,15 @@ export interface IPluginState {
 
 export interface IPluginQueryOptions extends ICommonQueryOptions {
   where?: {
-    address?: Address;
-    canDelegateCall?: boolean;
-    canRegisterPlugins?: boolean;
-    canUpgradeController?: boolean;
-    canManageGlobalConstraints?: boolean;
-    dao?: Address;
-    id?: string;
-    name?: string;
-    [key: string]: any;
+    address?: Address
+    canDelegateCall?: boolean
+    canRegisterPlugins?: boolean
+    canUpgradeController?: boolean
+    canManageGlobalConstraints?: boolean
+    dao?: Address
+    id?: string
+    name?: string
+    [key: string]: any
   }
 }
 
@@ -80,7 +80,10 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     return this.baseFragmentField
   }
 
-  public static fragment: { name: string; fragment: DocumentNode } | undefined
+  public static fragment: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   public static search<TPluginState extends IPluginState>(
     context: Arc,
@@ -96,7 +99,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode): AnyPlugin | null => {
+    const itemMap = (arc: Arc, item: any, queriedId?: string): AnyPlugin | null => {
       if (!options.where) {
         options.where = {}
       }
@@ -106,7 +109,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
           `Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`
         )
 
-        const state = Plugins.unknown.itemMap(arc, item, queryDoc)
+        const state = Plugins.unknown.itemMap(arc, item, queriedId)
         if (!state) {
           return null
         }
@@ -126,7 +129,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
           }
         }
 
-        const state: IPluginState = Plugins[item.name].itemMap(arc, item, queryDoc)
+        const state: IPluginState = Plugins[item.name].itemMap(arc, item, queriedId)
         if (!state) {
           return null
         }
@@ -135,12 +138,15 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       }
     }
 
-    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
       Array<Plugin<TPluginState>>
     >
   }
 
-  public static calculateId(opts: { daoAddress: Address; contractAddress: Address }): string {
+  public static calculateId(opts: {
+      daoAddress: Address
+      contractAddress: Address
+    }): string {
     const seed = concat(
       hexStringToUint8Array(opts.daoAddress.toLowerCase()),
       hexStringToUint8Array(opts.contractAddress.toLowerCase())
@@ -148,7 +154,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     return utils.keccak256(seed)
   }
 
-  protected static itemMap: (arc: Arc, item: any, query: DocumentNode) => IPluginState | null
+  protected static itemMap: (arc: Arc, item: any, queriedId?: string) => IPluginState | null
 
   protected static itemMapToBaseState(context: Arc, item: any): IPluginState {
     let name = item.name
@@ -200,6 +206,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       this.context,
       query,
       this.constructor.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<TPluginState>
   }

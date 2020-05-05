@@ -73,25 +73,25 @@ enum ProposalQuerySortOptions {
 
 export interface IProposalQueryOptions extends ICommonQueryOptions {
   where?: {
-    accountsWithUnclaimedRewards_contains?: Address[];
-    active?: boolean;
-    boosted?: boolean;
-    dao?: Address;
-    expiresInQueueAt?: Date | number;
-    expiresInQueueAt_gte?: Date | number;
-    expiresInQueueAt_lte?: Date | number;
-    expiresInQueueAt_gt?: Date | number;
-    executedAfter?: Date | number;
-    executedBefore?: Date | number;
-    id?: string;
-    proposer?: Address;
-    proposalId?: string;
-    stage?: IProposalStage;
-    stage_in?: IProposalStage[];
-    plugin?: Address;
-    orderBy?: ProposalQuerySortOptions;
-    type?: ProposalName;
-    [key: string]: any | undefined;
+    accountsWithUnclaimedRewards_contains?: Address[]
+    active?: boolean
+    boosted?: boolean
+    dao?: Address
+    expiresInQueueAt?: Date | number
+    expiresInQueueAt_gte?: Date | number
+    expiresInQueueAt_lte?: Date | number
+    expiresInQueueAt_gt?: Date | number
+    executedAfter?: Date | number
+    executedBefore?: Date | number
+    id?: string
+    proposer?: Address
+    proposalId?: string
+    stage?: IProposalStage
+    stage_in?: IProposalStage[]
+    plugin?: Address
+    orderBy?: ProposalQuerySortOptions
+    type?: ProposalName
+    [key: string]: any | undefined
   }
 }
 
@@ -106,11 +106,9 @@ export interface IProposalBaseCreateOptions {
 }
 
 export interface IProposalState {
-  // TODO: semantically order props
   id: string
   dao: IEntityRef<DAO>
   votingMachine: Address
-  // TODO: plugin instance inside itself? or other type of plugin?
   plugin: IEntityRef<AnyPlugin>
   closingAt: number
   createdAt: number | Date
@@ -242,7 +240,10 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     return this.baseFragmentField
   }
 
-  public static fragment: { name: string; fragment: DocumentNode } | undefined
+  public static fragment: {
+    name: string
+    fragment: DocumentNode
+  } | undefined
 
   public static search<TProposalState extends IProposalState>(
     context: Arc,
@@ -251,14 +252,14 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
   ): Observable<Array<Proposal<TProposalState>>> {
     let where = ''
 
-    const itemMap = (arc: Arc, r: any, queryDoc: DocumentNode) => {
+    const itemMap = (arc: Arc, r: any, queriedId?: string) => {
       if (r.scheme.name === 'ContributionRewardExt') {
         if (r.competition) {
           r.scheme.name = 'Competition'
         }
       }
 
-      const state: IProposalState = Proposals[r.scheme.name].itemMap(arc, r, queryDoc)
+      const state: IProposalState = Proposals[r.scheme.name].itemMap(arc, r, queriedId)
 
       if (!state) {
         return null
@@ -322,7 +323,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       ${Proposal.baseFragment}
     `
 
-    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as IObservable<
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as IObservable<
       Array<Proposal<TProposalState>>
     >
   }

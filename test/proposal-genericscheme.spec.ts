@@ -4,8 +4,8 @@ import {
   IProposalStage,
   IProposalState,
   Proposal,
-  GenericScheme,
-  GenericSchemeProposal,
+  GenericPlugin,
+  GenericPluginProposal,
   LATEST_ARC_VERSION
   } from '../src'
 import { newArc, voteToPassProposal, waitUntilTrue, getTestScheme } from './utils'
@@ -38,7 +38,7 @@ describe('Proposal', () => {
 
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
-    const plugins = await dao.plugins({ where: {name: 'GenericScheme' }}).pipe(first()).toPromise() as GenericScheme[]
+    const plugins = await dao.plugins({ where: {name: 'GenericScheme' }}).pipe(first()).toPromise() as GenericPlugin[]
     const genericScheme = plugins[0]
 
     const tx = await genericScheme.createProposal({
@@ -50,7 +50,7 @@ describe('Proposal', () => {
 
     if(!tx.result) throw new Error('Create proposal yielded no result')
 
-    const proposal = new GenericSchemeProposal(arc, tx.result.id)
+    const proposal = new GenericPluginProposal(arc, tx.result.id)
 
     expect(proposal).toBeInstanceOf(Proposal)
 

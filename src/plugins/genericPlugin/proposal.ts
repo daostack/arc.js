@@ -1,4 +1,3 @@
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
@@ -6,7 +5,7 @@ import {
   Address,
   Arc,
   CONTRIBUTION_REWARD_DUMMY_VERSION,
-  GenericScheme,
+  GenericPlugin,
   IApolloQueryOptions,
   IProposalState,
   ITransaction,
@@ -20,7 +19,7 @@ import {
   toIOperationObservable
 } from '../../index'
 
-export interface IGenericSchemeProposalState extends IProposalState {
+export interface IGenericPluginProposalState extends IProposalState {
   id: string
   contractToCall: Address
   callData: string
@@ -28,45 +27,40 @@ export interface IGenericSchemeProposalState extends IProposalState {
   returnValue: string
 }
 
-export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState> {
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'GenericSchemeProposalFields',
-        fragment: gql`
-          fragment GenericSchemeProposalFields on Proposal {
-            genericScheme {
-              id
-              contractToCall
-              callData
-              executed
-              returnValue
-            }
-          }
-        `
+export class GenericPluginProposal extends Proposal<IGenericPluginProposalState> {
+  public static fragment = {
+    name: 'GenericPluginProposalFields',
+    fragment: gql`
+      fragment GenericPluginProposalFields on Proposal {
+        genericScheme {
+          id
+          contractToCall
+          callData
+          executed
+          returnValue
+        }
       }
-    }
-    return this.fragmentField
+    `
   }
 
   public static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
-  ): IGenericSchemeProposalState | null {
+    queriedId?: string
+  ): IGenericPluginProposalState | null {
     if (!item) {
-      Logger.debug(`GenericScheme Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`GenericPluginProposal ItemMap failed. ${queriedId && `Could not find GenericPluginProposal with id '${queriedId}'`}`)
       return null
     }
 
-    const genericSchemeState = GenericScheme.itemMap(context, item.scheme, query)
+    const genericSchemeState = GenericPlugin.itemMap(context, item.scheme, queriedId)
 
     if (!genericSchemeState) {
       return null
     }
 
-    const genericScheme = new GenericScheme(context, genericSchemeState)
-    const genericSchemeProposal = new GenericSchemeProposal(context, item.id)
+    const genericScheme = new GenericPlugin(context, genericSchemeState)
+    const genericSchemeProposal = new GenericPluginProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
       context,
@@ -89,9 +83,7 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
     }
   }
 
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
-
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IGenericSchemeProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IGenericPluginProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {
@@ -111,9 +103,10 @@ export class GenericSchemeProposal extends Proposal<IGenericSchemeProposalState>
     const result = this.context.getObservableObject(
       this.context,
       query,
-      GenericSchemeProposal.itemMap,
+      GenericPluginProposal.itemMap,
+      this.id,
       apolloQueryOptions
-    ) as Observable<IGenericSchemeProposalState>
+    ) as Observable<IGenericPluginProposalState>
     return result
   }
 

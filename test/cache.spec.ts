@@ -81,7 +81,7 @@ describe('apolloClient caching checks', () => {
       throw Error('ApolloClient is missing on Arc')
     }
 
-    // find a proposal in a scheme that has > 1 votes
+    // find a proposal in a plugin that has > 1 votes
     let proposals = await Proposal.search(arc).pipe(first()).toPromise()
 
     proposals = proposals.filter((p) => {

@@ -41,7 +41,7 @@ describe('Token', () => {
     expect.assertions(1)
     const token = new Token(arc, '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1')
     await expect(token.state().toPromise()).rejects.toThrow(
-      /Token ItemMap failed/
+      /Could not find Token with id '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'/i
     )
   })
 

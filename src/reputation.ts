@@ -1,6 +1,5 @@
 import { ApolloQueryResult } from 'apollo-client'
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
@@ -66,14 +65,15 @@ export class Reputation extends Entity<IReputationState> {
     return context.getObservableList(
       context,
       query,
-      (arc: Arc, r: any, queryDoc: DocumentNode) => new Reputation(arc, r.id),
+      (arc: Arc, r: any, queriedId?: string) => new Reputation(arc, r.id),
+      options.where?.id,
       apolloQueryOptions
     )
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): IReputationState => {
+  public static itemMap = (context: Arc, item: any, queriedId?: string): IReputationState => {
     if (!item) {
-      throw Error(`Reputation ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Reputation ItemMap failed. ${queriedId && `Could not find Reputation with id '${queriedId}'`}`)
     }
     return {
       id: item.id,
@@ -118,6 +118,7 @@ export class Reputation extends Entity<IReputationState> {
       this.context,
       query,
       Reputation.itemMap,
+      this.address.toLowerCase(),
       apolloQueryOptions
     ) as Observable<IReputationState>
   }

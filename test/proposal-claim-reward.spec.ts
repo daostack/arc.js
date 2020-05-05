@@ -1,5 +1,5 @@
 import { first } from 'rxjs/operators'
-import { Arc, DAO, IProposalOutcome, IProposalStage, IProposalState, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericScheme, GenericSchemeProposal, IGenericSchemeProposalState } from '../src'
+import { Arc, DAO, IProposalOutcome, IProposalStage, IProposalState, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericPlugin, GenericPluginProposal, IGenericPluginProposalState } from '../src'
 
 import BN from 'bn.js'
 import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, newArc,
@@ -148,8 +148,8 @@ describe('Claim rewards', () => {
   it('works with non-CR proposal', async () => {
 
     testAddresses = getTestAddresses()
-    const genericSchemes = await arc.plugins({where: {name: "GenericScheme" }}).pipe(first()).toPromise()
-    const genericScheme = genericSchemes[0] as GenericScheme
+    const genericSchemes = await arc.plugins({where: {name: 'GenericScheme' }}).pipe(first()).toPromise()
+    const genericScheme = genericSchemes[0] as GenericPlugin
     const genericSchemeState = await genericScheme.state({}).pipe(first()).toPromise()
 
     dao  = new DAO(arc, genericSchemeState.dao.id)
@@ -172,8 +172,8 @@ describe('Claim rewards', () => {
 
     if(!tx.result) throw new Error('Response yielded no result')
 
-    const proposal = new GenericSchemeProposal(arc, tx.result.id)
-    const proposalStates: IGenericSchemeProposalState[] = []
+    const proposal = new GenericPluginProposal(arc, tx.result.id)
+    const proposalStates: IGenericPluginProposalState[] = []
 
     proposal.state({}).subscribe(
       (next) => {

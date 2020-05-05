@@ -1,4 +1,3 @@
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -18,9 +17,9 @@ import {
 
 export interface ISchemeRegistrarState extends IPluginState {
   pluginParams: {
-    votingMachine: Address;
-    voteRemoveParams: IGenesisProtocolParams;
-    voteRegisterParams: IGenesisProtocolParams;
+    votingMachine: Address
+    voteRemoveParams: IGenesisProtocolParams
+    voteRegisterParams: IGenesisProtocolParams
   }
 }
 
@@ -28,64 +27,58 @@ export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
   proposalType: 'SchemeRegistrarAdd' | 'SchemeRegistrarEdit' | 'SchemeRegistrarRemove'
   parametersHash?: string
   permissions?: string
-  schemeToRegister?: Address
+  pluginToRegister?: Address
 }
 
-export class SchemeRegistrar extends ProposalPlugin<
+export class SchemeRegistrarPlugin extends ProposalPlugin<
   ISchemeRegistrarState,
   ISchemeRegistrarProposalState,
   IProposalCreateOptionsSR
 > {
-  public static get fragment() {
-    if (!this.fragmentField) {
-      this.fragmentField = {
-        name: 'SchemeRegistrarParams',
-        fragment: gql`
-          fragment SchemeRegistrarParams on ControllerScheme {
-            schemeRegistrarParams {
-              votingMachine
-              voteRemoveParams {
-                queuedVoteRequiredPercentage
-                queuedVotePeriodLimit
-                boostedVotePeriodLimit
-                preBoostedVotePeriodLimit
-                thresholdConst
-                limitExponentValue
-                quietEndingPeriod
-                proposingRepReward
-                votersReputationLossRatio
-                minimumDaoBounty
-                daoBountyConst
-                activationTime
-                voteOnBehalf
-              }
-              voteRegisterParams {
-                queuedVoteRequiredPercentage
-                queuedVotePeriodLimit
-                boostedVotePeriodLimit
-                preBoostedVotePeriodLimit
-                thresholdConst
-                limitExponentValue
-                quietEndingPeriod
-                proposingRepReward
-                votersReputationLossRatio
-                minimumDaoBounty
-                daoBountyConst
-                activationTime
-                voteOnBehalf
-              }
-            }
+  public static fragment = {
+    name: 'SchemeRegistrarParams',
+    fragment: gql`
+      fragment SchemeRegistrarParams on ControllerScheme {
+        schemeRegistrarParams {
+          votingMachine
+          voteRemoveParams {
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
           }
-        `
+          voteRegisterParams {
+            queuedVoteRequiredPercentage
+            queuedVotePeriodLimit
+            boostedVotePeriodLimit
+            preBoostedVotePeriodLimit
+            thresholdConst
+            limitExponentValue
+            quietEndingPeriod
+            proposingRepReward
+            votersReputationLossRatio
+            minimumDaoBounty
+            daoBountyConst
+            activationTime
+            voteOnBehalf
+          }
+        }
       }
-    }
-
-    return this.fragmentField
+    `
   }
 
-  public static itemMap(arc: Arc, item: any, query: DocumentNode): ISchemeRegistrarState | null {
+  public static itemMap(arc: Arc, item: any, queriedId?: string): ISchemeRegistrarState | null {
     if (!item) {
-      Logger.debug(`SchemeRegistrar Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`SchemeRegistrarPlugin ItemMap failed. ${queriedId && `Could not find SchemeRegistrarPlugin with id '${queriedId}'`}`)
       return null
     }
 
@@ -125,8 +118,6 @@ export class SchemeRegistrar extends ProposalPlugin<
     }
   }
 
-  private static fragmentField: { name: string; fragment: DocumentNode } | undefined
-
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {
     let msg: string
 
@@ -149,7 +140,7 @@ export class SchemeRegistrar extends ProposalPlugin<
         return {
           contract: this.context.getContract(pluginId),
           method: 'proposeScheme',
-          args: [options.schemeToRegister, options.permissions, options.descriptionHash]
+          args: [options.pluginToRegister, options.permissions, options.descriptionHash]
         }
       case 'SchemeRegistrarRemove':
 
@@ -158,7 +149,7 @@ export class SchemeRegistrar extends ProposalPlugin<
         return {
           contract: this.context.getContract(pluginId),
           method: 'proposeToRemoveScheme',
-          args: [options.schemeToRegister, options.descriptionHash]
+          args: [options.pluginToRegister, options.descriptionHash]
         }
     }
   }

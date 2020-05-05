@@ -13,10 +13,10 @@ export interface ITransaction {
   method: string
   args: any[]
   opts?: {
-    gasLimit?: number;
-    gasPrice?: number;
-    value?: number;
-    nonce?: number;
+    gasLimit?: number
+    gasPrice?: number
+    value?: number
+    nonce?: number
   }
 }
 

@@ -77,7 +77,6 @@ export abstract class ProposalPlugin<
     options: TProposalCreateOptions
   ): Promise<ITransaction>
 
-  // TODO: optional parameter 'options'?
   protected abstract createProposalTransactionMap(
     options?: TProposalCreateOptions
   ): transactionResultHandler<Proposal<TProposalState>>
