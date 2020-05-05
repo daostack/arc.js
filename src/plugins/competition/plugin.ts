@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import { Observable } from 'rxjs'
 import {
   Address,
@@ -50,9 +49,9 @@ export class CompetitionPlugin extends ProposalPlugin<
   ICompetitionProposalState,
   IProposalCreateOptionsComp
 > {
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IContributionRewardExtState | null {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IContributionRewardExtState | null {
     if (!item) {
-      Logger.debug(`ContributionRewardExt Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`CompetitionPlugin ItemMap failed. ${queriedId && `Could not find CompetitionPlugin with id '${queriedId}'`}`)
       return null
     }
 

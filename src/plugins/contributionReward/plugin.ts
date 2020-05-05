@@ -80,10 +80,10 @@ export class ContributionRewardPlugin extends ProposalPlugin<
   public static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): IContributionRewardState | null {
     if (!item) {
-      Logger.debug(`ContributionReward Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ContributionRewardPlugin ItemMap failed. ${queriedId && `Could not find ContributionRewardPlugin with id '${queriedId}'`}`)
       return null
     }
 

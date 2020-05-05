@@ -252,14 +252,14 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
   ): Observable<Array<Proposal<TProposalState>>> {
     let where = ''
 
-    const itemMap = (arc: Arc, r: any, queryDoc: DocumentNode) => {
+    const itemMap = (arc: Arc, r: any, queriedId?: string) => {
       if (r.scheme.name === 'ContributionRewardExt') {
         if (r.competition) {
           r.scheme.name = 'Competition'
         }
       }
 
-      const state: IProposalState = Proposals[r.scheme.name].itemMap(arc, r, queryDoc)
+      const state: IProposalState = Proposals[r.scheme.name].itemMap(arc, r, queriedId)
 
       if (!state) {
         return null
@@ -323,7 +323,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       ${Proposal.baseFragment}
     `
 
-    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as IObservable<
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as IObservable<
       Array<Proposal<TProposalState>>
     >
   }

@@ -55,10 +55,10 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
   protected static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): ISchemeRegistrarProposalState | null {
     if (!item) {
-      Logger.debug(`SchemeRegistrar Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`SchemeRegistrarProposal ItemMap failed. ${queriedId && `Could not find SchemeRegistrarProposal with id '${queriedId}'`}`)
       return null
     }
 
@@ -83,7 +83,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       )
     }
 
-    const schemeRegistrarState = SchemeRegistrarPlugin.itemMap(context, item.scheme, query)
+    const schemeRegistrarState = SchemeRegistrarPlugin.itemMap(context, item.scheme, queriedId)
 
     if (!schemeRegistrarState) {
       return null
@@ -136,6 +136,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
       this.context,
       query,
       SchemeRegistrarProposal.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<ISchemeRegistrarProposalState>
   }

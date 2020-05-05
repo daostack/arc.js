@@ -52,14 +52,14 @@ export class GenericPluginProposal extends Proposal<IGenericPluginProposalState>
   public static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): IGenericPluginProposalState | null {
     if (!item) {
-      Logger.debug(`GenericPlugin Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`GenericPluginProposal ItemMap failed. ${queriedId && `Could not find GenericPluginProposal with id '${queriedId}'`}`)
       return null
     }
 
-    const genericSchemeState = GenericPlugin.itemMap(context, item.scheme, query)
+    const genericSchemeState = GenericPlugin.itemMap(context, item.scheme, queriedId)
 
     if (!genericSchemeState) {
       return null
@@ -115,6 +115,7 @@ export class GenericPluginProposal extends Proposal<IGenericPluginProposalState>
       this.context,
       query,
       GenericPluginProposal.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<IGenericPluginProposalState>
     return result

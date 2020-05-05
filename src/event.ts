@@ -1,4 +1,3 @@
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
@@ -54,8 +53,8 @@ export class Event extends Entity<IEventState> {
     options: IEventQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<Event[]> {
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
-      const state = Event.itemMap(arc, item, queryDoc)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = Event.itemMap(arc, item, queriedId)
       return new Event(arc, state)
     }
 
@@ -68,14 +67,14 @@ export class Event extends Entity<IEventState> {
       ${Event.fragments.EventFields}
     `
 
-    return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
       Event[]
     >
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IEventState {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IEventState {
     if (!item) {
-      throw Error(`Event ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Event ItemMap failed. ${queriedId && `Could not find Event with id '${queriedId}'`}`)
     }
 
     return {
@@ -100,6 +99,6 @@ export class Event extends Entity<IEventState> {
       ${Event.fragments.EventFields}
     `
 
-    return this.context.getObservableObject(this.context, query, Event.itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, Event.itemMap, this.id, apolloQueryOptions)
   }
 }

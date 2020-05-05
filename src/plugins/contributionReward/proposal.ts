@@ -76,10 +76,10 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
   public static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): IContributionRewardProposalState | null {
     if (!item) {
-      Logger.debug(`ContributionReward Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`ContributionRewardProposal ItemMap failed. ${queriedId && `Could not find ContributionRewardProposal with id '${queriedId}'`}`)
       return null
     }
 
@@ -100,7 +100,7 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
         new BN(item.contributionReward.reputationChangeLeft)) ||
       null
 
-    const contributionRewardState = ContributionRewardPlugin.itemMap(context, item.scheme, query)
+    const contributionRewardState = ContributionRewardPlugin.itemMap(context, item.scheme, queriedId)
 
     if (!contributionRewardState) {
       return null
@@ -176,6 +176,7 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
       this.context,
       query,
       ContributionRewardProposal.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<IContributionRewardProposalState>
     return result

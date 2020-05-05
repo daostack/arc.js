@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
@@ -44,11 +43,11 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
   public static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): IContributionRewardExtProposalState | null {
     if (!item) {
       Logger.debug(
-        `ContributionRewardExt Proposal ItemMap failed. Query: ${query.loc?.source.body}`
+        `ContributionRewardProposal ItemMap failed. ${queriedId && `Could not find ContributionRewardProposal with id '${queriedId}'`}`
       )
       return null
     }
@@ -70,7 +69,7 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
         new BN(item.contributionReward.reputationChangeLeft)) ||
       null
 
-    const contributionRewardExtState = ContributionRewardExtPlugin.itemMap(context, item.scheme, query)
+    const contributionRewardExtState = ContributionRewardExtPlugin.itemMap(context, item.scheme, queriedId)
 
     if (!contributionRewardExtState) {
       return null
@@ -141,6 +140,7 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
       this.context,
       query,
       ContributionRewardExtProposal.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<IContributionRewardExtProposalState>
     return result

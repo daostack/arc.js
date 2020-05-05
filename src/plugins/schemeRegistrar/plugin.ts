@@ -83,9 +83,9 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
     return this.fragmentField
   }
 
-  public static itemMap(arc: Arc, item: any, query: DocumentNode): ISchemeRegistrarState | null {
+  public static itemMap(arc: Arc, item: any, queriedId?: string): ISchemeRegistrarState | null {
     if (!item) {
-      Logger.debug(`SchemeRegistrar Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`SchemeRegistrarPlugin ItemMap failed. ${queriedId && `Could not find SchemeRegistrarPlugin with id '${queriedId}'`}`)
       return null
     }
 

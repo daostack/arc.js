@@ -81,10 +81,10 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
   public static itemMap(
     context: Arc,
     item: any,
-    query: DocumentNode
+    queriedId?: string
   ): ICompetitionProposalState | null {
     if (!item) {
-      Logger.debug(`Competition Proposal ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`CompetitionProposal ItemMap failed. ${queriedId && `Could not find CompetitionProposal with id '${queriedId}'`}`)
       return null
     }
 
@@ -94,7 +94,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       )
     }
 
-    const competitionState = ContributionRewardExtPlugin.itemMap(context, item.scheme, query)
+    const competitionState = ContributionRewardExtPlugin.itemMap(context, item.scheme, queriedId)
 
     if (!competitionState) {
       return null
@@ -111,7 +111,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       'Competition'
     )
 
-    const crExtState = ContributionRewardExtProposal.itemMap(context, item, query)
+    const crExtState = ContributionRewardExtProposal.itemMap(context, item, queriedId)
 
     if (baseState == null || crExtState == null) {
       return null
@@ -168,6 +168,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       this.context,
       query,
       CompetitionProposal.itemMap,
+      this.id,
       apolloQueryOptions
     ) as Observable<ICompetitionProposalState>
     return result

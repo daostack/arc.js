@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
@@ -58,8 +57,8 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
       options.where = {}
     }
 
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
-      const state = CompetitionVote.itemMap(arc, item, queryDoc)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = CompetitionVote.itemMap(arc, item, queriedId)
       return new CompetitionVote(arc, state)
     }
 
@@ -80,15 +79,16 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
       return context.getObservableObject(
         context,
         query,
-        (arc: Arc, r: any, queryDoc: DocumentNode) => {
+        (arc: Arc, r: any, queriedId?: string) => {
           if (!r) {
             // no such proposal was found
             return []
           }
           const itemMapper = (item: any) =>
-            new CompetitionVote(arc, CompetitionVote.itemMap(arc, item, queryDoc))
+            new CompetitionVote(arc, CompetitionVote.itemMap(arc, item, queriedId))
           return r.votes.map(itemMapper)
         },
+        options.where.suggestion,
         apolloQueryOptions
       ) as Observable<CompetitionVote[]>
     } else {
@@ -101,15 +101,15 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
         ${CompetitionVote.fragments.CompetitionVoteFields}
       `
 
-      return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+      return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
         CompetitionVote[]
       >
     }
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): ICompetitionVoteState {
+  public static itemMap(context: Arc, item: any, queriedId?: string): ICompetitionVoteState {
     if (!item) {
-      throw Error(`Competition Vote ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Competition Vote ItemMap failed. ${queriedId && `Could not find Competition Vote with id '${queriedId}'`}`)
     }
 
     return {
@@ -135,6 +135,7 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
       this.context,
       query,
       CompetitionVote.itemMap,
+      this.id,
       apolloQueryOptions
     )
   }

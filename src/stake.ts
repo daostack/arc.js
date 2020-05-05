@@ -70,8 +70,8 @@ export class Stake extends Entity<IStakeState> {
     }
     let where = ''
 
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
-      const state = Stake.itemMap(arc, item, queryDoc)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = Stake.itemMap(arc, item, queriedId)
       return new Stake(arc, state)
     }
 
@@ -118,14 +118,14 @@ export class Stake extends Entity<IStakeState> {
       return context.getObservableObject(
         context,
         query,
-        (arc: Arc, r: any, queryDoc: DocumentNode) => {
+        (arc: Arc, r: any, queriedId?: string) => {
           if (!r) {
             // no such proposal was found
             return []
           }
           const stakes = r.stakes
           const itemMapper = (item: any) => {
-            const state = Stake.itemMap(arc, item, queryDoc)
+            const state = Stake.itemMap(arc, item, queriedId)
             return new Stake(arc, state)
           }
 
@@ -135,6 +135,7 @@ export class Stake extends Entity<IStakeState> {
 
           return stakes.map(itemMapper)
         },
+        options.where?.id,
         apolloQueryOptions
       ) as Observable<Stake[]>
     } else {
@@ -147,15 +148,15 @@ export class Stake extends Entity<IStakeState> {
         ${Stake.fragments.StakeFields}
       `
 
-      return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+      return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
         Stake[]
       >
     }
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): IStakeState => {
+  public static itemMap = (context: Arc, item: any, queriedId?: string): IStakeState => {
     if (!item) {
-      throw Error(`Stake ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Stake ItemMap failed. ${queriedId && `Could not find Stake with id '${queriedId}'`}`)
     }
 
     let outcome: IProposalOutcome = IProposalOutcome.Pass
@@ -196,6 +197,6 @@ export class Stake extends Entity<IStakeState> {
       }
     `
 
-    return this.context.getObservableObject(this.context, query, Stake.itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, Stake.itemMap, this.id, apolloQueryOptions)
   }
 }

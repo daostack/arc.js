@@ -1,6 +1,5 @@
 import BN from 'bn.js'
 import { BigNumber } from 'ethers/utils'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { first } from 'rxjs/operators'
@@ -84,14 +83,15 @@ export class Token extends Entity<ITokenState> {
     return context.getObservableList(
       context,
       query,
-      (arc: Arc, r: any, queryDoc: DocumentNode) => new Token(arc, r.id),
+      (arc: Arc, r: any, queriedId?: string) => new Token(arc, r.id),
+      options.where?.id,
       apolloQueryOptions
     ) as Observable<Token[]>
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): ITokenState => {
+  public static itemMap = (context: Arc, item: any, queriedId?: string): ITokenState => {
     if (!item) {
-      throw Error(`Token ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Token ItemMap failed. ${queriedId && `Could not find Token with id '${queriedId}'`}`)
     }
     return {
       id: item.id,
@@ -136,6 +136,7 @@ export class Token extends Entity<ITokenState> {
       this.context,
       query,
       Token.itemMap,
+      this.address.toLowerCase(),
       apolloQueryOptions
     ) as Observable<ITokenState>
   }

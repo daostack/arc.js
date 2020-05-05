@@ -72,8 +72,8 @@ export class Vote extends Entity<IVoteState> {
     }
     const proposalId = options.where.proposal
 
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
-      const state = Vote.itemMap(arc, item, queryDoc)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = Vote.itemMap(arc, item, queriedId)
       return new Vote(arc, state)
     }
 
@@ -130,18 +130,19 @@ export class Vote extends Entity<IVoteState> {
       return context.getObservableObject(
         context,
         query,
-        (arc: Arc, r: any, queryDoc: DocumentNode) => {
+        (arc: Arc, r: any, queriedId?: string) => {
           if (!r) {
             // no such proposal was found
             return []
           }
           const votes = r.votes
           const itemMapper = (item: any) => {
-            const state = Vote.itemMap(arc, item, queryDoc)
+            const state = Vote.itemMap(arc, item, queriedId)
             return new Vote(arc, state)
           }
           return votes.map(itemMapper)
         },
+        options.where?.id,
         apolloQueryOptions
       ) as Observable<Vote[]>
     } else {
@@ -154,15 +155,15 @@ export class Vote extends Entity<IVoteState> {
         ${Vote.fragments.VoteFields}
       `
 
-      return context.getObservableList(context, query, itemMap, apolloQueryOptions) as Observable<
+      return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
         Vote[]
       >
     }
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): IVoteState => {
+  public static itemMap = (context: Arc, item: any, queriedId?: string): IVoteState => {
     if (!item) {
-      throw Error(`Vote ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`Vote ItemMap failed. ${queriedId && `Could not find Vote with id '${queriedId}'`}`)
     }
 
     let outcome: IProposalOutcome = IProposalOutcome.Pass
@@ -197,6 +198,6 @@ export class Vote extends Entity<IVoteState> {
     ${Vote.fragments.VoteFields}
     `
 
-    return this.context.getObservableObject(this.context, query, Vote.itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, Vote.itemMap, this.id, apolloQueryOptions)
   }
 }

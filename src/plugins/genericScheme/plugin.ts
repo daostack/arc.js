@@ -69,9 +69,9 @@ export class GenericPlugin extends ProposalPlugin<
     return this.fragmentField
   }
 
-  public static itemMap(context: Arc, item: any, query: DocumentNode): IGenericPluginState | null {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IGenericPluginState | null {
     if (!item) {
-      Logger.debug(`GenericPlugin Plugin ItemMap failed. Query: ${query.loc?.source.body}`)
+      Logger.debug(`GenericPlugin ItemMap failed. ${queriedId && `Could not find GenericPlugin with id '${queriedId}'`}`)
       return null
     }
 

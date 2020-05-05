@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first, map } from 'rxjs/operators'
@@ -115,17 +114,17 @@ export class DAO extends Entity<IDAOState> {
       }
       ${DAO.fragments.DAOFields}`
 
-    const itemMap = (arc: Arc, item: any, queryDoc: DocumentNode) => {
-      const state = DAO.itemMap(arc, item, queryDoc)
+    const itemMap = (arc: Arc, item: any, queriedId?: string) => {
+      const state = DAO.itemMap(arc, item, queriedId)
       return new DAO(arc, state)
     }
 
-    return context.getObservableList(context, query, itemMap, apolloQueryOptions)
+    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions)
   }
 
-  public static itemMap = (context: Arc, item: any, query: DocumentNode): IDAOState => {
+  public static itemMap = (context: Arc, item: any, queriedId?: string): IDAOState => {
     if (!item) {
-      throw Error(`DAO ItemMap failed. Query: ${query.loc?.source.body}`)
+      throw Error(`DAO ItemMap failed. ${queriedId && `Could not find DAO with id '${queriedId}'`}`)
     }
 
     return {
@@ -161,7 +160,7 @@ export class DAO extends Entity<IDAOState> {
       ${DAO.fragments.DAOFields}
      `
 
-    return this.context.getObservableObject(this.context, query, DAO.itemMap, apolloQueryOptions)
+    return this.context.getObservableObject(this.context, query, DAO.itemMap, this.id, apolloQueryOptions)
   }
 
   public nativeReputation(): Observable<Reputation> {

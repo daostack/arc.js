@@ -2,7 +2,6 @@ import { defaultDataIdFromObject, InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient, ApolloQueryResult } from 'apollo-client'
 import {
   ApolloLink,
-  DocumentNode,
   FetchResult,
   Observable as ZenObservable,
   split
@@ -30,11 +29,11 @@ export interface IObservable<T> extends Observable<T> {
 }
 
 export function createApolloClient(options: {
-  graphqlHttpProvider: string;
-  graphqlWsProvider: string;
-  prefetchHook?: (query: any) => any; // a callback function that will be called for each query sent to the link
-  errHandler?: (event: any) => any;
-  retryLink?: any; // apollo retry link instance
+  graphqlHttpProvider: string
+  graphqlWsProvider: string
+  prefetchHook?: (query: any) => any // a callback function that will be called for each query sent to the link
+  errHandler?: (event: any) => any
+  retryLink?: any // apollo retry link instance
 }) {
   const httpLink = new HttpLink({
     credentials: 'same-origin',
@@ -163,12 +162,12 @@ export class GraphNodeObserver {
   public graphqlSubscribeToQueries?: boolean
 
   constructor(options: {
-    graphqlHttpProvider?: string;
-    graphqlWsProvider?: string;
-    graphqlSubscribeToQueries?: boolean;
-    prefetchHook?: any;
-    errHandler?: any;
-    retryLink?: any;
+    graphqlHttpProvider?: string
+    graphqlWsProvider?: string
+    graphqlSubscribeToQueries?: boolean
+    prefetchHook?: any
+    errHandler?: any
+    retryLink?: any
   }) {
     this.graphqlSubscribeToQueries =
       options.graphqlSubscribeToQueries === undefined || options.graphqlSubscribeToQueries
@@ -294,7 +293,8 @@ export class GraphNodeObserver {
   public getObservableList(
     context: Arc,
     query: any,
-    itemMap: (context: Arc, o: object, query: DocumentNode) => object | null,
+    itemMap: (context: Arc, o: object, queriedId?: string) => object | null,
+    queriedId?: string,
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
@@ -306,7 +306,7 @@ export class GraphNodeObserver {
         return r.data[entity]
       }),
       map((rs: object[]) =>
-        rs.map((item: object) => itemMap(context, item, query)).filter((x) => x !== null)
+        rs.map((item: object) => itemMap(context, item, queriedId)).filter((x) => x !== null)
       )
     )
     observable.first = () => observable.pipe(first()).toPromise()
@@ -355,7 +355,8 @@ export class GraphNodeObserver {
   public getObservableObject(
     context: Arc,
     query: any,
-    itemMap: (context: Arc, o: object, query: DocumentNode) => object | null,
+    itemMap: (context: Arc, o: object, queriedId?: string) => object | null,
+    queriedId?: string,
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
@@ -367,7 +368,7 @@ export class GraphNodeObserver {
         }
         return r.data[entity]
       }),
-      map((object: object) => itemMap(context, object, query))
+      map((object: object) => itemMap(context, object, queriedId))
     )
     observable.first = () => observable.pipe(first()).toPromise()
     return observable

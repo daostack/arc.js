@@ -18,7 +18,7 @@ import {
   Plugin,
   Proposal,
   ProposalPlugin,
-  ReputationFromToken,
+  ReputationFromTokenPlugin,
   SchemeRegistrarPlugin,
   SchemeRegistrarProposal,
   UnknownPlugin
@@ -34,7 +34,7 @@ export const ProposalPlugins = {
 
 export const Plugins = {
   ...ProposalPlugins,
-  ReputationFromToken,
+  ReputationFromToken: ReputationFromTokenPlugin,
   unknown: UnknownPlugin
 }
 
