@@ -1,8 +1,5 @@
 import 'ethers/dist/shims'
 import BN from 'bn.js'
-import { DocumentNode } from 'graphql'
-import { RetryLink } from 'apollo-link-retry'
-import { ErrorHandler } from 'apollo-link-error'
 import { Contract, Signer } from 'ethers'
 import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
@@ -43,23 +40,18 @@ import {
   transactionErrorHandler,
   transactionResultHandler,
   Web3Client,
-  Web3Provider
+  Web3Provider,
+  IApolloClientOptions
 } from './index'
 
-export interface IArcOptions {
+export type IArcOptions = IApolloClientOptions & {
   /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
   contractInfos?: IContractInfo[]
-  graphqlHttpProvider?: string
-  graphqlWsProvider?: string
   ipfsProvider?: IPFSProvider
   web3Provider?: Web3Provider
-  /** this function will be called before a query is sent to the graphql provider */
-  graphqlPrefetchHook?: (query: DocumentNode) => void
   /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
   graphqlSubscribeToQueries?: boolean
-  /** an apollo-retry-link instance as https://www.apollographql.com/docs/link/links/retry/#default-configuration */
-  graphqlRetryLink?: RetryLink,
-  graphqlErrHandler?: ErrorHandler
+  
 }
 
 /**
@@ -103,12 +95,12 @@ export class Arc extends GraphNodeObserver {
 
   constructor(options: IArcOptions) {
     super({
-      errHandler: options.graphqlErrHandler,
+      errHandler: options.errHandler,
       graphqlHttpProvider: options.graphqlHttpProvider,
       graphqlSubscribeToQueries: options.graphqlSubscribeToQueries,
       graphqlWsProvider: options.graphqlWsProvider,
-      prefetchHook: options.graphqlPrefetchHook,
-      retryLink: options.graphqlRetryLink
+      prefetchHook: options.prefetchHook,
+      retryLink: options.retryLink
     })
     this.ipfsProvider = options.ipfsProvider || ''
 

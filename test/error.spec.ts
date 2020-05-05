@@ -30,7 +30,7 @@ describe('arc.js handles errors', () => {
 
     const arc = new Arc({
       graphqlHttpProvider,
-      graphqlRetryLink: retryLink,
+      retryLink: retryLink,
       graphqlWsProvider,
       ipfsProvider: '',
       web3Provider: 'http://127.0.0.1:8545'

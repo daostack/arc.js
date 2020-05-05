@@ -4,9 +4,10 @@ import {
   ApolloLink,
   FetchResult,
   Observable as ZenObservable,
-  split
+  split,
+  DocumentNode
 } from 'apollo-link'
-import { onError } from 'apollo-link-error'
+import { onError, ErrorHandler } from 'apollo-link-error'
 import { HttpLink } from 'apollo-link-http'
 import { RetryLink } from 'apollo-link-retry'
 import { WebSocketLink } from 'apollo-link-ws'
@@ -28,39 +29,50 @@ export interface IObservable<T> extends Observable<T> {
   first: () => T
 }
 
-export function createApolloClient(options: {
-  graphqlHttpProvider: string
-  graphqlWsProvider: string
-  prefetchHook?: (query: any) => any // a callback function that will be called for each query sent to the link
-  errHandler?: (event: any) => any
-  retryLink?: any // apollo retry link instance
-}) {
+export interface IApolloClientOptions {
+  graphqlHttpProvider?: string
+  graphqlWsProvider?: string
+  /** this function will be called before a query is sent to the graphql provider */
+  prefetchHook?: (query: DocumentNode) => any // a callback function that will be called for each query sent to the link
+  errHandler?: ErrorHandler
+  /** an apollo-retry-link instance as https://www.apollographql.com/docs/link/links/retry/#default-configuration */
+  retryLink?: RetryLink // apollo retry link instance
+}
+
+export function createApolloClient(options: IApolloClientOptions) {
   const httpLink = new HttpLink({
     credentials: 'same-origin',
     fetch,
     uri: options.graphqlHttpProvider
   })
 
-  const wsLink = new WebSocketLink({
-    options: {
-      reconnect: true
-    },
-    uri: options.graphqlWsProvider,
-    webSocketImpl: WebSocket
-  })
+  let wsLink: WebSocketLink
+  let wsOrHttpLink: ApolloLink
 
-  const wsOrHttpLink = split(
-    // split based on operation type
-    ({ query }) => {
-      if (options.prefetchHook) {
-        options.prefetchHook(query)
-      }
-      const definition = getMainDefinition(query)
-      return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
-    },
-    wsLink,
-    httpLink
-  )
+  if(options.graphqlWsProvider) {
+    wsLink = new WebSocketLink({
+      options: {
+        reconnect: true
+      },
+      uri: options.graphqlWsProvider,
+      webSocketImpl: WebSocket
+    })
+
+    wsOrHttpLink = split(
+      ({ query }) => {
+        if (options.prefetchHook) {
+          options.prefetchHook(query)
+        }
+        const definition = getMainDefinition(query)
+        return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
+      },
+      wsLink,
+      httpLink
+    )
+  } else {
+    wsOrHttpLink = httpLink
+  }
+
   // we can also add error handling
   if (!options.retryLink) {
     options.retryLink = new RetryLink({

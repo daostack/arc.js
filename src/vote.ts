@@ -23,7 +23,6 @@ export interface IVoteState {
   createdAt: Date | undefined
   outcome: IProposalOutcome
   amount: BN // amount of reputation that was voted with
-  // TODO: Any type of proposal?
   proposal: IEntityRef<AnyProposal>
   dao?: Address
 }
