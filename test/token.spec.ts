@@ -1,7 +1,7 @@
+import BN from 'bn.js'
 import { first} from 'rxjs/operators'
 import { Arc, Token  } from '../src'
 import { Address } from '../src/'
-import BN from 'bn.js'
 import { fromWei, getTestAddresses, ITestAddresses,
    newArc, toWei, waitUntilTrue } from './utils'
 
@@ -62,7 +62,7 @@ describe('Token', () => {
     const token = new Token(arc, addresses.organs.DemoDAOToken)
     const account = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
     // check if the currentAccount is the owner of the contract
-    const balances: Array<BN> = []
+    const balances: BN[] = []
     const amount = new BN('1234')
     token.balanceOf(account).subscribe((next: BN) => balances.push(next))
     await token.mint(account, amount).send()
@@ -73,7 +73,7 @@ describe('Token', () => {
   it('balanceOf GEN token works', async () => {
     const token = arc.GENToken()
     const account = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
-    const balances: Array<BN> = []
+    const balances: BN[] = []
     const amountToMint = new BN('12345')
     token.balanceOf(account).subscribe((next: BN) => balances.push(next))
     await waitUntilTrue(() => balances.length > 0)
@@ -90,14 +90,14 @@ describe('Token', () => {
   it('approveForStaking() and allowance() work', async () => {
     const token = arc.GENToken()
     const amount = toWei('31415')
-    const allowances: Array<BN> = []
+    const allowances: BN[] = []
     const lastAllowance = () => allowances[allowances.length - 1]
     const someAddress = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     let defaultAccount = await arc.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await arc.web3.getSigner().getAddress()
     }

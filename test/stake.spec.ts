@@ -1,9 +1,9 @@
+import { getAddress } from 'ethers/utils'
 import { first} from 'rxjs/operators'
+import { ContributionRewardProposal, IProposalOutcome} from '../src'
 import { Arc } from '../src/arc'
-import { IProposalOutcome, ContributionRewardProposal} from '../src'
 import { Stake } from '../src/stake'
 import { createAProposal, newArc, toWei, waitUntilTrue } from './utils'
-import { getAddress } from 'ethers/utils'
 
 jest.setTimeout(60000)
 
@@ -40,9 +40,9 @@ describe('Stake', () => {
 
     const stakeAmount = toWei('18')
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     let defaultAccount = await arc.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await arc.web3.getSigner().getAddress()
     }

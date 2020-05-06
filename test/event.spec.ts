@@ -1,6 +1,6 @@
 import { first } from 'rxjs/operators'
 import { Arc, DAO, Event, IEventState, IProposalCreateOptionsCR } from '../src'
-import { getTestDAO, newArc, toWei, waitUntilTrue, createCRProposal, getTestScheme } from './utils'
+import { createCRProposal, getTestDAO, getTestScheme, newArc, toWei, waitUntilTrue } from './utils'
 
 jest.setTimeout(20000)
 
@@ -27,7 +27,7 @@ describe('Event', () => {
 
     // create a proposal with some events
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    
+
     const options: IProposalCreateOptionsCR = {
       beneficiary,
       dao: dao.id,
@@ -35,7 +35,7 @@ describe('Event', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      plugin: getTestScheme("ContributionReward"),
+      plugin: getTestScheme('ContributionReward'),
       title: 'a-title'
     }
 

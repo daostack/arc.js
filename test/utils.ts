@@ -80,7 +80,7 @@ export function sleep(ms: number) {
 
 export function getTestScheme(name: PluginName): Address {
   const plugin = getTestAddresses().dao.Schemes.find(
-    (plugin) => plugin.name === name
+    (pl) => pl.name === name
   )
 
   if (!plugin) {
@@ -90,10 +90,10 @@ export function getTestScheme(name: PluginName): Address {
   return plugin.address
 }
 
-export async function getOptions(web3: JsonRpcProvider) {
-  const block = await web3.getBlock('latest')
+export async function getOptions(web3provider: JsonRpcProvider) {
+  const block = await web3provider.getBlock('latest')
   return {
-    from: await web3.getSigner().getAddress(),
+    from: await web3provider.getSigner().getAddress(),
     gas: block.gasUsed.toNumber() - 100000
   }
 }

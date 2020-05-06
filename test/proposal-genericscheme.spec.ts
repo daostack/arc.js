@@ -1,15 +1,15 @@
+import { ethers } from 'ethers'
 import { first } from 'rxjs/operators'
 import {
   Arc,
-  IProposalStage,
-  IProposalState,
-  Proposal,
   GenericPlugin,
   GenericPluginProposal,
-  LATEST_ARC_VERSION
+  IProposalStage,
+  IProposalState,
+  LATEST_ARC_VERSION,
+  Proposal
   } from '../src'
-import { newArc, voteToPassProposal, waitUntilTrue, getTestScheme } from './utils'
-import { ethers } from 'ethers'
+import { getTestScheme, newArc, voteToPassProposal, waitUntilTrue } from './utils'
 
 jest.setTimeout(60000)
 
@@ -34,7 +34,7 @@ describe('Proposal', () => {
 
     const actionMockABI = arc.getABI({abiName: 'ActionMock', version: LATEST_ARC_VERSION})
 
-    if(!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
@@ -48,7 +48,7 @@ describe('Proposal', () => {
       plugin: getTestScheme('GenericScheme')
     }).send()
 
-    if(!tx.result) throw new Error('Create proposal yielded no result')
+    if (!tx.result) { throw new Error('Create proposal yielded no result') }
 
     const proposal = new GenericPluginProposal(arc, tx.result.id)
 
@@ -58,7 +58,7 @@ describe('Proposal', () => {
       states.push(pState)
     })
 
-    //TODO: the first time, the state returns null, changed > 0 to > 1
+    // TODO: the first time, the state returns null, changed > 0 to > 1
     await waitUntilTrue(() => states.length > 1)
 
     expect(lastState()).toMatchObject({

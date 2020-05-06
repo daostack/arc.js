@@ -1,12 +1,12 @@
 import { first } from 'rxjs/operators'
 import {
   Arc,
+  ContributionRewardExtPlugin,
+  ContributionRewardExtProposal,
   DAO,
   IProposalStage,
   IProposalState,
-  Proposal,
-  ContributionRewardExtPlugin,
-  ContributionRewardExtProposal
+  Proposal
   } from '../src'
 import { newArc, toWei, voteToPassProposal, waitUntilTrue } from './utils'
 
@@ -28,7 +28,7 @@ describe('ContributionReward Ext', () => {
 
     // we'll get a `ContributionRewardExt` contract
     const contributionRewardExts = await arc
-      .plugins({where: {name: "ContributionRewardExt"}}).pipe(first()).toPromise()
+      .plugins({where: {name: 'ContributionRewardExt'}}).pipe(first()).toPromise()
 
     const contributionRewardExt = contributionRewardExts[0] as ContributionRewardExtPlugin
     const contributionRewardExtState = await contributionRewardExt.fetchState()
@@ -43,13 +43,13 @@ describe('ContributionReward Ext', () => {
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
       plugin: contributionRewardExtState.address,
-      //TODO: proposer?
+      // TODO: proposer?
       proposer: ''
     }).send()
 
-    if(!tx.result) throw new Error("Create proposal yielded no results")
+    if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
-    let proposal = new ContributionRewardExtProposal(arc, tx.result.id)
+    const proposal = new ContributionRewardExtProposal(arc, tx.result.id)
     expect(proposal).toBeInstanceOf(Proposal)
 
     const states: IProposalState[] = []

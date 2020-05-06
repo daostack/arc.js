@@ -1,10 +1,10 @@
 import { first } from 'rxjs/operators'
+import { AnyProposal, IProposalOutcome } from '../src'
+import { Address } from '../src/'
 import { Arc } from '../src/arc'
 import { DAO, IDAOState } from '../src/dao'
 import { IMemberState, Member } from '../src/member'
-import { IProposalOutcome, AnyProposal } from '../src'
 import { Stake } from '../src/stake'
-import { Address } from '../src/'
 import { Vote } from '../src/vote'
 import { createAProposal, fromWei,
   getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
@@ -26,7 +26,7 @@ describe('Member', () => {
     dao = await getTestDAO()
     daoState = await dao.fetchState()
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     defaultAccount = await arc.getDefaultAddress() as string
 
     if (!defaultAccount) {
@@ -66,7 +66,8 @@ describe('Member', () => {
   })
 
   it('Member proposals() works', async () => {
-    const member = new Member(arc, Member.calculateId({ address: defaultAccount, contract: daoState.reputation.entity.address }))
+    const member =
+      new Member(arc, Member.calculateId({ address: defaultAccount, contract: daoState.reputation.entity.address }))
     let proposals: AnyProposal[] = []
     member.proposals().subscribe((next: AnyProposal[]) => proposals = next)
     // wait until the proposal has been indexed
@@ -77,9 +78,10 @@ describe('Member', () => {
   })
 
   it('Member stakes() works', async () => {
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     const stakerAccount = await arc.web3.getSigner(0).getAddress()
-    const member = new Member(arc, Member.calculateId({ address: stakerAccount, contract: daoState.reputation.entity.address}))
+    const member =
+      new Member(arc, Member.calculateId({ address: stakerAccount, contract: daoState.reputation.entity.address}))
     const proposal = await createAProposal()
     const stakingToken =  await proposal.stakingToken()
 

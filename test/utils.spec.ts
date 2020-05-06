@@ -29,7 +29,7 @@ describe('Utils', () => {
     const web3 = arc.web3
 
     async function getBlockTime() {
-      if(!web3) throw new Error("Web3 provider not set")
+      if (!web3) { throw new Error('Web3 provider not set') }
 
       const block = await web3.getBlock('latest')
       return block.timestamp

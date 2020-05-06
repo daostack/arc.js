@@ -1,8 +1,10 @@
 import BN from 'bn.js'
-import { IProposalOutcome, DAO, Arc, IProposalStage, IProposalState, ContributionRewardProposal, IProposalCreateOptionsCR } from '../src'
-import { advanceTime, createAProposal, fromWei, getTestAddresses, getTestDAO,
-  ITestAddresses, newArc, toWei,
-  voteToPassProposal, waitUntilTrue, createCRProposal } from './utils'
+import {
+  Arc, ContributionRewardProposal, DAO,
+  IProposalCreateOptionsCR, IProposalOutcome, IProposalStage, IProposalState } from '../src'
+import { advanceTime, createAProposal, createCRProposal, fromWei, getTestAddresses,
+  getTestDAO, ITestAddresses, newArc,
+  toWei, voteToPassProposal, waitUntilTrue } from './utils'
 
 jest.setTimeout(40000)
 

@@ -1,5 +1,5 @@
 import { first} from 'rxjs/operators'
-import { Arc, DAO, Proposal, Tag, ContributionRewardProposal, AnyProposal } from '../src'
+import { AnyProposal, Arc, ContributionRewardProposal, DAO, Proposal, Tag } from '../src'
 import { createAProposal, getTestDAO, newArc } from './utils'
 
 jest.setTimeout(20000)

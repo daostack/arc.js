@@ -1,7 +1,7 @@
-import { first } from 'rxjs/operators'
-import { IProposalOutcome, ContributionRewardProposal, Arc, Vote } from '../src/'
-import { createAProposal, getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
 import { getAddress } from 'ethers/utils'
+import { first } from 'rxjs/operators'
+import { Arc, ContributionRewardProposal, IProposalOutcome, Vote } from '../src/'
+import { createAProposal, getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
 
 jest.setTimeout(60000)
 
@@ -23,7 +23,7 @@ describe('vote', () => {
       id: '0x1234id',
       outcome: IProposalOutcome.Fail,
       proposal: {
-        id:'0x12445proposalId',
+        id: '0x12445proposalId',
         entity: new ContributionRewardProposal(arc, '0x12445proposalId')
       },
       voter: '0x124votes'

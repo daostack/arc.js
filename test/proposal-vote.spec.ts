@@ -1,7 +1,7 @@
 import { first } from 'rxjs/operators'
+import { ContributionRewardProposal, IProposalOutcome } from '../src/'
 import { Arc } from '../src/arc'
 import { DAO } from '../src/dao'
-import { IProposalOutcome, ContributionRewardProposal } from '../src/'
 import { Vote } from '../src/vote'
 import { createAProposal, firstResult,
   getTestAddresses, getTestDAO, ITestAddresses,
@@ -83,10 +83,10 @@ describe('Vote on a ContributionReward', () => {
     // a non-existing proposal
     const proposal = new ContributionRewardProposal(
       arc,
-      '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
+      '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2'
     )
 
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     proposal.context.defaultAccount = await arc.web3.getSigner(2).getAddress()
     await expect(proposal.vote(IProposalOutcome.Pass).send()).rejects.toThrow(
       /Fetch state returned null. Entity not indexed yet or does not exist with this id/i
@@ -113,7 +113,7 @@ describe('Vote on a ContributionReward', () => {
   it('handles the case of voting without reputation nicely', async () => {
     // TODO: write this test!
     const proposal = await createAProposal()
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     const accounts = await arc.web3.listAccounts()
     const accountWithNoRep = accounts[6]
     const reputation = await firstResult(dao.nativeReputation())

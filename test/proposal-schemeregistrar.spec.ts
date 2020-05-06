@@ -1,19 +1,19 @@
 
+import { Wallet } from 'ethers'
 import {
+  AnyPlugin,
   Arc,
+  IProposalCreateOptionsSR,
   IProposalStage,
   IProposalState,
-  Proposal,
-  SchemeRegistrarProposal,
   ISchemeRegistrarProposalState,
-  IProposalCreateOptionsSR,
   Plugin,
+  Proposal,
   SchemeRegistrarPlugin,
-  AnyPlugin
+  SchemeRegistrarProposal
   } from '../src'
 import { firstResult, getTestDAO,
-  newArc, voteToPassProposal, waitUntilTrue, getTestScheme } from './utils'
-import { Wallet } from 'ethers'
+  getTestScheme, newArc, voteToPassProposal, waitUntilTrue } from './utils'
 
 jest.setTimeout(60000)
 
@@ -38,22 +38,23 @@ describe('Proposal', () => {
       descriptionHash: '',
       parametersHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       permissions: '0x0000001f',
-      plugin: getTestScheme("SchemeRegistrar"),
+      plugin: getTestScheme('SchemeRegistrar'),
       pluginToRegister,
-      proposalType: "SchemeRegistrarAdd"
+      proposalType: 'SchemeRegistrarAdd'
     }
 
-    const plugin = new SchemeRegistrarPlugin(arc, getTestScheme("SchemeRegistrar"))
+    const plugin = new SchemeRegistrarPlugin(arc, getTestScheme('SchemeRegistrar'))
 
     const tx = await plugin.createProposal(options).send()
 
-    if(!tx.result) throw new Error("Create proposal yielded no results")
+    if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposalToAdd = new SchemeRegistrarProposal(arc, tx.result.id)
 
     proposalToAdd.state({}).subscribe((pState: IProposalState) => {
-      if(pState)
+      if (pState) {
       proposalToAddStates.push(pState)
+      }
     })
 
     await waitUntilTrue(() => proposalToAddStates.length > 0)
@@ -91,27 +92,28 @@ describe('Proposal', () => {
         registeredPluginsAddresses.push(state.address)
       })
     )
-    
-    //TODO: how to create a plugin?
+
+    // TODO: how to create a plugin?
     expect(registeredPluginsAddresses).toContain(pluginToRegister)
 
     // we create a new proposal now to edit the scheme
 
-    const schemeRegistrarPlugin = registeredPlugins.find((rp: AnyPlugin) => rp instanceof (SchemeRegistrarPlugin)) as SchemeRegistrarPlugin
+    const schemeRegistrarPlugin = registeredPlugins
+      .find((rp: AnyPlugin) => rp instanceof (SchemeRegistrarPlugin)) as SchemeRegistrarPlugin
 
     const editProposalOptions: IProposalCreateOptionsSR = {
       dao: dao.id,
       descriptionHash: '',
       parametersHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
       permissions: '0x0000001f',
-      plugin: getTestScheme("SchemeRegistrar"),
+      plugin: getTestScheme('SchemeRegistrar'),
       pluginToRegister: pluginToRegister.toLowerCase(),
-      proposalType: "SchemeRegistrarEdit"
+      proposalType: 'SchemeRegistrarEdit'
     }
 
     const editTx = await schemeRegistrarPlugin.createProposal(editProposalOptions).send()
 
-    if(!editTx.result) throw new Error("Create proposal yielded no results")
+    if (!editTx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposalToEdit = new SchemeRegistrarProposal(arc, editTx.result.id)
 
@@ -138,14 +140,14 @@ describe('Proposal', () => {
 
     const removeProposalOptions: IProposalCreateOptionsSR = {
       dao: dao.id,
-      plugin: getTestScheme("SchemeRegistrar"),
+      plugin: getTestScheme('SchemeRegistrar'),
       pluginToRegister,
-      proposalType: "SchemeRegistrarRemove"
+      proposalType: 'SchemeRegistrarRemove'
     }
 
     const removeTx = await plugin.createProposal(removeProposalOptions).send()
 
-    if(!removeTx.result) throw new Error("Create proposal yielded no results")
+    if (!removeTx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposalToRemove = new SchemeRegistrarProposal(arc, removeTx.result.id)
 

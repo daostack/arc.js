@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import { first } from 'rxjs/operators'
-import { Stake, Arc, DAO, IProposalOutcome, IProposalStage, ContributionRewardProposal } from '../src/'
+import { Arc, ContributionRewardProposal, DAO, IProposalOutcome, IProposalStage, Stake } from '../src/'
 import { createAProposal,
   // getTestAddresses,
   getTestDAO,
@@ -20,7 +20,7 @@ describe('Stake on a ContributionReward', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     accounts = await arc.web3.listAccounts()
     dao = await getTestDAO()
   })
@@ -78,7 +78,7 @@ describe('Stake on a ContributionReward', () => {
     // a non-existing proposal
     const proposal = new ContributionRewardProposal(
       arc,
-      '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2',
+      '0x1aec6c8a3776b1eb867c68bccc2bf8b1178c47d7b6a5387cf958c7952da267c2'
     )
 
     proposal.context.defaultAccount = accounts[2]

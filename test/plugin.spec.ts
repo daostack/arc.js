@@ -1,16 +1,16 @@
 import { first } from 'rxjs/operators'
-import { Arc } from '../src/arc'
 import {
-  IProposalStage,
   AnyPlugin,
   ContributionRewardPlugin,
-  SchemeRegistrarPlugin,
-  GenericPlugin,
   ContributionRewardProposal,
-  IContributionRewardState
+  GenericPlugin,
+  IContributionRewardState,
+  IProposalStage,
+  SchemeRegistrarPlugin
 } from '../src'
 import { IPluginState, Plugin } from '../src'
-import { firstResult, getTestAddresses, getTestDAO,  ITestAddresses, newArc, getTestScheme } from './utils'
+import { Arc } from '../src/arc'
+import { firstResult, getTestAddresses, getTestDAO,  getTestScheme, ITestAddresses, newArc } from './utils'
 
 jest.setTimeout(20000)
 
@@ -45,11 +45,11 @@ describe('Plugin', () => {
     const pluginStates: IPluginState[] = []
 
     await Promise.all(result.map(async (item) => {
-      const state = await item.fetchState()
-      pluginStates.push(state)
+      const st = await item.fetchState()
+      pluginStates.push(st)
     }))
 
-    //TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it. 
+    // TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it.
     // Its interface is unknown. This test is failing because of this
 
     expect((pluginStates.map((r) => r.name)).sort()).toEqual([
@@ -86,7 +86,7 @@ describe('Plugin', () => {
     const plugin = result[0] as ContributionRewardPlugin
     const state = await plugin.fetchState()
     expect(state).toMatchObject({
-      address: getTestScheme("ContributionReward").toLowerCase(),
+      address: getTestScheme('ContributionReward').toLowerCase(),
       id: plugin.id,
       name: 'ContributionReward'
     })
@@ -101,7 +101,7 @@ describe('Plugin', () => {
     const plugin = result[0] as SchemeRegistrarPlugin
     const state = await plugin.fetchState()
     expect(state).toMatchObject({
-      address: getTestScheme("SchemeRegistrar").toLowerCase(),
+      address: getTestScheme('SchemeRegistrar').toLowerCase(),
       id: plugin.id,
       name: 'SchemeRegistrar'
     })
@@ -124,7 +124,8 @@ describe('Plugin', () => {
     const { queuedProposalId } = testAddresses
     const proposal = new ContributionRewardProposal(arc, queuedProposalId)
     const proposalState = await proposal.fetchState()
-    const plugins: ContributionRewardPlugin[] = await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
+    const plugins: ContributionRewardPlugin[] =
+      await firstResult(Plugin.search(arc, {where: {id: proposalState.plugin.id}}))
     const pluginState: IContributionRewardState = await firstResult(plugins[0].state())
     expect(pluginState).toMatchObject(proposalState.plugin.entity.coreState as IContributionRewardState)
   })
@@ -148,7 +149,7 @@ describe('Plugin', () => {
     expect(pluginState.numberOfBoostedProposals).toEqual(boostedProposals.length)
   })
 
-  //TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it. 
+  // TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it.
   // Its interface is unknown. This test is failing because of this
 
   it('paging and sorting works', async () => {

@@ -11,7 +11,6 @@ describe('Vote on a ContributionReward', () => {
   it('reward gets correctly indexed on the proposal entity', async () => {
     const proposal = await createAProposal()
 
-
     const voteHistory: Vote[][] = []
     const rewardHistory: Reward[][] = []
     proposal.votes().subscribe((next: Vote[]) => {
@@ -32,10 +31,10 @@ describe('Vote on a ContributionReward', () => {
 
     await voteToPassProposal(proposal)
 
-    if(!proposal.context.web3) throw new Error('Web3 provider not set')
+    if (!proposal.context.web3) { throw new Error('Web3 provider not set') }
 
     let defaultAccount = await proposal.context.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await proposal.context.web3.getSigner().getAddress()
     }

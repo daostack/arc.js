@@ -1,12 +1,13 @@
-import { first } from 'rxjs/operators'
-import { Arc, DAO, IProposalOutcome, IProposalStage, IProposalState, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericPlugin, GenericPluginProposal, IGenericPluginProposalState } from '../src'
-
 import BN from 'bn.js'
-import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, newArc,
-  toWei, voteToPassProposal, waitUntilTrue, createCRProposal, getTestScheme } from './utils'
-import { BigNumber } from 'ethers/utils'
 import { ethers } from 'ethers'
+import { BigNumber } from 'ethers/utils'
+import { first } from 'rxjs/operators'
+import { Arc, DAO, GenericPlugin, GenericPluginProposal,
+  IGenericPluginProposalState, IProposalCreateOptionsCR, IProposalOutcome,
+  IProposalStage, IProposalState, LATEST_ARC_VERSION } from '../src'
 import { ContributionRewardProposal } from '../src'
+import { createAProposal, createCRProposal, firstResult, getTestAddresses, getTestDAO, getTestScheme,
+  ITestAddresses, newArc, toWei, voteToPassProposal, waitUntilTrue } from './utils'
 
 jest.setTimeout(60000)
 
@@ -29,7 +30,7 @@ describe('Claim rewards', () => {
     const states: IProposalState[] = []
     const lastState = () => states[states.length - 1]
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     // make sure that the DAO has enough Ether to pay for the reward
     await arc.web3.getSigner().sendTransaction({
@@ -51,7 +52,7 @@ describe('Claim rewards', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward,
       reputationReward,
-      plugin: getTestScheme("ContributionReward")
+      plugin: getTestScheme('ContributionReward')
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -67,7 +68,7 @@ describe('Claim rewards', () => {
 
     const daoState = await dao.fetchState()
     const prevNativeTokenBalance = await firstResult(daoState.token.entity.balanceOf(beneficiary))
-    const reputationBalances: Array<BN> = []
+    const reputationBalances: BN[] = []
 
     daoState.reputation.entity.reputationOf(beneficiary).subscribe((next: BN) => {
       reputationBalances.push(next)
@@ -108,7 +109,7 @@ describe('Claim rewards', () => {
       externalTokenReward,
       nativeTokenReward: new BN(0),
       reputationReward: new BN(0),
-      plugin: getTestScheme("ContributionReward")
+      plugin: getTestScheme('ContributionReward')
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -134,7 +135,7 @@ describe('Claim rewards', () => {
 
   })
 
-  //TODO: check this one
+  // TODO: check this one
   it('redeemRewards should also work without providing a "beneficiary" argument', async () => {
     const proposal = await createAProposal()
     await proposal.redeemRewards().send()
@@ -159,7 +160,7 @@ describe('Claim rewards', () => {
     await arc.GENToken().transfer(dao.id, stakeAmount).send()
     const actionMockABI = arc.getABI({abiName: 'ActionMock', version: LATEST_ARC_VERSION})
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
@@ -170,7 +171,7 @@ describe('Claim rewards', () => {
       value: 0
     }).send()
 
-    if(!tx.result) throw new Error('Response yielded no result')
+    if (!tx.result) { throw new Error('Response yielded no result') }
 
     const proposal = new GenericPluginProposal(arc, tx.result.id)
     const proposalStates: IGenericPluginProposalState[] = []
@@ -203,7 +204,7 @@ describe('Claim rewards', () => {
       return lastState() && lastState().stage === IProposalStage.Executed
     })
 
-    if(!beneficiary) throw new Error("Beneficiary not set")
+    if (!beneficiary) { throw new Error('Beneficiary not set') }
 
     const prevBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
     await proposal.redeemRewards(beneficiary).send()

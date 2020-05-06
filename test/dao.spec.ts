@@ -1,18 +1,18 @@
+import { BigNumber } from 'ethers/utils'
 import { first } from 'rxjs/operators'
-import { Arc, IProposalCreateOptionsCR, AnyProposal } from '../src'
+import { AnyProposal, Arc, IProposalCreateOptionsCR } from '../src'
 import { DAO } from '../src'
 import { IProposalStage, Proposal } from '../src'
-import { 
+import {
+  createCRProposal,
   fromWei,
   getTestDAO,
   getTestScheme,
   newArc,
   newArcWithoutGraphql,
   toWei,
-  waitUntilTrue,
-  createCRProposal
+  waitUntilTrue
 } from './utils'
-import { BigNumber } from 'ethers/utils'
 
 jest.setTimeout(20000)
 
@@ -103,9 +103,9 @@ describe('DAO', () => {
   it('dao.member() should work', async () => {
     const dao = await getTestDAO()
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     let defaultAccount = await arc.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await arc.web3.getSigner().getAddress()
     }
@@ -155,7 +155,7 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      plugin: getTestScheme("ContributionReward")
+      plugin: getTestScheme('ContributionReward')
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -182,7 +182,7 @@ describe('DAO', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      plugin: getTestScheme("ContributionReward")
+      plugin: getTestScheme('ContributionReward')
     }
 
     await createCRProposal(arc, options)
@@ -201,7 +201,7 @@ describe('DAO', () => {
     const dao = await getTestDAO()
     const previousBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     await arc.web3.getSigner().sendTransaction({
       gasLimit: 4000000,

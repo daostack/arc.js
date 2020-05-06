@@ -1,21 +1,23 @@
 import { first} from 'rxjs/operators'
-import { 
+import {
+  AnyProposal,
   Arc,
+  ContributionRewardPlugin,
+  ContributionRewardProposal,
   DAO,
+  IContributionRewardProposalState,
+  IExecutionState,
+  IProposalCreateOptionsCR,
   IProposalOutcome,
   IProposalStage,
   IProposalState,
-  Proposal, 
-  ContributionRewardProposal,
-  AnyProposal,
-  IProposalCreateOptionsCR,
-  ContributionRewardPlugin,
-  IContributionRewardProposalState,
-  IExecutionState
+  Proposal
   } from '../src'
 
 import BN from 'bn.js'
+import { getAddress } from 'ethers/utils'
 import { createAProposal,
+  createCRProposal,
   fromWei,
   getTestAddresses,
   getTestScheme,
@@ -23,10 +25,8 @@ import { createAProposal,
   newArc,
   toWei,
   voteToPassProposal,
-  waitUntilTrue,
-  createCRProposal
+  waitUntilTrue
 } from './utils'
-import { getAddress } from 'ethers/utils'
 
 jest.setTimeout(20000)
 /**
@@ -105,7 +105,7 @@ describe('Proposal', () => {
 
   it('proposal.search() accepts type argument', async () => {
     let ls: AnyProposal[]
-    ls = await Proposal.search(arc, { where: {type: "ContributionReward"}}).pipe(first()).toPromise()
+    ls = await Proposal.search(arc, { where: {type: 'ContributionReward'}}).pipe(first()).toPromise()
     expect(ls.length).toBeGreaterThan(0)
   })
 
@@ -171,7 +171,7 @@ describe('Proposal', () => {
       periodLength: 0,
       periods: 1,
       reputationReward: toWei('10'),
-      plugin: getTestScheme("ContributionReward")
+      plugin: getTestScheme('ContributionReward')
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -187,11 +187,11 @@ describe('Proposal', () => {
 
     const proposal = preBoostedProposal
 
-    //make sure proposal is indexed
+    // make sure proposal is indexed
     const proposalStates: IContributionRewardProposalState[] = []
 
     proposal.state({}).pipe(first()).subscribe((result: IContributionRewardProposalState) => {
-      if(result) {
+      if (result) {
         proposalStates.push(result)
       }
     })
@@ -211,9 +211,8 @@ describe('Proposal', () => {
     expect(fromWei(pState.votesFor)).toEqual('0.0')
     expect(fromWei(pState.votesAgainst)).toEqual('0.0')
 
+    // TODO: This comparison one makes the heap run out of memory, probably because of entityRef stringifying
 
-    //TODO: This comparison one makes the heap run out of memory, probably because of entityRef stringifying
-    
     expect(pState).toMatchObject({
         boostedAt: 0,
         description: '',
@@ -256,11 +255,11 @@ describe('Proposal', () => {
     expect(pluginState.dao.id).toEqual(dao.id)
     expect(pluginState.name).toEqual('ContributionReward')
 
-    if(!plugin.coreState) throw new Error("Plugin coreState is not defined")
+    if (!plugin.coreState) { throw new Error('Plugin coreState is not defined') }
 
     expect(plugin.coreState.pluginParams).toBeTruthy()
 
-    if(!pState.queue.entity.coreState) throw new Error("Queue coreState is not defined")
+    if (!pState.queue.entity.coreState) { throw new Error('Queue coreState is not defined') }
 
     expect(pState.queue.entity.coreState.threshold).toBeGreaterThan(0)
     // check if the upstakeNeededToPreBoost value is correct
@@ -304,9 +303,9 @@ describe('Proposal', () => {
 
     const stakeAmount = toWei('18')
 
-    if(!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     let defaultAccount = await arc.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await arc.web3.getSigner().getAddress()
     }

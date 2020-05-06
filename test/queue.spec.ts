@@ -1,7 +1,7 @@
 import { first } from 'rxjs/operators'
 import { inspect } from 'util'
+import { Arc, ContributionRewardProposal, DAO, Queue } from '../src'
 import { getTestAddresses, getTestDAO, ITestAddresses,  newArc } from './utils'
-import { ContributionRewardProposal, Arc, DAO, Queue } from '../src'
 
 jest.setTimeout(20000)
 
@@ -24,7 +24,7 @@ describe('Queue', () => {
     const queue = new Queue(
       arc,
       '0x1234id',
-      new DAO(arc, '0x124daoAddress'),
+      new DAO(arc, '0x124daoAddress')
     )
     expect(queue).toBeInstanceOf(Queue)
   })
@@ -56,7 +56,7 @@ describe('Queue', () => {
     const queue = new Queue(arc, proposalState.queue.id, proposalState.queue.entity.dao)
     const queueState = await queue.fetchState()
 
-    if(!proposalState.queue.entity.coreState) throw new Error("Proposal's queue coreState not defined")
+    if (!proposalState.queue.entity.coreState) { throw new Error('Proposal\'s queue coreState not defined') }
 
     expect(inspect(proposalState.queue.entity.coreState)).toBe(inspect(queueState))
   })

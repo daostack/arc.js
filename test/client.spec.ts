@@ -1,8 +1,9 @@
+import { NormalizedCacheObject } from 'apollo-cache-inmemory'
 import { ApolloClient } from 'apollo-client'
 import gql from 'graphql-tag'
-import { createApolloClient, Arc } from '../src'
-import { getContractAddressesFromMigration, graphqlHttpProvider, graphqlWsProvider, mintSomeReputation, waitUntilTrue } from './utils'
-import { NormalizedCacheObject } from 'apollo-cache-inmemory'
+import { Arc, createApolloClient } from '../src'
+import { getContractAddressesFromMigration, graphqlHttpProvider,
+  graphqlWsProvider, mintSomeReputation, waitUntilTrue } from './utils'
 
 function getClient() {
   const apolloClient = createApolloClient({

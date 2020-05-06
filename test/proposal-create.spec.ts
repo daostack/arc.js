@@ -1,17 +1,17 @@
 import { first } from 'rxjs/operators'
-import { Arc, IProposalCreateOptionsCR, ContributionRewardProposal } from '../src'
+import { Arc, ContributionRewardProposal, IProposalCreateOptionsCR } from '../src'
 import { DAO } from '../src'
 import { IProposalStage, Proposal } from '../src'
 
 import {
+  createCRProposal,
   fromWei,
   getTestAddresses,
   getTestDAO,
   getTestScheme,
   newArc,
   toWei,
-  waitUntilTrue,
-  createCRProposal
+  waitUntilTrue
 } from './utils'
 
 jest.setTimeout(20000)
@@ -23,7 +23,7 @@ describe('Create a ContributionReward proposal', () => {
 
   beforeAll(async () => {
     arc = await newArc()
-    if (!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     accounts = await arc.web3.listAccounts()
     arc.defaultAccount = accounts[0]
     dao = await getTestDAO()
@@ -38,7 +38,7 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
       reputationReward: toWei('10'),
-      plugin: getTestScheme("ContributionReward")
+      plugin: getTestScheme('ContributionReward')
     }
 
     const proposal = await createCRProposal(arc, options)
@@ -62,7 +62,7 @@ describe('Create a ContributionReward proposal', () => {
     expect(fromWei(proposalState.stakesAgainst)).toEqual('100.0')
     expect(fromWei(proposalState.stakesFor)).toEqual('0.0')
 
-    if(!dao.context.web3) throw new Error('Web3 provider not set')
+    if (!dao.context.web3) { throw new Error('Web3 provider not set') }
     let defaultAccount = await dao.context.getDefaultAddress()
 
     if (!defaultAccount) {
@@ -93,7 +93,7 @@ describe('Create a ContributionReward proposal', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      plugin: getTestScheme("ContributionReward"),
+      plugin: getTestScheme('ContributionReward'),
       title: 'A modest proposal',
       url: 'http://swift.org/modest'
     }
@@ -114,7 +114,7 @@ describe('Create a ContributionReward proposal', () => {
     // get the data
     // TODO - do the round trip test to see if subgraph properly indexs the fields
     // (depends on https://github.com/daostack/subgraph/issues/42)
-    if (!arc.ipfs) throw Error('IPFS provider not set')
+    if (!arc.ipfs) { throw Error('IPFS provider not set') }
     const savedData = await arc.ipfs.cat(proposalState.descriptionHash as string) // + proposalState.descriptionHash)
     expect(savedData).toEqual({
       description: options.description,
@@ -136,7 +136,7 @@ describe('Create a ContributionReward proposal', () => {
       ethReward: toWei('300'),
       externalTokenAddress: undefined,
       nativeTokenReward: toWei('1'),
-      plugin: getTestScheme("ContributionReward"),
+      plugin: getTestScheme('ContributionReward'),
       title: 'A modest proposal',
       url: 'http://swift.org/modest'
     }

@@ -15,14 +15,14 @@ describe('Scheme', () => {
   })
 
   it('Redeem Works', async () => {
-    const plugins = await arc.plugins({ where: {name: "ReputationFromToken"}})
+    const plugins = await arc.plugins({ where: {name: 'ReputationFromToken'}})
       .pipe(first()).toPromise()
     const reputationFromToken = plugins[0] as ReputationFromTokenPlugin
     expect(reputationFromToken).not.toBeFalsy()
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) { throw new Error('Web3 provider not set') }
     let defaultAccount = await arc.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await arc.web3.getSigner().getAddress()
     }
