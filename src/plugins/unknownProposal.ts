@@ -18,7 +18,7 @@ export class UnknownProposal extends Proposal<IProposalState> {
     queriedId?: string
   ): IProposalState | null {
     if (!item) {
-      Logger.debug(`Unknown Proposal ItemMap failed. ${queriedId? `Could not find Unknown Proposal with id '${queriedId}'`: ''}`)
+      Logger.debug(`Unknown Proposal ItemMap failed. ${queriedId ? `Could not find Unknown Proposal with id '${queriedId}'` : ''}`)
       return null
     }
 

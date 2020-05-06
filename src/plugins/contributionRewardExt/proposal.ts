@@ -48,7 +48,7 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
     if (!item) {
       Logger.debug(
         `ContributionRewardProposal ItemMap failed.
-          ${queriedId? `Could not find ContributionRewardProposal with id '${queriedId}'`: ''}`
+          ${queriedId ? `Could not find ContributionRewardProposal with id '${queriedId}'` : ''}`
       )
       return null
     }

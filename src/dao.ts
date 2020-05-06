@@ -124,7 +124,7 @@ export class DAO extends Entity<IDAOState> {
 
   public static itemMap = (context: Arc, item: any, queriedId?: string): IDAOState => {
     if (!item) {
-      throw Error(`DAO ItemMap failed. ${queriedId? `Could not find DAO with id '${queriedId}'`: ''}`)
+      throw Error(`DAO ItemMap failed. ${queriedId ? `Could not find DAO with id '${queriedId}'` : ''}`)
     }
 
     return {

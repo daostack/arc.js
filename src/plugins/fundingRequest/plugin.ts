@@ -77,9 +77,11 @@ export class FundingRequest
     }
 
     if (!item.fundingRequestParams) {
-      throw new Error(`Plugin ${queriedId?  `with id '${queriedId}'` : ''}wrongly instantiated as FundingRequest Plugin`)
+      throw new Error(
+        `Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as FundingRequest Plugin`
+      )
     }
-    
+
     const baseState = Plugin.itemMapToBaseState(context, item)
 
     const fundingRequestParams = {

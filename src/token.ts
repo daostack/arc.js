@@ -91,7 +91,7 @@ export class Token extends Entity<ITokenState> {
 
   public static itemMap = (context: Arc, item: any, queriedId?: string): ITokenState => {
     if (!item) {
-      throw Error(`Token ItemMap failed. ${queriedId? `Could not find Token with id '${queriedId}'`: ''}`)
+      throw Error(`Token ItemMap failed. ${queriedId ? `Could not find Token with id '${queriedId}'` : ''}`)
     }
     return {
       id: item.id,

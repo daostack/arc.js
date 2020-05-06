@@ -109,7 +109,7 @@ export class CompetitionVote extends Entity<ICompetitionVoteState> {
 
   public static itemMap(context: Arc, item: any, queriedId?: string): ICompetitionVoteState {
     if (!item) {
-      throw Error(`Competition Vote ItemMap failed. ${queriedId? `Could not find Competition Vote with id '${queriedId}'`: ''}`)
+      throw Error(`Competition Vote ItemMap failed. ${queriedId ? `Could not find Competition Vote with id '${queriedId}'` : ''}`)
     }
 
     return {

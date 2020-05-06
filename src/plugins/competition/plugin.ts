@@ -51,12 +51,12 @@ export class CompetitionPlugin extends ProposalPlugin<
 > {
   public static itemMap(context: Arc, item: any, queriedId?: string): IContributionRewardExtState | null {
     if (!item) {
-      Logger.debug(`CompetitionPlugin ItemMap failed. ${queriedId? `Could not find CompetitionPlugin with id '${queriedId}'`: ''}`)
+      Logger.debug(`CompetitionPlugin ItemMap failed. ${queriedId ? `Could not find CompetitionPlugin with id '${queriedId}'` : ''}`)
       return null
     }
 
     if (!item.contributionRewardExtParams) {
-      throw new Error(`Plugin ${queriedId?  `with id '${queriedId}'` : ''}wrongly instantiated as Competition Plugin`)
+      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as Competition Plugin`)
     }
 
     const baseState = Plugin.itemMapToBaseState(context, item)

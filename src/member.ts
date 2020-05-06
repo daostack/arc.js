@@ -111,7 +111,7 @@ export class Member extends Entity<IMemberState> {
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IMemberState {
     if (!item || item.id === undefined) {
-      throw Error(`Member ItemMap failed. ${queriedId? `Could not find Member with id '${queriedId}'`: ''}`)
+      throw Error(`Member ItemMap failed. ${queriedId ? `Could not find Member with id '${queriedId}'` : ''}`)
     }
 
     return {

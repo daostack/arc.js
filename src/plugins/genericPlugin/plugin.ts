@@ -65,12 +65,12 @@ export class GenericPlugin extends ProposalPlugin<
   public static itemMap(context: Arc, item: any, queriedId?: string): IGenericPluginState | null {
     if (!item) {
       Logger.debug(`GenericPlugin ItemMap failed.
-       ${queriedId? `Could not find GenericPlugin with id '${queriedId}'`: ''}`)
+       ${queriedId ? `Could not find GenericPlugin with id '${queriedId}'` : ''}`)
       return null
     }
 
     if (!item.genericSchemeParams) {
-      throw new Error(`Plugin ${queriedId?  `with id '${queriedId}'` : ''}wrongly instantiated as Generic Plugin`)
+      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as Generic Plugin`)
     }
 
     const baseState = Plugin.itemMapToBaseState(context, item)

@@ -33,7 +33,7 @@
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "test": "jest --runInBand --forceExit",
     "test:watch": "jest --watch",
-    "tslint": "tslint --fix --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'"
+    "tslint": "tslint --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'"
   },
   "jest": {
     "transform": {

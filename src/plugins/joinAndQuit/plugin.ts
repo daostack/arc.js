@@ -85,7 +85,7 @@ export class JoinAndQuit extends ProposalPlugin<
     }
 
     if (!item.joinAndQuitParams) {
-      throw new Error(`Plugin ${queriedId?  `with id '${queriedId}'` : ''}wrongly instantiated as JoinAndQuit Plugin`)
+      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as JoinAndQuit Plugin`)
     }
 
     const baseState = Plugin.itemMapToBaseState(context, item)

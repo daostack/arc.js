@@ -88,7 +88,7 @@ export class Queue extends Entity<IQueueState> {
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IQueueState {
     if (!item) {
-      throw Error(`Queue ItemMap failed. ${queriedId? `Could not find Queue with id '${queriedId}'`: ''}`)
+      throw Error(`Queue ItemMap failed. ${queriedId ? `Could not find Queue with id '${queriedId}'` : ''}`)
     }
     const threshold = realMathToNumber(new BN(item.threshold))
 

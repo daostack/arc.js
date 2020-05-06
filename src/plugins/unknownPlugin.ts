@@ -5,7 +5,7 @@ import { Arc, DAO, IApolloQueryOptions, IPluginState, Logger, Plugin } from '../
 export class UnknownPlugin extends Plugin<IPluginState> {
   public static itemMap(context: Arc, item: any, queriedId?: string): IPluginState | null {
     if (!item) {
-      Logger.debug(`Unknown Plugin ItemMap failed. ${queriedId? `Could not find Unknown Plugin with id '${queriedId}'`: ''}`)
+      Logger.debug(`Unknown Plugin ItemMap failed. ${queriedId ? `Could not find Unknown Plugin with id '${queriedId}'` : ''}`)
       return null
     }
 
