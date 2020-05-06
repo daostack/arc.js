@@ -85,16 +85,6 @@ describe('apolloClient caching checks', () => {
     let proposals = await Proposal.search(arc).pipe(first()).toPromise()
 
     proposals = proposals.filter((p) => {
-<<<<<<< HEAD
-
-      if (!p.coreState) { throw new Error('Proposal coreState should not be null') }
-
-      return p.coreState.votes.length > 1 && p.coreState.name === 'ContributionReward'
-    })
-    const proposal = proposals[0]
-
-    if (!proposals[0].coreState) { throw new Error('Proposal coreState should not be null') }
-=======
       
       if(!p.coreState) throw new Error('Proposal coreState should not be null')
 
@@ -103,7 +93,6 @@ describe('apolloClient caching checks', () => {
     const proposal = proposals[0]
 
     if(!proposals[0].coreState) throw new Error('Proposal coreState should not be null')
->>>>>>> client-2-0
 
     const vote = proposals[0].coreState.votes[0].entity
     const voteState = await vote.fetchState()
