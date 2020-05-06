@@ -76,6 +76,8 @@ describe.skip('Competition Proposal', () => {
 
     dao = new DAO(arc, contributionRewardExtState.dao.entity.coreState)
 
+    dao = new DAO(arc, contributionRewardExtState.dao.entity.coreState)
+
     if (!arc.web3) { throw new Error('Web3 provider not set') }
     address0 = (await arc.web3.getSigner(0).getAddress()).toLowerCase()
     address1 = (await arc.web3.getSigner(1).getAddress()).toLowerCase()
@@ -255,9 +257,6 @@ describe.skip('Competition Proposal', () => {
     if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     // make sure that the DAO has enough Ether to pay for the reward
-
-    if (!arc.web3) { throw new Error('Web3 provider not set') }
-
     await arc.web3.getSigner().sendTransaction({
       gasLimit: 4000000,
       gasPrice: 100000000000,
@@ -375,7 +374,6 @@ describe.skip('Competition Proposal', () => {
     sub.unsubscribe()
 
     const suggestion1State = await suggestion1.fetchState()
-
     expect(suggestion1State.beneficiary).toEqual(address1)
     expect(suggestion1State.id).toEqual(suggestion1.id)
     expect(suggestion1State.redeemedAt).not.toBeTruthy()
@@ -401,7 +399,6 @@ describe.skip('Competition Proposal', () => {
         .pipe(first()).toPromise()).length)
       .toEqual(1)
     // // and lets vote for the first suggestion
-
     const voteReceipt = await competition.voteSuggestion({ suggestionId: suggestion2.suggestionId as number }).send()
     const vote = voteReceipt.result
     // // the vote should be counted
@@ -439,9 +436,7 @@ describe.skip('Competition Proposal', () => {
 
     // get the current balance of addres1 (who we will send the rewards to)
 
-    try {
-      await suggestion1.redeem().send()
-    } catch (err) { }
+    await suggestion1.redeem().send()
 
     const afterBalanceBigNum = await arc.web3.getBalance(address1)
     const balanceAfter = new BN(afterBalanceBigNum.toString())
@@ -742,7 +737,6 @@ describe.skip('Competition Proposal', () => {
     expect(suggestionState.tags).toEqual(suggestionOptions.tags)
     expect(suggestionState.title).toEqual(suggestionOptions.title)
     expect(suggestionState.url).toEqual(suggestionOptions.url)
-
     expect(suggestionState).toMatchObject({
       id: suggestion.id,
       redeemedAt: null,
@@ -803,7 +797,6 @@ describe.skip('Competition Proposal', () => {
         `
 
       await arc.sendQuery(query)
-
       // now see if we can get our information directly from the cache
       const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
           .pipe(first()).toPromise()
@@ -828,7 +821,6 @@ describe.skip('Competition Proposal', () => {
 
       // add some exiting data to the cache to seeif we can mess things up
       await new CompetitionProposal(arc, competition.id).state({}).pipe(first()).toPromise()
-
       // construct our superquery that will fill the cache
       const query = gql`query {
           proposals (where: { id: "${competition.id}"}) {

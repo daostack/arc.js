@@ -1,7 +1,7 @@
 import BN from 'bn.js'
 import { Contract, Signer } from 'ethers'
-import 'ethers/dist/shims'
 import { providers } from 'ethers'
+import 'ethers/dist/shims'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
