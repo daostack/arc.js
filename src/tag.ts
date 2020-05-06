@@ -125,7 +125,7 @@ export class Tag extends Entity<ITagState> {
 
   public static itemMap = (context: Arc, item: any, queriedId?: string): ITagState => {
     if (!item) {
-      throw Error(`Tag ItemMap failed. ${queriedId && `Could not find Tag with id '${queriedId}'`}`)
+      throw Error(`Tag ItemMap failed. ${queriedId? `Could not find Tag with id '${queriedId}'`: ''}`)
     }
 
     return {

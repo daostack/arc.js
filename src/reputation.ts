@@ -73,7 +73,7 @@ export class Reputation extends Entity<IReputationState> {
 
   public static itemMap = (context: Arc, item: any, queriedId?: string): IReputationState => {
     if (!item) {
-      throw Error(`Reputation ItemMap failed. ${queriedId && `Could not find Reputation with id '${queriedId}'`}`)
+      throw Error(`Reputation ItemMap failed. ${queriedId? `Could not find Reputation with id '${queriedId}'`: ''}`)
     }
     return {
       id: item.id,

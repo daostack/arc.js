@@ -109,12 +109,12 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
           `Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`
         )
 
-        const state = Plugins.unknown.itemMap(arc, item, queriedId)
+        const state = Plugins.Unknown.itemMap(arc, item, queriedId)
         if (!state) {
           return null
         }
 
-        return new Plugins.unknown(arc, state)
+        return new Plugins.Unknown(arc, state)
       } else {
         if (item.name === 'ContributionRewardExt') {
           // Determine what type of plugin this is

@@ -49,7 +49,7 @@ export class GenericPluginProposal extends Proposal<IGenericPluginProposalState>
     queriedId?: string
   ): IGenericPluginProposalState | null {
     if (!item) {
-      Logger.debug(`GenericPluginProposal ItemMap failed. ${queriedId && `Could not find GenericPluginProposal with id '${queriedId}'`}`)
+      Logger.debug(`GenericPluginProposal ItemMap failed. ${queriedId? `Could not find GenericPluginProposal with id '${queriedId}'`: ''}`)
       return null
     }
 

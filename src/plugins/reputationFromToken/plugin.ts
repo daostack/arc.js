@@ -14,8 +14,12 @@ import {
 export class ReputationFromTokenPlugin extends Plugin<IPluginState> {
   public static itemMap(context: Arc, item: any, queriedId?: string): IPluginState | null {
     if (!item) {
-      Logger.debug(`ReputationFromTokenPlugin ItemMap failed. ${queriedId && `Could not find ReputationFromTokenPlugin with id '${queriedId}'`}`)
+      Logger.debug(`ReputationFromTokenPlugin ItemMap failed. ${queriedId? `Could not find ReputationFromTokenPlugin with id '${queriedId}'`: ''}`)
       return null
+    }
+
+    if (item.name !== 'ReputationFromToken') {
+      throw new Error(`Plugin ${queriedId?  `with id '${queriedId}'` : ''}wrongly instantiated as ReputationFromToken Plugin`)
     }
 
     return Plugin.itemMapToBaseState(context, item)

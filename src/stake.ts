@@ -156,7 +156,7 @@ export class Stake extends Entity<IStakeState> {
 
   public static itemMap = (context: Arc, item: any, queriedId?: string): IStakeState => {
     if (!item) {
-      throw Error(`Stake ItemMap failed. ${queriedId && `Could not find Stake with id '${queriedId}'`}`)
+      throw Error(`Stake ItemMap failed. ${queriedId? `Could not find Stake with id '${queriedId}'`: ''}`)
     }
 
     let outcome: IProposalOutcome = IProposalOutcome.Pass

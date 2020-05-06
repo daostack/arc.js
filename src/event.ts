@@ -74,7 +74,7 @@ export class Event extends Entity<IEventState> {
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IEventState {
     if (!item) {
-      throw Error(`Event ItemMap failed. ${queriedId && `Could not find Event with id '${queriedId}'`}`)
+      throw Error(`Event ItemMap failed. ${queriedId? `Could not find Event with id '${queriedId}'`: ''}`)
     }
 
     return {

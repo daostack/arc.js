@@ -162,7 +162,7 @@ export class Vote extends Entity<IVoteState> {
 
   public static itemMap = (context: Arc, item: any, queriedId?: string): IVoteState => {
     if (!item) {
-      throw Error(`Vote ItemMap failed. ${queriedId && `Could not find Vote with id '${queriedId}'`}`)
+      throw Error(`Vote ItemMap failed. ${queriedId? `Could not find Vote with id '${queriedId}'`: ''}`)
     }
 
     let outcome: IProposalOutcome = IProposalOutcome.Pass

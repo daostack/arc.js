@@ -52,7 +52,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
     queriedId?: string
   ): ISchemeRegistrarProposalState | null {
     if (!item) {
-      Logger.debug(`SchemeRegistrarProposal ItemMap failed. ${queriedId && `Could not find SchemeRegistrarProposal with id '${queriedId}'`}`)
+      Logger.debug(`SchemeRegistrarProposal ItemMap failed. ${queriedId? `Could not find SchemeRegistrarProposal with id '${queriedId}'`: ''}`)
       return null
     }
 

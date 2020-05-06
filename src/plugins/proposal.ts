@@ -28,9 +28,11 @@ import {
   ITransaction,
   ITransactionReceipt,
   IVoteQueryOptions,
+  Logger,
   mapGenesisProtocolParams,
   NULL_ADDRESS,
   Operation,
+  Plugins,
   ProposalName,
   Proposals,
   Queue,
@@ -253,6 +255,20 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     let where = ''
 
     const itemMap = (arc: Arc, r: any, queriedId?: string) => {
+
+      if (!Object.keys(Plugins).includes(r.scheme.name)) {
+        Logger.debug(
+          `Proposal's Plugin name '${r.scheme.name}' not supported. Instantiating it as Unknown Proposal.`
+        )
+
+        const proposalState = Proposals.Unknown.itemMap(arc, r, queriedId)
+        if (!proposalState) {
+          return null
+        }
+
+        return new Proposals.Unknown(arc, proposalState)
+      }
+
       if (r.scheme.name === 'ContributionRewardExt') {
         if (r.competition) {
           r.scheme.name = 'Competition'

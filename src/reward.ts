@@ -152,7 +152,7 @@ export class Reward extends Entity<IRewardState> {
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IRewardState {
     if (!item) {
-      throw Error(`Reward ItemMap failed. ${queriedId && `Could not find Reward with id '${queriedId}'`}`)
+      throw Error(`Reward ItemMap failed. ${queriedId? `Could not find Reward with id '${queriedId}'`: ''}`)
     }
 
     return {
