@@ -140,7 +140,7 @@ describe('apolloClient caching checks', () => {
 
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(0)
-    const daos = await arc.daos({}, { subscribe: false }).pipe(first()).toPromise()
+    const daos = await arc.daos({where: {reputationHoldersCount_gt: 1}}, { subscribe: false }).pipe(first()).toPromise()
     expect(networkSubscriptions.length).toEqual(0)
     expect(networkQueries.length).toEqual(1)
     const dao = daos[0]
