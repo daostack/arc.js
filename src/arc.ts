@@ -6,7 +6,6 @@ import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
 import {
-  ABI_DIR,
   Address,
   AnyPlugin,
   AnyProposal,
@@ -43,6 +42,8 @@ import {
   Web3Client,
   Web3Provider
 } from './index'
+
+const abis = require('./abis/abis.json')
 
 export type IArcOptions = IApolloClientOptions & {
   /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
@@ -359,9 +360,9 @@ export class Arc extends GraphNodeObserver {
       }
     }
 
-    let artefact = require(`${ABI_DIR}/${version}/${abiName}.json`)
+    let artefact = abis[version][abiName || '']
     if (artefact.rootVersion) {
-      artefact = require(`${ABI_DIR}/${artefact.rootVersion}/${abiName}.json`)
+      artefact = abis[artefact.rootVersion][abiName || '']
     }
     return artefact.abi
   }
