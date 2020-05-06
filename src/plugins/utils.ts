@@ -5,6 +5,8 @@ import {
   ContributionRewardExtProposal,
   ContributionRewardPlugin,
   ContributionRewardProposal,
+  FundingRequest,
+  FundingRequestProposal,
   GenericPlugin,
   GenericPluginProposal,
   IPluginState,
@@ -12,9 +14,13 @@ import {
   IProposalCreateOptionsComp,
   IProposalCreateOptionsCR,
   IProposalCreateOptionsCRExt,
+  IProposalCreateOptionsFundingRequest,
   IProposalCreateOptionsGS,
+  IProposalCreateOptionsJoinAndQuit,
   IProposalCreateOptionsSR,
   IProposalState,
+  JoinAndQuit,
+  JoinAndQuitProposal,
   Plugin,
   Proposal,
   ProposalPlugin,
@@ -25,6 +31,8 @@ import {
 } from '../index'
 
 export const ProposalPlugins = {
+  FundingRequest,
+  JoinAndQuit,
   GenericScheme: GenericPlugin,
   SchemeRegistrar: SchemeRegistrarPlugin,
   ContributionReward: ContributionRewardPlugin,
@@ -45,6 +53,8 @@ export const Proposals = {
   ContributionReward: ContributionRewardProposal,
   Competition: CompetitionProposal,
   ContributionRewardExt: ContributionRewardExtProposal,
+  FundingRequest: FundingRequestProposal,
+  JoinAndQuit: JoinAndQuitProposal,
   SchemeRegistrar: SchemeRegistrarProposal,
   SchemeRegistrarAdd: SchemeRegistrarProposal,
   SchemeRegistrarEdit: SchemeRegistrarProposal,
@@ -54,11 +64,13 @@ export const Proposals = {
 export type ProposalName = keyof typeof Proposals
 
 export type ProposalCreateOptions =
-  | IProposalCreateOptionsCRExt
-  | IProposalCreateOptionsGS
-  | IProposalCreateOptionsSR
-  | IProposalCreateOptionsComp
-  | IProposalCreateOptionsCR
+  IProposalCreateOptionsCRExt |
+  IProposalCreateOptionsGS |
+  IProposalCreateOptionsSR |
+  IProposalCreateOptionsComp |
+  IProposalCreateOptionsCR |
+  IProposalCreateOptionsFundingRequest |
+  IProposalCreateOptionsJoinAndQuit
 
 export type AnyProposal = Proposal<IProposalState>
 export type AnyPlugin = Plugin<IPluginState>

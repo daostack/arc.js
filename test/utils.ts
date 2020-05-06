@@ -1,21 +1,21 @@
 import BN from 'bn.js'
+import { utils } from 'ethers'
+import { JsonRpcProvider } from 'ethers/providers'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
-import { JsonRpcProvider } from 'ethers/providers'
-import { utils } from 'ethers'
 import {
-  Arc,
-  DAO,
-  IProposalOutcome,
-  Reputation,
   Address,
-  IContractInfo,
+  AnyProposal,
+  Arc,
   ContributionRewardPlugin,
   ContributionRewardProposal,
-  AnyProposal,
+  DAO,
+  IContractInfo,
   IProposalCreateOptionsCR,
+  IProposalOutcome,
   LATEST_ARC_VERSION,
-  PluginName
+  PluginName,
+  Reputation
 } from '../src'
 
 export const graphqlHttpProvider: string = 'http://127.0.0.1:8000/subgraphs/name/daostack'
@@ -67,11 +67,15 @@ export interface ITestAddresses {
 }
 
 export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAddresses {
-  return require('@daostack/test-env-experimental/daos.json').demo[version]
+  const result = require('@daostack/test-env-experimental/daos.json').demo[version]
+  if (!result) {
+    throw Error(`No test addresses found; please check the version of @daostack/test-env-experimental and LATEST_ARC_VERSION`)
+  }
+  return result
 }
 
 export function sleep(ms: number) {
-  return new Promise( resolve => setTimeout(resolve, ms) );
+  return new Promise( (resolve) => setTimeout(resolve, ms) )
 }
 
 export function getTestScheme(name: PluginName): Address {
@@ -163,18 +167,18 @@ export async function createAProposal(
     periodLength: 0,
     periods: 1,
     reputationReward: toWei('10'),
-    plugin: getTestScheme("ContributionReward"),
+    plugin: getTestScheme('ContributionReward'),
     ...options
   }
 
   const plugin = new ContributionRewardPlugin(
-    dao.context, 
-    getTestScheme("ContributionReward")
+    dao.context,
+    getTestScheme('ContributionReward')
   )
 
   const response = await plugin.createProposal(options).send()
 
-  if(!response.result) throw new Error('Response yielded no results')
+  if (!response.result) { throw new Error('Response yielded no results') }
 
   const proposal = new ContributionRewardProposal(dao.context, response.result.id)
 
@@ -188,12 +192,12 @@ export async function createAProposal(
 export async function createCRProposal(
   context: Arc,
   options: IProposalCreateOptionsCR,
-  pluginId: Address = getTestScheme("ContributionReward")
+  pluginId: Address = getTestScheme('ContributionReward')
 ) {
   const plugin = new ContributionRewardPlugin(context, pluginId)
   const response = await plugin.createProposal(options).send()
 
-  if(!response.result) throw new Error('Response yielded no results')
+  if (!response.result) { throw new Error('Response yielded no results') }
 
   return new ContributionRewardProposal(context, response.result.id)
 }
@@ -231,7 +235,7 @@ export async function voteToPassProposal(proposal: AnyProposal) {
     return !!state
   })
 
-  for (let i = 0; i <= 3; i++) {
+  for (let i = 0; i <= 5; i++) {
     try {
       arc.setAccount(accounts[i])
       await proposal.vote(IProposalOutcome.Pass).send()

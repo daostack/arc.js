@@ -1,7 +1,7 @@
 import BN from 'bn.js'
 import { Contract, Signer } from 'ethers'
+import { providers } from 'ethers'
 import 'ethers/dist/shims'
-import { JsonRpcProvider, Web3Provider as EthersWeb3JsProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
@@ -127,7 +127,7 @@ export class Arc extends GraphNodeObserver {
 
   public setWeb3(provider: Web3Provider) {
     if (typeof provider === 'string') {
-      this._web3 = new JsonRpcProvider(provider)
+      this._web3 = new providers.JsonRpcProvider(provider)
     } else if (Signer.isSigner(provider)) {
       const signer: Signer = provider
 
@@ -136,11 +136,10 @@ export class Arc extends GraphNodeObserver {
           'Ethers Signer is missing a provider, please set one. More info here: https://docs.ethers.io/ethers.js/html/api-wallet.html'
         )
       }
-
-      this._web3 = signer.provider as JsonRpcProvider
+      this._web3 = signer.provider as providers.JsonRpcProvider
       this.defaultAccount = signer
     } else {
-      this._web3 = new EthersWeb3JsProvider(provider)
+      this._web3 = new providers.Web3Provider(provider)
     }
 
     this._web3Provider = provider

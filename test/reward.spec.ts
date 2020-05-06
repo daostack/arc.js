@@ -1,7 +1,7 @@
 import { getAddress } from 'ethers/utils'
 import { first } from 'rxjs/operators'
-import { Arc, Reward, IRewardState, DAO, IProposalCreateOptionsCR } from '../src'
-import { getTestDAO, newArc, toWei, createCRProposal, getTestScheme } from './utils'
+import { Arc, DAO, IProposalCreateOptionsCR, IRewardState, Reward } from '../src'
+import { createCRProposal, getTestDAO, getTestScheme, newArc, toWei } from './utils'
 
 /**
  * Reward test
@@ -34,7 +34,7 @@ describe('Reward', () => {
       externalTokenAddress: undefined,
       externalTokenReward: toWei('0'),
       nativeTokenReward: toWei('1'),
-      plugin: getTestScheme("ContributionReward")
+      plugin: getTestScheme('ContributionReward')
     }
 
     const proposal = await createCRProposal(arc, options)
