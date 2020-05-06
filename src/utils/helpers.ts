@@ -179,11 +179,11 @@ export function createGraphQlWhereQuery(where?: { [key: string]: string | string
     }
 
     // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
-    if (key === 'plugin') {
-      key = 'scheme'
-    }
-
     let value = where[key]
+    key = key.replace('plugin', 'scheme')
+    key = key.replace('Plugin', 'Scheme')
+    where[key] = value
+
     if (key === 'dao' || key === 'address') {
       isAddress(value as string)
       value = (value as string).toLowerCase()

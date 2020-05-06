@@ -83,10 +83,16 @@ export class Vote extends Entity<IVoteState> {
     }
 
     let where = ''
-    for (const key of Object.keys(options.where)) {
+    for (let key of Object.keys(options.where)) {
       if (options.where[key] === undefined) {
         continue
       }
+
+      // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
+      const value = options.where[key]
+      key = key.replace('plugin', 'scheme')
+      key = key.replace('Plugin', 'Scheme')
+      options.where[key] = value
 
       if (key === 'voter' || key === 'dao') {
         const option = options.where[key] as string
