@@ -30,6 +30,9 @@ async function copyABIs() {
   const destDir = ABI_DIR
   const sourcePath = path.resolve(`${require.resolve('@daostack/migration-experimental')}/../contracts-optimized`)
   log(`copying ABIs from ${sourcePath} to ${destDir}`)
+      if (!fs.existsSync(path.join(destDir))) {
+        fs.mkdirSync(path.join(destDir), { recursive: true })
+    }
   getDirectories(sourcePath).forEach(arcVersion => {
     const files = fs.readdirSync(`${sourcePath}/${arcVersion}`)
     result[arcVersion] = {}
