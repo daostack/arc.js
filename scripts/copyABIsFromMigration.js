@@ -2,6 +2,14 @@ const fs = require("fs")
 const path = require('path')
 const verbose = true
 const ABI_DIR = path.resolve('./src/abis')
+const optimizer = require("@daostack/migration-experimental/optimize-abis")
+
+async function optimizeABIs () {
+  optimizer.initDirectory()
+  await optimizer.noBytecode()
+  await optimizer.noWhitespace()
+  await optimizer.noDuplicates()
+}
 
 function log(msg) {
   if (verbose) {
@@ -22,9 +30,6 @@ async function copyABIs() {
   const destDir = ABI_DIR
   const sourcePath = path.resolve(`${require.resolve('@daostack/migration-experimental')}/../contracts-optimized`)
   log(`copying ABIs from ${sourcePath} to ${destDir}`)
-  if (!fs.existsSync(path.join(destDir))) {
-    fs.mkdirSync(path.join(destDir), { recursive: true })
-}
   getDirectories(sourcePath).forEach(arcVersion => {
     const files = fs.readdirSync(`${sourcePath}/${arcVersion}`)
     result[arcVersion] = {}
@@ -46,6 +51,7 @@ async function copyABIs() {
 }
 
 async function run () {
+  await optimizeABIs()
   await copyABIs()
 }
 
@@ -55,5 +61,5 @@ if (require.main === module) {
     process.exit(1)
   })
 } else {
-  module.exports = copyABIs
+  module.exports = optimizeABIs
 }
