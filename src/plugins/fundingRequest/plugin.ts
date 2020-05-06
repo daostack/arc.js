@@ -71,14 +71,18 @@ export class FundingRequest
     return this.fragmentField
   }
 
-  public static itemMap(context: Arc, item: any, query?: string): IFundingRequestState | null {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IFundingRequestState | null {
     if (!item) {
       return null
     }
 
+    if (!item.fundingRequestParams) {
+      throw new Error(`Plugin ${queriedId?  `with id '${queriedId}'` : ''}wrongly instantiated as FundingRequest Plugin`)
+    }
+    
     const baseState = Plugin.itemMapToBaseState(context, item)
 
-    const fundingRequestParams = item.fundingRequestParams && {
+    const fundingRequestParams = {
       voteParams: mapGenesisProtocolParams(item.fundingRequestParams.voteParams),
       votingMachine: item.fundingRequestParams.votingMachine,
       fundingToken: item.fundingRequestParams.fundingToken
