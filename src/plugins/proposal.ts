@@ -288,8 +288,14 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       options.where = {}
     }
 
-    for (const key of Object.keys(options.where)) {
+    for (let key of Object.keys(options.where)) {
       const value = options.where[key]
+
+      // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
+      if (key === 'plugin') {
+        key = 'scheme'
+      }
+
       if (key === 'stage' && value !== undefined) {
         where += `stage: "${IProposalStage[value as IProposalStage]}"\n`
       } else if (key === 'stage_in' && Array.isArray(value)) {

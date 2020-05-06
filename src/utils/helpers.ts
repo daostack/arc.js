@@ -173,9 +173,14 @@ export function createGraphQlWhereQuery(where?: { [key: string]: string | string
   if (!where) {
     where = {}
   }
-  for (const key of Object.keys(where)) {
+  for (let key of Object.keys(where)) {
     if (where[key] === undefined) {
       continue
+    }
+
+    // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
+    if (key === 'plugin') {
+      key = 'scheme'
     }
 
     let value = where[key]

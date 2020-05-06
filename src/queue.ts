@@ -47,9 +47,14 @@ export class Queue extends Entity<IQueueState> {
     }
     let where = ''
 
-    for (const key of Object.keys(options.where)) {
+    for (let key of Object.keys(options.where)) {
       if (options[key] === undefined) {
         continue
+      }
+
+      // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
+      if (key === 'plugin') {
+        key = 'scheme'
       }
 
       if (key === 'dao' || key === 'votingMaching' || key === 'scheme') {
