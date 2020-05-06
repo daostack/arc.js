@@ -9,7 +9,7 @@ git ci -a -m "Package version ${package_version}"
 git tag -a $package_version -m "Release of version $package_version"
 git push --tags
 
-// publish to npm
+# publish to npm
 echo "publish to npm"
 npm publish
 # done
