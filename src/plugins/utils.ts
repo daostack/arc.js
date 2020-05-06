@@ -75,10 +75,10 @@ export type ProposalCreateOptions =
   IProposalCreateOptionsFundingRequest |
   IProposalCreateOptionsJoinAndQuit
 
-export type AnyProposal = Proposal<IProposalState>
-export type AnyPlugin = Plugin<IPluginState>
-export type AnyProposalPlugin = ProposalPlugin<
+export abstract class AnyProposal extends Proposal<IProposalState> { }
+export abstract class AnyPlugin extends Plugin<IPluginState> { }
+export abstract class AnyProposalPlugin extends ProposalPlugin<
   IPluginState,
   IProposalState,
   IProposalBaseCreateOptions
->
+> { }
