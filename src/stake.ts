@@ -191,16 +191,10 @@ export class Stake extends Entity<IStakeState> {
     const query = gql`query StakeState
       {
         proposalStake (id: "${this.id}") {
-          id
-          createdAt
-          staker
-          proposal {
-            id
-          }
-          outcome
-          amount
+          ...StakeFields
         }
       }
+      ${Stake.fragments.StakeFields}
     `
 
     return this.context.getObservableObject(this.context, query, Stake.itemMap, this.id, apolloQueryOptions)
