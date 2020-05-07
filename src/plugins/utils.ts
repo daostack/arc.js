@@ -21,7 +21,9 @@ import {
   ReputationFromTokenPlugin,
   SchemeRegistrarPlugin,
   SchemeRegistrarProposal,
-  UnknownPlugin
+  UnknownPlugin,
+  PluginManagerProposal,
+  PluginManagerPlugin
 } from '../index'
 
 export const ProposalPlugins = {
@@ -29,7 +31,8 @@ export const ProposalPlugins = {
   SchemeRegistrar: SchemeRegistrarPlugin,
   ContributionReward: ContributionRewardPlugin,
   ContributionRewardExt: ContributionRewardExtPlugin,
-  Competition: CompetitionPlugin
+  Competition: CompetitionPlugin,
+  SchemeFactory: PluginManagerPlugin
 }
 
 export const Plugins = {
@@ -48,7 +51,8 @@ export const Proposals = {
   SchemeRegistrar: SchemeRegistrarProposal,
   SchemeRegistrarAdd: SchemeRegistrarProposal,
   SchemeRegistrarEdit: SchemeRegistrarProposal,
-  SchemeRegistrarRemove: SchemeRegistrarProposal
+  SchemeRegistrarRemove: SchemeRegistrarProposal,
+  SchemeFactory: PluginManagerProposal
 }
 
 export type ProposalName = keyof typeof Proposals
