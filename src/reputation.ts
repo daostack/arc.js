@@ -40,10 +40,16 @@ export class Reputation extends Entity<IReputationState> {
     if (!options.where) {
       options.where = {}
     }
-    for (const key of Object.keys(options.where)) {
+    for (let key of Object.keys(options.where)) {
       if (options[key] === undefined) {
         continue
       }
+
+      // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
+      const value = options.where[key]
+      key = key.replace('plugin', 'scheme')
+      key = key.replace('Plugin', 'Scheme')
+      options.where[key] = value
 
       if (key === 'dao') {
         const option = options[key] as string
@@ -73,7 +79,7 @@ export class Reputation extends Entity<IReputationState> {
 
   public static itemMap = (context: Arc, item: any, queriedId?: string): IReputationState => {
     if (!item) {
-      throw Error(`Reputation ItemMap failed. ${queriedId && `Could not find Reputation with id '${queriedId}'`}`)
+      throw Error(`Reputation ItemMap failed. ${queriedId ? `Could not find Reputation with id '${queriedId}'` : ''}`)
     }
     return {
       id: item.id,

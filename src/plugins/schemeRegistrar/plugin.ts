@@ -78,8 +78,12 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
 
   public static itemMap(arc: Arc, item: any, queriedId?: string): ISchemeRegistrarState | null {
     if (!item) {
-      Logger.debug(`SchemeRegistrarPlugin ItemMap failed. ${queriedId && `Could not find SchemeRegistrarPlugin with id '${queriedId}'`}`)
+      Logger.debug(`SchemeRegistrarPlugin ItemMap failed. ${queriedId ? `Could not find SchemeRegistrarPlugin with id '${queriedId}'` : ''}`)
       return null
+    }
+
+    if (!item.schemeRegistrarParams) {
+      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as SchemeRegistrar Plugin`)
     }
 
     let name = item.name
@@ -95,7 +99,7 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
       }
     }
 
-    const schemeRegistrarParams = item.schemeRegistrarParams && {
+    const schemeRegistrarParams = {
       voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
       voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
       votingMachine: item.schemeRegistrarParams.votingMachine

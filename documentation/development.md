@@ -94,7 +94,7 @@ It takes an optional `queriedId` parameter. This is the ID passed to the `where`
 ```ts
 public static itemMap(context: Arc, item: any, queriedId?: string): IEventState {
   if (!item) {
-    throw Error(`Event ItemMap failed. ${queriedId && `Could not find Event with id '${queriedId}'`}`)
+    throw Error(`Event ItemMap failed. ${queriedId ? `Could not find Event with id '${queriedId}'` : ''}`)
   }
 
   return {

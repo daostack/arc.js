@@ -65,16 +65,20 @@ export class GenericPlugin extends ProposalPlugin<
   public static itemMap(context: Arc, item: any, queriedId?: string): IGenericPluginState | null {
     if (!item) {
       Logger.debug(`GenericPlugin ItemMap failed.
-       ${queriedId && `Could not find GenericPlugin with id '${queriedId}'`}`)
+       ${queriedId ? `Could not find GenericPlugin with id '${queriedId}'` : ''}`)
       return null
+    }
+
+    if (!item.genericSchemeParams) {
+      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as Generic Plugin`)
     }
 
     const baseState = Plugin.itemMapToBaseState(context, item)
 
-    const genericpluginParams = item.genericpluginParams && {
-      contractToCall: item.genericpluginParams.contractToCall,
-      voteParams: mapGenesisProtocolParams(item.genericpluginParams.voteParams),
-      votingMachine: item.genericpluginParams.votingMachine
+    const genericpluginParams = {
+      contractToCall: item.genericSchemeParams.contractToCall,
+      voteParams: mapGenesisProtocolParams(item.genericSchemeParams.voteParams),
+      votingMachine: item.genericSchemeParams.votingMachine
     }
 
     return {

@@ -47,10 +47,16 @@ export class Queue extends Entity<IQueueState> {
     }
     let where = ''
 
-    for (const key of Object.keys(options.where)) {
+    for (let key of Object.keys(options.where)) {
       if (options[key] === undefined) {
         continue
       }
+
+      // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
+      const value = options.where[key]
+      key = key.replace('plugin', 'scheme')
+      key = key.replace('Plugin', 'Scheme')
+      options.where[key] = value
 
       if (key === 'dao' || key === 'votingMaching' || key === 'scheme') {
         const option = options[key] as string
@@ -88,7 +94,7 @@ export class Queue extends Entity<IQueueState> {
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IQueueState {
     if (!item) {
-      throw Error(`Queue ItemMap failed. ${queriedId && `Could not find Queue with id '${queriedId}'`}`)
+      throw Error(`Queue ItemMap failed. ${queriedId ? `Could not find Queue with id '${queriedId}'` : ''}`)
     }
     const threshold = realMathToNumber(new BN(item.threshold))
 

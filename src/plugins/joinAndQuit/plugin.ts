@@ -79,14 +79,18 @@ export class JoinAndQuit extends ProposalPlugin<
     return this.fragmentField
   }
 
-  public static itemMap(context: Arc, item: any, query?: string): IJoinAndQuitState | null {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IJoinAndQuitState | null {
     if (!item) {
       return null
     }
 
+    if (!item.joinAndQuitParams) {
+      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as JoinAndQuit Plugin`)
+    }
+
     const baseState = Plugin.itemMapToBaseState(context, item)
 
-    const fundingRequestParams = item.joinAndQuitParams && {
+    const fundingRequestParams = {
       voteParams: mapGenesisProtocolParams(item.joinAndQuitParams.voteParams),
       votingMachine: item.joinAndQuitParams.votingMachine,
       fundingToken: item.joinAndQuitParams.fundingToken,

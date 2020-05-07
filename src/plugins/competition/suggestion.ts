@@ -157,7 +157,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
     queriedId?: string
   ): ICompetitionSuggestionState {
     if (!item) {
-      throw Error(`Competition Suggestion ItemMap failed. ${queriedId && `Could not find Competition Suggestion with id '${queriedId}'`}`)
+      throw Error(`Competition Suggestion ItemMap failed. ${queriedId ? `Could not find Competition Suggestion with id '${queriedId}'` : ''}`)
     }
 
     let redeemedAt: Date | null = null

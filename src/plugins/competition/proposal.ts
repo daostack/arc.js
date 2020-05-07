@@ -77,7 +77,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
     queriedId?: string
   ): ICompetitionProposalState | null {
     if (!item) {
-      Logger.debug(`CompetitionProposal ItemMap failed. ${queriedId && `Could not find CompetitionProposal with id '${queriedId}'`}`)
+      Logger.debug(`CompetitionProposal ItemMap failed. ${queriedId ? `Could not find CompetitionProposal with id '${queriedId}'` : ''}`)
       return null
     }
 

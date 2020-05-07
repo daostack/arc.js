@@ -29,6 +29,7 @@ import {
   SchemeRegistrarProposal,
   UnknownPlugin
 } from '../index'
+import { UnknownProposal } from './unknownProposal'
 
 export const ProposalPlugins = {
   FundingRequest,
@@ -37,13 +38,14 @@ export const ProposalPlugins = {
   SchemeRegistrar: SchemeRegistrarPlugin,
   ContributionReward: ContributionRewardPlugin,
   ContributionRewardExt: ContributionRewardExtPlugin,
-  Competition: CompetitionPlugin
+  Competition: CompetitionPlugin,
+  Unknown: UnknownPlugin
 }
 
 export const Plugins = {
   ...ProposalPlugins,
   ReputationFromToken: ReputationFromTokenPlugin,
-  unknown: UnknownPlugin
+  Unknown: UnknownPlugin
 }
 
 export type PluginName = keyof typeof Plugins
@@ -58,7 +60,8 @@ export const Proposals = {
   SchemeRegistrar: SchemeRegistrarProposal,
   SchemeRegistrarAdd: SchemeRegistrarProposal,
   SchemeRegistrarEdit: SchemeRegistrarProposal,
-  SchemeRegistrarRemove: SchemeRegistrarProposal
+  SchemeRegistrarRemove: SchemeRegistrarProposal,
+  Unknown: UnknownProposal
 }
 
 export type ProposalName = keyof typeof Proposals
@@ -72,10 +75,10 @@ export type ProposalCreateOptions =
   IProposalCreateOptionsFundingRequest |
   IProposalCreateOptionsJoinAndQuit
 
-export type AnyProposal = Proposal<IProposalState>
-export type AnyPlugin = Plugin<IPluginState>
-export type AnyProposalPlugin = ProposalPlugin<
+export abstract class AnyProposal extends Proposal<IProposalState> { }
+export abstract class AnyPlugin extends Plugin<IPluginState> { }
+export abstract class AnyProposalPlugin extends ProposalPlugin<
   IPluginState,
   IProposalState,
   IProposalBaseCreateOptions
->
+> { }

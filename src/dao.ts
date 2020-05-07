@@ -93,10 +93,16 @@ export class DAO extends Entity<IDAOState> {
     if (!options.where) {
       options.where = {}
     }
-    for (const key of Object.keys(options.where)) {
+    for (let key of Object.keys(options.where)) {
       if (options.where[key] === undefined) {
         continue
       }
+
+      // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
+      const value = options.where[key]
+      key = key.replace('plugin', 'scheme')
+      key = key.replace('Plugin', 'Scheme')
+      options.where[key] = value
 
       if (key === 'address') {
         const option = options.where[key] as string
@@ -124,7 +130,7 @@ export class DAO extends Entity<IDAOState> {
 
   public static itemMap = (context: Arc, item: any, queriedId?: string): IDAOState => {
     if (!item) {
-      throw Error(`DAO ItemMap failed. ${queriedId && `Could not find DAO with id '${queriedId}'`}`)
+      throw Error(`DAO ItemMap failed. ${queriedId ? `Could not find DAO with id '${queriedId}'` : ''}`)
     }
 
     return {

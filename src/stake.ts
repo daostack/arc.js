@@ -82,10 +82,16 @@ export class Stake extends Entity<IStakeState> {
       delete options.where.proposal
     }
 
-    for (const key of Object.keys(options.where)) {
+    for (let key of Object.keys(options.where)) {
       if (options.where[key] === undefined) {
         continue
       }
+
+      // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
+      const value = options.where[key]
+      key = key.replace('plugin', 'scheme')
+      key = key.replace('Plugin', 'Scheme')
+      options.where[key] = value
 
       if (key === 'staker' || key === 'dao') {
         const option = options.where[key] as string
@@ -156,7 +162,7 @@ export class Stake extends Entity<IStakeState> {
 
   public static itemMap = (context: Arc, item: any, queriedId?: string): IStakeState => {
     if (!item) {
-      throw Error(`Stake ItemMap failed. ${queriedId && `Could not find Stake with id '${queriedId}'`}`)
+      throw Error(`Stake ItemMap failed. ${queriedId ? `Could not find Stake with id '${queriedId}'` : ''}`)
     }
 
     let outcome: IProposalOutcome = IProposalOutcome.Pass
@@ -185,16 +191,10 @@ export class Stake extends Entity<IStakeState> {
     const query = gql`query StakeState
       {
         proposalStake (id: "${this.id}") {
-          id
-          createdAt
-          staker
-          proposal {
-            id
-          }
-          outcome
-          amount
+          ...StakeFields
         }
       }
+      ${Stake.fragments.StakeFields}
     `
 
     return this.context.getObservableObject(this.context, query, Stake.itemMap, this.id, apolloQueryOptions)

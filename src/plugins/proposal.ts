@@ -28,9 +28,11 @@ import {
   ITransaction,
   ITransactionReceipt,
   IVoteQueryOptions,
+  Logger,
   mapGenesisProtocolParams,
   NULL_ADDRESS,
   Operation,
+  Plugins,
   ProposalName,
   Proposals,
   Queue,
@@ -253,6 +255,20 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     let where = ''
 
     const itemMap = (arc: Arc, r: any, queriedId?: string) => {
+
+      if (!Object.keys(Plugins).includes(r.scheme.name)) {
+        Logger.debug(
+          `Proposal's Plugin name '${r.scheme.name}' not supported. Instantiating it as Unknown Proposal.`
+        )
+
+        const proposalState = Proposals.Unknown.itemMap(arc, r, queriedId)
+        if (!proposalState) {
+          return null
+        }
+
+        return new Proposals.Unknown(arc, proposalState)
+      }
+
       if (r.scheme.name === 'ContributionRewardExt') {
         if (r.competition) {
           r.scheme.name = 'Competition'
@@ -272,8 +288,13 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       options.where = {}
     }
 
-    for (const key of Object.keys(options.where)) {
+    for (let key of Object.keys(options.where)) {
+      // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
       const value = options.where[key]
+      key = key.replace('plugin', 'scheme')
+      key = key.replace('Plugin', 'Scheme')
+      options.where[key] = value
+
       if (key === 'stage' && value !== undefined) {
         where += `stage: "${IProposalStage[value as IProposalStage]}"\n`
       } else if (key === 'stage_in' && Array.isArray(value)) {

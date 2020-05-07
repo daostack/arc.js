@@ -88,10 +88,16 @@ export class Reward extends Entity<IRewardState> {
       delete options.where.proposal
     }
 
-    for (const key of Object.keys(options.where)) {
+    for (let key of Object.keys(options.where)) {
       if (options.where[key] === undefined) {
         continue
       }
+
+      // TODO: remove once this issue is closed https://github.com/daostack/subgraph/issues/537
+      const value = options.where[key]
+      key = key.replace('plugin', 'scheme')
+      key = key.replace('Plugin', 'Scheme')
+      options.where[key] = value
 
       if (key === 'beneficiary' || key === 'dao') {
         const option = options.where[key] as string
@@ -152,7 +158,7 @@ export class Reward extends Entity<IRewardState> {
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IRewardState {
     if (!item) {
-      throw Error(`Reward ItemMap failed. ${queriedId && `Could not find Reward with id '${queriedId}'`}`)
+      throw Error(`Reward ItemMap failed. ${queriedId ? `Could not find Reward with id '${queriedId}'` : ''}`)
     }
 
     return {

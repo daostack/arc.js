@@ -77,13 +77,17 @@ export class ContributionRewardExtPlugin extends ProposalPlugin<
     queriedId?: string
   ): IContributionRewardExtState | null {
     if (!item) {
-      Logger.debug(`ContributionRewardExtPlugin ItemMap failed. ${queriedId && `Could not find ContributionRewardExtPlugin with id '${queriedId}'`}`)
+      Logger.debug(`ContributionRewardExtPlugin ItemMap failed. ${queriedId ? `Could not find ContributionRewardExtPlugin with id '${queriedId}'` : ''}`)
       return null
+    }
+
+    if (!item.contributionRewardExtParams) {
+      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as ContributionRewardExt Plugin`)
     }
 
     const baseState = Plugin.itemMapToBaseState(context, item)
 
-    const contributionRewardExtParams = item.contributionRewardExtParams && {
+    const contributionRewardExtParams = {
       rewarder: item.contributionRewardExtParams.rewarder,
       voteParams: mapGenesisProtocolParams(item.contributionRewardExtParams.voteParams),
       votingMachine: item.contributionRewardExtParams.votingMachine
