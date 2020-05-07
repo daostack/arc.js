@@ -9,6 +9,8 @@ import {
   IApolloQueryOptions,
   ICommonQueryOptions,
   IEntityRef,
+  Logger,
+  Plugins,
   Proposals
 } from './index'
 
@@ -139,6 +141,20 @@ export class Tag extends Entity<ITagState> {
       id: item.id,
       numberOfProposals: Number(item.numberOfProposals),
       proposals: item.proposals.map((proposal: any) => {
+
+        if (!Object.keys(Plugins).includes(proposal.scheme.name)) {
+          Logger.debug(
+            `Proposal's Plugin name '${proposal.scheme.name}' not supported. Instantiating it as Unknown Proposal.`
+          )
+          proposal.scheme.name = 'Unknown'
+        }
+
+        if (proposal.scheme.name === 'ContributionRewardExt') {
+          if (proposal.competition) {
+            proposal.scheme.name = 'Competition'
+          }
+        }
+
         return {
           id: proposal.id,
           entity: new Proposals[proposal.scheme.name](context, proposal.id)

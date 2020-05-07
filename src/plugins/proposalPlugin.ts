@@ -44,6 +44,9 @@ export abstract class ProposalPlugin<
   public createProposal(options: TProposalCreateOptions): Operation<Proposal<TProposalState>> {
     const observable = Observable.create(async (observer: any) => {
       try {
+        const pluginAddress = options.plugin ? options.plugin : (await this.fetchState()).address
+        options.plugin = pluginAddress
+
         const createTransaction = await this.createProposalTransaction(options)
         const map = this.createProposalTransactionMap(options)
         const errorHandler = this.createProposalErrorHandler(options)

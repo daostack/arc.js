@@ -100,10 +100,8 @@ export class ContributionRewardPlugin extends ProposalPlugin<
   public async createProposalTransaction(options: IProposalCreateOptionsCR): Promise<ITransaction> {
     options.descriptionHash = await this.context.saveIPFSData(options)
 
-    const pluginId = options.plugin ? options.plugin : this.id
-
     return {
-      contract: this.context.getContract(pluginId),
+      contract: this.context.getContract(options.plugin as string),
       method: 'proposeContributionReward',
       args: [
         options.descriptionHash || '',
