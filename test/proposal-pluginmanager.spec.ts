@@ -6,17 +6,17 @@ import {
   PluginManagerProposal,
   NULL_ADDRESS,
   IPluginManagerProposalState,
-  Plugin,
   DAO,
-  LATEST_ARC_VERSION
+  IProposalOutcome,
+  LATEST_ARC_VERSION,
+  ContributionRewardPlugin
 } from '../src/index'
 import {
   newArc,
-  voteToPassProposal,
   waitUntilTrue
 } from './utils'
 import { first } from 'rxjs/operators'
-import { ethers } from 'ethers'
+import { Interface } from 'ethers/utils'
 
 jest.setTimeout(60000)
 
@@ -28,20 +28,42 @@ describe('Plugin Manager', () => {
   })
 
   it('Creates, replaces and deletes a plugin', async () => {
-    const daos = await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise()
-    const dao = daos[0]
+    const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
+    const pluginAddresses = (await dao.plugins().pipe(first()).toPromise()).map( p => {
+      if(!p.coreState) throw new Error('Could not set Plugin state')
+      return p.coreState.address
+    })
+    const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin
     const addProposalStates: IPluginManagerProposalState[] = []
+    const memberAddresses = (await dao.members().pipe(first()).toPromise()).map(m => m.coreState?.address) as string[]
 
-    const plugins = await Plugin.search(arc, { where: { name: 'SchemeFactory'}})
-      .pipe(first()).toPromise() as PluginManagerPlugin[]
+    const initData = {
+      votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
+      easyVotingParams: [
+        50,
+        604800,
+        129600,
+        43200, 
+        1200,
+        86400, 
+        10, 
+        1, 
+        50,
+        10,
+        0
+      ],
+      voteOnBehalf: "0x0000000000000000000000000000000000000000",
+      voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
+    }
 
-    const plugin = plugins.find(p => p.coreState?.dao.id === dao.id) as PluginManagerPlugin
-    
-    const actionMockABI = arc.getABI({abiName: 'ActionMock', version: LATEST_ARC_VERSION})
-
-    if(!arc.web3) throw new Error("Web3 provider not set")
-
-    const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
+    const abiInterface = new Interface(arc.getABI({ abiName: 'ContributionReward', version: LATEST_ARC_VERSION }))
+    const pluginData = abiInterface.functions.initialize.encode([
+      dao.id,
+      initData.votingMachine,
+      initData.easyVotingParams,
+      initData.voteOnBehalf,
+      initData.voteParamsHash
+    ])
 
     const lastAddProposalState = () => addProposalStates[addProposalStates.length - 1]
     const options: IProposalCreateOptionsPM = {
@@ -49,9 +71,9 @@ describe('Plugin Manager', () => {
       packageVersion: PACKAGE_VERSION,
       permissions: '0x0000001f',
       plugin: plugin.coreState?.address,
-      pluginName: 'GenericScheme',
+      pluginName: 'ContributionReward',
       pluginToReplace: NULL_ADDRESS,
-      pluginData: callData
+      pluginData
     }
 
     const tx = await plugin.createProposal(options).send()
@@ -62,21 +84,50 @@ describe('Plugin Manager', () => {
     addProposal.state({}).subscribe((pState) => {
       if(pState) {
         addProposalStates.push(pState)
-        console.log(pState)
       }
     })
 
+    if(!arc.web3) throw new Error('Web3 Provider not set')
+
+    //Wait for indexation
     await waitUntilTrue(() => addProposalStates.length > 0)
-
-    await voteToPassProposal(addProposal)
-    addProposal.execute()
-
-    await waitUntilTrue(() => (
-      lastAddProposalState().pluginRegistered
-    ))
-
-    const pluginRegistered = lastAddProposalState().pluginRegistered
-
     
+    //Vote for proposal to pass
+    for(let i = 0; i < memberAddresses.length; i++) {
+      try{
+        arc.setAccount(memberAddresses[i])
+        await addProposal.vote(IProposalOutcome.Pass).send()
+      } catch(err) { }
+      finally {
+        arc.setAccount((await arc.web3.listAccounts())[0])
+      }
+    }
+
+    //Wait for execution
+    await waitUntilTrue(() => lastAddProposalState().executionState === 1)
+
+    //Wait for indexation
+    let newPlugins: ContributionRewardPlugin[] = []
+
+    dao.plugins().subscribe(plugins => {
+      const result = plugins.find( np => {
+        if(!np.coreState) throw new Error('Could not set Plugin State')
+        return !pluginAddresses.includes(np.coreState.address)
+      })
+
+      if(result) newPlugins.push(result as ContributionRewardPlugin)
+    })
+
+    //Wait until plugin is indexed
+    await waitUntilTrue(() => newPlugins.length > 0)
+
+    const newPlugin = newPlugins[0]
+
+    if(!newPlugin.coreState) throw new Error('New Plugin has no state set')
+
+    expect(lastAddProposalState().pluginRegistered).toEqual(true)
+    expect(newPlugin).toBeTruthy()
+    expect(newPlugin).toBeInstanceOf(ContributionRewardPlugin)
+    expect(newPlugin.coreState.name).toEqual('ContributionReward')
   })
 })
