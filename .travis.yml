@@ -31,7 +31,7 @@ script:
   - npm run lint
   - npm run test
   - npm run build
-
+  - ls dist/lib/abis
 after_success:
   # - npm run report-coverage
   # - test $TRAVIS_BRANCH = "master" && npm run deploy-docs
