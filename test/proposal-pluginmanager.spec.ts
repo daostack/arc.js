@@ -249,7 +249,7 @@ describe('Plugin Manager', () => {
     expect(newPluginAddresses).not.toContain(createdPlugin.coreState.address)
   })
 
-  it.skip('Replaces an existing plugin', async () => {
+  it.only('Replaces an existing plugin', async () => {
     const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
     const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin
  
@@ -294,20 +294,6 @@ describe('Plugin Manager', () => {
 
     if(!createdPlugin.coreState) throw new Error('New Plugin has no state set')
 
-    expect(createdPlugin).toBeTruthy()
-    expect(createdPlugin).toBeInstanceOf(ContributionRewardPlugin)
-    expect(createdPlugin.coreState.name).toEqual('ContributionReward')
-    expect(createdPlugin.coreState.pluginParams.voteParams).toMatchObject({
-      boostedVotePeriodLimit: 129600,
-      daoBountyConst: 10,
-      preBoostedVotePeriodLimit: 43200,
-      queuedVotePeriodLimit: 604800,
-      queuedVoteRequiredPercentage: 50,
-      quietEndingPeriod: 86400,
-      votersReputationLossRatio: 1,
-      activationTime: 0
-    })
-
     // Replace plugin data
 
     const replaceProposalStates: IPluginManagerProposalState[] = []
@@ -344,6 +330,8 @@ describe('Plugin Manager', () => {
       editInitData.voteParamsHash
     ])
 
+    console.log(createdPlugin.coreState.address)
+
     const editOptions: IProposalCreateOptionsPM = {
       dao: dao.id,
       packageVersion: PACKAGE_VERSION,
@@ -376,7 +364,7 @@ describe('Plugin Manager', () => {
     //Wait for node changes
 
     let newPlugins: ContributionRewardPlugin[] = []
-    let registeredAddresses: string[] = []
+    let registeredAddresses: string[] = pluginAddresses
 
     dao.plugins().subscribe(plugins => {
 
@@ -397,8 +385,12 @@ describe('Plugin Manager', () => {
         return p.coreState.address
       })
 
-      if(addresses.length < pluginAddresses.length)
       registeredAddresses = addresses
+
+      if(!createdPlugin.coreState) throw new Error('Plugin State not set')
+
+      console.log(createdPlugin.coreState.address)
+      console.log(addresses.includes(createdPlugin.coreState.address))
     })
 
     // Wait for replacing plugin indexation
@@ -420,7 +412,7 @@ describe('Plugin Manager', () => {
 
     // TODO: This never happens. Plugin is never removed. But Replacing plugin is indeed added
     // Wait for createdPluigin removal
-    await waitUntilTrue(() => registeredAddresses.length > 0)
-    expect(registeredAddresses).not.toContain(createdPlugin.coreState.address)
+    //@ts-ignore
+    await waitUntilTrue(() => !registeredAddresses.includes(createdPlugin.coreState.address))
   })
 })
