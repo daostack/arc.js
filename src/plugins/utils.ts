@@ -50,7 +50,6 @@ export const Proposals = {
   ContributionRewardExt: ContributionRewardExtProposal,
   SchemeRegistrar: SchemeRegistrarProposal,
   SchemeRegistrarAdd: SchemeRegistrarProposal,
-  SchemeRegistrarEdit: SchemeRegistrarProposal,
   SchemeRegistrarRemove: SchemeRegistrarProposal,
   SchemeFactory: PluginManagerProposal
 }

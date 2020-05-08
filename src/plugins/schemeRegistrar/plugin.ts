@@ -24,7 +24,7 @@ export interface ISchemeRegistrarState extends IPluginState {
 }
 
 export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
-  proposalType: 'SchemeRegistrarAdd' | 'SchemeRegistrarEdit' | 'SchemeRegistrarRemove'
+  proposalType: 'SchemeRegistrarAdd' | 'SchemeRegistrarRemove'
   parametersHash?: string
   permissions?: string
   pluginToRegister?: Address
@@ -125,7 +125,6 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
 
     switch (options.proposalType) {
       case 'SchemeRegistrarAdd':
-      case 'SchemeRegistrarEdit':
         if (options.parametersHash === undefined) {
           msg = `Missing argument "parametersHash" for SchemeRegistrar in Proposal.create()`
           throw Error(msg)
@@ -159,7 +158,6 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
       let eventName: string
       switch (options.proposalType) {
         case 'SchemeRegistrarAdd':
-        case 'SchemeRegistrarEdit':
           eventName = 'NewSchemeProposal'
           break
         case 'SchemeRegistrarRemove':

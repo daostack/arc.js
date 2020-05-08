@@ -59,16 +59,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
     let type: ProposalName
 
     if (item.schemeRegistrar.schemeToRegister) {
-      // TODO: this is failing bc of https://github.com/daostack/subgraph/issues/224
-      if (
-        item.dao.schemes
-          .map((s: any) => s.address.toLowerCase())
-          .includes(item.schemeRegistrar.schemeToRegister.toLowerCase())
-      ) {
-        type = 'SchemeRegistrarEdit'
-      } else {
-        type = 'SchemeRegistrarAdd'
-      }
+      type = 'SchemeRegistrarAdd'
     } else if (item.schemeRegistrar.schemeToRemove) {
       type = 'SchemeRegistrarRemove'
     } else {

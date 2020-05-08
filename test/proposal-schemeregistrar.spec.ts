@@ -95,45 +95,6 @@ describe('Proposal', () => {
     //TODO: how to create a plugin?
     expect(registeredPluginsAddresses).toContain(pluginToRegister)
 
-    // we create a new proposal now to edit the scheme
-
-    const schemeRegistrarPlugin = registeredPlugins.find((rp: AnyPlugin) => rp instanceof (SchemeRegistrarPlugin)) as SchemeRegistrarPlugin
-
-    const editProposalOptions: IProposalCreateOptionsSR = {
-      dao: dao.id,
-      descriptionHash: '',
-      parametersHash: '0x0000000000000000000000000000000000000000000000000000000000001234',
-      permissions: '0x0000001f',
-      plugin: getTestScheme("SchemeRegistrar"),
-      pluginToRegister: pluginToRegister.toLowerCase(),
-      proposalType: "SchemeRegistrarEdit"
-    }
-
-    const editTx = await schemeRegistrarPlugin.createProposal(editProposalOptions).send()
-
-    if(!editTx.result) throw new Error("Create proposal yielded no results")
-
-    const proposalToEdit = new SchemeRegistrarProposal(arc, editTx.result.id)
-
-    const proposalToEditStates: IProposalState[]  = []
-    proposalToEdit.state({}).subscribe((pState: IProposalState) => {
-      proposalToEditStates.push(pState)
-    })
-    const lastProposalToEditState = (): IProposalState => proposalToEditStates[proposalToEditStates.length - 1]
-
-    await waitUntilTrue(() => proposalToEditStates.length > 1)
-
-    expect(lastProposalToEditState()).toMatchObject({
-      decision: null,
-      // id: '0x11272ed228de85c4fd14ab467f1f8c6d6936ce3854e240f9a93c9deb95f243e6',
-      pluginRegistered: null,
-      pluginRemoved: null,
-      pluginToRegister,
-      pluginToRegisterPermission: '0x0000001f',
-      pluginToRemove: null
-    })
-    expect(lastProposalToEditState().type).toEqual('SchemeRegistrarEdit')
-
     // we now uregister the new scheme
 
     const removeProposalOptions: IProposalCreateOptionsSR = {
