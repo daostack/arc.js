@@ -13,6 +13,8 @@ import {
   IEntityRef,
   IProposalOutcome,
   isAddress,
+  Logger,
+  Plugins,
   Proposals
 } from './index'
 
@@ -172,6 +174,19 @@ export class Stake extends Entity<IStakeState> {
       outcome = IProposalOutcome.Fail
     } else {
       throw new Error(`Unexpected value for proposalStakes.outcome: ${item.outcome}`)
+    }
+
+    if (!Object.keys(Plugins).includes(item.proposal.scheme.name)) {
+      Logger.debug(
+        `Proposal's Plugin name '${item.proposal.scheme.name}' not supported. Instantiating it as Unknown Proposal.`
+      )
+      item.proposal.scheme.name = 'Unknown'
+    }
+
+    if (item.proposal.scheme.name === 'ContributionRewardExt') {
+      if (item.proposal.competition) {
+        item.proposal.scheme.name = 'Competition'
+      }
     }
 
     return {

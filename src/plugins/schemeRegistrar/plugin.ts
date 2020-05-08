@@ -125,8 +125,6 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {
     let msg: string
 
-    const pluginId = options.plugin ? options.plugin : this.id
-
     switch (options.proposalType) {
       case 'SchemeRegistrarAdd':
       case 'SchemeRegistrarEdit':
@@ -142,7 +140,7 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
         options.descriptionHash = await this.context.saveIPFSData(options)
 
         return {
-          contract: this.context.getContract(pluginId),
+          contract: this.context.getContract(options.plugin as string),
           method: 'proposeScheme',
           args: [options.pluginToRegister, options.permissions, options.descriptionHash]
         }
@@ -151,7 +149,7 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
         options.descriptionHash = await this.context.saveIPFSData(options)
 
         return {
-          contract: this.context.getContract(pluginId),
+          contract: this.context.getContract(options.plugin as string),
           method: 'proposeToRemoveScheme',
           args: [options.pluginToRegister, options.descriptionHash]
         }
