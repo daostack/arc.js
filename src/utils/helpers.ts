@@ -186,6 +186,8 @@ export function createGraphQlWhereQuery(where?: { [key: string]: string | string
     } else if (key.endsWith('_in') || key.endsWith('_not_in')) {
       value = JSON.stringify(value)
       result += `${key}: ${value}\n`
+    } else if (typeof value === "boolean") {
+      result += `${key}: ${value}\n`
     } else if (!value) {
       result += `${key}: ${value}\n`
     } else {

@@ -249,7 +249,7 @@ describe('Plugin Manager', () => {
     expect(newPluginAddresses).not.toContain(createdPlugin.coreState.address)
   })
 
-  it.only('Replaces an existing plugin', async () => {
+  it('Replaces an existing plugin', async () => {
     const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
     const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin
  
@@ -294,11 +294,12 @@ describe('Plugin Manager', () => {
 
     if(!createdPlugin.coreState) throw new Error('New Plugin has no state set')
 
-    // Replace plugin data
-
+    // Replace the created plugin
     const replaceProposalStates: IPluginManagerProposalState[] = []
     const lastReplaceProposalState = () => replaceProposalStates[replaceProposalStates.length - 1]
-    const pluginAddresses = (await dao.plugins().pipe(first()).toPromise()).map( p => {
+
+    // Store a list of already added plugins, so we can diff it to see if the new one was added
+    const pluginAddresses = (await dao.plugins().pipe(first()).toPromise()).map(p => {
       if(!p.coreState) throw new Error('Could not set Plugin state')
       return p.coreState.address
     })
@@ -330,8 +331,6 @@ describe('Plugin Manager', () => {
       editInitData.voteParamsHash
     ])
 
-    console.log(createdPlugin.coreState.address)
-
     const editOptions: IProposalCreateOptionsPM = {
       dao: dao.id,
       packageVersion: PACKAGE_VERSION,
@@ -347,29 +346,31 @@ describe('Plugin Manager', () => {
     const replaceProposal = new PluginManagerProposal(arc, tx.result.id)
 
     //Wait for indexation
-    replaceProposal.state({}).subscribe((pState) => {
+    const sub = replaceProposal.state({}).subscribe((pState) => {
       if(pState) {
         replaceProposalStates.push(pState)
       }
     })
 
     await waitUntilTrue(() => replaceProposalStates.length > 0)
-    
+
     //Vote for proposal to pass
     await voteProposal(arc, replaceProposal, dao)
 
     //Wait for execution
     await waitUntilTrue(() => lastReplaceProposalState().executionState === 1)
 
+    sub.unsubscribe()
+    await replaceProposal.fetchState()
+
     //Wait for node changes
 
     let newPlugins: ContributionRewardPlugin[] = []
-    let registeredAddresses: string[] = pluginAddresses
+    let registeredAddresses: string[] = []
 
-    dao.plugins().subscribe(plugins => {
+    dao.plugins({ where: { isRegistered: true } }).subscribe(plugins => {
 
       // If replacing plugin is found, push it
-
       const found = plugins.find( np => {
         if(!np.coreState) throw new Error('Could not set Plugin State')
         return !pluginAddresses.includes(np.coreState.address)
@@ -377,9 +378,8 @@ describe('Plugin Manager', () => {
 
       if(found)
       newPlugins.push(found as ContributionRewardPlugin)
-  
-      // If replaced plugin is removed, set the addresses array as the new registeredAddresses
 
+      // If replaced plugin is removed, set the addresses array as the new registeredAddresses
       const addresses = plugins.map(p => {
         if(!p.coreState) throw new Error('Could not set Plugin State')
         return p.coreState.address
@@ -388,13 +388,10 @@ describe('Plugin Manager', () => {
       registeredAddresses = addresses
 
       if(!createdPlugin.coreState) throw new Error('Plugin State not set')
-
-      console.log(createdPlugin.coreState.address)
-      console.log(addresses.includes(createdPlugin.coreState.address))
     })
 
     // Wait for replacing plugin indexation
-    await waitUntilTrue(() => newPlugins.length > 0)
+    await waitUntilTrue(() => newPlugins.length > 0 && registeredAddresses.length > 0)
 
     const replacingPlugin = newPlugins[0]
     if(!replacingPlugin.coreState) throw new Error('Could not set Plugin State')
@@ -410,8 +407,6 @@ describe('Plugin Manager', () => {
       activationTime: 0
     })
 
-    // TODO: This never happens. Plugin is never removed. But Replacing plugin is indeed added
-    // Wait for createdPluigin removal
     //@ts-ignore
     await waitUntilTrue(() => !registeredAddresses.includes(createdPlugin.coreState.address))
   })
