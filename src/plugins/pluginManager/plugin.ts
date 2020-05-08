@@ -90,7 +90,7 @@ export class PluginManagerPlugin extends ProposalPlugin<
       
       options.descriptionHash = await this.context.saveIPFSData(options)
 
-      const pluginId = options.plugin ? options.plugin : this.id
+      const pluginId = (await this.fetchState()).address
 
       return {
         contract: this.context.getContract(pluginId),
