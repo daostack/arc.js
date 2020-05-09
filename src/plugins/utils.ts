@@ -16,14 +16,14 @@ import {
   IProposalCreateOptionsSR,
   IProposalState,
   Plugin,
+  PluginManagerPlugin,
+  PluginManagerProposal,
   Proposal,
   ProposalPlugin,
   ReputationFromTokenPlugin,
   SchemeRegistrarPlugin,
   SchemeRegistrarProposal,
-  UnknownPlugin,
-  PluginManagerProposal,
-  PluginManagerPlugin
+  UnknownPlugin
 } from '../index'
 
 export const ProposalPlugins = {

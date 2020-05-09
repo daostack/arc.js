@@ -2,14 +2,14 @@ import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
   Arc,
+  DAO,
   IApolloQueryOptions,
+  IEntityRef,
   IProposalState,
   Logger,
-  Proposal,
-  IEntityRef,
   Plugin,
-  DAO,
-  PluginManagerPlugin
+  PluginManagerPlugin,
+  Proposal
 } from '../../index'
 
 export interface IPluginManagerProposalState extends IProposalState {
@@ -57,7 +57,7 @@ export class PluginManagerProposal extends Proposal<IPluginManagerProposalState>
     queriedId?: string
   ): IPluginManagerProposalState | null {
     if (!item) {
-      Logger.debug(`PluginManagerProposal ItemMap failed. 
+      Logger.debug(`PluginManagerProposal ItemMap failed.
         ${queriedId && `Could not find PluginManagerProposal with id '${queriedId}'`}`)
       return null
     }

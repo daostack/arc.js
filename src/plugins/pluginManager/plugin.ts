@@ -4,6 +4,7 @@ import {
   Arc,
   getEventArgs,
   IGenesisProtocolParams,
+  IPluginManagerProposalState,
   IPluginState,
   IProposalBaseCreateOptions,
   ITransaction,
@@ -11,10 +12,9 @@ import {
   Logger,
   mapGenesisProtocolParams,
   Plugin,
-  ProposalPlugin,
-  transactionResultHandler,
   PluginManagerProposal,
-  IPluginManagerProposalState
+  ProposalPlugin,
+  transactionResultHandler
 } from '../../index'
 
 export interface IPluginManagerState extends IPluginState {
@@ -87,7 +87,7 @@ export class PluginManagerPlugin extends ProposalPlugin<
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsPM): Promise<ITransaction> {
-      
+
       options.descriptionHash = await this.context.saveIPFSData(options)
 
       const pluginId = (await this.fetchState()).address
