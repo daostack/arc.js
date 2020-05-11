@@ -12,12 +12,12 @@ import {
 } from '../src/index'
 import {
   fromWei,
-  getTestAddresses,
   newArc,
   newArcWithoutEthereum,
   newArcWithoutGraphql,
   toWei,
-  waitUntilTrue
+  waitUntilTrue,
+  getTestAddresses
 } from './utils'
 
 jest.setTimeout(20000)

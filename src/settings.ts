@@ -9,3 +9,5 @@ export const REDEEMER_CONTRACT_VERSIONS = [
 export const CONTRIBUTION_REWARD_DUMMY_VERSION = LATEST_ARC_VERSION
 // export const ABI_DIR = path.resolve('./node_modules/@daostack/migration/contracts-optimized')
 export const ABI_DIR = './abis'
+export const LATEST_ARC_VERSION = '0.1.1-rc.16'
+export const PACKAGE_VERSION = [0, 1, 16]
