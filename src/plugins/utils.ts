@@ -17,21 +17,21 @@ import {
   IProposalCreateOptionsFundingRequest,
   IProposalCreateOptionsGS,
   IProposalCreateOptionsJoinAndQuit,
+  IProposalCreateOptionsPM,
   IProposalCreateOptionsSR,
   IProposalState,
   JoinAndQuit,
   JoinAndQuitProposal,
   Plugin,
+  PluginManagerPlugin,
+  PluginManagerProposal,
   Proposal,
   ProposalPlugin,
   ReputationFromTokenPlugin,
   SchemeRegistrarPlugin,
   SchemeRegistrarProposal,
   UnknownPlugin,
-  PluginManagerPlugin,
-  UnknownProposal,
-  PluginManagerProposal,
-  IProposalCreateOptionsPM
+  UnknownProposal
 } from '../index'
 
 export const ProposalPlugins = {
