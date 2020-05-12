@@ -5,6 +5,7 @@ import 'ethers/dist/shims'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
+import { first } from 'rxjs/operators'
 import {
   ABI_DIR,
   Address,
@@ -30,8 +31,6 @@ import {
   Logger,
   Operation,
   Plugin,
-  PluginName,
-  Plugins,
   Proposal,
   Reward,
   sendTransaction,
@@ -215,10 +214,6 @@ export class Arc extends GraphNodeObserver {
     return Tag.search(this, options, apolloQueryOptions)
   }
 
-  public plugin(id: string, name: PluginName): AnyPlugin {
-    return new Plugins[name](this, id)
-  }
-
   public plugins(
     options: IPluginQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
@@ -231,6 +226,24 @@ export class Arc extends GraphNodeObserver {
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Observable<AnyProposal[]> {
     return Proposal.search(this, options, apolloQueryOptions)
+  }
+
+  public async plugin(options: IPluginQueryOptions): Promise<AnyPlugin> {
+    const plugins = await this.plugins(options).pipe(first()).toPromise()
+    if (plugins.length === 1) {
+      return plugins[0]
+    } else {
+      throw Error('Could not find a unique plugin satisfying these options')
+    }
+  }
+
+  public async proposal(options: IPluginQueryOptions): Promise<AnyProposal> {
+    const proposals = await this.proposals(options).pipe(first()).toPromise()
+    if (proposals.length === 1) {
+      return proposals[0]
+    } else {
+      throw Error('Could not find a unique proposal satisfying these options')
+    }
   }
 
   public events(
