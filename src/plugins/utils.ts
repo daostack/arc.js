@@ -17,19 +17,22 @@ import {
   IProposalCreateOptionsFundingRequest,
   IProposalCreateOptionsGS,
   IProposalCreateOptionsJoinAndQuit,
+  IProposalCreateOptionsPM,
   IProposalCreateOptionsSR,
   IProposalState,
   JoinAndQuit,
   JoinAndQuitProposal,
   Plugin,
+  PluginManagerPlugin,
+  PluginManagerProposal,
   Proposal,
   ProposalPlugin,
   ReputationFromTokenPlugin,
   SchemeRegistrarPlugin,
   SchemeRegistrarProposal,
-  UnknownPlugin
+  UnknownPlugin,
+  UnknownProposal
 } from '../index'
-import { UnknownProposal } from './unknownProposal'
 
 export const ProposalPlugins = {
   FundingRequest,
@@ -39,6 +42,7 @@ export const ProposalPlugins = {
   ContributionReward: ContributionRewardPlugin,
   ContributionRewardExt: ContributionRewardExtPlugin,
   Competition: CompetitionPlugin,
+  SchemeFactory: PluginManagerPlugin,
   Unknown: UnknownPlugin
 }
 
@@ -61,6 +65,7 @@ export const Proposals = {
   SchemeRegistrarAdd: SchemeRegistrarProposal,
   SchemeRegistrarEdit: SchemeRegistrarProposal,
   SchemeRegistrarRemove: SchemeRegistrarProposal,
+  SchemeFactory: PluginManagerProposal,
   Unknown: UnknownProposal
 }
 
@@ -73,7 +78,8 @@ export type ProposalCreateOptions =
   IProposalCreateOptionsComp |
   IProposalCreateOptionsCR |
   IProposalCreateOptionsFundingRequest |
-  IProposalCreateOptionsJoinAndQuit
+  IProposalCreateOptionsJoinAndQuit |
+  IProposalCreateOptionsPM
 
 export abstract class AnyProposal extends Proposal<IProposalState> { }
 export abstract class AnyPlugin extends Plugin<IPluginState> { }

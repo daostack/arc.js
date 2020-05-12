@@ -12,12 +12,13 @@ import {
 } from '../src/index'
 import {
   fromWei,
-  getTestAddresses,
   newArc,
   newArcWithoutEthereum,
   newArcWithoutGraphql,
   toWei,
-  waitUntilTrue
+  waitUntilTrue,
+  getTestAddresses,
+  getTestScheme
 } from './utils'
 
 jest.setTimeout(20000)
@@ -204,9 +205,12 @@ describe('Arc ', () => {
 
   it('arc.plugin() should work', async () => {
     const arc = await newArc()
-    const pluginId = '0x124355'
-    const plugin = await arc.plugin(pluginId, 'GenericScheme')
-    expect(plugin).toBeInstanceOf(Plugin)
+    const nonUniquePlugin = await arc.plugin({where: { name: 'GenericScheme' }})
+    const uniquePlugin = await arc.plugin({where: { address: getTestScheme('GenericScheme') }}, true)
+
+    expect(nonUniquePlugin).toBeInstanceOf(Plugin)
+    expect(uniquePlugin).toBeInstanceOf(Plugin)
+    await expect(arc.plugin({where: { name: 'ContributionReward' }}, true)).rejects.toThrow()
   })
 
   it('arc.plugins() should work', async () => {

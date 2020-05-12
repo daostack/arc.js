@@ -88,6 +88,14 @@ describe('Proposal', () => {
     expect(state1.createdAt as number).toBeLessThanOrEqual(state2.createdAt as number)
   })
 
+  it('proposal.create works and deduces type correctly', async () => {
+    const crProposal = (await Proposal.search(arc, { where: {type: "ContributionReward"}}).pipe(first()).toPromise())[0]
+
+    const created = await Proposal.create(arc, crProposal.id)
+
+    expect(created).toBeInstanceOf(ContributionRewardProposal)
+  })
+
   it('proposal.search() accepts expiresInQueueAt argument', async () => {
     const l1 = await Proposal.search(arc, { where: {expiresInQueueAt_gt: 0}}).pipe(first()).toPromise()
     expect(l1.length).toBeGreaterThan(0)

@@ -99,48 +99,41 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       ${Plugin.baseFragment}
     `
 
-    const itemMap = (arc: Arc, item: any, queriedId?: string): AnyPlugin | null => {
-      if (!options.where) {
-        options.where = {}
-      }
-
-      if (!Object.keys(Plugins).includes(item.name)) {
-        Logger.debug(
-          `Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`
-        )
-
-        const state = Plugins.Unknown.itemMap(arc, item, queriedId)
-        if (!state) {
-          return null
-        }
-
-        return new Plugins.Unknown(arc, state)
-      } else {
-        if (item.name === 'ContributionRewardExt') {
-          // Determine what type of plugin this is
-          const rewarder = item.contributionRewardExtParams.rewarder
-
-          try {
-            if (arc.getContractInfo(rewarder).name === 'Competition') {
-              item.name = 'Competition'
-            }
-          } catch (err) {
-            // Continue as usual, creating a ContributionRewardExt class
-          }
-        }
-
-        const state: IPluginState = Plugins[item.name].itemMap(arc, item, queriedId)
-        if (!state) {
-          return null
-        }
-
-        return new Plugins[item.name](arc, state)
-      }
-    }
-
-    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as Observable<
+    return context.getObservableList(
+        context,
+        query,
+        Plugin.deduceTypeAndCreate,
+        options.where?.id,
+        apolloQueryOptions
+      ) as Observable<
       Array<Plugin<TPluginState>>
     >
+  }
+
+  public static async create(context: Arc, id: string): Promise<AnyPlugin> {
+    const query = gql`query SchemeStateById
+      {
+        controllerScheme (id: "${id}") {
+          ...PluginFields
+        }
+      }
+      ${Plugin.baseFragment}
+    `
+    const observable = context.getObservableObject(
+      context,
+      query,
+      Plugin.deduceTypeAndCreate,
+      id,
+      {}
+    ) as Observable<AnyPlugin | null>
+
+    const result = await observable.pipe(first()).toPromise()
+
+    if (!result) {
+      throw new Error(`Plugin with id '${id}' does not exist or is not indexed`)
+    }
+
+    return result
   }
 
   public static calculateId(opts: {
@@ -189,6 +182,41 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     }
   }
   private static baseFragmentField: DocumentNode | undefined
+
+  private static deduceTypeAndCreate(context: Arc, item: any, queriedId?: string): AnyPlugin | null {
+    if (!Object.keys(Plugins).includes(item.name)) {
+      Logger.debug(
+        `Plugin name '${item.name}' not supported. Instantiating it as Unknown Plugin.`
+      )
+
+      const state = Plugins.Unknown.itemMap(context, item, queriedId)
+      if (!state) {
+        return null
+      }
+
+      return new Plugins.Unknown(context, state)
+    } else {
+      if (item.name === 'ContributionRewardExt') {
+        // Determine what type of plugin this is
+        const rewarder = item.contributionRewardExtParams.rewarder
+
+        try {
+          if (context.getContractInfo(rewarder).name === 'Competition') {
+            item.name = 'Competition'
+          }
+        } catch (err) {
+          // Continue as usual, creating a ContributionRewardExt class
+        }
+      }
+
+      const state: IPluginState = Plugins[item.name].itemMap(context, item, queriedId)
+      if (!state) {
+        return null
+      }
+
+      return new Plugins[item.name](context, state)
+    }
+  }
 
   // @ts-ignore
   public 'constructor': typeof Plugin

@@ -203,11 +203,38 @@ export class DAO extends Entity<IDAOState> {
   }
 
   public async plugin(options: IPluginQueryOptions): Promise<AnyPlugin> {
-    const plugins = await this.plugins(options).pipe(first()).toPromise()
+
+    const opts = {
+      ...options,
+      where: {
+        ...options.where,
+        dao: this.id
+      }
+    }
+
+    const plugins = await this.plugins(opts).pipe(first()).toPromise()
     if (plugins.length === 1) {
       return plugins[0]
     } else {
       throw Error('Could not find a unique plugin satisfying these options')
+    }
+  }
+
+  public async proposal(options: IProposalQueryOptions): Promise<AnyProposal> {
+
+    const opts = {
+      ...options,
+      where: {
+        ...options.where,
+        dao: this.id
+      }
+    }
+
+    const proposals = await this.proposals(opts).pipe(first()).toPromise()
+    if (proposals.length === 1) {
+      return proposals[0]
+    } else {
+      throw Error('Could not find a unique proposal satisfying these options')
     }
   }
 

@@ -32,6 +32,7 @@ import {
   mapGenesisProtocolParams,
   NULL_ADDRESS,
   Operation,
+  Plugin,
   Plugins,
   ProposalName,
   Proposals,
@@ -42,7 +43,6 @@ import {
   toIOperationObservable,
   Vote
 } from '../index'
-import { Plugin } from './plugin'
 
 export enum IProposalOutcome {
   None,
@@ -254,36 +254,6 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
   ): Observable<Array<Proposal<TProposalState>>> {
     let where = ''
 
-    const itemMap = (arc: Arc, r: any, queriedId?: string) => {
-
-      if (!Object.keys(Plugins).includes(r.scheme.name)) {
-        Logger.debug(
-          `Proposal's Plugin name '${r.scheme.name}' not supported. Instantiating it as Unknown Proposal.`
-        )
-
-        const proposalState = Proposals.Unknown.itemMap(arc, r, queriedId)
-        if (!proposalState) {
-          return null
-        }
-
-        return new Proposals.Unknown(arc, proposalState)
-      }
-
-      if (r.scheme.name === 'ContributionRewardExt') {
-        if (r.competition) {
-          r.scheme.name = 'Competition'
-        }
-      }
-
-      const state: IProposalState = Proposals[r.scheme.name].itemMap(arc, r, queriedId)
-
-      if (!state) {
-        return null
-      }
-
-      return new Proposals[r.scheme.name](arc, state)
-    }
-
     if (!options.where) {
       options.where = {}
     }
@@ -344,9 +314,49 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       ${Proposal.baseFragment}
     `
 
-    return context.getObservableList(context, query, itemMap, options.where?.id, apolloQueryOptions) as IObservable<
+    return context.getObservableList(
+        context,
+        query,
+        Proposal.deduceTypeAndCreate,
+        options.where?.id,
+        apolloQueryOptions
+      ) as IObservable<
       Array<Proposal<TProposalState>>
     >
+  }
+
+  public static async create(context: Arc, id: string): Promise<AnyProposal> {
+    const query = gql`query ProposalState
+    {
+      proposal(id: "${id}") {
+        ...ProposalFields
+        votes {
+          id
+        }
+        stakes {
+          id
+        }
+      }
+    }
+    ${Proposal.baseFragment}
+    ${Plugin.baseFragment}
+  `
+
+    const observable = context.getObservableObject(
+    context,
+    query,
+    Proposal.deduceTypeAndCreate,
+    id,
+    {}
+  ) as Observable<AnyProposal | null>
+
+    const result = await observable.pipe(first()).toPromise()
+
+    if (!result) {
+      throw new Error(`Proposal with id '${id}' does not exist or is not indexed`)
+    }
+
+    return result
   }
 
   public static calculateId(address: Address, proposalCount: number) {
@@ -494,6 +504,35 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     }
   }
   private static baseFragmentField: DocumentNode | undefined
+
+  private static deduceTypeAndCreate(context: Arc, item: any, queriedId?: string): AnyProposal | null {
+    if (!Object.keys(Plugins).includes(item.scheme.name)) {
+      Logger.debug(
+        `Proposal's Plugin name '${item.scheme.name}' not supported. Instantiating it as Unknown Proposal.`
+      )
+
+      const proposalState = Proposals.Unknown.itemMap(context, item, queriedId)
+      if (!proposalState) {
+        return null
+      }
+
+      return new Proposals.Unknown(context, proposalState)
+    }
+
+    if (item.scheme.name === 'ContributionRewardExt') {
+      if (item.competition) {
+        item.scheme.name = 'Competition'
+      }
+    }
+
+    const state: IProposalState = Proposals[item.scheme.name].itemMap(context, item, queriedId)
+
+    if (!state) {
+      return null
+    }
+
+    return new Proposals[item.scheme.name](context, state)
+  }
 
   public abstract state(apolloQueryOptions: IApolloQueryOptions): Observable<TProposalState>
 
