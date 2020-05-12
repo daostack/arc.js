@@ -220,7 +220,7 @@ export class DAO extends Entity<IDAOState> {
     }
   }
 
-  public async proposal(options: IPluginQueryOptions): Promise<AnyProposal> {
+  public async proposal(options: IProposalQueryOptions): Promise<AnyProposal> {
 
     const opts = {
       ...options,
