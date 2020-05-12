@@ -77,6 +77,19 @@ describe('Plugin', () => {
     expect(result.length).toBeGreaterThan(1)
   })
 
+  it('Plugin.create works and deduces type correctly', async () => {
+    const dao = await getTestDAO()
+    const result = await Plugin
+      .search(arc, {where: {dao: dao.id, name: 'ContributionReward'}})
+      .pipe(first()).toPromise()
+
+    const plugin = result[0]
+
+    const created = await Plugin.create(arc, plugin.id)
+
+    expect(created).toBeInstanceOf(ContributionRewardPlugin)
+  })
+
   it('Plugin.state() is working for ContributionReward plugins', async () => {
     const dao = await getTestDAO()
     const result = await Plugin

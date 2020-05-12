@@ -228,21 +228,21 @@ export class Arc extends GraphNodeObserver {
     return Proposal.search(this, options, apolloQueryOptions)
   }
 
-  public async plugin(options: IPluginQueryOptions): Promise<AnyPlugin> {
+  public async plugin(options: IPluginQueryOptions, unique?: boolean): Promise<AnyPlugin> {
     const plugins = await this.plugins(options).pipe(first()).toPromise()
-    if (plugins.length === 1) {
-      return plugins[0]
-    } else {
+    if (plugins.length !== 1 && unique) {
       throw Error('Could not find a unique plugin satisfying these options')
+    } else {
+      return plugins[0]
     }
   }
 
-  public async proposal(options: IPluginQueryOptions): Promise<AnyProposal> {
+  public async proposal(options: IPluginQueryOptions, unique?: boolean): Promise<AnyProposal> {
     const proposals = await this.proposals(options).pipe(first()).toPromise()
-    if (proposals.length === 1) {
-      return proposals[0]
-    } else {
+    if (proposals.length !== 1 && unique) {
       throw Error('Could not find a unique proposal satisfying these options')
+    } else {
+      return proposals[0]
     }
   }
 
