@@ -95,12 +95,10 @@ export class GenericPlugin extends ProposalPlugin<
       throw new Error(`Missing argument "value" for GenericPlugin in Proposal.create()`)
     }
 
-    const pluginId = options.plugin ? options.plugin : this.id
-
     options.descriptionHash = await this.context.saveIPFSData(options)
 
     return {
-      contract: this.context.getContract(pluginId),
+      contract: this.context.getContract(options.plugin as string),
       method: 'proposeCall',
       args: [options.callData, options.value, options.descriptionHash]
     }
