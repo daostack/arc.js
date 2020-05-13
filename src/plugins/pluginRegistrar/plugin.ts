@@ -4,15 +4,15 @@ import {
   Arc,
   getEventArgs,
   IGenesisProtocolParams,
+  IPluginRegistrarProposalState,
   IPluginState,
   IProposalBaseCreateOptions,
-  IPluginRegistrarProposalState,
   ITransaction,
   ITransactionReceipt,
   Logger,
   mapGenesisProtocolParams,
-  ProposalPlugin,
-  PluginRegistrarProposal
+  PluginRegistrarProposal,
+  ProposalPlugin
 } from '../../index'
 
 export interface IPluginRegistrarState extends IPluginState {

@@ -25,11 +25,11 @@ import {
   Plugin,
   PluginManagerPlugin,
   PluginManagerProposal,
+  PluginRegistrarPlugin,
+  PluginRegistrarProposal,
   Proposal,
   ProposalPlugin,
   ReputationFromTokenPlugin,
-  PluginRegistrarPlugin,
-  PluginRegistrarProposal,
   UnknownPlugin,
   UnknownProposal
 } from '../index'

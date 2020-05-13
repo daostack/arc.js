@@ -8,9 +8,9 @@ import {
   IProposalState,
   Logger,
   Plugin,
+  PluginRegistrarPlugin,
   Proposal,
-  ProposalName,
-  PluginRegistrarPlugin
+  ProposalName
 } from '../../index'
 
 export interface IPluginRegistrarProposalState extends IProposalState {
