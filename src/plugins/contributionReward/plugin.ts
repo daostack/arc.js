@@ -37,6 +37,14 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
   periods?: any
 }
 
+export interface InitParamsCR {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+}
+
 export class ContributionRewardPlugin extends ProposalPlugin<
   IContributionRewardState,
   IContributionRewardProposalState,

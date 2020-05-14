@@ -89,6 +89,8 @@ describe('Plugin Manager', () => {
     arc = await newArc()
   })
 
+//TODO: Refactor tests for new interface
+
   it('Creates a plugin', async () => {
     const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
     const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin

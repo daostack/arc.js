@@ -44,6 +44,10 @@ export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   votingStartTime: Date
 }
 
+export interface InitParamsCompetition {
+  contributionRewardExt: string
+}
+
 export class CompetitionPlugin extends ProposalPlugin<
   IContributionRewardExtState,
   ICompetitionProposalState,

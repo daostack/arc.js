@@ -37,6 +37,17 @@ export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions 
   proposer: Address
 }
 
+export interface InitParamsCRExt {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  daoFactory: string,
+  packageVersion: number[]
+  rewarderName: string
+}
+
 export class ContributionRewardExtPlugin extends ProposalPlugin<
   IContributionRewardExtState,
   IContributionRewardExtProposalState,

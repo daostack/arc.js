@@ -23,6 +23,17 @@ export interface IPluginRegistrarState extends IPluginState {
   }
 }
 
+export interface InitParamsSR {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalfRegister: string
+  voteRegisterParamsHash: string
+  votingParamsRemove: number[]
+  voteOnBehalfRemove: string
+  voteRemoveParamsHash: string
+}
+
 export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
   proposalType: 'SchemeRegistrarAdd' | 'SchemeRegistrarRemove'
   parametersHash?: string

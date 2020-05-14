@@ -37,6 +37,20 @@ export interface IProposalCreateOptionsJoinAndQuit extends IProposalBaseCreateOp
   fee: BN
 }
 
+export interface InitParamsJQ {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  fundingToken: string,
+  minFeeToJoin: number
+  memberReputation: number
+  fundingGoal: number
+  fundingGoalDeadline: number
+  rageQuitEnable: boolean
+}
+
 export class JoinAndQuit extends ProposalPlugin<
   IJoinAndQuitState,
   IJoinAndQuitProposalState,

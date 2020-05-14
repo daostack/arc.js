@@ -11,6 +11,12 @@ import {
   toIOperationObservable
 } from '../../index'
 
+export interface InitParamsRT {
+  daoId: string
+  tokenContract: string
+  curveInterface: string
+}
+
 export class ReputationFromTokenPlugin extends Plugin<IPluginState> {
   public static itemMap(context: Arc, item: any, queriedId?: string): IPluginState | null {
     if (!item) {

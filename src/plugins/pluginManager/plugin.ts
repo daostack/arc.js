@@ -14,8 +14,11 @@ import {
   Plugin,
   PluginManagerProposal,
   ProposalPlugin,
-  transactionResultHandler
+  transactionResultHandler,
+  InitParams,
+  LATEST_ARC_VERSION
 } from '../../index'
+import { Interface } from 'ethers/utils'
 
 export interface IPluginManagerState extends IPluginState {
   pluginParams: {
@@ -25,12 +28,24 @@ export interface IPluginManagerState extends IPluginState {
   }
 }
 
-export interface IProposalCreateOptionsPM extends IProposalBaseCreateOptions {
+//TODO: Type inference
+export interface IProposalCreateOptionsPM
+//<TName extends keyof InitParams> 
+extends IProposalBaseCreateOptions {
   packageVersion: number[]
   permissions: string
-  pluginName: string
-  pluginData: string
+  pluginName: keyof InitParams
+  pluginData: any
   pluginToReplace?: string
+}
+
+export interface InitParamsPM {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  daoFactory: string
 }
 
 export class PluginManagerPlugin extends ProposalPlugin<
@@ -92,13 +107,16 @@ export class PluginManagerPlugin extends ProposalPlugin<
 
       const pluginId = (await this.fetchState()).address
 
+      const abiInterface = new Interface(this.context.getABI({ abiName: options.pluginName, version: LATEST_ARC_VERSION }))
+      const pluginData = abiInterface.functions.initialize.encode(options.pluginData)
+
       return {
         contract: this.context.getContract(pluginId),
         method: 'proposeScheme',
         args: [
           options.packageVersion,
           options.pluginName,
-          options.pluginData,
+          pluginData,
           options.permissions,
           options.pluginToReplace,
           options.descriptionHash

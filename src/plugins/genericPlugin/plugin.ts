@@ -30,6 +30,15 @@ export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   value?: number
 }
 
+export interface InitParamsGS {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  contractToCall: string
+}
+
 export class GenericPlugin extends ProposalPlugin<
   IGenericPluginState,
   IGenericPluginProposalState,

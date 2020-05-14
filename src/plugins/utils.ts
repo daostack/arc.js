@@ -31,7 +31,16 @@ import {
   ProposalPlugin,
   ReputationFromTokenPlugin,
   UnknownPlugin,
-  UnknownProposal
+  UnknownProposal,
+  InitParamsGS,
+  InitParamsCR,
+  InitParamsFR,
+  InitParamsCRExt,
+  InitParamsCompetition,
+  InitParamsJQ,
+  InitParamsPM,
+  InitParamsSR,
+  InitParamsRT
 } from '../index'
 
 export const ProposalPlugins = {
@@ -66,6 +75,18 @@ export const Proposals = {
   SchemeRegistrarRemove: PluginRegistrarProposal,
   SchemeFactory: PluginManagerProposal,
   Unknown: UnknownProposal
+}
+
+export type InitParams = {
+  GenericScheme: InitParamsGS,
+  ContributionReward: InitParamsCR,
+  Competition: InitParamsCompetition,
+  ContributionRewardExt: InitParamsCRExt,
+  FundingRequest: InitParamsFR,
+  JoinAndQuit: InitParamsJQ,
+  SchemeRegistrar: InitParamsSR,
+  SchemeFactory: InitParamsPM,
+  ReputationFromToken: InitParamsRT
 }
 
 export type ProposalName = keyof typeof Proposals

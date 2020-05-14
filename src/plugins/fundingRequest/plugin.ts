@@ -35,6 +35,15 @@ export interface IProposalCreateOptionsFundingRequest extends IProposalBaseCreat
   descriptionHash: string
 }
 
+export interface InitParamsFR {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  fundingToken: string
+}
+
 export class FundingRequest
   extends ProposalPlugin<IFundingRequestState, IFundingRequestProposalState, IProposalCreateOptionsFundingRequest> {
 
