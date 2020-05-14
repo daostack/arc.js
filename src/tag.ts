@@ -77,7 +77,13 @@ export class Tag extends Entity<ITagState> {
       key = key.replace('Plugin', 'Scheme')
       options.where[key] = value
 
-      where += `${key}: "${options.where[key] as string}"\n`
+      if (Array.isArray(options.where[key])) {
+        // Support for operators like _in
+        const values = options.where[key].map((val: number) => '"' + val + '"')
+        where += `${key}: [${values.join(',')}]\n`
+      } else {
+        where += `${key}: "${options.where[key] as string}"\n`
+      }
     }
 
     let query: DocumentNode
