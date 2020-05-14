@@ -98,7 +98,13 @@ export class Member extends Entity<IMemberState> {
           options.where[key] = option.toLowerCase()
         }
 
-        where += `${key}: "${options.where[key] as string}"\n`
+        if (Array.isArray(options.where[key])) {
+          // Support for operators like _in
+          const values = options.where[key].map((val: number) => '"' + val + '"')
+          where += `${key}: [${values.join(',')}]\n`
+        } else {
+          where += `${key}: "${options.where[key] as string}"\n`
+        }
       }
       where += ' dao_not: null\n'
 
@@ -149,8 +155,6 @@ export class Member extends Entity<IMemberState> {
 
     if (this.id) {
       query = gql`query ReputionHolderStateFromId {
-          # contract: ${this.coreState && this.coreState.contract}
-          # address: ${this.coreState && this.coreState.address}
           reputationHolder (
               id: "${this.id}"
           ) {
@@ -162,17 +166,37 @@ export class Member extends Entity<IMemberState> {
       return this.context.getObservableObject(
         this.context,
         query,
-        Member.itemMap,
+        (context: Arc, item: any, queryId?: string) => {
+          if (!item || !item.id) {
+            // we return a dummy object with 0 reputation
+            if (this.coreState) {
+              return {
+                id: this.coreState.id,
+                address: this.coreState.address,
+                dao: this.coreState.dao,
+                reputation: new BN(0)
+              }
+            } else {
+              throw Error(`No member with id ${this.id} was found`)
+            }
+          }
+          return Member.itemMap(context, item, queryId)
+        },
         this.id,
         apolloQueryOptions
       )
     } else {
       const state = this.coreState as IMemberState
+
+      if (!state.address || !state.dao) {
+        throw Error('Cannot fetch state on a member. Members must either have an ID, or an address + DAO address.')
+      }
+
       query = gql`query ReputationHolderStateFromDAOAndAddress {
           reputationHolders (
             where: {
               address: "${state.address}"
-              dao: "${state.dao}"
+              dao: "${state.dao.id}"
             }
           ) {
             ...ReputationHolderFields
@@ -180,22 +204,26 @@ export class Member extends Entity<IMemberState> {
         }
 
         ${Member.fragments.ReputationHolderFields}
-        `
+      `
     }
 
     return this.context.getObservableObject(
       this.context,
       query,
       (arc: Arc, items: any, queriedId?: string) => {
-        if (items.length) {
+        if (items.length === 0) {
           if (!this.coreState) {
             throw new Error('Member state is not set')
           }
 
-          return new Member(arc, this.coreState)
+          return {
+            address: this.coreState.address,
+            dao: this.coreState.dao,
+            reputaion: new BN(0)
+          }
+        } else {
+          return Member.itemMap(arc, items[0], queriedId)
         }
-
-        return Member.itemMap(arc, items[0], queriedId)
       },
       this.id,
       apolloQueryOptions

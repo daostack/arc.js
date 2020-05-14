@@ -313,7 +313,7 @@ export class GraphNodeObserver {
     const observable = this.getObservable(query, apolloQueryOptions).pipe(
       map((r: ApolloQueryResult<any>) => {
         if (!r.data[entity]) {
-          throw Error(`Could not find entity '${entity}' in ${Object.keys(r.data)}`)
+          throw Error(`Could not find entity '${entity}' in ${Object.keys(r.data)}\n${query.loc.source.body}`)
         }
         return r.data[entity]
       }),
@@ -355,7 +355,7 @@ export class GraphNodeObserver {
     return this.getObservable(query, apolloQueryOptions).pipe(
       map((r: ApolloQueryResult<object[]>) => {
         if (!r.data[entity]) {
-          throw Error(`Could not find ${entity} in ${r.data}`)
+          throw Error(`Could not find ${entity} in ${r.data}\n${query.loc.source.body}`)
         }
         return r.data[entity]
       }),
