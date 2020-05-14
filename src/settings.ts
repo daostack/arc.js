@@ -1,6 +1,6 @@
 // the version of the redeemer contract to use.
 // we can specify multiple versions, and try to find them in the order given
-export const LATEST_ARC_VERSION = '0.1.1-rc.16'
+export const LATEST_ARC_VERSION = '0.1.1-rc.18'
 //
 export const REDEEMER_CONTRACT_VERSIONS = [
   LATEST_ARC_VERSION
