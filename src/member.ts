@@ -155,8 +155,6 @@ export class Member extends Entity<IMemberState> {
 
     if (this.id) {
       query = gql`query ReputionHolderStateFromId {
-          # contract: ${this.coreState && this.coreState.contract}
-          # address: ${this.coreState && this.coreState.address}
           reputationHolder (
               id: "${this.id}"
           ) {
@@ -174,6 +172,11 @@ export class Member extends Entity<IMemberState> {
       )
     } else {
       const state = this.coreState as IMemberState
+
+      if (!state.address || !state.dao) {
+        throw Error("Cannot fetch state on a member. Members must either have an ID, or an address + DAO address.")
+      }
+
       query = gql`query ReputationHolderStateFromDAOAndAddress {
           reputationHolders (
             where: {
@@ -193,15 +196,15 @@ export class Member extends Entity<IMemberState> {
       this.context,
       query,
       (arc: Arc, items: any, queriedId?: string) => {
-        if (items.length) {
+        if (items.length === 0) {
           if (!this.coreState) {
             throw new Error('Member state is not set')
           }
 
           return new Member(arc, this.coreState)
+        } else {
+          return Member.itemMap(arc, items[0], queriedId)
         }
-
-        return Member.itemMap(arc, items[0], queriedId)
       },
       this.id,
       apolloQueryOptions
