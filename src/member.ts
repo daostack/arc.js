@@ -166,7 +166,22 @@ export class Member extends Entity<IMemberState> {
       return this.context.getObservableObject(
         this.context,
         query,
-        Member.itemMap,
+        (context: Arc, item: any, queryId?: string) => {
+          if (!item || !item.id) {
+            // we return a dummy object with 0 reputation
+            if (this.coreState) {
+              return {
+                id: this.coreState.id,
+                address: this.coreState.address,
+                dao: this.coreState.dao,
+                reputation: new BN(0)
+              }
+            } else {
+              throw Error(`No member with id ${this.id} was found`)
+            }
+          }
+          return Member.itemMap(context, item, queryId)
+        },
         this.id,
         apolloQueryOptions
       )
@@ -174,7 +189,7 @@ export class Member extends Entity<IMemberState> {
       const state = this.coreState as IMemberState
 
       if (!state.address || !state.dao) {
-        throw Error("Cannot fetch state on a member. Members must either have an ID, or an address + DAO address.")
+        throw Error('Cannot fetch state on a member. Members must either have an ID, or an address + DAO address.')
       }
 
       query = gql`query ReputationHolderStateFromDAOAndAddress {
@@ -189,7 +204,7 @@ export class Member extends Entity<IMemberState> {
         }
 
         ${Member.fragments.ReputationHolderFields}
-        `
+      `
     }
 
     return this.context.getObservableObject(
@@ -201,7 +216,11 @@ export class Member extends Entity<IMemberState> {
             throw new Error('Member state is not set')
           }
 
-          return new Member(arc, this.coreState)
+          return {
+            address: this.coreState.address,
+            dao: this.coreState.dao,
+            reputaion: new BN(0)
+          }
         } else {
           return Member.itemMap(arc, items[0], queriedId)
         }
