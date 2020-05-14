@@ -181,7 +181,7 @@ export class Member extends Entity<IMemberState> {
           reputationHolders (
             where: {
               address: "${state.address}"
-              dao: "${state.dao}"
+              dao: "${state.dao.id}"
             }
           ) {
             ...ReputationHolderFields
