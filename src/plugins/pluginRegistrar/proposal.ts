@@ -8,12 +8,12 @@ import {
   IProposalState,
   Logger,
   Plugin,
+  PluginRegistrarPlugin,
   Proposal,
-  ProposalName,
-  SchemeRegistrarPlugin
+  ProposalName
 } from '../../index'
 
-export interface ISchemeRegistrarProposalState extends IProposalState {
+export interface IPluginRegistrarProposalState extends IProposalState {
   id: string
   pluginToRegister: Address
   pluginToRegisterPermission: string
@@ -23,7 +23,7 @@ export interface ISchemeRegistrarProposalState extends IProposalState {
   pluginRemoved: boolean
 }
 
-export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalState> {
+export class PluginRegistrarProposal extends Proposal<IPluginRegistrarProposalState> {
 
   public static fragment = {
     name: 'SchemeRegistrarProposalFields',
@@ -50,9 +50,9 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
     context: Arc,
     item: any,
     queriedId?: string
-  ): ISchemeRegistrarProposalState | null {
+  ): IPluginRegistrarProposalState | null {
     if (!item) {
-      Logger.debug(`SchemeRegistrarProposal ItemMap failed. ${queriedId ? `Could not find SchemeRegistrarProposal with id '${queriedId}'` : ''}`)
+      Logger.debug(`PluginRegistrarProposal ItemMap failed. ${queriedId ? `Could not find PluginRegistrarProposal with id '${queriedId}'` : ''}`)
       return null
     }
 
@@ -60,37 +60,29 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
 
     if (item.schemeRegistrar.schemeToRegister) {
       // TODO: this is failing bc of https://github.com/daostack/subgraph/issues/224
-      if (
-        item.dao.schemes
-          .map((s: any) => s.address.toLowerCase())
-          .includes(item.schemeRegistrar.schemeToRegister.toLowerCase())
-      ) {
-        type = 'SchemeRegistrarEdit'
-      } else {
-        type = 'SchemeRegistrarAdd'
-      }
+      type = 'SchemeRegistrarAdd'
     } else if (item.schemeRegistrar.schemeToRemove) {
       type = 'SchemeRegistrarRemove'
     } else {
       throw Error(
-        `Unknown proposal type: schemeRegistrar without a scheme to register or to remove`
+        `Unknown proposal type: pluginRegistrar without a plugin to register or to remove`
       )
     }
 
-    const schemeRegistrarState = SchemeRegistrarPlugin.itemMap(context, item.scheme, queriedId)
+    const pluginRegistrarState = PluginRegistrarPlugin.itemMap(context, item.scheme, queriedId)
 
-    if (!schemeRegistrarState) {
+    if (!pluginRegistrarState) {
       return null
     }
 
-    const schemeRegistrar = new SchemeRegistrarPlugin(context, schemeRegistrarState)
-    const schemeRegistrarProposal = new SchemeRegistrarProposal(context, item.id)
+    const pluginRegistrar = new PluginRegistrarPlugin(context, pluginRegistrarState)
+    const pluginRegistrarProposal = new PluginRegistrarProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
       context,
       item,
-      schemeRegistrar,
-      schemeRegistrarProposal,
+      pluginRegistrar,
+      pluginRegistrarProposal,
       type
     )
 
@@ -109,7 +101,7 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
     }
   }
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<ISchemeRegistrarProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IPluginRegistrarProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {
@@ -129,9 +121,9 @@ export class SchemeRegistrarProposal extends Proposal<ISchemeRegistrarProposalSt
     return this.context.getObservableObject(
       this.context,
       query,
-      SchemeRegistrarProposal.itemMap,
+      PluginRegistrarProposal.itemMap,
       this.id,
       apolloQueryOptions
-    ) as Observable<ISchemeRegistrarProposalState>
+    ) as Observable<IPluginRegistrarProposalState>
   }
 }

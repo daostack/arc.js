@@ -25,11 +25,11 @@ import {
   Plugin,
   PluginManagerPlugin,
   PluginManagerProposal,
+  PluginRegistrarPlugin,
+  PluginRegistrarProposal,
   Proposal,
   ProposalPlugin,
   ReputationFromTokenPlugin,
-  SchemeRegistrarPlugin,
-  SchemeRegistrarProposal,
   UnknownPlugin,
   UnknownProposal
 } from '../index'
@@ -38,7 +38,7 @@ export const ProposalPlugins = {
   FundingRequest,
   JoinAndQuit,
   GenericScheme: GenericPlugin,
-  SchemeRegistrar: SchemeRegistrarPlugin,
+  SchemeRegistrar: PluginRegistrarPlugin,
   ContributionReward: ContributionRewardPlugin,
   ContributionRewardExt: ContributionRewardExtPlugin,
   Competition: CompetitionPlugin,
@@ -61,10 +61,9 @@ export const Proposals = {
   ContributionRewardExt: ContributionRewardExtProposal,
   FundingRequest: FundingRequestProposal,
   JoinAndQuit: JoinAndQuitProposal,
-  SchemeRegistrar: SchemeRegistrarProposal,
-  SchemeRegistrarAdd: SchemeRegistrarProposal,
-  SchemeRegistrarEdit: SchemeRegistrarProposal,
-  SchemeRegistrarRemove: SchemeRegistrarProposal,
+  SchemeRegistrar: PluginRegistrarProposal,
+  SchemeRegistrarAdd: PluginRegistrarProposal,
+  SchemeRegistrarRemove: PluginRegistrarProposal,
   SchemeFactory: PluginManagerProposal,
   Unknown: UnknownProposal
 }

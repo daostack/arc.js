@@ -4,18 +4,18 @@ import {
   Arc,
   getEventArgs,
   IGenesisProtocolParams,
+  IPluginRegistrarProposalState,
   IPluginState,
   IProposalBaseCreateOptions,
-  ISchemeRegistrarProposalState,
   ITransaction,
   ITransactionReceipt,
   Logger,
   mapGenesisProtocolParams,
-  ProposalPlugin,
-  SchemeRegistrarProposal
+  PluginRegistrarProposal,
+  ProposalPlugin
 } from '../../index'
 
-export interface ISchemeRegistrarState extends IPluginState {
+export interface IPluginRegistrarState extends IPluginState {
   pluginParams: {
     votingMachine: Address
     voteRemoveParams: IGenesisProtocolParams
@@ -24,15 +24,15 @@ export interface ISchemeRegistrarState extends IPluginState {
 }
 
 export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
-  proposalType: 'SchemeRegistrarAdd' | 'SchemeRegistrarEdit' | 'SchemeRegistrarRemove'
+  proposalType: 'SchemeRegistrarAdd' | 'SchemeRegistrarRemove'
   parametersHash?: string
   permissions?: string
   pluginToRegister?: Address
 }
 
-export class SchemeRegistrarPlugin extends ProposalPlugin<
-  ISchemeRegistrarState,
-  ISchemeRegistrarProposalState,
+export class PluginRegistrarPlugin extends ProposalPlugin<
+  IPluginRegistrarState,
+  IPluginRegistrarProposalState,
   IProposalCreateOptionsSR
 > {
   public static fragment = {
@@ -76,14 +76,14 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
     `
   }
 
-  public static itemMap(arc: Arc, item: any, queriedId?: string): ISchemeRegistrarState | null {
+  public static itemMap(arc: Arc, item: any, queriedId?: string): IPluginRegistrarState | null {
     if (!item) {
-      Logger.debug(`SchemeRegistrarPlugin ItemMap failed. ${queriedId ? `Could not find SchemeRegistrarPlugin with id '${queriedId}'` : ''}`)
+      Logger.debug(`PluginRegistrarPlugin ItemMap failed. ${queriedId ? `Could not find PluginRegistrarPlugin with id '${queriedId}'` : ''}`)
       return null
     }
 
     if (!item.schemeRegistrarParams) {
-      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as SchemeRegistrar Plugin`)
+      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as PluginRegistrar Plugin`)
     }
 
     let name = item.name
@@ -99,7 +99,7 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
       }
     }
 
-    const schemeRegistrarParams = {
+    const pluginRegistrarParams = {
       voteRegisterParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRegisterParams),
       voteRemoveParams: mapGenesisProtocolParams(item.schemeRegistrarParams.voteRemoveParams),
       votingMachine: item.schemeRegistrarParams.votingMachine
@@ -117,7 +117,7 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
       numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
       numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
       numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-      pluginParams: schemeRegistrarParams,
+      pluginParams: pluginRegistrarParams,
       version: item.version
     }
   }
@@ -127,13 +127,12 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
 
     switch (options.proposalType) {
       case 'SchemeRegistrarAdd':
-      case 'SchemeRegistrarEdit':
         if (options.parametersHash === undefined) {
-          msg = `Missing argument "parametersHash" for SchemeRegistrar in Proposal.create()`
+          msg = `Missing argument "parametersHash" for PluginRegistrar in Proposal.create()`
           throw Error(msg)
         }
         if (options.permissions === undefined) {
-          msg = `Missing argument "permissions" for SchemeRegistrar in Proposal.create()`
+          msg = `Missing argument "permissions" for PluginRegistrar in Proposal.create()`
           throw Error(msg)
         }
 
@@ -161,7 +160,6 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
       let eventName: string
       switch (options.proposalType) {
         case 'SchemeRegistrarAdd':
-        case 'SchemeRegistrarEdit':
           eventName = 'NewSchemeProposal'
           break
         case 'SchemeRegistrarRemove':
@@ -169,12 +167,12 @@ export class SchemeRegistrarPlugin extends ProposalPlugin<
           break
         default:
           throw Error(
-            `SchemeRegistrar.createProposal: Unknown proposal type ${options.proposalType}`
+            `PluginRegistrar.createProposal: Unknown proposal type ${options.proposalType}`
           )
       }
-      const args = getEventArgs(receipt, eventName, 'SchemeRegistrar.createProposal')
+      const args = getEventArgs(receipt, eventName, 'PluginRegistrar.createProposal')
       const proposalId = args[1]
-      return new SchemeRegistrarProposal(this.context, proposalId)
+      return new PluginRegistrarProposal(this.context, proposalId)
     }
   }
 }

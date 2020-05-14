@@ -4,7 +4,7 @@ import {
   IProposalStage,
   AnyPlugin,
   ContributionRewardPlugin,
-  SchemeRegistrarPlugin,
+  PluginRegistrarPlugin,
   GenericPlugin,
   ContributionRewardProposal,
   IContributionRewardState
@@ -111,7 +111,7 @@ describe('Plugin', () => {
       .search(arc, {where: {dao: dao.id, name: 'SchemeRegistrar'}})
       .pipe(first()).toPromise()
 
-    const plugin = result[0] as SchemeRegistrarPlugin
+    const plugin = result[0] as PluginRegistrarPlugin
     const state = await plugin.fetchState()
     expect(state).toMatchObject({
       address: getTestScheme("SchemeRegistrar").toLowerCase(),
