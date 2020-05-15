@@ -30,7 +30,7 @@ export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   value?: number
 }
 
-export interface InitParamsGS {
+export interface IInitParamsGS {
   daoId: string
   votingMachine: string
   votingParams: number[]
@@ -71,10 +71,10 @@ export class GenericPlugin extends ProposalPlugin<
     `
   }
 
-  public static initializeParamsMap(initParams: InitParamsGS) {
+  public static initializeParamsMap(initParams: IInitParamsGS) {
 
-    Object.keys(initParams).forEach(key => {
-      if(initParams[key] === undefined) {
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
         throw new Error(`GenericScheme's initialize parameter '${key}' cannot be undefined`)
       }
     })

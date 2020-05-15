@@ -37,7 +37,7 @@ export interface IProposalCreateOptionsJoinAndQuit extends IProposalBaseCreateOp
   fee: BN
 }
 
-export interface InitParamsJQ {
+export interface IInitParamsJQ {
   daoId: string
   votingMachine: string
   votingParams: number[]
@@ -93,10 +93,10 @@ export class JoinAndQuit extends ProposalPlugin<
     return this.fragmentField
   }
 
-  public static initializeParamsMap(initParams: InitParamsJQ) {
+  public static initializeParamsMap(initParams: IInitParamsJQ) {
 
-    Object.keys(initParams).forEach(key => {
-      if(initParams[key] === undefined) {
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
         throw new Error(`JoinAndQuit's initialize parameter '${key}' cannot be undefined`)
       }
     })

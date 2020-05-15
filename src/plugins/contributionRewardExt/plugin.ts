@@ -37,7 +37,7 @@ export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions 
   proposer: Address
 }
 
-export interface InitParamsCRExt {
+export interface IInitParamsCRExt {
   daoId: string
   votingMachine: string
   votingParams: number[]
@@ -82,10 +82,10 @@ export class ContributionRewardExtPlugin extends ProposalPlugin<
     `
   }
 
-  public static initializeParamsMap(initParams: InitParamsCRExt) {
+  public static initializeParamsMap(initParams: IInitParamsCRExt) {
 
-    Object.keys(initParams).forEach(key => {
-      if(initParams[key] === undefined) {
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
         throw new Error(`ContributionRewardExt's initialize parameter '${key}' cannot be undefined`)
       }
     })

@@ -23,7 +23,7 @@ export interface IPluginRegistrarState extends IPluginState {
   }
 }
 
-export interface InitParamsSR {
+export interface IInitParamsSR {
   daoId: string
   votingMachine: string
   votingParamsRegister: number[]
@@ -86,10 +86,10 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
     `
   }
 
-  public static initializeParamsMap(initParams: InitParamsSR) {
+  public static initializeParamsMap(initParams: IInitParamsSR) {
 
-    Object.keys(initParams).forEach(key => {
-      if(initParams[key] === undefined) {
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
         throw new Error(`PluginRegistrar's initialize parameter '${key}' cannot be undefined`)
       }
     })

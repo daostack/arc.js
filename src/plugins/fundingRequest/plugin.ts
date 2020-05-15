@@ -35,7 +35,7 @@ export interface IProposalCreateOptionsFundingRequest extends IProposalBaseCreat
   descriptionHash: string
 }
 
-export interface InitParamsFR {
+export interface IInitParamsFR {
   daoId: string
   votingMachine: string
   votingParams: number[]
@@ -80,10 +80,10 @@ export class FundingRequest
     return this.fragmentField
   }
 
-  public static initializeParamsMap(initParams: InitParamsFR) {
+  public static initializeParamsMap(initParams: IInitParamsFR) {
 
-    Object.keys(initParams).forEach(key => {
-      if(initParams[key] === undefined) {
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
         throw new Error(`FundingRequest's initialize parameter '${key}' cannot be undefined`)
       }
     })

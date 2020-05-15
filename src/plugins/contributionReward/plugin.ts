@@ -37,7 +37,7 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
   periods?: any
 }
 
-export interface InitParamsCR {
+export interface IInitParamsCR {
   daoId: string
   votingMachine: string
   votingParams: number[]
@@ -78,10 +78,10 @@ export class ContributionRewardPlugin extends ProposalPlugin<
     `
   }
 
-  public static initializeParamsMap(initParams: InitParamsCR) {
+  public static initializeParamsMap(initParams: IInitParamsCR) {
 
-    Object.keys(initParams).forEach(key => {
-      if(initParams[key] === undefined) {
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
         throw new Error(`ContributionReward's initialize parameter '${key}' cannot be undefined`)
       }
     })
@@ -94,7 +94,6 @@ export class ContributionRewardPlugin extends ProposalPlugin<
       initParams.voteParamsHash
     ]
   }
-
 
   public static itemMap(
     context: Arc,

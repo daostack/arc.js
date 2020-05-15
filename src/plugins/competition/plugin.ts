@@ -44,7 +44,7 @@ export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   votingStartTime: Date
 }
 
-export interface InitParamsCompetition {
+export interface IInitParamsCompetition {
   contributionRewardExt: string
 }
 
@@ -54,10 +54,10 @@ export class CompetitionPlugin extends ProposalPlugin<
   IProposalCreateOptionsComp
 > {
 
-  public static initializeParamsMap(initParams: InitParamsCompetition) {
+  public static initializeParamsMap(initParams: IInitParamsCompetition) {
 
-    Object.keys(initParams).forEach(key => {
-      if(initParams[key] === undefined) {
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
         throw new Error(`Competition's initialize parameter '${key}' cannot be undefined`)
       }
     })

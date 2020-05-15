@@ -1,25 +1,25 @@
+import { Interface } from 'ethers/utils'
 import gql from 'graphql-tag'
 import {
   Address,
   Arc,
   getEventArgs,
   IGenesisProtocolParams,
+  IInitParams,
   IPluginManagerProposalState,
   IPluginState,
   IProposalBaseCreateOptions,
   ITransaction,
   ITransactionReceipt,
+  LATEST_ARC_VERSION,
   Logger,
   mapGenesisProtocolParams,
   Plugin,
   PluginManagerProposal,
-  ProposalPlugin,
-  transactionResultHandler,
-  InitParams,
-  LATEST_ARC_VERSION,
   Plugins,
+  ProposalPlugin,
+  transactionResultHandler
 } from '../../index'
-import { Interface } from 'ethers/utils'
 
 export interface IPluginManagerState extends IPluginState {
   pluginParams: {
@@ -29,18 +29,18 @@ export interface IPluginManagerState extends IPluginState {
   }
 }
 
-//TODO: Type inference
+// TODO: Type inference
 export interface IProposalCreateOptionsPM
-//<TName extends keyof InitParams> 
+// <TName extends keyof IInitParams>
 extends IProposalBaseCreateOptions {
   packageVersion: number[]
   permissions: string
-  pluginName: keyof InitParams
+  pluginName: keyof IInitParams
   pluginInitializeParameters: any
   pluginToReplace?: string
 }
 
-export interface InitParamsPM {
+export interface IInitParamsPM {
   daoId: string
   votingMachine: string
   votingParams: number[]
@@ -81,10 +81,10 @@ export class PluginManagerPlugin extends ProposalPlugin<
     `
   }
 
-  public static initializeParamsMap(initParams: InitParamsPM) {
+  public static initializeParamsMap(initParams: IInitParamsPM) {
 
-    Object.keys(initParams).forEach(key => {
-      if(initParams[key] === undefined) {
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
         throw new Error(`PluginManager's initialize parameter '${key}' cannot be undefined`)
       }
     })
@@ -125,7 +125,10 @@ export class PluginManagerPlugin extends ProposalPlugin<
       options.descriptionHash = await this.context.saveIPFSData(options)
 
       const pluginId = (await this.fetchState()).address
-      const abiInterface = new Interface(this.context.getABI({ abiName: options.pluginName, version: LATEST_ARC_VERSION }))
+      const abiInterface = new Interface(this.context.getABI({
+        abiName: options.pluginName,
+        version: LATEST_ARC_VERSION
+      }))
 
       const initializeParams = Plugins[options.pluginName].initializeParamsMap(options.pluginInitializeParameters)
       const pluginData = abiInterface.functions.initialize.encode(initializeParams)

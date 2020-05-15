@@ -11,7 +11,7 @@ import {
   toIOperationObservable
 } from '../../index'
 
-export interface InitParamsRT {
+export interface IInitParamsRT {
   daoId: string
   tokenContract: string
   curveInterface: string
@@ -19,10 +19,10 @@ export interface InitParamsRT {
 
 export class ReputationFromTokenPlugin extends Plugin<IPluginState> {
 
-  public static initializeParamsMap(initParams: InitParamsRT) {
+  public static initializeParamsMap(initParams: IInitParamsRT) {
 
-    Object.keys(initParams).forEach(key => {
-      if(initParams[key] === undefined) {
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
         throw new Error(`ContributionReward's initialize parameter '${key}' cannot be undefined`)
       }
     })
