@@ -39,7 +39,7 @@ describe('Proposal', () => {
       permissions: '0x0000001f',
       plugin: getTestScheme("SchemeRegistrar"),
       pluginToRegister,
-      proposalType: "SchemeRegistrarAdd"
+      type: "SchemeRegistrarAdd"
     }
 
     const plugin = new PluginRegistrarPlugin(arc, getTestScheme("SchemeRegistrar"))
@@ -99,7 +99,7 @@ describe('Proposal', () => {
       dao: dao.id,
       plugin: getTestScheme("SchemeRegistrar"),
       pluginToRegister,
-      proposalType: "SchemeRegistrarRemove"
+      type: "SchemeRegistrarRemove"
     }
 
     const removeTx = await plugin.createProposal(removeProposalOptions).send()

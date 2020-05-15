@@ -24,7 +24,6 @@ export interface IPluginRegistrarState extends IPluginState {
 }
 
 export interface IProposalCreateOptionsSR extends IProposalBaseCreateOptions {
-  proposalType: 'SchemeRegistrarAdd' | 'SchemeRegistrarRemove'
   parametersHash?: string
   permissions?: string
   pluginToRegister?: Address
@@ -125,7 +124,7 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
   public async createProposalTransaction(options: IProposalCreateOptionsSR): Promise<ITransaction> {
     let msg: string
 
-    switch (options.proposalType) {
+    switch (options.type) {
       case 'SchemeRegistrarAdd':
         if (options.parametersHash === undefined) {
           msg = `Missing argument "parametersHash" for PluginRegistrar in Proposal.create()`
@@ -152,13 +151,17 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
           method: 'proposeToRemoveScheme',
           args: [options.pluginToRegister, options.descriptionHash]
         }
+      default:
+        throw Error(
+          `PluginRegistrar.createProposalTransaction: Unknown proposal type ${options.type}`
+        )
     }
   }
 
   public createProposalTransactionMap(options: IProposalCreateOptionsSR) {
     return (receipt: ITransactionReceipt) => {
       let eventName: string
-      switch (options.proposalType) {
+      switch (options.type) {
         case 'SchemeRegistrarAdd':
           eventName = 'NewSchemeProposal'
           break
@@ -167,7 +170,7 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
           break
         default:
           throw Error(
-            `PluginRegistrar.createProposal: Unknown proposal type ${options.proposalType}`
+            `PluginRegistrar.createProposal: Unknown proposal type ${options.type}`
           )
       }
       const args = getEventArgs(receipt, eventName, 'PluginRegistrar.createProposal')

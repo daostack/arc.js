@@ -103,6 +103,8 @@ export interface IProposalBaseCreateOptions {
   descriptionHash?: string
   title?: string
   tags?: string[]
+  // Only required for plugins with more than one proposal type
+  type?: ProposalName
   plugin?: Address
   url?: string
 }
