@@ -82,6 +82,26 @@ export class ContributionRewardExtPlugin extends ProposalPlugin<
     `
   }
 
+  public static initializeParamsMap(initParams: InitParamsCRExt) {
+
+    Object.keys(initParams).forEach(key => {
+      if(initParams[key] === undefined) {
+        throw new Error(`ContributionRewardExt's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.daoFactory,
+      initParams.packageVersion,
+      initParams.rewarderName
+    ]
+  }
+
   public static itemMap(
     context: Arc,
     item: any,

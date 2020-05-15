@@ -53,6 +53,18 @@ export class CompetitionPlugin extends ProposalPlugin<
   ICompetitionProposalState,
   IProposalCreateOptionsComp
 > {
+
+  public static initializeParamsMap(initParams: InitParamsCompetition) {
+
+    Object.keys(initParams).forEach(key => {
+      if(initParams[key] === undefined) {
+        throw new Error(`Competition's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [initParams.contributionRewardExt]
+  }
+
   public static itemMap(context: Arc, item: any, queriedId?: string): IContributionRewardExtState | null {
     if (!item) {
       Logger.debug(`CompetitionPlugin ItemMap failed. ${queriedId ? `Could not find CompetitionPlugin with id '${queriedId}'` : ''}`)

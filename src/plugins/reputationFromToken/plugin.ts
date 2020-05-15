@@ -18,6 +18,22 @@ export interface InitParamsRT {
 }
 
 export class ReputationFromTokenPlugin extends Plugin<IPluginState> {
+
+  public static initializeParamsMap(initParams: InitParamsRT) {
+
+    Object.keys(initParams).forEach(key => {
+      if(initParams[key] === undefined) {
+        throw new Error(`ContributionReward's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.tokenContract,
+      initParams.curveInterface
+    ]
+  }
+
   public static itemMap(context: Arc, item: any, queriedId?: string): IPluginState | null {
     if (!item) {
       Logger.debug(`ReputationFromTokenPlugin ItemMap failed. ${queriedId ? `Could not find ReputationFromTokenPlugin with id '${queriedId}'` : ''}`)

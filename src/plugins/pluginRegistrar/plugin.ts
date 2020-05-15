@@ -26,7 +26,7 @@ export interface IPluginRegistrarState extends IPluginState {
 export interface InitParamsSR {
   daoId: string
   votingMachine: string
-  votingParams: number[]
+  votingParamsRegister: number[]
   voteOnBehalfRegister: string
   voteRegisterParamsHash: string
   votingParamsRemove: number[]
@@ -84,6 +84,26 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
         }
       }
     `
+  }
+
+  public static initializeParamsMap(initParams: InitParamsSR) {
+
+    Object.keys(initParams).forEach(key => {
+      if(initParams[key] === undefined) {
+        throw new Error(`PluginRegistrar's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParamsRegister,
+      initParams.voteOnBehalfRegister,
+      initParams.voteRegisterParamsHash,
+      initParams.votingParamsRemove,
+      initParams.voteOnBehalfRemove,
+      initParams.voteRemoveParamsHash
+    ]
   }
 
   public static itemMap(arc: Arc, item: any, queriedId?: string): IPluginRegistrarState | null {

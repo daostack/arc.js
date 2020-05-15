@@ -80,6 +80,24 @@ export class FundingRequest
     return this.fragmentField
   }
 
+  public static initializeParamsMap(initParams: InitParamsFR) {
+
+    Object.keys(initParams).forEach(key => {
+      if(initParams[key] === undefined) {
+        throw new Error(`FundingRequest's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.fundingToken
+    ]
+  }
+
   public static itemMap(context: Arc, item: any, queriedId?: string): IFundingRequestState | null {
     if (!item) {
       return null

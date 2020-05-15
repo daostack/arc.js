@@ -71,6 +71,24 @@ export class GenericPlugin extends ProposalPlugin<
     `
   }
 
+  public static initializeParamsMap(initParams: InitParamsGS) {
+
+    Object.keys(initParams).forEach(key => {
+      if(initParams[key] === undefined) {
+        throw new Error(`GenericScheme's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.contractToCall
+    ]
+  }
+
   public static itemMap(context: Arc, item: any, queriedId?: string): IGenericPluginState | null {
     if (!item) {
       Logger.debug(`GenericPlugin ItemMap failed.

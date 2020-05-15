@@ -93,6 +93,29 @@ export class JoinAndQuit extends ProposalPlugin<
     return this.fragmentField
   }
 
+  public static initializeParamsMap(initParams: InitParamsJQ) {
+
+    Object.keys(initParams).forEach(key => {
+      if(initParams[key] === undefined) {
+        throw new Error(`JoinAndQuit's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.fundingToken,
+      initParams.minFeeToJoin,
+      initParams.memberReputation,
+      initParams.fundingGoal,
+      initParams.fundingGoalDeadline,
+      initParams.rageQuitEnable
+    ]
+  }
+
   public static itemMap(context: Arc, item: any, queriedId?: string): IJoinAndQuitState | null {
     if (!item) {
       return null

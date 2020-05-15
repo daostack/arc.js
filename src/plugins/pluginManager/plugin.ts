@@ -16,7 +16,8 @@ import {
   ProposalPlugin,
   transactionResultHandler,
   InitParams,
-  LATEST_ARC_VERSION
+  LATEST_ARC_VERSION,
+  Plugins,
 } from '../../index'
 import { Interface } from 'ethers/utils'
 
@@ -35,7 +36,7 @@ extends IProposalBaseCreateOptions {
   packageVersion: number[]
   permissions: string
   pluginName: keyof InitParams
-  pluginData: any
+  pluginInitializeParameters: any
   pluginToReplace?: string
 }
 
@@ -80,6 +81,24 @@ export class PluginManagerPlugin extends ProposalPlugin<
     `
   }
 
+  public static initializeParamsMap(initParams: InitParamsPM) {
+
+    Object.keys(initParams).forEach(key => {
+      if(initParams[key] === undefined) {
+        throw new Error(`PluginManager's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.daoFactory
+    ]
+  }
+
   public static itemMap(context: Arc, item: any, queriedId?: string): IPluginManagerState | null {
     if (!item) {
       Logger.debug(`PluginManagerPlugin ItemMap failed.
@@ -106,9 +125,10 @@ export class PluginManagerPlugin extends ProposalPlugin<
       options.descriptionHash = await this.context.saveIPFSData(options)
 
       const pluginId = (await this.fetchState()).address
-
       const abiInterface = new Interface(this.context.getABI({ abiName: options.pluginName, version: LATEST_ARC_VERSION }))
-      const pluginData = abiInterface.functions.initialize.encode(options.pluginData)
+
+      const initializeParams = Plugins[options.pluginName].initializeParamsMap(options.pluginInitializeParameters)
+      const pluginData = abiInterface.functions.initialize.encode(initializeParams)
 
       return {
         contract: this.context.getContract(pluginId),
