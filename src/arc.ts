@@ -75,6 +75,11 @@ export class Arc extends GraphNodeObserver {
     return this._web3
   }
 
+  public get isInfuraProvider(): boolean {
+    return typeof this._web3Provider === "string" &&
+           this._web3Provider.includes("infura.io")
+  }
+
   /**
    * a mapping of contrct names to contract addresses
    */
@@ -127,7 +132,39 @@ export class Arc extends GraphNodeObserver {
 
   public setWeb3(provider: Web3Provider) {
     if (typeof provider === 'string') {
-      this._web3 = new providers.JsonRpcProvider(provider)
+      if (provider.includes("infura.io")) {
+        const error = 'Improperly formatted infura.io URL. Ex: https://rinkeby.infura.io/v3/${optional_project_id}'
+        const reg0 = /(.*).infura.io(.*)/gm
+        const res0 = reg0.exec(provider)
+
+        if (!res0) {
+          throw Error(error)
+        }
+
+        const reg1 = /(https:\/\/)?([a-z]*)/gm
+        const res1 = reg1.exec(res0[1])
+
+        if (!res1) {
+          throw Error(error)
+        }
+
+        const reg2 = /(\/v[0-9]\/)?([a-zA-Z0-9]*)[\/]?/gm
+        const res2 = reg2.exec(res0[2])
+
+        if (!res2) {
+          throw Error(error)
+        }
+
+        const networkName = res1[2]
+        const projectId = res2[2]
+
+        this._web3 = new providers.InfuraProvider(
+          networkName,
+          projectId === "" ? undefined : projectId
+        )
+      } else {
+        this._web3 = new providers.JsonRpcProvider(provider)
+      }
     } else if (Signer.isSigner(provider)) {
       const signer: Signer = provider
 
@@ -426,6 +463,9 @@ export class Arc extends GraphNodeObserver {
     return Observable.create(async (observer: Observer<Address>) => {
       if (Signer.isSigner(this.defaultAccount)) {
         observer.next(await this.defaultAccount.getAddress())
+        return observer.complete()
+      } else if (this.isInfuraProvider) {
+        observer.next("0x0000000000000000000000000000000000000000")
         return observer.complete()
       } else {
         const interval = 1000 /// poll once a second
