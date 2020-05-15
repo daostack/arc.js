@@ -16,6 +16,7 @@ import {
   ICommonQueryOptions,
   IEntityRef,
   Logger,
+  PluginName,
   Plugins
 } from '../index'
 
@@ -23,7 +24,7 @@ export interface IPluginState {
   id: string
   address: Address
   dao: IEntityRef<DAO>
-  name: string
+  name: PluginName
   version: string
   canDelegateCall: boolean
   canUpgradeController: boolean

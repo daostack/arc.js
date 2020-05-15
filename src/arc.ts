@@ -76,8 +76,8 @@ export class Arc extends GraphNodeObserver {
   }
 
   public get isInfuraProvider(): boolean {
-    return typeof this._web3Provider === "string" &&
-           this._web3Provider.includes("infura.io")
+    return typeof this._web3Provider === 'string' &&
+           this._web3Provider.includes('infura.io')
   }
 
   /**
@@ -132,7 +132,7 @@ export class Arc extends GraphNodeObserver {
 
   public setWeb3(provider: Web3Provider) {
     if (typeof provider === 'string') {
-      if (provider.includes("infura.io")) {
+      if (provider.includes('infura.io')) {
         const error = 'Improperly formatted infura.io URL. Ex: https://rinkeby.infura.io/v3/${optional_project_id}'
         const reg0 = /(.*).infura.io(.*)/gm
         const res0 = reg0.exec(provider)
@@ -160,7 +160,7 @@ export class Arc extends GraphNodeObserver {
 
         this._web3 = new providers.InfuraProvider(
           networkName,
-          projectId === "" ? undefined : projectId
+          projectId === '' ? undefined : projectId
         )
       } else {
         this._web3 = new providers.JsonRpcProvider(provider)
@@ -434,6 +434,8 @@ export class Arc extends GraphNodeObserver {
 
     if (Signer.isSigner(this.defaultAccount)) {
       return new Contract(address, abi, this.defaultAccount)
+    } else if (this.isInfuraProvider) {
+      return new Contract(address, abi, this.web3)
     } else {
       return new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
     }
@@ -465,7 +467,7 @@ export class Arc extends GraphNodeObserver {
         observer.next(await this.defaultAccount.getAddress())
         return observer.complete()
       } else if (this.isInfuraProvider) {
-        observer.next("0x0000000000000000000000000000000000000000")
+        observer.next('0x0000000000000000000000000000000000000000')
         return observer.complete()
       } else {
         const interval = 1000 /// poll once a second
@@ -514,6 +516,10 @@ export class Arc extends GraphNodeObserver {
       if (Signer.isSigner(this.defaultAccount)) {
         observer.next(this.defaultAccount)
         return observer.complete()
+      } else if (this.isInfuraProvider) {
+        throw Error(
+          'Infura web3 providers do not support signers'
+        )
       } else {
         const subscription = this.getAccount().subscribe((address) => {
           if (!this.web3) {

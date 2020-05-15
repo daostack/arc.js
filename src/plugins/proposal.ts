@@ -116,7 +116,7 @@ export interface IProposalState {
   createdAt: number | Date
   descriptionHash?: string
   description?: string
-  name: string
+  name: ProposalName
   executedAt: number
   organizationId: string
   paramsHash: string
