@@ -8,7 +8,10 @@ import {
   IProposalOutcome,
   LATEST_ARC_VERSION,
   ContributionRewardPlugin,
-  IInitParamsCR
+  IInitParamsCR,
+  IInitParamsCompetition,
+  PACKAGE_VERSION,
+  CompetitionPlugin
 } from '../src/index'
 import {
   newArc,
@@ -256,7 +259,7 @@ describe('Plugin Manager', () => {
       return p.coreState.address
     })
 
-    const editInitData: IInitParamsCR = {
+    const editInitData: IInitParamsCompetition = {
       daoId: dao.id,
       votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
       votingParams: [
@@ -273,14 +276,17 @@ describe('Plugin Manager', () => {
         0
       ],
       voteOnBehalf: "0x0000000000000000000000000000000000000000",
-      voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
+      voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+      rewarderName: 'Competition',
+      daoFactory: arc.getContractInfoByName("DAOFactoryInstance", LATEST_ARC_VERSION).address,
+      packageVersion: PACKAGE_VERSION
     }
 
     const editOptions: IProposalCreateOptionsPM = {
       dao: dao.id,
       add: {
         permissions: '0x00000000',
-        pluginName: 'ContributionReward',
+        pluginName: 'Competition',
         pluginInitParams: editInitData
       },
       remove: {
@@ -311,21 +317,22 @@ describe('Plugin Manager', () => {
     sub.unsubscribe()
     await replaceProposal.fetchState()
 
-    //Wait for node changes
+    // Wait for node changes
 
-    let newPlugins: ContributionRewardPlugin[] = []
+    let newPlugins: CompetitionPlugin[] = []
     let registeredAddresses: string[] = []
 
     dao.plugins({ where: { isRegistered: true } }).subscribe(plugins => {
 
       // If replacing plugin is found, push it
-      const found = plugins.find( np => {
+      const found = plugins.find(np => {
         if(!np.coreState) throw new Error('Could not set Plugin State')
         return !pluginAddresses.includes(np.coreState.address)
       })
 
-      if(found)
-      newPlugins.push(found as ContributionRewardPlugin)
+      if (found) {
+        newPlugins.push(found as CompetitionPlugin)
+      }
 
       // If replaced plugin is removed, set the addresses array as the new registeredAddresses
       const addresses = plugins.map(p => {
@@ -342,7 +349,7 @@ describe('Plugin Manager', () => {
     await waitUntilTrue(() => newPlugins.length > 0 && registeredAddresses.length > 0)
 
     const replacingPlugin = newPlugins[0]
-    if(!replacingPlugin.coreState) throw new Error('Could not set Plugin State')
+    if (!replacingPlugin.coreState) throw new Error('Could not set Plugin State')
 
     expect(replacingPlugin.coreState.pluginParams.voteParams).toMatchObject({
       boostedVotePeriodLimit: 129605,

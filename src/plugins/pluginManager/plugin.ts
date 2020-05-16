@@ -137,10 +137,20 @@ export class PluginManagerPlugin extends ProposalPlugin<
     const args = []
 
     if (options.add) {
-      const abiInterface = new Interface(this.context.getABI({
-        abiName: options.add.pluginName,
-        version: LATEST_ARC_VERSION
-      }))
+
+      let abiInterface: Interface
+
+      if (options.add.pluginName === 'Competition') {
+        abiInterface = new Interface(this.context.getABI({
+          abiName: 'ContributionRewardExt',
+          version: LATEST_ARC_VERSION
+        }))
+      } else {
+        abiInterface = new Interface(this.context.getABI({
+          abiName: options.add.pluginName,
+          version: LATEST_ARC_VERSION
+        }))
+      }
 
       const initializeParams = Plugins[options.add.pluginName].initializeParamsMap(
         options.add.pluginInitParams as any
@@ -149,7 +159,7 @@ export class PluginManagerPlugin extends ProposalPlugin<
 
       args.push(
         PACKAGE_VERSION,
-        options.add.pluginName,
+        options.add.pluginName === 'Competition' ? 'ContributionRewardExt' : options.add.pluginName,
         pluginData,
         options.add.permissions
       )
