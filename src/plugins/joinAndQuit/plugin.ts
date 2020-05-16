@@ -37,6 +37,20 @@ export interface IProposalCreateOptionsJoinAndQuit extends IProposalBaseCreateOp
   fee: BN
 }
 
+export interface IInitParamsJQ {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  fundingToken: string,
+  minFeeToJoin: number
+  memberReputation: number
+  fundingGoal: number
+  fundingGoalDeadline: number
+  rageQuitEnable: boolean
+}
+
 export class JoinAndQuit extends ProposalPlugin<
   IJoinAndQuitState,
   IJoinAndQuitProposalState,
@@ -77,6 +91,29 @@ export class JoinAndQuit extends ProposalPlugin<
     }
 
     return this.fragmentField
+  }
+
+  public static initializeParamsMap(initParams: IInitParamsJQ) {
+
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
+        throw new Error(`JoinAndQuit's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.fundingToken,
+      initParams.minFeeToJoin,
+      initParams.memberReputation,
+      initParams.fundingGoal,
+      initParams.fundingGoalDeadline,
+      initParams.rageQuitEnable
+    ]
   }
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IJoinAndQuitState | null {

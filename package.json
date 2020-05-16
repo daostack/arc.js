@@ -1,6 +1,6 @@
 {
   "name": "@dorgtech/arc.js",
-  "version": "2.0.0-experimental.30",
+  "version": "2.0.0-experimental.32",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",

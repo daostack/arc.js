@@ -37,6 +37,17 @@ export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions 
   proposer: Address
 }
 
+export interface IInitParamsCRExt {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  daoFactory: string,
+  packageVersion: number[]
+  rewarderName: string
+}
+
 export class ContributionRewardExtPlugin extends ProposalPlugin<
   IContributionRewardExtState,
   IContributionRewardExtProposalState,
@@ -69,6 +80,26 @@ export class ContributionRewardExtPlugin extends ProposalPlugin<
         }
       }
     `
+  }
+
+  public static initializeParamsMap(initParams: IInitParamsCRExt) {
+
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
+        throw new Error(`ContributionRewardExt's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.daoFactory,
+      initParams.packageVersion,
+      initParams.rewarderName
+    ]
   }
 
   public static itemMap(

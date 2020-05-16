@@ -9,6 +9,15 @@ import {
   FundingRequestProposal,
   GenericPlugin,
   GenericPluginProposal,
+  IInitParamsCompetition,
+  IInitParamsCR,
+  IInitParamsCRExt,
+  IInitParamsFR,
+  IInitParamsGS,
+  IInitParamsJQ,
+  IInitParamsPM,
+  IInitParamsRT,
+  IInitParamsSR,
   IPluginState,
   IProposalBaseCreateOptions,
   IProposalCreateOptionsComp,
@@ -66,6 +75,18 @@ export const Proposals = {
   SchemeRegistrarRemove: PluginRegistrarProposal,
   SchemeFactory: PluginManagerProposal,
   Unknown: UnknownProposal
+}
+
+export interface IInitParams {
+  GenericScheme: IInitParamsGS,
+  ContributionReward: IInitParamsCR,
+  Competition: IInitParamsCompetition,
+  ContributionRewardExt: IInitParamsCRExt,
+  FundingRequest: IInitParamsFR,
+  JoinAndQuit: IInitParamsJQ,
+  SchemeRegistrar: IInitParamsSR,
+  SchemeFactory: IInitParamsPM,
+  ReputationFromToken: IInitParamsRT
 }
 
 export type ProposalName = keyof typeof Proposals

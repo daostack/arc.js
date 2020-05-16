@@ -6,6 +6,7 @@ import {
   CompetitionProposal,
   CompetitionSuggestion,
   CompetitionVote,
+  ContributionRewardExtPlugin,
   dateToSecondsSinceEpoch,
   getBlockTime,
   getEventArgs,
@@ -13,6 +14,7 @@ import {
   ICompetitionProposalState,
   ICompetitionSuggestionQueryOptions,
   IContributionRewardExtState,
+  IInitParamsCRExt,
   IProposalBaseCreateOptions,
   ITransaction,
   ITransactionReceipt,
@@ -44,11 +46,24 @@ export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   votingStartTime: Date
 }
 
+export interface IInitParamsCompetition extends IInitParamsCRExt {
+  rewarderName: 'Competition'
+}
+
 export class CompetitionPlugin extends ProposalPlugin<
   IContributionRewardExtState,
   ICompetitionProposalState,
   IProposalCreateOptionsComp
 > {
+
+  public static initializeParamsMap(initParams: IInitParamsCompetition) {
+    if (initParams.rewarderName !== 'Competition') {
+      throw Error(`Incorrect Init Params. rewarderName must be "Competition", got ${initParams.rewarderName}`)
+    }
+
+    return ContributionRewardExtPlugin.initializeParamsMap(initParams)
+  }
+
   public static itemMap(context: Arc, item: any, queriedId?: string): IContributionRewardExtState | null {
     if (!item) {
       Logger.debug(`CompetitionPlugin ItemMap failed. ${queriedId ? `Could not find CompetitionPlugin with id '${queriedId}'` : ''}`)

@@ -148,6 +148,8 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
     return utils.keccak256(seed)
   }
 
+  protected static initializeParamsMap: (initParams: any) => any[]
+
   protected static itemMap: (arc: Arc, item: any, queriedId?: string) => IPluginState | null
 
   protected static itemMapToBaseState(context: Arc, item: any): IPluginState {

@@ -11,7 +11,29 @@ import {
   toIOperationObservable
 } from '../../index'
 
+export interface IInitParamsRT {
+  daoId: string
+  tokenContract: string
+  curveInterface: string
+}
+
 export class ReputationFromTokenPlugin extends Plugin<IPluginState> {
+
+  public static initializeParamsMap(initParams: IInitParamsRT) {
+
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
+        throw new Error(`ContributionReward's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.tokenContract,
+      initParams.curveInterface
+    ]
+  }
+
   public static itemMap(context: Arc, item: any, queriedId?: string): IPluginState | null {
     if (!item) {
       Logger.debug(`ReputationFromTokenPlugin ItemMap failed. ${queriedId ? `Could not find ReputationFromTokenPlugin with id '${queriedId}'` : ''}`)

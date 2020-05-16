@@ -1,18 +1,23 @@
+import { Interface } from 'ethers/utils'
 import gql from 'graphql-tag'
 import {
   Address,
   Arc,
   getEventArgs,
   IGenesisProtocolParams,
+  IInitParams,
   IPluginManagerProposalState,
   IPluginState,
   IProposalBaseCreateOptions,
   ITransaction,
   ITransactionReceipt,
+  LATEST_ARC_VERSION,
   Logger,
   mapGenesisProtocolParams,
+  PACKAGE_VERSION,
   Plugin,
   PluginManagerProposal,
+  Plugins,
   ProposalPlugin,
   transactionResultHandler
 } from '../../index'
@@ -25,12 +30,36 @@ export interface IPluginManagerState extends IPluginState {
   }
 }
 
-export interface IProposalCreateOptionsPM extends IProposalBaseCreateOptions {
-  packageVersion: number[]
-  permissions: string
-  pluginName: string
-  pluginData: string
-  pluginToReplace?: string
+export type IProposalCreateOptionsPM =
+  IProposalCreateOptions<'GenericScheme'> |
+  IProposalCreateOptions<'ContributionReward'> |
+  IProposalCreateOptions<'Competition'> |
+  IProposalCreateOptions<'ContributionRewardExt'> |
+  IProposalCreateOptions<'FundingRequest'> |
+  IProposalCreateOptions<'JoinAndQuit'> |
+  IProposalCreateOptions<'SchemeRegistrar'> |
+  IProposalCreateOptions<'SchemeFactory'> |
+  IProposalCreateOptions<'ReputationFromToken'>
+
+export interface IProposalCreateOptions<TName extends keyof IInitParams>
+extends IProposalBaseCreateOptions {
+  add?: {
+    permissions: string
+    pluginName: TName
+    pluginInitParams: IInitParams[TName]
+  },
+  remove?: {
+    plugin: string
+  }
+}
+
+export interface IInitParamsPM {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  daoFactory: string
 }
 
 export class PluginManagerPlugin extends ProposalPlugin<
@@ -65,6 +94,24 @@ export class PluginManagerPlugin extends ProposalPlugin<
     `
   }
 
+  public static initializeParamsMap(initParams: IInitParamsPM) {
+
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
+        throw new Error(`PluginManager's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.daoFactory
+    ]
+  }
+
   public static itemMap(context: Arc, item: any, queriedId?: string): IPluginManagerState | null {
     if (!item) {
       Logger.debug(`PluginManagerPlugin ItemMap failed.
@@ -87,24 +134,58 @@ export class PluginManagerPlugin extends ProposalPlugin<
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsPM): Promise<ITransaction> {
+    const args = []
 
-      options.descriptionHash = await this.context.saveIPFSData(options)
+    if (options.add) {
 
-      const pluginId = (await this.fetchState()).address
+      let abiInterface: Interface
 
-      return {
-        contract: this.context.getContract(pluginId),
-        method: 'proposeScheme',
-        args: [
-          options.packageVersion,
-          options.pluginName,
-          options.pluginData,
-          options.permissions,
-          options.pluginToReplace,
-          options.descriptionHash
-        ]
+      if (options.add.pluginName === 'Competition') {
+        abiInterface = new Interface(this.context.getABI({
+          abiName: 'ContributionRewardExt',
+          version: LATEST_ARC_VERSION
+        }))
+      } else {
+        abiInterface = new Interface(this.context.getABI({
+          abiName: options.add.pluginName,
+          version: LATEST_ARC_VERSION
+        }))
       }
+
+      const initializeParams = Plugins[options.add.pluginName].initializeParamsMap(
+        options.add.pluginInitParams as any
+      )
+      const pluginData = abiInterface.functions.initialize.encode(initializeParams)
+
+      args.push(
+        PACKAGE_VERSION,
+        options.add.pluginName === 'Competition' ? 'ContributionRewardExt' : options.add.pluginName,
+        pluginData,
+        options.add.permissions
+      )
+    } else {
+      args.push(
+        [0, 0, 0],
+        '',
+        '0x0',
+        '0x00000000'
+      )
     }
+
+    const { address: pluginAddress } = (await this.fetchState())
+
+    options.descriptionHash = await this.context.saveIPFSData(options)
+
+    return {
+      contract: this.context.getContract(pluginAddress),
+      method: 'proposeScheme',
+      args: [
+        ...args,
+        options.remove ? options.remove.plugin : '0x0000000000000000000000000000000000000000',
+        options.descriptionHash
+      ]
+    }
+  }
 
   public createProposalTransactionMap(): transactionResultHandler<any> {
     return async (receipt: ITransactionReceipt) => {

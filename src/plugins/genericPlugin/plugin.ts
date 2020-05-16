@@ -30,6 +30,15 @@ export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   value?: number
 }
 
+export interface IInitParamsGS {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  contractToCall: string
+}
+
 export class GenericPlugin extends ProposalPlugin<
   IGenericPluginState,
   IGenericPluginProposalState,
@@ -60,6 +69,24 @@ export class GenericPlugin extends ProposalPlugin<
         }
       }
     `
+  }
+
+  public static initializeParamsMap(initParams: IInitParamsGS) {
+
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
+        throw new Error(`GenericScheme's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.contractToCall
+    ]
   }
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IGenericPluginState | null {

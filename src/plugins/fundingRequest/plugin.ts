@@ -35,6 +35,15 @@ export interface IProposalCreateOptionsFundingRequest extends IProposalBaseCreat
   descriptionHash: string
 }
 
+export interface IInitParamsFR {
+  daoId: string
+  votingMachine: string
+  votingParams: number[]
+  voteOnBehalf: string
+  voteParamsHash: string
+  fundingToken: string
+}
+
 export class FundingRequest
   extends ProposalPlugin<IFundingRequestState, IFundingRequestProposalState, IProposalCreateOptionsFundingRequest> {
 
@@ -69,6 +78,24 @@ export class FundingRequest
     }
 
     return this.fragmentField
+  }
+
+  public static initializeParamsMap(initParams: IInitParamsFR) {
+
+    Object.keys(initParams).forEach((key) => {
+      if (initParams[key] === undefined) {
+        throw new Error(`FundingRequest's initialize parameter '${key}' cannot be undefined`)
+      }
+    })
+
+    return [
+      initParams.daoId,
+      initParams.votingMachine,
+      initParams.votingParams,
+      initParams.voteOnBehalf,
+      initParams.voteParamsHash,
+      initParams.fundingToken
+    ]
   }
 
   public static itemMap(context: Arc, item: any, queriedId?: string): IFundingRequestState | null {

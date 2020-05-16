@@ -2,23 +2,38 @@ import {
   Arc,
   PluginManagerPlugin,
   IProposalCreateOptionsPM,
-  PACKAGE_VERSION,
   PluginManagerProposal,
-  NULL_ADDRESS,
   IPluginManagerProposalState,
   DAO,
   IProposalOutcome,
   LATEST_ARC_VERSION,
-  ContributionRewardPlugin
+  ContributionRewardPlugin,
+  IInitParamsCR,
+  IInitParamsCompetition,
+  PACKAGE_VERSION,
+  CompetitionPlugin
 } from '../src/index'
 import {
   newArc,
   waitUntilTrue
 } from './utils'
 import { first } from 'rxjs/operators'
-import { Interface } from 'ethers/utils'
 
 jest.setTimeout(60000)
+
+const easyVotingParams = [
+  50,
+  604800,
+  129600,
+  43200, 
+  1200,
+  86400, 
+  10, 
+  1, 
+  50,
+  10,
+  0
+];
 
 const createAddProposal = async (arc: Arc, dao: DAO, plugin: PluginManagerPlugin, options: IProposalCreateOptionsPM) => {
   const pluginAddresses = (await dao.plugins().pipe(first()).toPromise()).map( p => {
@@ -89,45 +104,27 @@ describe('Plugin Manager', () => {
     arc = await newArc()
   })
 
+//TODO: Refactor tests for new interface
+
   it('Creates a plugin', async () => {
     const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
     const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin
  
-    const initData = {
+    const initData: IInitParamsCR = {
+      daoId: dao.id,
       votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
-      easyVotingParams: [
-        50,
-        604800,
-        129600,
-        43200, 
-        1200,
-        86400, 
-        10, 
-        1, 
-        50,
-        10,
-        0
-      ],
+      votingParams: easyVotingParams,
       voteOnBehalf: "0x0000000000000000000000000000000000000000",
       voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
     }
 
-    const abiInterface = new Interface(arc.getABI({ abiName: 'ContributionReward', version: LATEST_ARC_VERSION }))
-    const pluginData = abiInterface.functions.initialize.encode([
-      dao.id,
-      initData.votingMachine,
-      initData.easyVotingParams,
-      initData.voteOnBehalf,
-      initData.voteParamsHash
-    ])
-
     const options: IProposalCreateOptionsPM = {
       dao: dao.id,
-      packageVersion: PACKAGE_VERSION,
-      permissions: '0x0000001f',
-      pluginName: 'ContributionReward',
-      pluginToReplace: NULL_ADDRESS,
-      pluginData
+      add: {
+        permissions: '0x00000000',
+        pluginName: 'ContributionReward',
+        pluginInitParams: initData
+      }
     }
 
     const createdPlugin = await createAddProposal(arc, dao, plugin, options)
@@ -153,41 +150,21 @@ describe('Plugin Manager', () => {
     const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
     const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin
  
-    const initData = {
+    const initData: IInitParamsCR = {
+      daoId: dao.id,
       votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
-      easyVotingParams: [
-        50,
-        604800,
-        129600,
-        43200, 
-        1200,
-        86400, 
-        10, 
-        1, 
-        50,
-        10,
-        0
-      ],
+      votingParams: easyVotingParams,
       voteOnBehalf: "0x0000000000000000000000000000000000000000",
       voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
     }
 
-    const abiInterface = new Interface(arc.getABI({ abiName: 'ContributionReward', version: LATEST_ARC_VERSION }))
-    const pluginData = abiInterface.functions.initialize.encode([
-      dao.id,
-      initData.votingMachine,
-      initData.easyVotingParams,
-      initData.voteOnBehalf,
-      initData.voteParamsHash
-    ])
-
     const options: IProposalCreateOptionsPM = {
       dao: dao.id,
-      packageVersion: PACKAGE_VERSION,
-      permissions: '0x0000001f',
-      pluginName: 'ContributionReward',
-      pluginToReplace: NULL_ADDRESS,
-      pluginData
+      add: {
+        permissions: '0x00000000',
+        pluginName: 'ContributionReward',
+        pluginInitParams: initData
+      }
     }
 
     const createdPlugin = await createAddProposal(arc, dao, plugin, options)
@@ -206,11 +183,9 @@ describe('Plugin Manager', () => {
 
     const removeOptions: IProposalCreateOptionsPM = {
       dao: dao.id,
-      packageVersion: PACKAGE_VERSION,
-      permissions: '0x0000001f',
-      pluginName: '',
-      pluginToReplace: createdPlugin.coreState.address,
-      pluginData: '0x00000000000000000000000000000000'
+      remove: {
+        plugin: createdPlugin.coreState.address
+      }
     }
 
     const tx = await plugin.createProposal(removeOptions).send()
@@ -253,41 +228,21 @@ describe('Plugin Manager', () => {
     const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
     const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin
  
-    const initData = {
+    const initData: IInitParamsCR = {
+      daoId: dao.id,
       votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
-      easyVotingParams: [
-        50,
-        604800,
-        129600,
-        43200, 
-        1200,
-        86400, 
-        10, 
-        1, 
-        50,
-        10,
-        0
-      ],
+      votingParams: easyVotingParams,
       voteOnBehalf: "0x0000000000000000000000000000000000000000",
       voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
     }
 
-    const abiInterface = new Interface(arc.getABI({ abiName: 'ContributionReward', version: LATEST_ARC_VERSION }))
-    const pluginData = abiInterface.functions.initialize.encode([
-      dao.id,
-      initData.votingMachine,
-      initData.easyVotingParams,
-      initData.voteOnBehalf,
-      initData.voteParamsHash
-    ])
-
     const options: IProposalCreateOptionsPM = {
       dao: dao.id,
-      packageVersion: PACKAGE_VERSION,
-      permissions: '0x0000001f',
-      pluginName: 'ContributionReward',
-      pluginToReplace: NULL_ADDRESS,
-      pluginData
+      add: {
+        permissions: '0x00000000',
+        pluginName: 'ContributionReward',
+        pluginInitParams: initData
+      }
     }
 
     const createdPlugin = await createAddProposal(arc, dao, plugin, options)
@@ -304,9 +259,10 @@ describe('Plugin Manager', () => {
       return p.coreState.address
     })
 
-    const editInitData = {
+    const editInitData: IInitParamsCompetition = {
+      daoId: dao.id,
       votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
-      easyVotingParams: [
+      votingParams: [
         50,
         604805,
         129605,
@@ -320,24 +276,22 @@ describe('Plugin Manager', () => {
         0
       ],
       voteOnBehalf: "0x0000000000000000000000000000000000000000",
-      voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
+      voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+      rewarderName: 'Competition',
+      daoFactory: arc.getContractInfoByName("DAOFactoryInstance", LATEST_ARC_VERSION).address,
+      packageVersion: PACKAGE_VERSION
     }
-
-    const editData = abiInterface.functions.initialize.encode([
-      dao.id,
-      editInitData.votingMachine,
-      editInitData.easyVotingParams,
-      editInitData.voteOnBehalf,
-      editInitData.voteParamsHash
-    ])
 
     const editOptions: IProposalCreateOptionsPM = {
       dao: dao.id,
-      packageVersion: PACKAGE_VERSION,
-      permissions: '0x0000001f',
-      pluginName: 'ContributionReward',
-      pluginToReplace: createdPlugin.coreState.address,
-      pluginData: editData
+      add: {
+        permissions: '0x00000000',
+        pluginName: 'Competition',
+        pluginInitParams: editInitData
+      },
+      remove: {
+        plugin: createdPlugin.coreState.address
+      }
     }
 
     const tx = await plugin.createProposal(editOptions).send()
@@ -363,21 +317,22 @@ describe('Plugin Manager', () => {
     sub.unsubscribe()
     await replaceProposal.fetchState()
 
-    //Wait for node changes
+    // Wait for node changes
 
-    let newPlugins: ContributionRewardPlugin[] = []
+    let newPlugins: CompetitionPlugin[] = []
     let registeredAddresses: string[] = []
 
     dao.plugins({ where: { isRegistered: true } }).subscribe(plugins => {
 
       // If replacing plugin is found, push it
-      const found = plugins.find( np => {
+      const found = plugins.find(np => {
         if(!np.coreState) throw new Error('Could not set Plugin State')
         return !pluginAddresses.includes(np.coreState.address)
       })
 
-      if(found)
-      newPlugins.push(found as ContributionRewardPlugin)
+      if (found) {
+        newPlugins.push(found as CompetitionPlugin)
+      }
 
       // If replaced plugin is removed, set the addresses array as the new registeredAddresses
       const addresses = plugins.map(p => {
@@ -394,7 +349,7 @@ describe('Plugin Manager', () => {
     await waitUntilTrue(() => newPlugins.length > 0 && registeredAddresses.length > 0)
 
     const replacingPlugin = newPlugins[0]
-    if(!replacingPlugin.coreState) throw new Error('Could not set Plugin State')
+    if (!replacingPlugin.coreState) throw new Error('Could not set Plugin State')
 
     expect(replacingPlugin.coreState.pluginParams.voteParams).toMatchObject({
       boostedVotePeriodLimit: 129605,
