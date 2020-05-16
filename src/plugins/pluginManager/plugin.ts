@@ -14,6 +14,7 @@ import {
   LATEST_ARC_VERSION,
   Logger,
   mapGenesisProtocolParams,
+  PACKAGE_VERSION,
   Plugin,
   PluginManagerProposal,
   Plugins,
@@ -29,15 +30,27 @@ export interface IPluginManagerState extends IPluginState {
   }
 }
 
-// TODO: Type inference
-export interface IProposalCreateOptionsPM
-// <TName extends keyof IInitParams>
+export type IProposalCreateOptionsPM =
+  IProposalCreateOptions<'GenericScheme'> |
+  IProposalCreateOptions<'ContributionReward'> |
+  IProposalCreateOptions<'Competition'> |
+  IProposalCreateOptions<'ContributionRewardExt'> |
+  IProposalCreateOptions<'FundingRequest'> |
+  IProposalCreateOptions<'JoinAndQuit'> |
+  IProposalCreateOptions<'SchemeRegistrar'> |
+  IProposalCreateOptions<'SchemeFactory'> |
+  IProposalCreateOptions<'ReputationFromToken'>
+
+export interface IProposalCreateOptions<TName extends keyof IInitParams>
 extends IProposalBaseCreateOptions {
-  packageVersion: number[]
-  permissions: string
-  pluginName: keyof IInitParams
-  pluginInitializeParameters: any
-  pluginToReplace?: string
+  add?: {
+    permissions: string
+    pluginName: TName
+    pluginInitParams: IInitParams[TName]
+  },
+  remove?: {
+    plugin: string
+  }
 }
 
 export interface IInitParamsPM {
@@ -121,31 +134,48 @@ export class PluginManagerPlugin extends ProposalPlugin<
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsPM): Promise<ITransaction> {
+    const args = []
 
-      options.descriptionHash = await this.context.saveIPFSData(options)
-
-      const pluginId = (await this.fetchState()).address
+    if (options.add) {
       const abiInterface = new Interface(this.context.getABI({
-        abiName: options.pluginName,
+        abiName: options.add.pluginName,
         version: LATEST_ARC_VERSION
       }))
 
-      const initializeParams = Plugins[options.pluginName].initializeParamsMap(options.pluginInitializeParameters)
+      const initializeParams = Plugins[options.add.pluginName].initializeParamsMap(
+        options.add.pluginInitParams as any
+      )
       const pluginData = abiInterface.functions.initialize.encode(initializeParams)
 
-      return {
-        contract: this.context.getContract(pluginId),
-        method: 'proposeScheme',
-        args: [
-          options.packageVersion,
-          options.pluginName,
-          pluginData,
-          options.permissions,
-          options.pluginToReplace,
-          options.descriptionHash
-        ]
-      }
+      args.push(
+        PACKAGE_VERSION,
+        options.add.pluginName,
+        pluginData,
+        options.add.permissions
+      )
+    } else {
+      args.push(
+        [0, 0, 0],
+        '',
+        '0x0',
+        '0x00000000'
+      )
     }
+
+    const { address: pluginAddress } = (await this.fetchState())
+
+    options.descriptionHash = await this.context.saveIPFSData(options)
+
+    return {
+      contract: this.context.getContract(pluginAddress),
+      method: 'proposeScheme',
+      args: [
+        ...args,
+        options.remove ? options.remove.plugin : '0x0000000000000000000000000000000000000000',
+        options.descriptionHash
+      ]
+    }
+  }
 
   public createProposalTransactionMap(): transactionResultHandler<any> {
     return async (receipt: ITransactionReceipt) => {
