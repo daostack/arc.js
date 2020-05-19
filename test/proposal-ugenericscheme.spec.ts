@@ -66,7 +66,7 @@ describe('Proposal', () => {
       callData,
       executed: false,
       returnValue: null,
-      value: new BN(1)
+      value: 1
     })
 
     // accept the proposal by voting the hell out of it
