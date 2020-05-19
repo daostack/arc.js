@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e # fail on error
 echo "Creating a new release"
-# npm ci
+npm ci
 package_version=$(cat package.json | jq -r '.version')
 
 # tag on github
