@@ -8,7 +8,7 @@ import {
 } from '../src'
 import {
   createAProposal, getTestAddresses, ITestAddresses, LATEST_ARC_VERSION,
-  newArc, voteToPassProposal, waitUntilTrue, BN
+  newArc, voteToPassProposal, waitUntilTrue
 } from './utils'
 
 jest.setTimeout(60000)

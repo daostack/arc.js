@@ -9,7 +9,7 @@ import {
 import { IGenericScheme } from '../src/schemes/genericScheme'
 import {
   createAProposal, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION,
-  newArc, voteToPassProposal, waitUntilTrue, BN
+  newArc, voteToPassProposal, waitUntilTrue
 } from './utils'
 
 jest.setTimeout(60000)
