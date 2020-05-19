@@ -1,4 +1,5 @@
-import { Interface } from 'ethers/utils'
+// we cannot import from 'ethers/utils` as this will run into a compile error in react-native
+import { utils } from 'ethers'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -138,15 +139,15 @@ export class PluginManagerPlugin extends ProposalPlugin<
 
     if (options.add) {
 
-      let abiInterface: Interface
+      let abiInterface: utils.Interface
 
       if (options.add.pluginName === 'Competition') {
-        abiInterface = new Interface(this.context.getABI({
+        abiInterface = new utils.Interface(this.context.getABI({
           abiName: 'ContributionRewardExt',
           version: LATEST_ARC_VERSION
         }))
       } else {
-        abiInterface = new Interface(this.context.getABI({
+        abiInterface = new utils.Interface(this.context.getABI({
           abiName: options.add.pluginName,
           version: LATEST_ARC_VERSION
         }))
