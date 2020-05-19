@@ -9,7 +9,7 @@ import {
 import { IGenericScheme } from '../src/schemes/genericScheme'
 import {
   createAProposal, getTestAddresses, getTestDAO, ITestAddresses, LATEST_ARC_VERSION,
-  newArc, voteToPassProposal, waitUntilTrue
+  newArc, voteToPassProposal, waitUntilTrue, BN
 } from './utils'
 
 jest.setTimeout(60000)
@@ -52,7 +52,7 @@ describe('Proposal', () => {
       // scheme: testAddresses.base.UGenericScheme,
       scheme: ugenericSchemeState.address,
       schemeToRegister: actionMock.options.address,
-      value: 1
+      value: new BN(1)
     })
     expect(proposal).toBeInstanceOf(Proposal)
 
@@ -66,7 +66,7 @@ describe('Proposal', () => {
       callData,
       executed: false,
       returnValue: null,
-      value: 1
+      value: new BN(1)
     })
 
     // accept the proposal by voting the hell out of it

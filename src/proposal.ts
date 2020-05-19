@@ -477,7 +477,7 @@ export class Proposal implements IStateful<IProposalState> {
           executed: item.genericScheme.executed,
           id: item.genericScheme.id,
           returnValue: item.genericScheme.returnValue,
-          value: item.genericScheme.value
+          value: new BN(item.genericScheme.value)
         }
       } else if (item.schemeRegistrar) {
         if (item.schemeRegistrar.schemeToRegister) {

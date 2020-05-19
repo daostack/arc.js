@@ -8,7 +8,7 @@ import {
 } from '../src'
 import {
   createAProposal, getTestAddresses, ITestAddresses, LATEST_ARC_VERSION,
-  newArc, voteToPassProposal, waitUntilTrue
+  newArc, voteToPassProposal, waitUntilTrue, BN
 } from './utils'
 
 jest.setTimeout(60000)
@@ -44,7 +44,7 @@ describe('Proposal', () => {
       callData,
       scheme: genericScheme.address,
       schemeToRegister: actionMock.options.address,
-      value: 1
+      value: new BN(1)
     })
     expect(proposal).toBeInstanceOf(Proposal)
 
@@ -58,7 +58,7 @@ describe('Proposal', () => {
       callData,
       executed: false,
       returnValue: null,
-      value: 1
+      value: new BN(1)
     })
 
     // accept the proposal by voting the hell out of it
