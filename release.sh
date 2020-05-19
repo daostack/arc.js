@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e # fail on error
 echo "Creating a new release"
-npm ci
+#npm ci
 package_version=$(cat package.json | jq -r '.version')
 
 # publish to npm
 echo "publish to npm"
-npm publish --access public
+#npm publish --access public
 
 # tag on github
 echo "create tag ${package_version}"
