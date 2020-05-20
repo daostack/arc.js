@@ -52,7 +52,7 @@ describe('Proposal', () => {
       // scheme: testAddresses.base.UGenericScheme,
       scheme: ugenericSchemeState.address,
       schemeToRegister: actionMock.options.address,
-      value: new BN(1)
+      value: new BN("1")
     })
     expect(proposal).toBeInstanceOf(Proposal)
 
