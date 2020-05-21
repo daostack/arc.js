@@ -72,8 +72,8 @@
     ]
   },
   "devDependencies": {
-    "@daostack/migration-experimental": "0.1.1-rc.18-v0",
-    "@dorgtech/test-env-experimental": "4.0.9",
+    "@daostack/migration-experimental": "0.1.1-rc.20-v1",
+    "@daostack/test-env-experimental": "4.0.10",
     "@types/graphql": "^14.2.2",
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/jest": "^24.0.15",
