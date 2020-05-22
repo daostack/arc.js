@@ -165,7 +165,7 @@ export class DAO extends Entity<IDAOState> {
       },
       tokenName: item.nativeToken.name,
       tokenSymbol: item.nativeToken.symbol,
-      tokenTotalSupply: item.nativeToken.totalSupply,
+      tokenTotalSupply: item.nativeToken.totalSupply
     }
   }
 
