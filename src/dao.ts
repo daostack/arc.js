@@ -48,6 +48,8 @@ export interface IDAOState {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
+  metadata: string
+  metadataHash: string
 }
 
 export interface IDAOQueryOptions extends ICommonQueryOptions {
@@ -80,6 +82,8 @@ export class DAO extends Entity<IDAOState> {
         numberOfBoostedProposals
         register
         reputationHoldersCount
+        metadata
+        metadataHash
       }
     `
   }
@@ -143,6 +147,8 @@ export class DAO extends Entity<IDAOState> {
       address: item.id,
       id: item.id,
       memberCount: Number(item.reputationHoldersCount),
+      metadata: item.metadata,
+      metadataHash: item.metadataHash,
       name: item.name,
       numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
       numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
@@ -159,7 +165,7 @@ export class DAO extends Entity<IDAOState> {
       },
       tokenName: item.nativeToken.name,
       tokenSymbol: item.nativeToken.symbol,
-      tokenTotalSupply: item.nativeToken.totalSupply
+      tokenTotalSupply: item.nativeToken.totalSupply,
     }
   }
 

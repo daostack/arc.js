@@ -75,6 +75,8 @@ describe('DAO', () => {
       'address',
       'id',
       'memberCount',
+      "metadata",
+      'metadataHash',
       'name',
       'numberOfBoostedProposals',
       'numberOfPreBoostedProposals',
