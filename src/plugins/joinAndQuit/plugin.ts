@@ -33,7 +33,6 @@ export interface IJoinAndQuitState extends IPluginState {
 }
 
 export interface IProposalCreateOptionsJoinAndQuit extends IProposalBaseCreateOptions {
-  descriptionHash: string
   fee: BN
 }
 
@@ -146,7 +145,6 @@ export class JoinAndQuit extends ProposalPlugin<
   private static fragmentField: { name: string, fragment: DocumentNode } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsJoinAndQuit): Promise<ITransaction> {
-    // options.descriptionHash = await this.context.saveIPFSData(options)
 
     if (options.plugin === undefined) {
       throw new Error(`Missing argument "plugin" for JoinAndQuit in Proposal.create()`)
@@ -160,6 +158,10 @@ export class JoinAndQuit extends ProposalPlugin<
     } else  {
       opts = {}
     }
+    if (!options.descriptionHash) {
+      options.descriptionHash = await this.context.saveIPFSData(options)
+    }
+
     return {
       contract: this.context.getContract(options.plugin),
       method: 'proposeToJoin',

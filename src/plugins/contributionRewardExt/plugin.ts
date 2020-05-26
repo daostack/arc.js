@@ -136,8 +136,9 @@ export class ContributionRewardExtPlugin extends ProposalPlugin<
     if (!options.proposer) {
       options.proposer = NULL_ADDRESS
     }
-
-    options.descriptionHash = await this.context.saveIPFSData(options)
+    if (!options.descriptionHash) {
+      options.descriptionHash = await this.context.saveIPFSData(options)
+    }
 
     return {
       contract: this.context.getContract(options.plugin as string),

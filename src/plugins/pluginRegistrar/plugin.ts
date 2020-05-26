@@ -165,8 +165,9 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
           msg = `Missing argument "permissions" for PluginRegistrar in Proposal.create()`
           throw Error(msg)
         }
-
-        options.descriptionHash = await this.context.saveIPFSData(options)
+        if (!options.descriptionHash) {
+          options.descriptionHash = await this.context.saveIPFSData(options)
+        }
 
         return {
           contract: this.context.getContract(options.plugin as string),
@@ -174,8 +175,9 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
           args: [options.pluginToRegister, options.permissions, options.descriptionHash]
         }
       case 'SchemeRegistrarRemove':
-
-        options.descriptionHash = await this.context.saveIPFSData(options)
+        if (!options.descriptionHash) {
+          options.descriptionHash = await this.context.saveIPFSData(options)
+        }
 
         return {
           contract: this.context.getContract(options.plugin as string),

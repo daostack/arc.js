@@ -235,7 +235,8 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
     description: string
     beneficiary?: Address
     tags?: string[]
-    url?: string
+    url?: string,
+    descriptionHash?: string
   }): Operation<CompetitionSuggestion> {
     const mapReceipt = async (receipt: ITransactionReceipt) => {
       const pluginState = await this.getState()
@@ -263,11 +264,13 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       }
       const pluginState = await this.getState()
       const contract = CompetitionPlugin.getCompetitionContract(this.context, pluginState)
-      const descriptionHash = await this.context.saveIPFSData(options)
+      if (!options.descriptionHash) {
+         options.descriptionHash = await this.context.saveIPFSData(options)
+      }
       return {
         contract,
         method: 'suggest',
-        args: [this.id, descriptionHash, options.beneficiary]
+        args: [this.id, options.descriptionHash, options.beneficiary]
       }
     }
 

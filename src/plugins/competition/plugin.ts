@@ -158,7 +158,9 @@ export class CompetitionPlugin extends ProposalPlugin<
       )
     }
 
-    options.descriptionHash = await context.saveIPFSData(options)
+    if (!options.descriptionHash) {
+      options.descriptionHash = await context.saveIPFSData(options)
+    }
     if (!options.rewardSplit) {
       throw Error(`Rewardsplit was not given..`)
     } else {
@@ -283,7 +285,9 @@ export class CompetitionPlugin extends ProposalPlugin<
       )
     }
 
-    options.descriptionHash = await context.saveIPFSData(options)
+    if (!options.descriptionHash) {
+      options.descriptionHash = await context.saveIPFSData(options)
+    }
     if (!options.rewardSplit) {
       throw Error(`Rewardsplit was not given..`)
     } else {
