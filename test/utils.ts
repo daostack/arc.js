@@ -69,7 +69,7 @@ export interface ITestAddresses {
 export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAddresses {
   const result = require('@daostack/test-env-experimental/daos.json').demo[version]
   if (!result) {
-    throw Error(`No test addresses found; please check the version of @dorgtech/test-env-experimental and LATEST_ARC_VERSION`)
+    throw Error(`No test addresses found; please check the version of @daostack/test-env-experimental and LATEST_ARC_VERSION`)
   }
   return result
 }
