@@ -175,7 +175,9 @@ export class PluginManagerPlugin extends ProposalPlugin<
 
     const { address: pluginAddress } = (await this.fetchState())
 
-    options.descriptionHash = await this.context.saveIPFSData(options)
+    if (!options.descriptionHash) {
+      options.descriptionHash = await this.context.saveIPFSData(options)
+    }
 
     return {
       contract: this.context.getContract(pluginAddress),

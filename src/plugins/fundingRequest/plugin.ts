@@ -126,8 +126,9 @@ export class FundingRequest
   private static fragmentField: { name: string, fragment: DocumentNode } | undefined
 
   public async createProposalTransaction(options: IProposalCreateOptionsFundingRequest): Promise<ITransaction> {
-    options.descriptionHash = await this.context.saveIPFSData(options)
-
+    if (!options.descriptionHash) {
+      options.descriptionHash = await this.context.saveIPFSData(options)
+    }
     if (options.plugin === undefined) {
       throw new Error(`Missing argument "plugin" for FundingRequest in Proposal.create()`)
     }
