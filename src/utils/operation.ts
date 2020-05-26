@@ -142,6 +142,7 @@ export function sendTransaction<T>(
     } else {
       try {
         gasLimit = (await contract.estimate[tx.method](...tx.args, tx.opts)).toNumber()
+        gasLimit *= 2
       } catch (error) {
         await catchHandler(error, tx, await signer.getAddress())
       }
@@ -149,7 +150,7 @@ export function sendTransaction<T>(
 
     const overrides = {
       ...tx.opts,
-      gasLimit: gasLimit ? gasLimit : 1000000
+      gasLimit: gasLimit ? Math.min(1000000, gasLimit) : 1000000
     }
 
     let response: TransactionResponse
