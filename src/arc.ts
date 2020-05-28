@@ -488,5 +488,5 @@ export interface IContractInfo {
   version: string
   address: Address
   name: string
-  alias: string;
+  alias: string
 }
