@@ -150,7 +150,7 @@ export function sendTransaction<T>(
 
     const overrides = {
       ...tx.opts,
-      gasLimit: gasLimit ? Math.min(1000000, gasLimit) : 1000000
+      gasLimit: gasLimit ? gasLimit : 1000000
     }
 
     let response: TransactionResponse
