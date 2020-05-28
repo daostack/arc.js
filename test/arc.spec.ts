@@ -201,7 +201,6 @@ describe('Arc ', () => {
     const schemeId = '0x124355'
     const scheme = arc.scheme(schemeId)
     expect(scheme).toBeInstanceOf(Scheme)
-    expect(scheme).toBeInstanceOf(Scheme)
   })
 
   it('arc.schemes() should work', async () => {
