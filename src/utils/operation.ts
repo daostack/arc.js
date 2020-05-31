@@ -142,6 +142,7 @@ export function sendTransaction<T>(
     } else {
       try {
         gasLimit = (await contract.estimate[tx.method](...tx.args, tx.opts)).toNumber()
+        gasLimit *= 2
       } catch (error) {
         await catchHandler(error, tx, await signer.getAddress())
       }
