@@ -1,6 +1,6 @@
 // the version of the redeemer contract to use.
 // we can specify multiple versions, and try to find them in the order given
-export const LATEST_ARC_VERSION = '0.1.1-rc.21'
+export const LATEST_ARC_VERSION = '0.1.1-rc.23'
 export const PACKAGE_VERSION = [0, 1, 21]
 export const ABI_DIR = './abis'
 export const REDEEMER_CONTRACT_VERSIONS = [
