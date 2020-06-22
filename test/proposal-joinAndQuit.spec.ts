@@ -42,7 +42,7 @@ describe('JoinAndQuit', () => {
       fundingToken: NULL_ADDRESS,
       fundingGoal: new BN(1000),
       minFeeToJoin: new BN(100),
-      memberReputation: new BN(100)
+      memberReputation: new BN(1000)
     })
     expect(Object.prototype.toString.call(joinAndQuitState.pluginParams.fundingGoalDeadline)).toBe('[object Date]')
 
