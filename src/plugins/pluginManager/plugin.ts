@@ -22,6 +22,7 @@ import {
   ProposalPlugin,
   transactionResultHandler
 } from '../../index'
+const abiDecoder = require("abi-decoder");
 
 export interface IPluginManagerState extends IPluginState {
   pluginParams: {
@@ -132,6 +133,24 @@ export class PluginManagerPlugin extends ProposalPlugin<
       ...baseState,
       pluginParams: schemeFactoryParams
     }
+  }
+
+  public decodeDataByPluginName = (pluginName: string, encodedData: string) => {
+    let abi;
+    if (pluginName === 'Competition') {
+      abi = this.context.getABI({
+        abiName: 'ContributionRewardExt',
+        version: LATEST_ARC_VERSION
+      })
+    } else {
+      abi = this.context.getABI({
+        abiName: pluginName,
+        version: LATEST_ARC_VERSION
+      })
+    }
+
+    abiDecoder.addABI(abi);
+    return abiDecoder.decodeMethod(encodedData);
   }
 
   public async createProposalTransaction(options: IProposalCreateOptionsPM): Promise<ITransaction> {
