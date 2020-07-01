@@ -22,9 +22,9 @@ import {
   ProposalPlugin,
   transactionResultHandler
 } from '../../index'
-  
+
 /**
- * Note: using abi-decoder instead of ethers due to some unexplained issue 
+ * Note: using abi-decoder instead of ethers due to some unexplained issue
  * with ethers interface.functions.FUNCTIONNAME.decode().
  * This might be solved when shifting to ethers 5.0.
  */
