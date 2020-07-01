@@ -11,7 +11,6 @@ import {
   PluginManagerPlugin,
   Proposal
 } from '../../index'
-import { NULL_ADDRESS } from '../../utils/helpers'
 
 export interface IPluginManagerProposalState extends IProposalState {
   dao: IEntityRef<DAO>
@@ -90,9 +89,8 @@ export class PluginManagerProposal extends Proposal<IPluginManagerProposalState>
       pluginRegistered: item.schemeFactory.schemeRegistered,
       pluginRemoved: item.schemeFactory.schemeRemoved,
       pluginToRegisterData: item.schemeFactory.schemeToRegisterData,
-      pluginToRegisterDecodedData: item.schemeFactory.schemeToRegisterName !== NULL_ADDRESS ?
-        pluginManager.decodeDataByPluginName(item.schemeFactory.schemeToRegisterName,
-          item.schemeFactory.schemeToRegisterData) : {},
+      pluginToRegisterDecodedData: pluginManager.decodeDataByPluginName(item.schemeFactory.schemeToRegisterName,
+        item.schemeFactory.schemeToRegisterData),
       pluginToRegisterName: item.schemeFactory.schemeToRegisterName,
       pluginToRegisterPackageVersion: item.schemeFactory.schemeToRegisterPackageVersion,
       pluginToRegisterPermission: item.schemeFactory.schemeToRegisterPermission,

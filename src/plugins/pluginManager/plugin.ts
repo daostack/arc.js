@@ -142,7 +142,7 @@ export class PluginManagerPlugin extends ProposalPlugin<
   }
 
   public decodeDataByPluginName = (pluginName: string, encodedData: string) => {
-    if (pluginName === '' || pluginName === null){
+    if (pluginName === '' || pluginName === null) {
       return {}
     }
     let abi
