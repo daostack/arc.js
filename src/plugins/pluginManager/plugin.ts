@@ -22,6 +22,12 @@ import {
   ProposalPlugin,
   transactionResultHandler
 } from '../../index'
+  
+/**
+ * Note: using abi-decoder instead of ethers due to some unexplained issue 
+ * with ethers interface.functions.FUNCTIONNAME.decode().
+ * This might be solved when shifting to ethers 5.0.
+ */
 const abiDecoder = require('abi-decoder')
 
 export interface IPluginManagerState extends IPluginState {
@@ -136,6 +142,9 @@ export class PluginManagerPlugin extends ProposalPlugin<
   }
 
   public decodeDataByPluginName = (pluginName: string, encodedData: string) => {
+    if (pluginName === '' || pluginName === null){
+      return {}
+    }
     let abi
     if (pluginName === 'Competition') {
       abi = this.context.getABI({
