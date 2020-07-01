@@ -56,7 +56,7 @@ const createAddProposal = async (arc: Arc, dao: DAO, plugin: PluginManagerPlugin
 
   //Wait for indexation
   await waitUntilTrue(() => addProposalStates.length > 0)
-  
+
   //Vote for proposal to pass
   await voteProposal(arc, addProposal, dao)
 
@@ -77,7 +77,8 @@ const createAddProposal = async (arc: Arc, dao: DAO, plugin: PluginManagerPlugin
 
   //Wait until plugin is indexed
   await waitUntilTrue(() => newPlugins.length > 0)
-  return newPlugins[0]
+ 
+  return [newPlugins[0], addProposalStates[0]] as any
 }
 
 const voteProposal = async (arc: Arc, proposal: PluginManagerProposal, dao: DAO) => {
@@ -129,12 +130,13 @@ describe('Plugin Manager', () => {
 
     const createdPlugin = await createAddProposal(arc, dao, plugin, options)
 
-    if(!createdPlugin.coreState) throw new Error('New Plugin has no state set')
+    if(!createdPlugin[0].coreState) throw new Error('New Plugin has no state set')
 
+    expect(createdPlugin[1].pluginToRegisterDecodedData.params[2].value.map(Number)).toMatchObject(easyVotingParams)
     expect(createdPlugin).toBeTruthy()
-    expect(createdPlugin).toBeInstanceOf(ContributionRewardPlugin)
-    expect(createdPlugin.coreState.name).toEqual('ContributionReward')
-    expect(createdPlugin.coreState.pluginParams.voteParams).toMatchObject({
+    expect(createdPlugin[0]).toBeInstanceOf(ContributionRewardPlugin)
+    expect(createdPlugin[0].coreState.name).toEqual('ContributionReward')
+    expect(createdPlugin[0].coreState.pluginParams.voteParams).toMatchObject({
       boostedVotePeriodLimit: 129600,
       daoBountyConst: 10,
       preBoostedVotePeriodLimit: 43200,
@@ -169,7 +171,7 @@ describe('Plugin Manager', () => {
 
     const createdPlugin = await createAddProposal(arc, dao, plugin, options)
 
-    if(!createdPlugin.coreState) throw new Error('New Plugin has no state set')
+    if(!createdPlugin[0].coreState) throw new Error('New Plugin has no state set')
 
     //Remove proposal data
 
@@ -184,7 +186,7 @@ describe('Plugin Manager', () => {
     const removeOptions: IProposalCreateOptionsPM = {
       dao: dao.id,
       remove: {
-        plugin: createdPlugin.coreState.address
+        plugin: createdPlugin[0].coreState.address
       }
     }
 
@@ -221,7 +223,8 @@ describe('Plugin Manager', () => {
       }
     })
 
-    expect(newPluginAddresses).not.toContain(createdPlugin.coreState.address)
+    expect(removeProposal.coreState).toMatchObject({})
+    expect(newPluginAddresses).not.toContain(createdPlugin[0].coreState.address)
   })
 
   it('Replaces an existing plugin', async () => {
@@ -247,7 +250,7 @@ describe('Plugin Manager', () => {
 
     const createdPlugin = await createAddProposal(arc, dao, plugin, options)
 
-    if(!createdPlugin.coreState) throw new Error('New Plugin has no state set')
+    if(!createdPlugin[0].coreState) throw new Error('New Plugin has no state set')
 
     // Replace the created plugin
     const replaceProposalStates: IPluginManagerProposalState[] = []
@@ -290,7 +293,7 @@ describe('Plugin Manager', () => {
         pluginInitParams: editInitData
       },
       remove: {
-        plugin: createdPlugin.coreState.address
+        plugin: createdPlugin[0].coreState.address
       }
     }
 
@@ -342,7 +345,7 @@ describe('Plugin Manager', () => {
 
       registeredAddresses = addresses
 
-      if(!createdPlugin.coreState) throw new Error('Plugin State not set')
+      if(!createdPlugin[0].coreState) throw new Error('Plugin State not set')
     })
 
     // Wait for replacing plugin indexation
@@ -363,6 +366,6 @@ describe('Plugin Manager', () => {
     })
 
     //@ts-ignore
-    await waitUntilTrue(() => !registeredAddresses.includes(createdPlugin.coreState.address))
+    await waitUntilTrue(() => !registeredAddresses.includes(createdPlugin[0].coreState.address))
   })
 })

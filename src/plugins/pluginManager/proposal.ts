@@ -16,6 +16,7 @@ export interface IPluginManagerProposalState extends IProposalState {
   dao: IEntityRef<DAO>
   pluginToRegisterName: string
   pluginToRegisterData: string
+  pluginToRegisterDecodedData: any
   pluginToRegisterPackageVersion: string[]
   pluginToRegisterPermission: string
   pluginToRemove: string
@@ -88,6 +89,8 @@ export class PluginManagerProposal extends Proposal<IPluginManagerProposalState>
       pluginRegistered: item.schemeFactory.schemeRegistered,
       pluginRemoved: item.schemeFactory.schemeRemoved,
       pluginToRegisterData: item.schemeFactory.schemeToRegisterData,
+      pluginToRegisterDecodedData: pluginManager.decodeDataByPluginName(item.schemeFactory.schemeToRegisterName,
+        item.schemeFactory.schemeToRegisterData),
       pluginToRegisterName: item.schemeFactory.schemeToRegisterName,
       pluginToRegisterPackageVersion: item.schemeFactory.schemeToRegisterPackageVersion,
       pluginToRegisterPermission: item.schemeFactory.schemeToRegisterPermission,
