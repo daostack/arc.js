@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@daostack/migration-experimental": "0.1.2-rc.0-v0",
-    "@daostack/test-env-experimental": "4.0.13",
+    "@daostack/test-env-experimental": "4.0.14",
     "@types/graphql": "^14.2.2",
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/jest": "^24.0.15",
