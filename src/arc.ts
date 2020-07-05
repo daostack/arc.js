@@ -77,7 +77,8 @@ export class Arc extends GraphNodeObserver {
 
   public get isInfuraProvider(): boolean {
     return typeof this._web3Provider === 'string' &&
-           this._web3Provider.includes('infura.io')
+           (this._web3Provider.includes('infura.io') ||
+            this._web3Provider.includes('xdai'))
   }
 
   /**
