@@ -83,7 +83,7 @@ export class GenericPluginProposal extends Proposal<IGenericPluginProposalState>
       contractToCall: item.genericScheme.contractToCall,
       executed: item.genericScheme.executed,
       returnValue: item.genericScheme.returnValue,
-      value: item.genericScheme.value
+      value: new BN(item.genericScheme.value)
     }
   }
 
