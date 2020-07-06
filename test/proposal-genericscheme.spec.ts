@@ -7,8 +7,8 @@ import {
   GenericPlugin,
   GenericPluginProposal,
   LATEST_ARC_VERSION
-  } from '../src'
-import { newArc, voteToPassProposal, waitUntilTrue, getTestScheme } from './utils'
+} from '../src'
+import { newArc, voteToPassProposal, waitUntilTrue, getTestScheme, BN } from './utils'
 import { ethers } from 'ethers'
 
 jest.setTimeout(60000)
@@ -24,7 +24,7 @@ describe('Proposal', () => {
   })
 
   it('Check proposal state is correct', async () => {
-    const daos = await arc.daos({where: { name: 'Nectar DAO'}}).pipe(first()).toPromise()
+    const daos = await arc.daos({ where: { name: 'Nectar DAO' } }).pipe(first()).toPromise()
     const dao = daos[0]
     if (dao === undefined) {
       throw Error(`Could not find "Nectar DAO"`)
@@ -32,23 +32,23 @@ describe('Proposal', () => {
     const states: IProposalState[] = []
     const lastState = (): IProposalState => states[states.length - 1]
 
-    const actionMockABI = arc.getABI({abiName: 'ActionMock', version: LATEST_ARC_VERSION})
+    const actionMockABI = arc.getABI({ abiName: 'ActionMock', version: LATEST_ARC_VERSION })
 
-    if(!arc.web3) throw new Error('Web3 provider not set')
+    if (!arc.web3) throw new Error('Web3 provider not set')
 
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
-    const plugins = await dao.plugins({ where: {name: 'GenericScheme' }}).pipe(first()).toPromise() as GenericPlugin[]
+    const plugins = await dao.plugins({ where: { name: 'GenericScheme' } }).pipe(first()).toPromise() as GenericPlugin[]
     const genericScheme = plugins[0]
 
     const tx = await genericScheme.createProposal({
       dao: dao.id,
       callData,
-      value: 0,
+      value: new BN('1'),
       plugin: getTestScheme('GenericScheme')
     }).send()
 
-    if(!tx.result) throw new Error('Create proposal yielded no result')
+    if (!tx.result) throw new Error('Create proposal yielded no result')
 
     const proposal = new GenericPluginProposal(arc, tx.result.id)
 
@@ -64,7 +64,8 @@ describe('Proposal', () => {
     expect(lastState()).toMatchObject({
       callData,
       executed: false,
-      returnValue: null
+      returnValue: null,
+      value: new BN('1')
     })
 
     // accept the proposal by voting the hell out of it
