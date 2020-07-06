@@ -2,8 +2,10 @@ import { first } from 'rxjs/operators'
 import { Arc, DAO, IProposalOutcome, IProposalStage, IProposalState, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericPlugin, GenericPluginProposal, IGenericPluginProposalState } from '../src'
 
 import BN from 'bn.js'
-import { createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, newArc,
-  toWei, voteToPassProposal, waitUntilTrue, createCRProposal, getTestScheme } from './utils'
+import {
+  createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, newArc,
+  toWei, voteToPassProposal, waitUntilTrue, createCRProposal, getTestScheme
+} from './utils'
 import { BigNumber } from 'ethers/utils'
 import { ethers } from 'ethers'
 import { ContributionRewardProposal } from '../src'
@@ -29,7 +31,7 @@ describe('Claim rewards', () => {
     const states: IProposalState[] = []
     const lastState = () => states[states.length - 1]
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) throw new Error("Web3 provider not set")
 
     // make sure that the DAO has enough Ether to pay for the reward
     await arc.web3.getSigner().sendTransaction({
@@ -98,7 +100,7 @@ describe('Claim rewards', () => {
 
     const gen = arc.GENToken()
     await gen.transfer(dao.id, externalTokenReward).send()
-    const daoBalance =  await firstResult(arc.GENToken().balanceOf(dao.id))
+    const daoBalance = await firstResult(arc.GENToken().balanceOf(dao.id))
     expect(Number(daoBalance.toString())).toBeGreaterThanOrEqual(Number(externalTokenReward.toString()))
     const options: IProposalCreateOptionsCR = {
       beneficiary,
@@ -141,25 +143,25 @@ describe('Claim rewards', () => {
   })
 
   it('redeemRewards should also work for expired proposals', async () => {
-     const proposal = new ContributionRewardProposal(arc, testAddresses.queuedProposalId)
-     await proposal.redeemRewards().send()
+    const proposal = new ContributionRewardProposal(arc, testAddresses.queuedProposalId)
+    await proposal.redeemRewards().send()
   })
 
   it('works with non-CR proposal', async () => {
 
     testAddresses = getTestAddresses()
-    const genericSchemes = await arc.plugins({where: {name: 'GenericScheme' }}).pipe(first()).toPromise()
+    const genericSchemes = await arc.plugins({ where: { name: 'GenericScheme' } }).pipe(first()).toPromise()
     const genericScheme = genericSchemes[0] as GenericPlugin
     const genericSchemeState = await genericScheme.state({}).pipe(first()).toPromise()
 
-    dao  = new DAO(arc, genericSchemeState.dao.id)
+    dao = new DAO(arc, genericSchemeState.dao.id)
 
     const beneficiary = await arc.getAccount().pipe(first()).toPromise()
     const stakeAmount = new BN(123456789)
     await arc.GENToken().transfer(dao.id, stakeAmount).send()
-    const actionMockABI = arc.getABI({abiName: 'ActionMock', version: LATEST_ARC_VERSION})
+    const actionMockABI = arc.getABI({ abiName: 'ActionMock', version: LATEST_ARC_VERSION })
 
-    if(!arc.web3) throw new Error("Web3 provider not set")
+    if (!arc.web3) throw new Error("Web3 provider not set")
 
     const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
 
@@ -167,10 +169,10 @@ describe('Claim rewards', () => {
       callData,
       dao: dao.id,
       plugin: genericSchemeState.address,
-      value: 0
+      value: new BN("0")
     }).send()
 
-    if(!tx.result) throw new Error('Response yielded no result')
+    if (!tx.result) throw new Error('Response yielded no result')
 
     const proposal = new GenericPluginProposal(arc, tx.result.id)
     const proposalStates: IGenericPluginProposalState[] = []
@@ -203,11 +205,11 @@ describe('Claim rewards', () => {
       return lastState() && lastState().stage === IProposalStage.Executed
     })
 
-    if(!beneficiary) throw new Error("Beneficiary not set")
+    if (!beneficiary) throw new Error("Beneficiary not set")
 
-    const prevBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
+    const prevBalance = await firstResult(arc.GENToken().balanceOf(beneficiary))
     await proposal.redeemRewards(beneficiary).send()
-    const newBalance =  await firstResult(arc.GENToken().balanceOf(beneficiary))
+    const newBalance = await firstResult(arc.GENToken().balanceOf(beneficiary))
     expect(newBalance.sub(prevBalance).toString()).toEqual(stakeAmount.toString())
 
   })
