@@ -130,7 +130,7 @@ export class GenericPlugin extends ProposalPlugin<
     return {
       contract: this.context.getContract(options.plugin as string),
       method: 'proposeCall',
-      args: [options.callData, options.value, options.descriptionHash]
+      args: [options.callData, options.value.toString(), options.descriptionHash]
     }
   }
 

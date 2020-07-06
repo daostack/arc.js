@@ -138,7 +138,7 @@ export class FundingRequest
       method: 'propose',
       args: [
         options.beneficiary,
-        options.amount,
+        options.amount.toString(),
         options.descriptionHash || ''
       ]
     }
