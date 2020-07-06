@@ -77,8 +77,8 @@ export class Arc extends GraphNodeObserver {
 
   public get isInfuraProvider(): boolean {
     return typeof this._web3Provider === 'string' &&
-           (this._web3Provider.includes('infura.io') ||
-            this._web3Provider.includes('xdai'))
+      (this._web3Provider.includes('infura.io') ||
+        this._web3Provider.includes('xdai'))
   }
 
   /**
@@ -214,6 +214,7 @@ export class Arc extends GraphNodeObserver {
           name
           version
           address
+          alias
         }
       }
     `
@@ -391,10 +392,11 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with name ${name}  and version ${version} is known`)
   }
 
-  public getABI(opts: { address?: Address
-      abiName?: string
-      version?: string
-    }): any[] {
+  public getABI(opts: {
+    address?: Address
+    abiName?: string
+    version?: string
+  }): any[] {
     if (Object.values(opts).filter((value) => value !== undefined).length === 0) {
       throw Error('getABI needs at least one parameter passed')
     }
@@ -607,4 +609,5 @@ export interface IContractInfo {
   version: string
   address: Address
   name: string
+  alias: string
 }

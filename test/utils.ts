@@ -75,7 +75,7 @@ export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAdd
 }
 
 export function sleep(ms: number) {
-  return new Promise( (resolve) => setTimeout(resolve, ms) )
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export function getTestScheme(name: PluginName): Address {
@@ -271,7 +271,7 @@ export async function firstResult(observable: Observable<any>) {
   return observable.pipe(first()).toPromise()
 }
 
-export function getContractAddressesFromMigration(environment: 'private'|'rinkeby'|'mainnet'): IContractInfo[] {
+export function getContractAddressesFromMigration(environment: 'private' | 'rinkeby' | 'mainnet'): IContractInfo[] {
   const migration = require('@daostack/migration-experimental/migration.json')[environment]
   const contracts: IContractInfo[] = []
   for (const version of Object.keys(migration.package)) {
@@ -279,8 +279,9 @@ export function getContractAddressesFromMigration(environment: 'private'|'rinkeb
       contracts.push({
         address: migration.package[version][name].toLowerCase(),
         id: migration.package[version][name],
+        alias: migration.base[version][name], // fake the data for tests
         name,
-        version
+        version,
       })
     }
   }
