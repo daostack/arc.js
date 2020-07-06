@@ -279,7 +279,7 @@ export function getContractAddressesFromMigration(environment: 'private' | 'rink
       contracts.push({
         address: migration.package[version][name].toLowerCase(),
         id: migration.package[version][name],
-        alias: migration.base[version][name], // fake the data for tests
+        alias: migration.package[version][name], // fake the data for tests
         name,
         version,
       })
