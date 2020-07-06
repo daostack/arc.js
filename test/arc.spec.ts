@@ -311,7 +311,7 @@ describe('Arc ', () => {
 
 it('plugin contractInfo should contain alias', async () => {
   const arc = await newArc()
-  const pluginId = '0x405fC0EE23C7fcd0a41A864505Fe8c969ca3eF6A'
+  const pluginId = '0x86072cbff48da3c1f01824a6761a03f105bcc697'
 
   const contractInfo = arc.getContractInfo(pluginId)
 
