@@ -205,12 +205,12 @@ describe('Arc ', () => {
 
   it('arc.plugin() should work', async () => {
     const arc = await newArc()
-    const nonUniquePlugin = await arc.plugin({where: { name: 'GenericScheme' }})
-    const uniquePlugin = await arc.plugin({where: { address: getTestScheme('GenericScheme') }}, true)
+    const nonUniquePlugin = await arc.plugin({ where: { name: 'GenericScheme' } })
+    const uniquePlugin = await arc.plugin({ where: { address: getTestScheme('GenericScheme') } }, true)
 
     expect(nonUniquePlugin).toBeInstanceOf(Plugin)
     expect(uniquePlugin).toBeInstanceOf(Plugin)
-    await expect(arc.plugin({where: { name: 'ContributionReward' }}, true)).rejects.toThrow()
+    await expect(arc.plugin({ where: { name: 'ContributionReward' } }, true)).rejects.toThrow()
   })
 
   it('arc.plugins() should work', async () => {
@@ -229,7 +229,7 @@ describe('Arc ', () => {
   it('arc.getABI works', async () => {
     const arc = await newArc()
     await arc.fetchContractInfos()
-    const abi = arc.getABI({abiName: 'Redeemer', version: REDEEMER_CONTRACT_VERSIONS[0]})
+    const abi = arc.getABI({ abiName: 'Redeemer', version: REDEEMER_CONTRACT_VERSIONS[0] })
     expect(abi[0].name).toEqual('redeem')
   })
 
@@ -307,4 +307,13 @@ describe('Arc ', () => {
     expect(await (await arc.getSigner().pipe(first()).toPromise()).getAddress())
       .toEqual(await signer.getAddress())
   })
+})
+
+it('plugin contractInfo should contain alias', async () => {
+  const arc = await newArc()
+  const pluginId = '0x86072cbff48da3c1f01824a6761a03f105bcc697'
+
+  const contractInfo = arc.getContractInfo(pluginId)
+
+  expect(contractInfo.alias).toEqual("ContributionRewardExt")
 })
