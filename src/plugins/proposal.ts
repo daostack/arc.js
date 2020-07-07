@@ -156,9 +156,7 @@ export interface IProposalState {
   confidenceThreshold: number
 }
 
-export abstract class Proposal<TProposalState extends IProposalState> extends Entity<
-  TProposalState
-  > {
+export abstract class Proposal<TProposalState extends IProposalState> extends Entity<TProposalState> {
   public static get baseFragment(): DocumentNode {
     if (!this.baseFragmentField) {
       this.baseFragmentField = gql`fragment ProposalFields on Proposal {
