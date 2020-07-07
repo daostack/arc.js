@@ -1,3 +1,4 @@
+import BN from 'bn.js'
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
@@ -25,6 +26,7 @@ export interface IGenericPluginProposalState extends IProposalState {
   callData: string
   executed: boolean
   returnValue: string
+  value: BN
 }
 
 export class GenericPluginProposal extends Proposal<IGenericPluginProposalState> {
@@ -38,6 +40,7 @@ export class GenericPluginProposal extends Proposal<IGenericPluginProposalState>
           callData
           executed
           returnValue
+          value
         }
       }
     `
@@ -79,7 +82,8 @@ export class GenericPluginProposal extends Proposal<IGenericPluginProposalState>
       callData: item.genericScheme.callData,
       contractToCall: item.genericScheme.contractToCall,
       executed: item.genericScheme.executed,
-      returnValue: item.genericScheme.returnValue
+      returnValue: item.genericScheme.returnValue,
+      value: new BN(item.genericScheme.value)
     }
   }
 

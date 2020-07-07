@@ -1,3 +1,4 @@
+import BN from 'bn.js'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -27,7 +28,7 @@ export interface IGenericPluginState extends IPluginState {
 
 export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   callData?: string
-  value?: number
+  value?: BN
 }
 
 export interface IInitParamsGS {
@@ -43,7 +44,7 @@ export class GenericPlugin extends ProposalPlugin<
   IGenericPluginState,
   IGenericPluginProposalState,
   IProposalCreateOptionsGS
-> {
+  > {
   public static fragment = {
     name: 'GenericpluginParams',
     fragment: gql`
@@ -129,7 +130,7 @@ export class GenericPlugin extends ProposalPlugin<
     return {
       contract: this.context.getContract(options.plugin as string),
       method: 'proposeCall',
-      args: [options.callData, options.value, options.descriptionHash]
+      args: [options.callData, options.value.toString(), options.descriptionHash]
     }
   }
 

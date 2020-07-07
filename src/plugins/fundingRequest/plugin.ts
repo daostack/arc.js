@@ -118,9 +118,9 @@ export class FundingRequest
     }
 
     return {
-        ...baseState,
-        pluginParams: fundingRequestParams
-      }
+      ...baseState,
+      pluginParams: fundingRequestParams
+    }
   }
 
   private static fragmentField: { name: string, fragment: DocumentNode } | undefined
@@ -138,7 +138,7 @@ export class FundingRequest
       method: 'propose',
       args: [
         options.beneficiary,
-        options.amount.toNumber(),
+        options.amount.toString(),
         options.descriptionHash || ''
       ]
     }
@@ -157,7 +157,7 @@ export class FundingRequest
       if (err.message.match(/funding is not allowed yet/)) {
         const state = await this.fetchState()
         const dao = state.dao.entity
-        const joinAndQuit = (await dao.plugin({where: {name: 'JoinAndQuit'}}))
+        const joinAndQuit = (await dao.plugin({ where: { name: 'JoinAndQuit' } }))
         const joinAndQuitState = await joinAndQuit.fetchState() as IJoinAndQuitState
         const deadline = joinAndQuitState.pluginParams.fundingGoalDeadline
         const now = new Date()
