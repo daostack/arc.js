@@ -411,7 +411,6 @@ export class Arc extends GraphNodeObserver {
         return contractInfo
       }
     }
-    
     if (!this.contractInfos) {
       throw Error(`no contract info was found - did you call "arc.setContractInfos(...)"?`)
     }
