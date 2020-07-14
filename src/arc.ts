@@ -226,6 +226,29 @@ export class Arc extends GraphNodeObserver {
   }
 
   /**
+   * fetch universalContractInfos from the subgraph
+   * @return a list of IContractInfo instances
+   */
+  public async fetchUniversalContractInfos(
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Promise<IContractInfo[]> {
+    const query = gql`
+      query AllUniversalContractInfos {
+        universalContractInfos(first: 1000) {
+          id
+          name
+          version
+          address
+          alias
+        }
+      }
+    `
+    const response = await this.sendQuery(query, apolloQueryOptions)
+    const result = response.data.universalContractInfos as IContractInfo[]
+    return result
+  }
+
+  /**
    * get a DAO instance from an address
    * @param  address address of the dao Avatar
    * @return an instance of a DAO
@@ -380,12 +403,20 @@ export class Arc extends GraphNodeObserver {
     throw Error(`No contract with address ${address} is known`)
   }
 
-  public getContractInfoByName(name: string, version: string) {
+  public async getContractInfoByName(name: string, version: string) {
     for (const contractInfo of this.contractInfos) {
       if (contractInfo.name === name && contractInfo.version === version) {
         return contractInfo
       }
     }
+    
+    const universalContractInfos = await this.fetchUniversalContractInfos()
+    for (const universalContractInfo of universalContractInfos) {
+      if (universalContractInfo.name === name && universalContractInfo.version === version) {
+        return universalContractInfo
+      }
+    }
+
     if (!this.contractInfos) {
       throw Error(`no contract info was found - did you call "arc.setContractInfos(...)"?`)
     }
