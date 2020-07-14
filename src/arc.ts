@@ -47,7 +47,6 @@ const abis = require('./abis/abis.json')
 export type IArcOptions = IApolloClientOptions & {
   /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
   contractInfos?: IContractInfo[]
-  universalContractInfos?: IContractInfo[]
   ipfsProvider?: IPFSProvider
   web3Provider?: Web3Provider
   /** determines whether a query should subscribe to updates from the graphProvider. Default is true.  */
@@ -87,8 +86,6 @@ export class Arc extends GraphNodeObserver {
    */
   public contractInfos: IContractInfo[]
 
-  public universalContractInfos: IContractInfo[]
-
   // accounts observed by ethBalance
   public observedAccounts: {
     [address: string]: {
@@ -119,13 +116,6 @@ export class Arc extends GraphNodeObserver {
 
     this.contractInfos = options.contractInfos || []
     if (!this.contractInfos) {
-      Logger.warn(
-        'No contract addresses given to the Arc.constructor: expect most write operations to fail!'
-      )
-    }
-
-    this.universalContractInfos = options.universalContractInfos || []
-    if (!this.universalContractInfos) {
       Logger.warn(
         'No contract addresses given to the Arc.constructor: expect most write operations to fail!'
       )
@@ -206,9 +196,8 @@ export class Arc extends GraphNodeObserver {
    * @param  contractInfos a list of IContractInfo objects
    * @return
    */
-  public async setContractInfos(contractInfos: IContractInfo[], universalContractInfos: IContractInfo[]) {
+  public async setContractInfos(contractInfos: IContractInfo[]) {
     this.contractInfos = contractInfos
-    this.universalContractInfos = universalContractInfos
   }
 
   /**
@@ -233,7 +222,8 @@ export class Arc extends GraphNodeObserver {
     const response = await this.sendQuery(query, apolloQueryOptions)
     const contractInfos = response.data.contractInfos as IContractInfo[]
     const universalContractInfos = await this.fetchUniversalContractInfos()
-    this.setContractInfos(contractInfos, universalContractInfos)
+    contractInfos.push(...universalContractInfos)
+    this.setContractInfos(contractInfos)
     return contractInfos
   }
 
@@ -422,12 +412,6 @@ export class Arc extends GraphNodeObserver {
       }
     }
     
-    for (const universalContractInfo of this.universalContractInfos) {
-      if (universalContractInfo.name === name && universalContractInfo.version === version) {
-        return universalContractInfo
-      }
-    }
-
     if (!this.contractInfos) {
       throw Error(`no contract info was found - did you call "arc.setContractInfos(...)"?`)
     }
