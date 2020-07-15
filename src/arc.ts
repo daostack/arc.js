@@ -220,8 +220,33 @@ export class Arc extends GraphNodeObserver {
     `
     // const result = await this.getObservableList(query, itemMap, apolloQueryOptions).pipe(first()).toPromise()
     const response = await this.sendQuery(query, apolloQueryOptions)
-    const result = response.data.contractInfos as IContractInfo[]
-    this.setContractInfos(result)
+    const contractInfos = response.data.contractInfos as IContractInfo[]
+    const universalContractInfos = await this.fetchUniversalContractInfos()
+    contractInfos.push(...universalContractInfos)
+    this.setContractInfos(contractInfos)
+    return contractInfos
+  }
+
+  /**
+   * fetch universalContractInfos from the subgraph
+   * @return a list of IContractInfo instances
+   */
+  public async fetchUniversalContractInfos(
+    apolloQueryOptions: IApolloQueryOptions = {}
+  ): Promise<IContractInfo[]> {
+    const query = gql`
+      query AllUniversalContractInfos {
+        universalContractInfos(first: 1000) {
+          id
+          name
+          version
+          address
+          alias
+        }
+      }
+    `
+    const response = await this.sendQuery(query, apolloQueryOptions)
+    const result = response.data.universalContractInfos as IContractInfo[]
     return result
   }
 
