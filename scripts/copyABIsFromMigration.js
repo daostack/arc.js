@@ -39,11 +39,11 @@ async function copyABIs() {
     files.forEach(file => {
       const artefact = JSON.parse(fs.readFileSync(`${sourcePath}/${arcVersion}/${file}`), 'utf-8')
       const smallerArtefact = {
-        constractName: artefact.contractName,
+        constractName: file.split('.')[0],
         abi: artefact.abi,
         rootVersion: artefact.rootVersion
       }
-      result[arcVersion][artefact.contractName] = smallerArtefact
+      result[arcVersion][file.split('.')[0]] = smallerArtefact
     })
   })
   fs.writeFileSync(
