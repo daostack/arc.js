@@ -154,7 +154,7 @@ export class JoinAndQuit extends ProposalPlugin<
     let opts
     if ((await state).pluginParams.fundingToken === NULL_ADDRESS) {
       // if we have no funding token, we shoudl send the fee as ETH
-      opts = { value: options.fee.toNumber()}
+      opts = { value: options.fee.toString()}
     } else  {
       opts = {}
     }
