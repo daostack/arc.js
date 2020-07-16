@@ -19,6 +19,7 @@ import {
   transactionResultHandler
 } from '../../index'
 import { NULL_ADDRESS, secondSinceEpochToDate } from '../../utils'
+import { BigNumber } from 'ethers/utils'
 
 export interface IJoinAndQuitState extends IPluginState {
   pluginParams: {
@@ -154,7 +155,7 @@ export class JoinAndQuit extends ProposalPlugin<
     let opts
     if ((await state).pluginParams.fundingToken === NULL_ADDRESS) {
       // if we have no funding token, we shoudl send the fee as ETH
-      opts = { value: options.fee.toString()}
+      opts = { value: new BigNumber(options.fee.toString()).toHexString() }
     } else  {
       opts = {}
     }
