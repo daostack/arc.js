@@ -1,4 +1,5 @@
 import BN from 'bn.js'
+import { BigNumber } from 'ethers/utils'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
@@ -19,7 +20,6 @@ import {
   transactionResultHandler
 } from '../../index'
 import { NULL_ADDRESS, secondSinceEpochToDate } from '../../utils'
-import { BigNumber } from 'ethers/utils'
 
 export interface IJoinAndQuitState extends IPluginState {
   pluginParams: {
