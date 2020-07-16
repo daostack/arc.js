@@ -16,7 +16,7 @@ export interface ITransaction {
   opts?: {
     gasLimit?: number
     gasPrice?: number
-    value?: number
+    value?: string
     nonce?: number
   }
 }
