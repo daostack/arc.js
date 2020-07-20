@@ -202,7 +202,7 @@ describe('DAO', () => {
 
   it('dao.ethBalance() should work', async () => {
     const dao = await getTestDAO()
-    let previousBalance = await dao.ethBalance().pipe(first()).toPromise();
+    const previousBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
     if(!arc.web3) throw new Error("Web3 provider not set")
 
@@ -212,7 +212,7 @@ describe('DAO', () => {
       to: dao.id,
       value: new BigNumber(toWei('1').toString()).toHexString()
     })
-    let newBalance = await dao.ethBalance().pipe(first()).toPromise();
+    const newBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
     expect(Number(fromWei(newBalance.sub(previousBalance)))).toBe(1)
   })
 

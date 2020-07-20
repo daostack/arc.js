@@ -1,4 +1,3 @@
-import { ApolloQueryResult } from 'apollo-client'
 import BN from 'bn.js'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
@@ -199,41 +198,12 @@ export class DAO extends Entity<IDAOState> {
       .pipe(map((r) => r.reputation.entity))
   }
 
-  public ethBalance(
+  public async ethBalance(
              options: IPluginQueryOptions = {},
              apolloQueryOptions: IApolloQueryOptions = {}
-  ): Observable<BN> {
-      if (this.observedAccounts.observable) {
-        return this.observedAccounts.observable as Observable<BN>
-      }
-      const observable: Observable<BN> = Observable.create((observer: Observer<BN>) => {
-       this.observedAccounts.observer = observer
-
-       if (this.observedAccounts.lastBalance === undefined) {
-         this.observedAccounts.lastBalance = new BN(0)
-       }
-       let newBalance: BN = this.observedAccounts.lastBalance as BN
-      // console.log("n1",(newBalance as BN).toString())
-       const subscription = this.balanceOf(this.id)
-       .subscribe((result) => newBalance = result)
-       if (!this.ethBalancePollingInterval) {
-             this.ethBalancePollingInterval = setInterval(async () => {
-               if (!newBalance.eq(this.observedAccounts.lastBalance as BN)) {
-                 const obs = this.observedAccounts.observer as Observer<BN>
-                 obs.next(newBalance)
-                 this.observedAccounts.lastBalance = newBalance
-             }
-           }, 10000) // poll every 15 seconds
-           }
-       // unsubscribe
-       return () => {
-         subscription.unsubscribe()
-         clearTimeout(this.ethBalancePollingInterval)
-         this.ethBalancePollingInterval = undefined
-       }
-   })
-      this.observedAccounts.observable = observable
-      return observable
+  ): Promise<Observable<BN>> {
+    const avatar = this.context.getContract(this.id)
+    return this.context.ethBalance(await avatar.vault())
   }
 
   public plugins(
@@ -385,21 +355,5 @@ export class DAO extends Entity<IDAOState> {
     const plugin = await this.proposalPlugin({ where: { id: pluginId } })
 
     return plugin.createProposal(options)
-  }
-
-  private balanceOf(id: string): Observable<BN> {
-    const query = gql`query DaoDao
-      {
-        dao (id: "${id}") {
-          ethBalance
-        }
-      }
-    `
-    return this.context.getObservable(query, {fetchPolicy: 'network-only', fetchAllData: true}).pipe(
-      map((r: ApolloQueryResult<any>) => r.data.dao),
-      map((items: any) => {
-        return items.ethBalance !== undefined ? new BN(items.ethBalance) : new BN(0)
-      })
-    )
   }
 }
