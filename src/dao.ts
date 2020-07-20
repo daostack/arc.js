@@ -50,6 +50,7 @@ export interface IDAOState {
   numberOfBoostedProposals: number
   metadata: string
   metadataHash: string
+  ethBalance: BN
 }
 
 export interface IDAOQueryOptions extends ICommonQueryOptions {
@@ -84,6 +85,7 @@ export class DAO extends Entity<IDAOState> {
         reputationHoldersCount
         metadata
         metadataHash
+        ethBalance
       }
     `
   }
@@ -165,7 +167,8 @@ export class DAO extends Entity<IDAOState> {
       },
       tokenName: item.nativeToken.name,
       tokenSymbol: item.nativeToken.symbol,
-      tokenTotalSupply: item.nativeToken.totalSupply
+      tokenTotalSupply: item.nativeToken.totalSupply,
+      ethBalance: item.ethBalance
     }
   }
 
