@@ -13,7 +13,7 @@ import {
   createCRProposal
 } from './utils'
 import { BigNumber } from 'ethers/utils'
-jest.setTimeout(40000)
+jest.setTimeout(20000)
 
 /**
  * DAO test

@@ -190,10 +190,7 @@ export class DAO extends Entity<IDAOState> {
       .pipe(map((r) => r.reputation.entity))
   }
 
-  public async ethBalance(
-             options: IPluginQueryOptions = {},
-             apolloQueryOptions: IApolloQueryOptions = {}
-  ): Promise<Observable<BN>> {
+  public async ethBalance(): Promise<Observable<BN>> {
     const avatar = this.context.getContract(this.id)
     return this.context.ethBalance(await avatar.vault())
   }
