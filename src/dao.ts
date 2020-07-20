@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import gql from 'graphql-tag'
-import { Observable, Observer } from 'rxjs'
+import { Observable } from 'rxjs'
 import { first, map } from 'rxjs/operators'
 import {
   Address,
@@ -171,14 +171,6 @@ export class DAO extends Entity<IDAOState> {
       ethBalance: item.ethBalance
     }
   }
-
-  // accounts observed by ethBalance
-  public observedAccounts: {
-      observer?: Observer<BN>
-      observable?: Observable<BN>
-      lastBalance?: BN
-  } = {}
-  public ethBalancePollingInterval: any | undefined = undefined
 
   public state(apolloQueryOptions: IApolloQueryOptions = {}): Observable<IDAOState> {
     const query = gql`query DAOById {
