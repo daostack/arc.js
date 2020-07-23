@@ -799,7 +799,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
 
       const state = await this.fetchState()
       let pluginAddress
-      if (state.name === 'ContributionReward') {
+      if (state.name === 'ContributionReward' || state.name === 'ContributionRewardExt') {
         const pluginState = await state.plugin.entity.fetchState()
         pluginAddress = pluginState.address
       } else {
@@ -809,7 +809,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
         ).address
       }
       let method
-      if (state.name === 'ContributionRewardExt') {
+      if (state.name === 'ContributionRewardExt' || state.name === 'Competition') {
         method = 'redeemFromCRExt'
       } else {
         method = 'redeem'
