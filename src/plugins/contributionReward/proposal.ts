@@ -1,23 +1,16 @@
 import BN from 'bn.js'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
-import { from, Observable } from 'rxjs'
-import { concatMap } from 'rxjs/operators'
+import { Observable } from 'rxjs'
 import {
   Address,
   Arc,
   ContributionRewardPlugin,
   IApolloQueryOptions,
   IProposalState,
-  ITransaction,
-  ITransactionReceipt,
   Logger,
-  NULL_ADDRESS,
-  Operation,
   Plugin,
-  Proposal,
-  REDEEMER_CONTRACT_VERSIONS,
-  toIOperationObservable
+  Proposal
 } from '../../index'
 
 export interface IContributionRewardProposalState extends IProposalState {
@@ -180,52 +173,5 @@ export class ContributionRewardProposal extends Proposal<IContributionRewardProp
       apolloQueryOptions
     ) as Observable<IContributionRewardProposalState>
     return result
-  }
-
-  public redeemerContract() {
-    for (const version of REDEEMER_CONTRACT_VERSIONS) {
-      try {
-        const contractInfo = this.context.getContractInfoByName('Redeemer', version)
-        return this.context.getContract(contractInfo.address)
-      } catch (err) {
-        if (!err.message.match(/no contract/i)) {
-          // if the contract cannot be found, try the next one
-          throw err
-        }
-      }
-    }
-    throw Error(
-      `No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`
-    )
-  }
-
-  public redeemRewards(beneficiary?: Address): Operation<boolean> {
-    const mapReceipt = (receipt: ITransactionReceipt) => true
-
-    const createTransaction = async (): Promise<ITransaction> => {
-      if (!beneficiary) {
-        beneficiary = NULL_ADDRESS
-      }
-
-      const state = await this.fetchState()
-      const pluginState = await state.plugin.entity.fetchState()
-      const pluginAddress = pluginState.address
-      const method = 'redeem'
-      const args = [pluginAddress, state.votingMachine, this.id, beneficiary]
-
-      return {
-        contract: this.redeemerContract(),
-        method,
-        args
-      }
-    }
-
-    const observable = from(createTransaction()).pipe(
-      concatMap((transaction) => {
-        return this.context.sendTransaction(transaction, mapReceipt)
-      })
-    )
-
-    return toIOperationObservable(observable)
   }
 }
