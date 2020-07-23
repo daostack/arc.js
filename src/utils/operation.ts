@@ -1,10 +1,10 @@
-import BN from 'bn.js'
 import {
   Contract,
   ContractReceipt as ITransactionReceipt,
   Event as ITransactionEvent
 } from 'ethers/contract'
 import { TransactionResponse } from 'ethers/providers'
+import { BigNumber } from 'ethers/utils'
 import { Observable, Observer } from 'rxjs'
 import { first, take } from 'rxjs/operators'
 import { Arc, Logger } from '../index'
@@ -15,8 +15,8 @@ export interface ITransaction {
   args: any[]
   opts?: {
     gasLimit?: number
-    gasPrice?: BN
-    value?: BN
+    gasPrice?: BigNumber
+    value?: BigNumber
     nonce?: number
   }
 }
