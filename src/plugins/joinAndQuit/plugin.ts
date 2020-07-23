@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { BigNumber } from 'ethers/utils'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
@@ -155,7 +154,7 @@ export class JoinAndQuit extends ProposalPlugin<
     let opts
     if ((await state).pluginParams.fundingToken === NULL_ADDRESS) {
       // if we have no funding token, we shoudl send the fee as ETH
-      opts = { value: new BigNumber(options.fee.toString()).toHexString() }
+      opts = { value: options.fee }
     } else  {
       opts = {}
     }

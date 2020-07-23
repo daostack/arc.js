@@ -1,4 +1,4 @@
-
+import BN from 'bn.js'
 import {
   Contract,
   ContractReceipt as ITransactionReceipt,
@@ -15,8 +15,8 @@ export interface ITransaction {
   args: any[]
   opts?: {
     gasLimit?: number
-    gasPrice?: number
-    value?: string
+    gasPrice?: BN
+    value?: BN
     nonce?: number
   }
 }
