@@ -10,6 +10,7 @@ import {
   AnyProposal,
   Arc,
   concat,
+  CONTRIBUTION_REWARD_DUMMY_VERSION,
   createGraphQlQuery,
   DAO,
   Entity,
@@ -38,6 +39,7 @@ import {
   Proposals,
   Queue,
   realMathToNumber,
+  REDEEMER_CONTRACT_VERSIONS,
   Reward,
   Stake,
   toIOperationObservable,
@@ -764,6 +766,65 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     const observable = from(createTransaction()).pipe(
       concatMap((transaction) => {
         return this.context.sendTransaction(transaction, mapReceipt, errorHandler)
+      })
+    )
+
+    return toIOperationObservable(observable)
+  }
+
+  public redeemerContract() {
+    for (const version of REDEEMER_CONTRACT_VERSIONS) {
+      try {
+        const contractInfo = this.context.getContractInfoByName('Redeemer', version)
+        return this.context.getContract(contractInfo.address)
+      } catch (err) {
+        if (!err.message.match(/no contract/i)) {
+          // if the contract cannot be found, try the next one
+          throw err
+        }
+      }
+    }
+    throw Error(
+      `No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`
+    )
+  }
+
+  public redeemRewards(beneficiary?: Address): Operation<boolean> {
+    const mapReceipt = (receipt: ITransactionReceipt) => true
+
+    const createTransaction = async (): Promise<ITransaction> => {
+      if (!beneficiary) {
+        beneficiary = NULL_ADDRESS
+      }
+
+      const state = await this.fetchState()
+      let pluginAddress
+      if (state.name === 'ContributionReward' || state.name === 'ContributionRewardExt') {
+        const pluginState = await state.plugin.entity.fetchState()
+        pluginAddress = pluginState.address
+      } else {
+        pluginAddress = this.context.getContractInfoByName(
+          'ContributionReward',
+          CONTRIBUTION_REWARD_DUMMY_VERSION
+        ).address
+      }
+      let method
+      if (state.name === 'ContributionRewardExt' || state.name === 'Competition') {
+        method = 'redeemFromCRExt'
+      } else {
+        method = 'redeem'
+      }
+      const args = [pluginAddress, state.votingMachine, this.id, beneficiary]
+      return {
+        contract: this.redeemerContract(),
+        method,
+        args
+      }
+    }
+
+    const observable = from(createTransaction()).pipe(
+      concatMap((transaction) => {
+        return this.context.sendTransaction(transaction, mapReceipt)
       })
     )
 

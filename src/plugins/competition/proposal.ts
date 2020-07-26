@@ -18,11 +18,9 @@ import {
   ITransaction,
   ITransactionReceipt,
   Logger,
-  NULL_ADDRESS,
   Operation,
   Plugin,
   Proposal,
-  REDEEMER_CONTRACT_VERSIONS,
   secondSinceEpochToDate,
   toIOperationObservable
 } from '../../index'
@@ -162,23 +160,6 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
     return result
   }
 
-  public redeemerContract() {
-    for (const version of REDEEMER_CONTRACT_VERSIONS) {
-      try {
-        const contractInfo = this.context.getContractInfoByName('Redeemer', version)
-        return this.context.getContract(contractInfo.address)
-      } catch (err) {
-        if (!err.message.match(/no contract/i)) {
-          // if the contract cannot be found, try the next one
-          throw err
-        }
-      }
-    }
-    throw Error(
-      `No Redeemer contract could be found (search for versions ${REDEEMER_CONTRACT_VERSIONS})`
-    )
-  }
-
   public suggestions(
     options: ICompetitionSuggestionQueryOptions = {},
     apolloQueryOptions: IApolloQueryOptions = {}
@@ -199,35 +180,6 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
     }
     options.where.proposal = this.id
     return CompetitionVote.search(this.context, options, apolloQueryOptions)
-  }
-
-  public redeemRewards(beneficiary?: Address): Operation<boolean> {
-    const mapReceipt = (receipt: ITransactionReceipt) => true
-
-    const createTransaction = async (): Promise<ITransaction> => {
-      if (!beneficiary) {
-        beneficiary = NULL_ADDRESS
-      }
-
-      const state = await this.fetchState()
-      const pluginAddress = (await state.plugin.entity.fetchState()).address
-      const method = 'redeemFromCRExt'
-      const args = [pluginAddress, state.votingMachine, this.id, beneficiary]
-
-      return {
-        contract: this.redeemerContract(),
-        method,
-        args
-      }
-    }
-
-    const observable = from(createTransaction()).pipe(
-      concatMap((transaction) => {
-        return this.context.sendTransaction(transaction, mapReceipt)
-      })
-    )
-
-    return toIOperationObservable(observable)
   }
 
   public createSuggestion(options: {

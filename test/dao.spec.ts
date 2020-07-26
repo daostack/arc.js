@@ -2,7 +2,7 @@ import { first } from 'rxjs/operators'
 import { Arc, IProposalCreateOptionsCR, AnyProposal } from '../src'
 import { DAO } from '../src'
 import { IProposalStage, Proposal } from '../src'
-import { 
+import {
   fromWei,
   getTestDAO,
   getTestScheme,
@@ -13,7 +13,6 @@ import {
   createCRProposal
 } from './utils'
 import { BigNumber } from 'ethers/utils'
-
 jest.setTimeout(20000)
 
 /**
@@ -87,11 +86,13 @@ describe('DAO', () => {
       'token',
       'tokenName',
       'tokenSymbol',
-      'tokenTotalSupply'
+      'tokenTotalSupply',
+      'ethBalance'
     ])
     expect(state.address).toEqual(dao.id)
     // the created DAO has 6 members but other tests may add rep
     expect(state.memberCount).toBeGreaterThanOrEqual(5)
+
   })
 
   it('throws a reasonable error if the contract does not exist', async () => {
@@ -107,7 +108,7 @@ describe('DAO', () => {
 
     if(!arc.web3) throw new Error("Web3 provider not set")
     let defaultAccount = await arc.getDefaultAddress()
-    
+
     if (!defaultAccount) {
       defaultAccount = await arc.web3.getSigner().getAddress()
     }
@@ -211,9 +212,7 @@ describe('DAO', () => {
       to: dao.id,
       value: new BigNumber(toWei('1').toString()).toHexString()
     })
-
     const newBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
-
     expect(Number(fromWei(newBalance.sub(previousBalance)))).toBe(1)
   })
 
