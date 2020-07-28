@@ -18,10 +18,8 @@ import {
   Proposal,
   toIOperationObservable
 } from '../../index'
-import { AnyProposal } from '../utils'
 
 export interface ITokenTradeProposalState extends IProposalState {
-  proposal: IEntityRef<AnyProposal>
   dao: IEntityRef<DAO>
   beneficiary: Address
   sendTokenAddress: Address
@@ -40,7 +38,6 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
           fragment TokenTradeProposalFields on Proposal {
             tokenTrade {
               id
-              proposal { id }
               dao { id }
               beneficiary
               sendTokenAddress
