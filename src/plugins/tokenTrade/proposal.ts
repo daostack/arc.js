@@ -26,6 +26,8 @@ export interface ITokenTradeProposalState extends IProposalState {
   sendTokenAmount: BN
   receiveTokenAddress: Address
   receiveTokenAmount: BN
+  executed: boolean
+  redeemed: boolean
 }
 
 export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
@@ -44,6 +46,8 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
               sendTokenAmount
               receiveTokenAddress
               receiveTokenAmount
+              executed
+              redeemed
             }
           }
         `
@@ -80,7 +84,9 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
       sendTokenAddress: item.tokenTrade.sendTokenAddress,
       sendTokenAmount: new BN(item.tokenTrade.sendTokenAmount),
       receiveTokenAddress: item.tokenTrade.receiveTokenAddress,
-      receiveTokenAmount: new BN(item.tokenTrade.receiveTokenAmount)
+      receiveTokenAmount: new BN(item.tokenTrade.receiveTokenAmount),
+      executed: item.tokenTrade.executed,
+      redeemed: item.tokenTrade.redeemed,
     }
   }
 
