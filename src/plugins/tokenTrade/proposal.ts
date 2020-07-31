@@ -1,4 +1,3 @@
-import BN from 'bn.js'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
@@ -11,7 +10,6 @@ import {
   IApolloQueryOptions,
   IProposalState,
   ITransaction,
-  ITransactionReceipt,
   TokenTrade,
   Operation,
   Plugin,
@@ -23,9 +21,9 @@ export interface ITokenTradeProposalState extends IProposalState {
   dao: IEntityRef<DAO>
   beneficiary: Address
   sendTokenAddress: Address
-  sendTokenAmount: BN
+  sendTokenAmount: number
   receiveTokenAddress: Address
-  receiveTokenAmount: BN
+  receiveTokenAmount: number
   executed: boolean
   redeemed: boolean
 }
@@ -42,9 +40,9 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
               id
               dao { id }
               beneficiary
-              sendTokenAddress
+              sendToken
               sendTokenAmount
-              receiveTokenAddress
+              receiveToken
               receiveTokenAmount
               executed
               redeemed
@@ -81,10 +79,10 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
     return {
       ...baseState,
       beneficiary: item.tokenTrade.beneficiary,
-      sendTokenAddress: item.tokenTrade.sendTokenAddress,
-      sendTokenAmount: new BN(item.tokenTrade.sendTokenAmount),
-      receiveTokenAddress: item.tokenTrade.receiveTokenAddress,
-      receiveTokenAmount: new BN(item.tokenTrade.receiveTokenAmount),
+      sendTokenAddress: item.tokenTrade.sendToken,
+      sendTokenAmount: Number(item.tokenTrade.sendTokenAmount),
+      receiveTokenAddress: item.tokenTrade.receiveToken,
+      receiveTokenAmount: Number(item.tokenTrade.receiveTokenAmount),
       executed: item.tokenTrade.executed,
       redeemed: item.tokenTrade.redeemed,
     }
@@ -118,7 +116,7 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
    * Redeem this proposal after it was accepted
    */
   public redeem(): Operation<boolean> {
-    const mapReceipt = (receipt: ITransactionReceipt) => true
+    const mapReceipt = () => true
 
     const createTransaction = async (): Promise<ITransaction> => {
 

@@ -47,10 +47,10 @@ describe('JoinAndQuit', () => {
     const options: IProposalCreateOptionsTokenTrade = {
       dao: dao.id,
       descriptionHash: '',
-      sendToken: SEND_TOKEN_ADDRESS,
-      sendTokenAmount: new BN(100),
-      receiveToken: daoState.token.id,
-      receiveTokenAmount: new BN(50)
+      sendTokenAddress: SEND_TOKEN_ADDRESS,
+      sendTokenAmount: 100,
+      receiveTokenAddress: daoState.token.id,
+      receiveTokenAmount: 50
     }
 
     const tx = await tokenTradePlugin.createProposal(options).send()

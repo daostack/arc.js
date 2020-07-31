@@ -1,4 +1,3 @@
-import BN from 'bn.js'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
@@ -26,10 +25,10 @@ export interface ITokenTradeState extends IPluginState {
 }
 
 export interface IProposalCreateOptionsTokenTrade extends IProposalBaseCreateOptions {
-  sendToken: Address,
-  sendTokenAmount: BN,
-  receiveToken: Address,
-  receiveTokenAmount: BN,
+  sendTokenAddress: Address,
+  sendTokenAmount: number,
+  receiveTokenAddress: Address,
+  receiveTokenAmount: number,
   descriptionHash: string
 }
 
@@ -124,16 +123,16 @@ export class TokenTrade extends ProposalPlugin<
     if (options.plugin === undefined) {
       throw new Error(`Missing argument "plugin" for TokenTrade in Proposal.create()`)
     }
-    if (!options.receiveToken) {
-      throw new Error(`Missing argument "receiveToken" for TokenTrade in Proposal.create()`)
+    if (!options.receiveTokenAddress) {
+      throw new Error(`Missing argument "receiveTokenAddress" for TokenTrade in Proposal.create()`)
     }
-    if (!options.sendToken) {
-      throw new Error(`Missing argument "sendToken" for TokenTrade in Proposal.create()`)
+    if (!options.sendTokenAddress) {
+      throw new Error(`Missing argument "sendTokenAddress" for TokenTrade in Proposal.create()`)
     }
-    if (options.receiveTokenAmount.lte(new BN(0))) {
+    if (options.receiveTokenAmount <= 0) {
       throw new Error(`Argument "receiveTokenAmount" must be greater than 0 for TokenTrade in Proposal.create()`)
     }
-    if (options.sendTokenAmount.lte(new BN(0))) {
+    if (options.sendTokenAmount <= 0) {
       throw new Error(`Argument "sendTokenAmount" must be greater than 0 for TokenTrade in Proposal.create()`)
     }
 
@@ -145,9 +144,9 @@ export class TokenTrade extends ProposalPlugin<
       contract: this.context.getContract(options.plugin),
       method: 'proposeTokenTrade',
       args: [
-        options.sendToken,
+        options.sendTokenAddress,
         options.sendTokenAmount,
-        options.receiveToken,
+        options.receiveTokenAddress,
         options.receiveTokenAmount,
         options.descriptionHash
       ]
