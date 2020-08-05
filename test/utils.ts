@@ -17,7 +17,7 @@ export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/d
 export const web3Provider: string = 'ws://127.0.0.1:8545'
 export const ipfsProvider: string = 'http://127.0.0.1:5001/api/v0'
 
-export const LATEST_ARC_VERSION = '0.0.1-rc.32'
+export const LATEST_ARC_VERSION = '0.0.1-rc.44'
 
 export { BN }
 

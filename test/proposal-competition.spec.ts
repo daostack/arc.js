@@ -19,9 +19,8 @@ import {
 import { getBlockTime } from '../src/utils'
 import {
   advanceTimeAndBlock,
+  LATEST_ARC_VERSION,
   newArc,
-  // revertToSnapShot,
-  // takeSnapshot,
   toWei,
   voteToPassProposal,
   waitUntilTrue
@@ -73,8 +72,7 @@ describe('Competition Proposal', () => {
     arc = await newArc()
     // we'll get a `ContributionRewardExt` contract
     // find the corresponding scheme object
-    const ARC_VERSION = '0.0.1-rc.40'
-    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
+    const contributionRewardExtContract  = arc.getContractInfoByName(`ContributionRewardExt`, LATEST_ARC_VERSION)
     const contributionRewardExtAddres = contributionRewardExtContract.address
     // const contributionRewardExtAddres = '0x68c29524E583380aF7896f7e63463740225Ac026'.toLowerCase()
     const contributionRewardExts = await arc
@@ -628,8 +626,7 @@ describe('Competition Proposal', () => {
 
   it('CompetionScheme is recognized', async () => {
     // we'll get a `ContributionRewardExt` contract that has a Compietion contract as a rewarder
-    const ARC_VERSION = '0.0.1-rc.39'
-    const contributionRewardExtContract = arc.getContractInfoByName(`ContributionRewardExt`, ARC_VERSION)
+    const contributionRewardExtContract = arc.getContractInfoByName(`ContributionRewardExt`, LATEST_ARC_VERSION)
     // find the corresponding scheme object
     const contributionRewardExts = await arc
       .schemes({ where: { address: contributionRewardExtContract.address } }).pipe(first()).toPromise()
