@@ -40,7 +40,7 @@ describe('TokenTrade', () => {
     const userAddress = await (await arc.getSigner().pipe(first()).toPromise()).getAddress()
     const newUserBalance = new BN(fromWei(await dutchXToken.balanceOf(userAddress).pipe(first()).toPromise()))
 
-    expect(newUserBalance).toBeGreaterThanOrEqual(150)
+    expect(newUserBalance.gte(new BN(150)))
 
     // Save initial balances
 
