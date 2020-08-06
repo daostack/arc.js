@@ -1,5 +1,6 @@
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
+import BN from 'bn.js'
 import { from, Observable } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
 import { IEntityRef } from '../../entity'
@@ -21,9 +22,9 @@ export interface ITokenTradeProposalState extends IProposalState {
   dao: IEntityRef<DAO>
   beneficiary: Address
   sendTokenAddress: Address
-  sendTokenAmount: number
+  sendTokenAmount: BN
   receiveTokenAddress: Address
-  receiveTokenAmount: number
+  receiveTokenAmount: BN
   executed: boolean
   redeemed: boolean
 }
@@ -40,9 +41,9 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
               id
               dao { id }
               beneficiary
-              sendToken
+              sendTokenAddress
               sendTokenAmount
-              receiveToken
+              receiveTokenAddress
               receiveTokenAmount
               executed
               redeemed
@@ -57,9 +58,11 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
 
   public static itemMap(context: Arc, item: any, query?: string): ITokenTradeProposalState | null {
 
+    console.log(item, query)
     if (!item) { return null }
 
     const tokenTradeState = TokenTrade.itemMap(context, item.scheme, query)
+    console.log(tokenTradeState)
 
     if (!tokenTradeState) { return null }
 
@@ -79,10 +82,10 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
     return {
       ...baseState,
       beneficiary: item.tokenTrade.beneficiary,
-      sendTokenAddress: item.tokenTrade.sendToken,
-      sendTokenAmount: Number(item.tokenTrade.sendTokenAmount),
+      sendTokenAddress: item.tokenTrade.sendTokenAddress,
+      sendTokenAmount: new BN(item.tokenTrade.sendTokenAmount),
       receiveTokenAddress: item.tokenTrade.receiveToken,
-      receiveTokenAmount: Number(item.tokenTrade.receiveTokenAmount),
+      receiveTokenAmount: new BN(item.tokenTrade.receiveTokenAmount),
       executed: item.tokenTrade.executed,
       redeemed: item.tokenTrade.redeemed,
     }

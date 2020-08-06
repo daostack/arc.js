@@ -1,20 +1,19 @@
 import { first } from 'rxjs/operators'
+import BN from 'bn.js'
 import {
   Arc,
   DAO,
-  IJoinAndQuitProposalState,
   IProposalStage,
-  JoinAndQuit,
-  JoinAndQuitProposal,
-  NULL_ADDRESS,
   Proposal,
   TokenTrade,
   IProposalCreateOptionsTokenTrade,
   ITokenTradeProposalState,
   TokenTradeProposal,
+  fromWei,
+  Token,
+  toWei,
   } from '../src'
 import {
-  BN,
   newArc,
   voteToPassProposal,
   waitUntilTrue
@@ -22,35 +21,49 @@ import {
 
 jest.setTimeout(60000)
 
-const SEND_TOKEN_ADDRESS = '0x6B175474E89094C44Da98b954EedeAC495271d0F' //DAI
-
 /**
  * Proposal test
  */
-describe('JoinAndQuit', () => {
+describe('TokenTrade', () => {
   let arc: Arc
 
   beforeAll(async () => {
     arc = await newArc()
   })
 
-  it('Create a proposal and check if it is indexed correctly', async () => {
+  it('Create a proposal and trade tokens between user and DAO', async () => {
+
+    // Verify user has 150 'DutchX Tokens' to trade with
+
+    const dutchX = (await DAO.search(arc, { where: { name: 'DutchX DAO'}}).pipe(first()).toPromise())[0]
+    const dutchXToken = (await Token.search(arc, { where: { dao: dutchX.id}}).pipe(first()).toPromise())[0]
+    const userAddress = await (await arc.getSigner().pipe(first()).toPromise()).getAddress()
+    const newUserBalance = new BN(fromWei(await dutchXToken.balanceOf(userAddress).pipe(first()).toPromise()))
+
+    expect(newUserBalance).toBeGreaterThanOrEqual(150)
+
+    // Save initial balances
 
     const tokenTradePlugin = (await arc
-    .plugins({where: {name: 'TokenTrade'}}).pipe(first()).toPromise())[0] as TokenTrade
-
+      .plugins({where: {name: 'TokenTrade'}}).pipe(first()).toPromise())[0] as TokenTrade
     const tokenTradePluginState = await tokenTradePlugin.fetchState()
 
-    const dao = new DAO(arc, tokenTradePluginState.dao.id)
-    const daoState = await dao.fetchState()
+    const testDao = new DAO(arc, tokenTradePluginState.dao.id)
+    const testDaoState = await testDao.fetchState()
+    const testDaoToken = new Token(arc, testDaoState.token.id)
+
+    const firstUserTestTokensBalance = new BN(fromWei(await testDaoToken.balanceOf(userAddress).pipe(first()).toPromise()))
+    const firstDaoDutchXTokensBalance = new BN(fromWei(await dutchXToken.balanceOf(testDao.id).pipe(first()).toPromise()))
+
+    // Propose exchanging 100 'My DAO Tokens' for 50 'Test DAO Tokens'
 
     const options: IProposalCreateOptionsTokenTrade = {
-      dao: dao.id,
+      dao: testDao.id,
       descriptionHash: '',
-      sendTokenAddress: SEND_TOKEN_ADDRESS,
-      sendTokenAmount: 100,
-      receiveTokenAddress: daoState.token.id,
-      receiveTokenAmount: 50
+      sendTokenAddress: dutchXToken.address,
+      sendTokenAmount: toWei('150'),
+      receiveTokenAddress: testDaoToken.id,
+      receiveTokenAmount: toWei('50')
     }
 
     const tx = await tokenTradePlugin.createProposal(options).send()
@@ -84,12 +97,21 @@ describe('JoinAndQuit', () => {
       stage: IProposalStage.Executed
     })
 
-    const memberCount = (await dao.fetchState({}, true)).memberCount
-    // now we can redeem the proposal, which should make the proposed member a member
+    // now we can redeem the proposal, which should make the user have 50 additional Test DAO tokens and
+    // make the Test DAO have 150 additional DutchX Tokens
+
     await proposal.redeem().send()
     await waitUntilTrue(async () => {
-      const state = await dao.fetchState({fetchPolicy: 'no-cache'}, true)
-      return state.memberCount > memberCount
+      const secondUserTestTokensBalance = new BN(fromWei(await testDaoToken.balanceOf(userAddress).pipe(first()).toPromise()))
+      const secondDaoDutchXTokens = new BN(fromWei(await dutchXToken.balanceOf(testDao.id).pipe(first()).toPromise()))
+
+      const expectedUserBalance = firstUserTestTokensBalance.add(new BN(50))
+      const expectedDaoBalance = firstDaoDutchXTokensBalance.add(new BN(150))
+
+      return (
+        secondUserTestTokensBalance.eq(expectedUserBalance) &&
+        secondDaoDutchXTokens.eq(expectedDaoBalance)
+      )
     })
 
   })

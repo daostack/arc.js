@@ -1,4 +1,5 @@
 import { DocumentNode } from 'graphql'
+import BN from 'bn.js'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -26,9 +27,9 @@ export interface ITokenTradeState extends IPluginState {
 
 export interface IProposalCreateOptionsTokenTrade extends IProposalBaseCreateOptions {
   sendTokenAddress: Address,
-  sendTokenAmount: number,
+  sendTokenAmount: BN,
   receiveTokenAddress: Address,
-  receiveTokenAmount: number,
+  receiveTokenAmount: BN,
   descriptionHash: string
 }
 
@@ -99,15 +100,15 @@ export class TokenTrade extends ProposalPlugin<
       return null
     }
 
-    if (!item.joinAndQuitParams) {
+    if (!item.tokenTradeParams) {
       throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as TokenTrade Plugin`)
     }
 
     const baseState = Plugin.itemMapToBaseState(context, item)
 
     const tokenTradeParams = {
-      voteParams: mapGenesisProtocolParams(item.joinAndQuitParams.voteParams),
-      votingMachine: item.joinAndQuitParams.votingMachine
+      voteParams: mapGenesisProtocolParams(item.tokenTradeParams.voteParams),
+      votingMachine: item.tokenTradeParams.votingMachine
     }
 
     return {
@@ -129,10 +130,10 @@ export class TokenTrade extends ProposalPlugin<
     if (!options.sendTokenAddress) {
       throw new Error(`Missing argument "sendTokenAddress" for TokenTrade in Proposal.create()`)
     }
-    if (options.receiveTokenAmount <= 0) {
+    if (options.receiveTokenAmount.lte(new BN(0))) {
       throw new Error(`Argument "receiveTokenAmount" must be greater than 0 for TokenTrade in Proposal.create()`)
     }
-    if (options.sendTokenAmount <= 0) {
+    if (options.sendTokenAmount.lte(new BN(0))) {
       throw new Error(`Argument "sendTokenAmount" must be greater than 0 for TokenTrade in Proposal.create()`)
     }
 
