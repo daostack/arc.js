@@ -22,11 +22,11 @@ script:
   - ./scripts/wait-for-it.sh 127.0.0.1:8000
   - ./scripts/wait-for-it.sh 127.0.0.1:8020
   - sleep 60
-  - cd node_modules/@daostack/subgraph
+  - cd node_modules/@daostack/subgraph-test-env
   - npm i
   - npm run deploy
   - cd ../../../
-  - sleep 120
+  - sleep 60
 
   - echo 'Debug info:' && echo -en 'travis_fold:start:script.3\\r'
   - docker-compose logs ganache
