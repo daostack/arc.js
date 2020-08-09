@@ -103,7 +103,6 @@
     "u": "^0.1.0"
   },
   "dependencies": {
-    "@graphprotocol/graph-ts": "^0.18.1",
     "apollo-cache-inmemory": "^1.6.5",
     "apollo-client": "^2.6.8",
     "apollo-client-ws": "^2.5.0",
