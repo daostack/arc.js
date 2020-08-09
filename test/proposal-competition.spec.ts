@@ -251,7 +251,7 @@ describe('Competition Proposal', () => {
     const startTime = addSeconds(now, 3)
     const proposalOptions = {
       dao: dao.id,
-      endTime: addSeconds(startTime, 200),
+      endTime: addSeconds(startTime, 500),
       ethReward,
       externalTokenAddress: undefined,
       externalTokenReward,
