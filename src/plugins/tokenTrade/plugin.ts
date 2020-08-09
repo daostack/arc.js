@@ -27,9 +27,9 @@ export interface ITokenTradeState extends IPluginState {
 
 export interface IProposalCreateOptionsTokenTrade extends IProposalBaseCreateOptions {
   sendTokenAddress: Address,
-  sendTokenAmount: BN,
+  sendTokenAmount: number,
   receiveTokenAddress: Address,
-  receiveTokenAmount: BN,
+  receiveTokenAmount: number,
   descriptionHash: string
 }
 
@@ -130,10 +130,10 @@ export class TokenTrade extends ProposalPlugin<
     if (!options.sendTokenAddress) {
       throw new Error(`Missing argument "sendTokenAddress" for TokenTrade in Proposal.create()`)
     }
-    if (options.receiveTokenAmount.lte(new BN(0))) {
+    if (options.receiveTokenAmount <= 0) {
       throw new Error(`Argument "receiveTokenAmount" must be greater than 0 for TokenTrade in Proposal.create()`)
     }
-    if (options.sendTokenAmount.lte(new BN(0))) {
+    if (options.sendTokenAmount <= 0) {
       throw new Error(`Argument "sendTokenAmount" must be greater than 0 for TokenTrade in Proposal.create()`)
     }
 

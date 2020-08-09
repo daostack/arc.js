@@ -22,9 +22,9 @@ export interface ITokenTradeProposalState extends IProposalState {
   dao: IEntityRef<DAO>
   beneficiary: Address
   sendTokenAddress: Address
-  sendTokenAmount: BN
+  sendTokenAmount: number
   receiveTokenAddress: Address
-  receiveTokenAmount: BN
+  receiveTokenAmount: number
   executed: boolean
   redeemed: boolean
 }
@@ -58,11 +58,9 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
 
   public static itemMap(context: Arc, item: any, query?: string): ITokenTradeProposalState | null {
 
-    console.log(item, query)
     if (!item) { return null }
 
     const tokenTradeState = TokenTrade.itemMap(context, item.scheme, query)
-    console.log(tokenTradeState)
 
     if (!tokenTradeState) { return null }
 
@@ -83,9 +81,9 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
       ...baseState,
       beneficiary: item.tokenTrade.beneficiary,
       sendTokenAddress: item.tokenTrade.sendTokenAddress,
-      sendTokenAmount: new BN(item.tokenTrade.sendTokenAmount),
+      sendTokenAmount: item.tokenTrade.sendTokenAmount,
       receiveTokenAddress: item.tokenTrade.receiveToken,
-      receiveTokenAmount: new BN(item.tokenTrade.receiveTokenAmount),
+      receiveTokenAmount: item.tokenTrade.receiveTokenAmount,
       executed: item.tokenTrade.executed,
       redeemed: item.tokenTrade.redeemed,
     }
@@ -128,7 +126,7 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
       const pluginAddress = pluginState.address
       //  const pluginAddress = state.plugin.id
       const contract = this.context.getContract(pluginAddress)
-      const method = 'redeemReputation'
+      const method = 'execute'
       const args: any[] = [this.id]
 
       return {

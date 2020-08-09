@@ -52,19 +52,30 @@ describe('TokenTrade', () => {
     const testDaoState = await testDao.fetchState()
     const testDaoToken = new Token(arc, testDaoState.token.id)
 
+    console.log(testDaoState.name)
+
     const firstUserTestTokensBalance = new BN(fromWei(await testDaoToken.balanceOf(userAddress).pipe(first()).toPromise()))
     const firstDaoDutchXTokensBalance = new BN(fromWei(await dutchXToken.balanceOf(testDao.id).pipe(first()).toPromise()))
+    await testDaoToken.mint(testDao.id, new BN(1000000)).send()
+    await dutchXToken.mint(dutchX.id, new BN(1000000)).send()
+    console.log((await dutchXToken.balanceOf(dutchX.id).pipe(first()).toPromise()).toString())
+    console.log((await testDaoToken.balanceOf(testDao.id).pipe(first()).toPromise()).toString())
 
-    // Propose exchanging 100 'My DAO Tokens' for 50 'Test DAO Tokens'
+    // Propose exchanging 150 'DutchX Tokens' for 50 'Test DAO Tokens'
+
+    await dutchXToken.approveForStaking(tokenTradePluginState.address, new BN(250)).send()
+    await testDaoToken.approveForStaking(testDao.id, new BN(250)).send()
 
     const options: IProposalCreateOptionsTokenTrade = {
       dao: testDao.id,
       descriptionHash: '',
       sendTokenAddress: dutchXToken.address,
-      sendTokenAmount: toWei('150'),
+      sendTokenAmount: 1,
       receiveTokenAddress: testDaoToken.id,
-      receiveTokenAmount: toWei('50')
+      receiveTokenAmount: 1
     }
+
+    console.log("Creating proposal")
 
     const tx = await tokenTradePlugin.createProposal(options).send()
 
@@ -100,10 +111,14 @@ describe('TokenTrade', () => {
     // now we can redeem the proposal, which should make the user have 50 additional Test DAO tokens and
     // make the Test DAO have 150 additional DutchX Tokens
 
+    console.log("REDEEMING...")
+
     await proposal.redeem().send()
     await waitUntilTrue(async () => {
       const secondUserTestTokensBalance = new BN(fromWei(await testDaoToken.balanceOf(userAddress).pipe(first()).toPromise()))
       const secondDaoDutchXTokens = new BN(fromWei(await dutchXToken.balanceOf(testDao.id).pipe(first()).toPromise()))
+
+      console.log(secondDaoDutchXTokens, secondUserTestTokensBalance)
 
       const expectedUserBalance = firstUserTestTokensBalance.add(new BN(50))
       const expectedDaoBalance = firstDaoDutchXTokensBalance.add(new BN(150))
