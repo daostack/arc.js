@@ -1,6 +1,5 @@
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
-import BN from 'bn.js'
 import { from, Observable } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
 import { IEntityRef } from '../../entity'

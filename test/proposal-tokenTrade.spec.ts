@@ -11,12 +11,11 @@ import {
   TokenTradeProposal,
   fromWei,
   Token,
-  toWei,
   } from '../src'
 import {
   newArc,
   voteToPassProposal,
-  waitUntilTrue
+  waitUntilTrue,
  } from './utils'
 
 jest.setTimeout(60000)
@@ -37,42 +36,34 @@ describe('TokenTrade', () => {
 
     const dutchX = (await DAO.search(arc, { where: { name: 'DutchX DAO'}}).pipe(first()).toPromise())[0]
     const dutchXToken = (await Token.search(arc, { where: { dao: dutchX.id}}).pipe(first()).toPromise())[0]
-    const userAddress = await (await arc.getSigner().pipe(first()).toPromise()).getAddress()
-    const newUserBalance = new BN(fromWei(await dutchXToken.balanceOf(userAddress).pipe(first()).toPromise()))
-
-    expect(newUserBalance.gte(new BN(150)))
-
-    // Save initial balances
-
+    
     const tokenTradePlugin = (await arc
       .plugins({where: {name: 'TokenTrade'}}).pipe(first()).toPromise())[0] as TokenTrade
     const tokenTradePluginState = await tokenTradePlugin.fetchState()
-
     const testDao = new DAO(arc, tokenTradePluginState.dao.id)
-    const testDaoState = await testDao.fetchState()
-    const testDaoToken = new Token(arc, testDaoState.token.id)
 
-    console.log(testDaoState.name)
+    const genToken =  arc.GENToken().contract()
+    await genToken.mint(testDao.id, 1000000)
 
-    const firstUserTestTokensBalance = new BN(fromWei(await testDaoToken.balanceOf(userAddress).pipe(first()).toPromise()))
+    const userAddress = await (await arc.getSigner().pipe(first()).toPromise()).getAddress()
+    const newUserBalance = new BN(fromWei(await dutchXToken.balanceOf(userAddress).pipe(first()).toPromise()))
+    expect(newUserBalance.gte(new BN(150)))
+
+    const firstUserTestTokensBalance = new BN(fromWei(await genToken.balanceOf(userAddress)))
     const firstDaoDutchXTokensBalance = new BN(fromWei(await dutchXToken.balanceOf(testDao.id).pipe(first()).toPromise()))
-    await testDaoToken.mint(testDao.id, new BN(1000000)).send()
-    await dutchXToken.mint(dutchX.id, new BN(1000000)).send()
-    console.log((await dutchXToken.balanceOf(dutchX.id).pipe(first()).toPromise()).toString())
-    console.log((await testDaoToken.balanceOf(testDao.id).pipe(first()).toPromise()).toString())
 
-    // Propose exchanging 150 'DutchX Tokens' for 50 'Test DAO Tokens'
-
+    console.log(firstUserTestTokensBalance.toString())
+    console.log(firstDaoDutchXTokensBalance.toString())
+    // Propose exchanging 150 'DutchX Tokens' for 50 'GEN Tokens'
     await dutchXToken.approveForStaking(tokenTradePluginState.address, new BN(250)).send()
-    await testDaoToken.approveForStaking(testDao.id, new BN(250)).send()
 
     const options: IProposalCreateOptionsTokenTrade = {
       dao: testDao.id,
       descriptionHash: '',
       sendTokenAddress: dutchXToken.address,
-      sendTokenAmount: 1,
-      receiveTokenAddress: testDaoToken.id,
-      receiveTokenAmount: 1
+      sendTokenAmount: 150,
+      receiveTokenAddress: genToken.address,
+      receiveTokenAmount: 50
     }
 
     console.log("Creating proposal")
@@ -108,17 +99,13 @@ describe('TokenTrade', () => {
       stage: IProposalStage.Executed
     })
 
-    // now we can redeem the proposal, which should make the user have 50 additional Test DAO tokens and
+    // now we can redeem the proposal, which should make the user have 50 additional GEN tokens and
     // make the Test DAO have 150 additional DutchX Tokens
-
-    console.log("REDEEMING...")
 
     await proposal.redeem().send()
     await waitUntilTrue(async () => {
-      const secondUserTestTokensBalance = new BN(fromWei(await testDaoToken.balanceOf(userAddress).pipe(first()).toPromise()))
+      const secondUserTestTokensBalance = new BN(fromWei(await genToken.balanceOf(userAddress)))
       const secondDaoDutchXTokens = new BN(fromWei(await dutchXToken.balanceOf(testDao.id).pipe(first()).toPromise()))
-
-      console.log(secondDaoDutchXTokens, secondUserTestTokensBalance)
 
       const expectedUserBalance = firstUserTestTokensBalance.add(new BN(50))
       const expectedDaoBalance = firstDaoDutchXTokensBalance.add(new BN(150))
