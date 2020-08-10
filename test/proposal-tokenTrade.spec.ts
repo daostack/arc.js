@@ -16,6 +16,7 @@ import {
   newArc,
   voteToPassProposal,
   waitUntilTrue,
+  firstResult,
  } from './utils'
 
 jest.setTimeout(60000)
@@ -42,16 +43,15 @@ describe('TokenTrade', () => {
     const tokenTradePluginState = await tokenTradePlugin.fetchState()
     const testDao = new DAO(arc, tokenTradePluginState.dao.id)
 
-    const genToken =  arc.GENToken().contract()
+    const genToken = arc.GENToken().contract()
     await genToken.mint(testDao.id, 1000000)
 
     const userAddress = await (await arc.getSigner().pipe(first()).toPromise()).getAddress()
     const newUserBalance = new BN(fromWei(await dutchXToken.balanceOf(userAddress).pipe(first()).toPromise()))
     expect(newUserBalance.gte(new BN(150)))
 
-    const firstUserTestTokensBalance = new BN(fromWei(await genToken.balanceOf(userAddress)))
-    const firstDaoDutchXTokensBalance = new BN(fromWei(await dutchXToken.balanceOf(testDao.id).pipe(first()).toPromise()))
-
+    const userGenTokenBalance = new BN(await firstResult(arc.GENToken().balanceOf(userAddress)))
+    const daoDutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(testDao.id)))
     // Propose exchanging 150 'DutchX Tokens' for 50 'GEN Tokens'
     await dutchXToken.approveForStaking(tokenTradePluginState.address, new BN(250)).send()
 
@@ -65,7 +65,6 @@ describe('TokenTrade', () => {
     }
 
     const tx = await tokenTradePlugin.createProposal(options).send()
-
     if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposal = new TokenTradeProposal(arc, tx.result.id)
@@ -97,18 +96,17 @@ describe('TokenTrade', () => {
 
     // now we can redeem the proposal, which should make the user have 50 additional GEN tokens and
     // make the Test DAO have 150 additional DutchX Tokens
-
     await proposal.redeem().send()
-    await waitUntilTrue(async () => {
-      const secondUserTestTokensBalance = new BN(fromWei(await genToken.balanceOf(userAddress)))
-      const secondDaoDutchXTokens = new BN(fromWei(await dutchXToken.balanceOf(testDao.id).pipe(first()).toPromise()))
 
-      const expectedUserBalance = firstUserTestTokensBalance.add(new BN(50))
-      const expectedDaoBalance = firstDaoDutchXTokensBalance.add(new BN(150))
+    await waitUntilTrue(async () => {
+      const updatedUserGenTokenBalance = new BN(await firstResult(arc.GENToken().balanceOf(userAddress)))
+      const updateDAODutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(testDao.id)))
+      const expectedUserBalance = new BN(userGenTokenBalance.add(new BN(50)))
+      const expectedDaoBalance = new BN(daoDutchTokenBalance.add(new BN(150)))
 
       return (
-        secondUserTestTokensBalance.eq(expectedUserBalance) &&
-        secondDaoDutchXTokens.eq(expectedDaoBalance)
+        updatedUserGenTokenBalance.eq(expectedUserBalance) &&
+        updateDAODutchTokenBalance.eq(expectedDaoBalance)
       )
     })
 
