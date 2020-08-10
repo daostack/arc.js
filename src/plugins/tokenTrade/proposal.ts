@@ -10,11 +10,11 @@ import {
   IApolloQueryOptions,
   IProposalState,
   ITransaction,
-  TokenTrade,
   Operation,
   Plugin,
   Proposal,
-  toIOperationObservable
+  toIOperationObservable,
+  TokenTrade
 } from '../../index'
 
 export interface ITokenTradeProposalState extends IProposalState {
@@ -84,7 +84,7 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
       receiveTokenAddress: item.tokenTrade.receiveToken,
       receiveTokenAmount: item.tokenTrade.receiveTokenAmount,
       executed: item.tokenTrade.executed,
-      redeemed: item.tokenTrade.redeemed,
+      redeemed: item.tokenTrade.redeemed
     }
   }
 

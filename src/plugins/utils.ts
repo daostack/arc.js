@@ -42,7 +42,7 @@ import {
   UnknownPlugin,
   UnknownProposal
 } from '../index'
-import { TokenTrade, IInitParamsTT, IProposalCreateOptionsTokenTrade, TokenTradeProposal } from './tokenTrade'
+import { IInitParamsTT, IProposalCreateOptionsTokenTrade, TokenTrade, TokenTradeProposal } from './tokenTrade'
 
 export const ProposalPlugins = {
   FundingRequest,
