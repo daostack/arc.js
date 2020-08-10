@@ -52,8 +52,6 @@ describe('TokenTrade', () => {
     const firstUserTestTokensBalance = new BN(fromWei(await genToken.balanceOf(userAddress)))
     const firstDaoDutchXTokensBalance = new BN(fromWei(await dutchXToken.balanceOf(testDao.id).pipe(first()).toPromise()))
 
-    console.log(firstUserTestTokensBalance.toString())
-    console.log(firstDaoDutchXTokensBalance.toString())
     // Propose exchanging 150 'DutchX Tokens' for 50 'GEN Tokens'
     await dutchXToken.approveForStaking(tokenTradePluginState.address, new BN(250)).send()
 
@@ -65,8 +63,6 @@ describe('TokenTrade', () => {
       receiveTokenAddress: genToken.address,
       receiveTokenAmount: 50
     }
-
-    console.log("Creating proposal")
 
     const tx = await tokenTradePlugin.createProposal(options).send()
 
