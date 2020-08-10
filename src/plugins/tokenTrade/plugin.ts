@@ -1,4 +1,5 @@
 import { DocumentNode } from 'graphql'
+import BN from 'bn.js'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -16,6 +17,9 @@ import {
   transactionResultHandler
 } from '../../index'
 import { ITokenTradeProposalState, TokenTradeProposal } from './proposal'
+import { Token } from '../../token'
+import { first } from 'rxjs/operators'
+import { Contract } from 'ethers'
 
 export interface ITokenTradeState extends IPluginState {
   pluginParams: {
@@ -139,6 +143,16 @@ export class TokenTrade extends ProposalPlugin<
     if (!options.descriptionHash) {
       options.descriptionHash = await this.context.saveIPFSData(options)
     }
+
+    const { address: pluginAddress } = await this.fetchState()
+
+    console.log(pluginAddress)
+
+    console.log(await (this.context.web3 as any).getSigner())
+
+    console.log(options)
+
+    await this.context.approveTokens(options.sendTokenAddress, pluginAddress, new BN(options.sendTokenAmount))
 
     return {
       contract: this.context.getContract(options.plugin),

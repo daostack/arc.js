@@ -41,6 +41,7 @@ import {
   Web3Client,
   Web3Provider
 } from './index'
+import { JsonRpcProvider } from 'ethers/providers'
 
 const abis = require('./abis/abis.json')
 
@@ -626,6 +627,17 @@ export class Arc extends GraphNodeObserver {
     await this.ipfs.pinHash(descriptionHash)
     Logger.debug(`Data saved successfully as ${descriptionHash}`)
     return descriptionHash
+  }
+
+  public approveTokens(tokenAddress: Address, spender: Address, amount: BN) {
+    const erc20Abi = this.getABI({ abiName: 'ERC20Mock' })
+    const tokenContract = new Contract(tokenAddress, erc20Abi, (this.web3 as JsonRpcProvider).getSigner(this.defaultAccount as any))
+
+    return this.sendTransaction({
+      contract: tokenContract,
+      method: 'approve',
+      args: [spender, amount.toString()]
+    })
   }
 }
 

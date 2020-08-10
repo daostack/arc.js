@@ -13,6 +13,7 @@ import {
   ICommonQueryOptions,
   isAddress
 } from './index'
+import { Contract } from 'ethers'
 
 export interface ITokenState {
   id: Address
