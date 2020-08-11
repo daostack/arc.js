@@ -146,13 +146,7 @@ export class TokenTrade extends ProposalPlugin<
 
     const { address: pluginAddress } = await this.fetchState()
 
-    console.log(pluginAddress)
-
-    console.log(await (this.context.web3 as any).getSigner())
-
-    console.log(options)
-
-    await this.context.approveTokens(options.sendTokenAddress, pluginAddress, new BN(options.sendTokenAmount))
+    await this.context.approveTokens(options.sendTokenAddress, pluginAddress, new BN(options.sendTokenAmount)).send()
 
     return {
       contract: this.context.getContract(options.plugin),
