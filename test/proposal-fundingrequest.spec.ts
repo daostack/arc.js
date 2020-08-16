@@ -5,7 +5,7 @@ import {
   FundingRequestProposal,
   IFundingRequestProposalState,
   IProposalStage,
-  JoinAndQuit,
+  Join,
   NULL_ADDRESS,
   Proposal
   } from '../src'
@@ -65,8 +65,8 @@ describe('FundingRequest', () => {
         fundingToken: NULL_ADDRESS
       })
 
-      const joinAndQuit = await dao.plugin({where: {name: 'JoinAndQuit'}}) as JoinAndQuit
-      const joinAndQuitState = await joinAndQuit.fetchState()
+      const join = await dao.plugin({where: {name: 'Join'}}) as Join
+      const joinState = await join.fetchState()
 
       // fund the dao
       const daoAddress = dao.id
@@ -79,8 +79,8 @@ describe('FundingRequest', () => {
      // transfer some money to this dao so that we are sure the funding goal is reached
       const daoContract = await arc.getContract(dao.id)
 
-      const joinAndQuitContract = arc.getContract(joinAndQuitState.address)
-      await (await joinAndQuitContract.setFundingGoalReachedFlag()).wait()
+      const joinContract = arc.getContract(joinState.address)
+      await (await joinContract.setFundingGoalReachedFlag()).wait()
 
       const value = await daoContract.db('FUNDED_BEFORE_DEADLINE')
       expect(value).toEqual('TRUE')

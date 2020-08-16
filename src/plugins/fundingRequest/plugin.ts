@@ -19,7 +19,7 @@ import {
   transactionErrorHandler,
   transactionResultHandler
 } from '../../index'
-import { IJoinAndQuitState } from '../joinAndQuit'
+import { IJoinState } from '../join'
 
 export interface IFundingRequestState extends IPluginState {
   pluginParams: {
@@ -157,15 +157,15 @@ export class FundingRequest
       if (err.message.match(/funding is not allowed yet/)) {
         const state = await this.fetchState()
         const dao = state.dao.entity
-        const joinAndQuit = (await dao.plugin({ where: { name: 'JoinAndQuit' } }))
-        const joinAndQuitState = await joinAndQuit.fetchState() as IJoinAndQuitState
-        const deadline = joinAndQuitState.pluginParams.fundingGoalDeadline
+        const join = (await dao.plugin({ where: { name: 'Join' } }))
+        const joinState = await join.fetchState() as IJoinState
+        const deadline = joinState.pluginParams.fundingGoalDeadline
         const now = new Date()
         if (deadline < now) {
           return new Error(`${err.message}: fundingGoal deadline ${deadline} has passed before reaching the funding goal`)
 
         }
-        return new Error(`${err.message}: funding goal: ${fromWei(joinAndQuitState.pluginParams.fundingGoal)}, deadline: ${joinAndQuitState.pluginParams.fundingGoalDeadline}`)
+        return new Error(`${err.message}: funding goal: ${fromWei(joinState.pluginParams.fundingGoal)}, deadline: ${joinState.pluginParams.fundingGoalDeadline}`)
       }
       throw err
     }
