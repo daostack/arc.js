@@ -7,12 +7,12 @@ import {
   Arc,
   getEventArgs,
   IGenesisProtocolParams,
-  IJoinAndQuitProposalState,
+  IJoinProposalState,
   IPluginState,
   IProposalBaseCreateOptions,
   ITransaction,
   ITransactionReceipt,
-  JoinAndQuitProposal,
+  JoinProposal,
   mapGenesisProtocolParams,
   Plugin,
   ProposalPlugin,
@@ -21,7 +21,7 @@ import {
 } from '../../index'
 import { NULL_ADDRESS, secondSinceEpochToDate } from '../../utils'
 
-export interface IJoinAndQuitState extends IPluginState {
+export interface IJoinState extends IPluginState {
   pluginParams: {
     votingMachine: Address
     voteParams: IGenesisProtocolParams
@@ -33,7 +33,7 @@ export interface IJoinAndQuitState extends IPluginState {
    }
 }
 
-export interface IProposalCreateOptionsJoinAndQuit extends IProposalBaseCreateOptions {
+export interface IProposalCreateOptionsJoin extends IProposalBaseCreateOptions {
   fee: BN
 }
 
@@ -51,17 +51,17 @@ export interface IInitParamsJQ {
   rageQuitEnable: boolean
 }
 
-export class JoinAndQuit extends ProposalPlugin<
-  IJoinAndQuitState,
-  IJoinAndQuitProposalState,
-  IProposalCreateOptionsJoinAndQuit> {
+export class Join extends ProposalPlugin<
+  IJoinState,
+  IJoinProposalState,
+  IProposalCreateOptionsJoin> {
 
   public static get fragment() {
     if (!this.fragmentField) {
       this.fragmentField = {
-        name: 'JoinAndQuitParams',
-        fragment: gql` fragment JoinAndQuitParams on ControllerScheme {
-          joinAndQuitParams {
+        name: 'JoinParams',
+        fragment: gql` fragment JoinParams on ControllerScheme {
+          joinParams {
             id
             votingMachine
             voteParams {
@@ -97,7 +97,7 @@ export class JoinAndQuit extends ProposalPlugin<
 
     Object.keys(initParams).forEach((key) => {
       if (initParams[key] === undefined) {
-        throw new Error(`JoinAndQuit's initialize parameter '${key}' cannot be undefined`)
+        throw new Error(`Join's initialize parameter '${key}' cannot be undefined`)
       }
     })
 
@@ -116,25 +116,25 @@ export class JoinAndQuit extends ProposalPlugin<
     ]
   }
 
-  public static itemMap(context: Arc, item: any, queriedId?: string): IJoinAndQuitState | null {
+  public static itemMap(context: Arc, item: any, queriedId?: string): IJoinState | null {
     if (!item) {
       return null
     }
 
-    if (!item.joinAndQuitParams) {
-      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as JoinAndQuit Plugin`)
+    if (!item.joinParams) {
+      throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as Join Plugin`)
     }
 
     const baseState = Plugin.itemMapToBaseState(context, item)
 
     const fundingRequestParams = {
-      voteParams: mapGenesisProtocolParams(item.joinAndQuitParams.voteParams),
-      votingMachine: item.joinAndQuitParams.votingMachine,
-      fundingToken: item.joinAndQuitParams.fundingToken,
-      minFeeToJoin: new BN(item.joinAndQuitParams.minFeeToJoin),
-      memberReputation: new BN(item.joinAndQuitParams.memberReputation),
-      fundingGoal: new BN(item.joinAndQuitParams.fundingGoal),
-      fundingGoalDeadline: secondSinceEpochToDate(item.joinAndQuitParams.fundingGoalDeadline)
+      voteParams: mapGenesisProtocolParams(item.joinParams.voteParams),
+      votingMachine: item.joinParams.votingMachine,
+      fundingToken: item.joinParams.fundingToken,
+      minFeeToJoin: new BN(item.joinParams.minFeeToJoin),
+      memberReputation: new BN(item.joinParams.memberReputation),
+      fundingGoal: new BN(item.joinParams.fundingGoal),
+      fundingGoalDeadline: secondSinceEpochToDate(item.joinParams.fundingGoalDeadline)
     }
 
     return {
@@ -145,10 +145,10 @@ export class JoinAndQuit extends ProposalPlugin<
 
   private static fragmentField: { name: string, fragment: DocumentNode } | undefined
 
-  public async createProposalTransaction(options: IProposalCreateOptionsJoinAndQuit): Promise<ITransaction> {
+  public async createProposalTransaction(options: IProposalCreateOptionsJoin): Promise<ITransaction> {
 
     if (options.plugin === undefined) {
-      throw new Error(`Missing argument "plugin" for JoinAndQuit in Proposal.create()`)
+      throw new Error(`Missing argument "plugin" for Join in Proposal.create()`)
     }
 
     const state = this.fetchState()
@@ -176,13 +176,13 @@ export class JoinAndQuit extends ProposalPlugin<
 
   public createProposalTransactionMap(): transactionResultHandler<any> {
     return async (receipt: ITransactionReceipt) => {
-      const args = getEventArgs(receipt, 'JoinInProposal', 'JoinAndQuit.createProposal')
+      const args = getEventArgs(receipt, 'JoinInProposal', 'Join.createProposal')
       const proposalId = args[1]
-      return new JoinAndQuitProposal(this.context, proposalId)
+      return new JoinProposal(this.context, proposalId)
     }
   }
 
-  public createProposalErrorHandler(options: IProposalCreateOptionsJoinAndQuit): transactionErrorHandler {
+  public createProposalErrorHandler(options: IProposalCreateOptionsJoin): transactionErrorHandler {
     return async (err) => {
       throw err
     }
