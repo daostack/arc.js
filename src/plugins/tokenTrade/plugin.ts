@@ -17,9 +17,6 @@ import {
   transactionResultHandler
 } from '../../index'
 import { ITokenTradeProposalState, TokenTradeProposal } from './proposal'
-import { Token } from '../../token'
-import { first } from 'rxjs/operators'
-import { Contract } from 'ethers'
 
 export interface ITokenTradeState extends IPluginState {
   pluginParams: {
