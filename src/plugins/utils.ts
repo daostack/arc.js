@@ -25,12 +25,12 @@ import {
   IProposalCreateOptionsCRExt,
   IProposalCreateOptionsFundingRequest,
   IProposalCreateOptionsGS,
-  IProposalCreateOptionsJoinAndQuit,
+  IProposalCreateOptionsJoin,
   IProposalCreateOptionsPM,
   IProposalCreateOptionsSR,
   IProposalState,
-  JoinAndQuit,
-  JoinAndQuitProposal,
+  Join,
+  JoinProposal,
   Plugin,
   PluginManagerPlugin,
   PluginManagerProposal,
@@ -46,7 +46,7 @@ import { IInitParamsTT, IProposalCreateOptionsTokenTrade, TokenTrade, TokenTrade
 
 export const ProposalPlugins = {
   FundingRequest,
-  JoinAndQuit,
+  Join,
   GenericScheme: GenericPlugin,
   SchemeRegistrar: PluginRegistrarPlugin,
   ContributionReward: ContributionRewardPlugin,
@@ -71,8 +71,8 @@ export const Proposals = {
   Competition: CompetitionProposal,
   ContributionRewardExt: ContributionRewardExtProposal,
   FundingRequest: FundingRequestProposal,
-  JoinAndQuit: JoinAndQuitProposal,
   TokenTrade: TokenTradeProposal,
+  Join: JoinProposal,
   SchemeRegistrar: PluginRegistrarProposal,
   SchemeRegistrarAdd: PluginRegistrarProposal,
   SchemeRegistrarRemove: PluginRegistrarProposal,
@@ -86,8 +86,8 @@ export interface IInitParams {
   Competition: IInitParamsCompetition,
   ContributionRewardExt: IInitParamsCRExt,
   FundingRequest: IInitParamsFR,
-  JoinAndQuit: IInitParamsJQ,
   TokenTrade: IInitParamsTT,
+  Join: IInitParamsJQ,
   SchemeRegistrar: IInitParamsSR,
   SchemeFactory: IInitParamsPM,
   ReputationFromToken: IInitParamsRT
@@ -102,7 +102,7 @@ export type ProposalCreateOptions =
   IProposalCreateOptionsComp |
   IProposalCreateOptionsCR |
   IProposalCreateOptionsFundingRequest |
-  IProposalCreateOptionsJoinAndQuit |
+  IProposalCreateOptionsJoin |
   IProposalCreateOptionsTokenTrade |
   IProposalCreateOptionsPM
 

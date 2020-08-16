@@ -12,14 +12,14 @@ import {
   IProposalState,
   ITransaction,
   ITransactionReceipt,
-  JoinAndQuit,
+  Join,
   Operation,
   Plugin,
   Proposal,
   toIOperationObservable
 } from '../../index'
 
-export interface IJoinAndQuitProposalState extends IProposalState {
+export interface IJoinProposalState extends IProposalState {
   proposedMember: Address
   dao: IEntityRef<DAO>
   funding: BN,
@@ -27,15 +27,15 @@ export interface IJoinAndQuitProposalState extends IProposalState {
   reputationMinted: BN
 }
 
-export class JoinAndQuitProposal extends Proposal<IJoinAndQuitProposalState> {
+export class JoinProposal extends Proposal<IJoinProposalState> {
 
   public static get fragment() {
     if (!this.fragmentField) {
       this.fragmentField = {
-        name: 'JoinAndQuitProposalFields',
+        name: 'JoinProposalFields',
         fragment: gql`
-          fragment JoinAndQuitProposalFields on Proposal {
-            joinAndQuit {
+          fragment JoinProposalFields on Proposal {
+            join {
               id
               dao { id }
               proposedMember
@@ -51,39 +51,39 @@ export class JoinAndQuitProposal extends Proposal<IJoinAndQuitProposalState> {
     return this.fragmentField
   }
 
-  public static itemMap(context: Arc, item: any, query?: string): IJoinAndQuitProposalState | null {
+  public static itemMap(context: Arc, item: any, query?: string): IJoinProposalState | null {
 
     if (!item) { return null }
 
-    const joinAndQuitState = JoinAndQuit.itemMap(context, item.scheme, query)
+    const joinState = Join.itemMap(context, item.scheme, query)
 
-    if (!joinAndQuitState) { return null }
+    if (!joinState) { return null }
 
-    const joinAndQuit = new JoinAndQuit(context, joinAndQuitState)
-    const joinAndQuitProposal = new JoinAndQuitProposal(context, item.id)
+    const join = new Join(context, joinState)
+    const joinProposal = new JoinProposal(context, item.id)
 
     const baseState = Proposal.itemMapToBaseState(
       context,
       item,
-      joinAndQuit,
-      joinAndQuitProposal,
-      'JoinAndQuit'
+      join,
+      joinProposal,
+      'Join'
     )
 
     if (baseState == null) { return null }
 
     return {
       ...baseState,
-      proposedMember: item.joinAndQuit.proposedMember,
-      funding: new BN(item.joinAndQuit.funding),
-      executed: item.joinAndQuit.executed,
-      reputationMinted: new BN(item.joinAndQuit.reputationMinted)
+      proposedMember: item.join.proposedMember,
+      funding: new BN(item.join.funding),
+      executed: item.join.executed,
+      reputationMinted: new BN(item.join.reputationMinted)
     }
   }
 
   private static fragmentField: { name: string, fragment: DocumentNode } | undefined
 
-  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IJoinAndQuitProposalState> {
+  public state(apolloQueryOptions: IApolloQueryOptions): Observable<IJoinProposalState> {
     const query = gql`query ProposalState
       {
         proposal(id: "${this.id}") {
@@ -101,8 +101,8 @@ export class JoinAndQuitProposal extends Proposal<IJoinAndQuitProposalState> {
     `
 
     const result = this.context.getObservableObject(
-      this.context, query, JoinAndQuitProposal.itemMap, this.id, apolloQueryOptions
-      ) as Observable<IJoinAndQuitProposalState>
+      this.context, query, JoinProposal.itemMap, this.id, apolloQueryOptions
+      ) as Observable<IJoinProposalState>
     return result
   }
   /**
