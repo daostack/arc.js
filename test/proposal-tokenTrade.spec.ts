@@ -11,13 +11,19 @@ import {
   TokenTradeProposal,
   fromWei,
   Token,
-  } from '../src'
+  IInitParamsCR,
+  PluginManagerPlugin,
+  LATEST_ARC_VERSION,
+  IProposalCreateOptionsPM
+} from '../src'
 import {
   newArc,
   voteToPassProposal,
   waitUntilTrue,
   firstResult,
+  createAddProposal
  } from './utils'
+
 
 jest.setTimeout(60000)
 
@@ -33,30 +39,79 @@ describe('TokenTrade', () => {
 
   it('Create a proposal and trade tokens between user and DAO', async () => {
 
+    const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
+    const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin
+    const easyVotingParams = [
+      50,
+      604800,
+      129600,
+      43200, 
+      1200,
+      86400, 
+      10, 
+      1, 
+      50,
+      10,
+      0
+    ];
+    
+    const initData: IInitParamsCR = {
+      daoId: dao.id,
+      votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
+      votingParams: easyVotingParams,
+      voteOnBehalf: "0x0000000000000000000000000000000000000000",
+      voteParamsHash: '0xbae7a296c10a84748217360a27d4cf641bb78018e623cc382f571821bd7f4bb6'
+    }
+
+    const options: IProposalCreateOptionsPM = {
+      dao: dao.id,
+      add: {
+        permissions: '0x00000001f',
+        pluginName: 'TokenTrade',
+        pluginInitParams: initData
+      }
+    }
+    
+    const createdPlugin = await createAddProposal(arc, dao, plugin, options)
+    console.log("hola")
+    const tokenTradePlugin = createdPlugin[0] as TokenTrade
+
+    if(!tokenTradePlugin.coreState) throw new Error('New Plugin has no state set')
+    expect(createdPlugin[1].pluginToRegisterDecodedData.params[2].value.map(Number)).toMatchObject(easyVotingParams)
+    expect(createdPlugin).toBeTruthy()
+    expect(tokenTradePlugin).toBeInstanceOf(TokenTrade)
+    expect(tokenTradePlugin.coreState.name).toEqual('TokenTrade')
+    expect(tokenTradePlugin.coreState.pluginParams.voteParams).toMatchObject({
+      boostedVotePeriodLimit: 129600,
+      daoBountyConst: 10,
+      preBoostedVotePeriodLimit: 43200,
+      queuedVotePeriodLimit: 604800,
+      queuedVoteRequiredPercentage: 50,
+      quietEndingPeriod: 86400,
+      votersReputationLossRatio: 1,
+      activationTime: 0
+    })
+  
     // Verify user has 150 'DutchX Tokens' to trade with
 
     const dutchX = (await DAO.search(arc, { where: { name: 'DutchX DAO'}}).pipe(first()).toPromise())[0]
     const dutchXToken = (await Token.search(arc, { where: { dao: dutchX.id}}).pipe(first()).toPromise())[0]
     
-    const tokenTradePlugin = (await arc
-      .plugins({where: {name: 'TokenTrade'}}).pipe(first()).toPromise())[0] as TokenTrade
-    const tokenTradePluginState = await tokenTradePlugin.fetchState()
-    const testDao = new DAO(arc, tokenTradePluginState.dao.id)
 
     const genToken = arc.GENToken().contract()
-    await genToken.mint(testDao.id, 1000000)
+    await genToken.mint(dao.id, 1000000)
 
     const userAddress = await (await arc.getSigner().pipe(first()).toPromise()).getAddress()
     const newUserBalance = new BN(fromWei(await dutchXToken.balanceOf(userAddress).pipe(first()).toPromise()))
     expect(newUserBalance.gte(new BN(150)))
 
     const userGenTokenBalance = new BN(await firstResult(arc.GENToken().balanceOf(userAddress)))
-    const daoDutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(testDao.id)))
+    const daoDutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(dao.id)))
     // Propose exchanging 150 'DutchX Tokens' for 50 'GEN Tokens'
-    await dutchXToken.approveForStaking(tokenTradePluginState.address, new BN(250)).send()
+    await dutchXToken.approveForStaking(tokenTradePlugin.coreState.address, new BN(250)).send()
 
-    const options: IProposalCreateOptionsTokenTrade = {
-      dao: testDao.id,
+    const tokenTradeProposalOptions: IProposalCreateOptionsTokenTrade = {
+      dao: dao.id,
       descriptionHash: '',
       sendTokenAddress: dutchXToken.address,
       sendTokenAmount: 150,
@@ -64,7 +119,7 @@ describe('TokenTrade', () => {
       receiveTokenAmount: 50
     }
 
-    const tx = await tokenTradePlugin.createProposal(options).send()
+    const tx = await tokenTradePlugin.createProposal(tokenTradeProposalOptions).send()
     if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
     const proposal = new TokenTradeProposal(arc, tx.result.id)
@@ -100,7 +155,7 @@ describe('TokenTrade', () => {
 
     await waitUntilTrue(async () => {
       const updatedUserGenTokenBalance = new BN(await firstResult(arc.GENToken().balanceOf(userAddress)))
-      const updateDAODutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(testDao.id)))
+      const updateDAODutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(dao.id)))
       const expectedUserBalance = new BN(userGenTokenBalance.add(new BN(50)))
       const expectedDaoBalance = new BN(daoDutchTokenBalance.add(new BN(150)))
 
