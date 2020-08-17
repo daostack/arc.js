@@ -2,6 +2,7 @@ import BN from 'bn.js'
 import { Contract, Signer } from 'ethers'
 import { providers } from 'ethers'
 import 'ethers/dist/shims'
+import { JsonRpcProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
@@ -41,7 +42,6 @@ import {
   Web3Client,
   Web3Provider
 } from './index'
-import { JsonRpcProvider } from 'ethers/providers'
 import { LATEST_ARC_VERSION } from './settings'
 
 const abis = require('./abis/abis.json')
@@ -632,7 +632,8 @@ export class Arc extends GraphNodeObserver {
 
   public approveTokens(tokenAddress: Address, spender: Address, amount: BN) {
     const erc20Abi = this.getABI({ abiName: 'ERC20Mock', version: LATEST_ARC_VERSION })
-    const tokenContract = new Contract(tokenAddress, erc20Abi, (this.web3 as JsonRpcProvider).getSigner(this.defaultAccount as any))
+    const signer =  (this.web3 as JsonRpcProvider).getSigner(this.defaultAccount as any)
+    const tokenContract = new Contract(tokenAddress, erc20Abi, signer)
 
     return this.sendTransaction({
       contract: tokenContract,

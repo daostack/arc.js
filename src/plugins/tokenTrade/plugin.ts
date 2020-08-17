@@ -1,5 +1,5 @@
-import { DocumentNode } from 'graphql'
 import BN from 'bn.js'
+import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
   Address,
