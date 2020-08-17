@@ -324,7 +324,7 @@ export const createAddProposal = async (arc: Arc, dao: DAO, plugin: PluginManage
   //Wait for indexation
   let newPlugins: AnyPlugin[] = []
 
-  dao.plugins().subscribe(plugins => {
+  dao.plugins({ where: { isRegistered: true }}).subscribe(plugins => {
     const result = plugins.find( np => {
       if(!np.coreState) throw new Error('Could not set Plugin State')
       return !pluginAddresses.includes(np.coreState.address)

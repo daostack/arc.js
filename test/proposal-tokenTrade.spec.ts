@@ -26,7 +26,7 @@ import {
  } from './utils'
 
 
-jest.setTimeout(60000)
+jest.setTimeout(600000)
 
 /**
  * Proposal test
@@ -62,7 +62,7 @@ describe('TokenTrade', () => {
       votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
       votingParams: easyVotingParams,
       voteOnBehalf: "0x0000000000000000000000000000000000000000",
-      voteParamsHash: '0xbae7a296c10a84748217360a27d4cf641bb78018e623cc382f571821bd7f4bb6'
+      voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
     }
 
     const options: IProposalCreateOptionsPM = {
@@ -120,6 +120,9 @@ describe('TokenTrade', () => {
       receiveTokenAddress: genToken.address,
       receiveTokenAmount: 50
     }
+
+    const latestPlugins = async () => (await dao.plugins().pipe(first()).toPromise()).map(p => p.coreState!.name)
+    await waitUntilTrue(async () => (await latestPlugins()).includes("TokenTrade"))
 
     const tx = await tokenTradePlugin.createProposal(tokenTradeProposalOptions).send()
     if (!tx.result) { throw new Error('Create proposal yielded no results') }
