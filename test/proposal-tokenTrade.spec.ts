@@ -26,7 +26,7 @@ import {
  } from './utils'
 
 
-jest.setTimeout(600000)
+jest.setTimeout(60000)
 
 /**
  * Proposal test
@@ -92,8 +92,6 @@ describe('TokenTrade', () => {
       activationTime: 0
     })
 
-    const tokenTradePlugin = (await dao.plugins({ where: { isRegistered: true } }).pipe(first()).toPromise()).find((plugin: AnyPlugin) => plugin.coreState!.name === "TokenTrade") as TokenTrade
-
     // Verify user has 150 'DutchX Tokens' to trade with
 
     const dutchX = (await DAO.search(arc, { where: { name: 'DutchX DAO'}}).pipe(first()).toPromise())[0]
@@ -110,7 +108,6 @@ describe('TokenTrade', () => {
     const userGenTokenBalance = new BN(await firstResult(arc.GENToken().balanceOf(userAddress)))
     const daoDutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(dao.id)))
     // Propose exchanging 150 'DutchX Tokens' for 50 'GEN Tokens'
-    await dutchXToken.approveForStaking(tokenTradePlugin.coreState!.address, new BN(250)).send()
 
     const tokenTradeProposalOptions: IProposalCreateOptionsTokenTrade = {
       dao: dao.id,
@@ -121,9 +118,28 @@ describe('TokenTrade', () => {
       receiveTokenAmount: 50
     }
 
-    const latestPlugins = async () => (await dao.plugins().pipe(first()).toPromise()).map(p => p.coreState!.name)
-    await waitUntilTrue(async () => (await latestPlugins()).includes("TokenTrade"))
 
+    const pluginNames: string[][] = []
+    const getLatestPluginNames = () => {
+      if(pluginNames.length > 0) {
+        return pluginNames.slice(-1)[0]
+      }
+      return []
+    }
+
+    dao.plugins().subscribe((plugins: Array<AnyPlugin>) => {
+      if(plugins && plugins.length > 0) {
+        pluginNames.push(plugins.map(p => p.coreState!.name))
+      }
+    })
+
+    await waitUntilTrue(() => {
+      const plugins = getLatestPluginNames()
+      return plugins.includes('TokenTrade')
+    })
+
+    const tokenTradePlugin = (await dao.plugins({ where: { isRegistered: true } }).pipe(first()).toPromise()).find((plugin: AnyPlugin) => plugin.coreState!.name === "TokenTrade") as TokenTrade
+    await dutchXToken.approveForStaking(tokenTradePlugin.coreState!.address, new BN(250)).send()
     const tx = await tokenTradePlugin.createProposal(tokenTradeProposalOptions).send()
     if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
