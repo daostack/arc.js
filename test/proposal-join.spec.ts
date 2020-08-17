@@ -2,10 +2,10 @@ import { first } from 'rxjs/operators'
 import {
   Arc,
   DAO,
-  IJoinAndQuitProposalState,
+  IJoinProposalState,
   IProposalStage,
-  JoinAndQuit,
-  JoinAndQuitProposal,
+  Join,
+  JoinProposal,
   NULL_ADDRESS,
   Proposal,
   } from '../src'
@@ -21,7 +21,7 @@ jest.setTimeout(60000)
 /**
  * Proposal test
  */
-describe('JoinAndQuit', () => {
+describe('Join', () => {
   let arc: Arc
 
   beforeAll(async () => {
@@ -32,21 +32,21 @@ describe('JoinAndQuit', () => {
 
     const accounts = await arc.web3?.listAccounts() as any[]
 
-    const joinAndQuits = await arc
-      .plugins({where: {name: 'JoinAndQuit'}}).pipe(first()).toPromise()
+    const joins = await arc
+      .plugins({where: {name: 'Join'}}).pipe(first()).toPromise()
 
-    const joinAndQuit = joinAndQuits[0] as JoinAndQuit
-    const joinAndQuitState = await joinAndQuit.fetchState()
+    const join = joins[0] as Join
+    const joinState = await join.fetchState()
 
-    expect(joinAndQuitState.pluginParams).toMatchObject({
+    expect(joinState.pluginParams).toMatchObject({
       fundingToken: NULL_ADDRESS,
       fundingGoal: new BN(1000),
       minFeeToJoin: new BN(100),
       memberReputation: new BN(1000)
     })
-    expect(Object.prototype.toString.call(joinAndQuitState.pluginParams.fundingGoalDeadline)).toBe('[object Date]')
+    expect(Object.prototype.toString.call(joinState.pluginParams.fundingGoalDeadline)).toBe('[object Date]')
 
-    const dao = new DAO(arc, joinAndQuitState.dao.id)
+    const dao = new DAO(arc, joinState.dao.id)
     const daoState = await dao.fetchState()
 
     const fee = new BN(1000)
@@ -56,11 +56,11 @@ describe('JoinAndQuit', () => {
 
     let tx
     try {
-      tx = await joinAndQuit.createProposal({
+      tx = await join.createProposal({
         fee,
         descriptionHash,
         dao: dao.id,
-        plugin: joinAndQuitState.address
+        plugin: joinState.address
       }).send()
     } catch (err) {
       if (err.message.match(/already a member/) || err.message.match(/already a candidate/)) {
@@ -70,12 +70,12 @@ describe('JoinAndQuit', () => {
     }
     if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
-    const proposal = new JoinAndQuitProposal(arc, tx.result.id)
+    const proposal = new JoinProposal(arc, tx.result.id)
     expect(proposal).toBeInstanceOf(Proposal)
 
-    const states: IJoinAndQuitProposalState[] = []
-    const lastState = (): IJoinAndQuitProposalState => states[states.length - 1]
-    proposal.state({}).subscribe((pState: IJoinAndQuitProposalState) => {
+    const states: IJoinProposalState[] = []
+    const lastState = (): IJoinProposalState => states[states.length - 1]
+    proposal.state({}).subscribe((pState: IJoinProposalState) => {
       states.push(pState)
     })
     await waitUntilTrue(() => !!lastState())

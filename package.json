@@ -1,6 +1,6 @@
 {
   "name": "@daostack/arc.js",
-  "version": "2.0.0-experimental.49",
+  "version": "2.0.0-experimental.50",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",
@@ -72,8 +72,8 @@
     ]
   },
   "devDependencies": {
-    "@daostack/migration-experimental": "0.1.2-rc.4-v0",
-    "@daostack/test-env-experimental": "4.0.17",
+    "@daostack/migration-experimental": "0.1.2-rc.6-v2",
+    "@daostack/test-env-experimental": "4.0.18",
     "@types/graphql": "^14.2.2",
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/jest": "^24.0.15",

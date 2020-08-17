@@ -81,7 +81,7 @@ export class TokenTradeProposal extends Proposal<ITokenTradeProposalState> {
       beneficiary: item.tokenTrade.beneficiary,
       sendTokenAddress: item.tokenTrade.sendTokenAddress,
       sendTokenAmount: item.tokenTrade.sendTokenAmount,
-      receiveTokenAddress: item.tokenTrade.receiveToken,
+      receiveTokenAddress: item.tokenTrade.receiveTokenAddress,
       receiveTokenAmount: item.tokenTrade.receiveTokenAmount,
       executed: item.tokenTrade.executed,
       redeemed: item.tokenTrade.redeemed

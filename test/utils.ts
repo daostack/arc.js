@@ -72,9 +72,9 @@ export interface ITestAddresses {
 }
 
 export function getTestAddresses(version: string = LATEST_ARC_VERSION): ITestAddresses {
-  const result = require('@dorgtech/test-env-experimental/daos.json').demo[version]
+  const result = require('@daostack/test-env-experimental/daos.json').demo[version]
   if (!result) {
-    throw Error(`No test addresses found; please check the version of @dorgtech/test-env-experimental and LATEST_ARC_VERSION`)
+    throw Error(`No test addresses found; please check the version of @daostack/test-env-experimental and LATEST_ARC_VERSION`)
   }
   return result
 }
@@ -298,12 +298,10 @@ export const createAddProposal = async (arc: Arc, dao: DAO, plugin: PluginManage
     if(!p.coreState) throw new Error('Could not set Plugin state')
     return p.coreState.address
   })
-  console.log('is it here?')
   const addProposalStates: IPluginManagerProposalState[] = []
   const lastAddProposalState = () => addProposalStates[addProposalStates.length - 1]
 
   const tx = await plugin.createProposal(options).send()
-  console.log("indeed")
   if(!tx.result) throw new Error("Create proposal yielded no results")
 
   const addProposal = new PluginManagerProposal(arc, tx.result.id)

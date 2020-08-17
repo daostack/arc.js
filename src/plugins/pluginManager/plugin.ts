@@ -44,7 +44,7 @@ export type IProposalCreateOptionsPM =
   IProposalCreateOptions<'Competition'> |
   IProposalCreateOptions<'ContributionRewardExt'> |
   IProposalCreateOptions<'FundingRequest'> |
-  IProposalCreateOptions<'JoinAndQuit'> |
+  IProposalCreateOptions<'Join'> |
   IProposalCreateOptions<'SchemeRegistrar'> |
   IProposalCreateOptions<'SchemeFactory'> |
   IProposalCreateOptions<'ReputationFromToken'> |

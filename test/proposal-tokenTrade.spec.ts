@@ -14,7 +14,8 @@ import {
   IInitParamsCR,
   PluginManagerPlugin,
   LATEST_ARC_VERSION,
-  IProposalCreateOptionsPM
+  IProposalCreateOptionsPM,
+  AnyPlugin
 } from '../src'
 import {
   newArc,
@@ -40,6 +41,7 @@ describe('TokenTrade', () => {
   it('Create a proposal and trade tokens between user and DAO', async () => {
 
     const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
+        
     const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin
     const easyVotingParams = [
       50,
@@ -66,22 +68,20 @@ describe('TokenTrade', () => {
     const options: IProposalCreateOptionsPM = {
       dao: dao.id,
       add: {
-        permissions: '0x00000001f',
+        permissions: '0x0000001f',
         pluginName: 'TokenTrade',
         pluginInitParams: initData
       }
     }
     
     const createdPlugin = await createAddProposal(arc, dao, plugin, options)
-    console.log("hola")
-    const tokenTradePlugin = createdPlugin[0] as TokenTrade
 
-    if(!tokenTradePlugin.coreState) throw new Error('New Plugin has no state set')
+    if(!createdPlugin[0].coreState) throw new Error('New Plugin has no state set')
     expect(createdPlugin[1].pluginToRegisterDecodedData.params[2].value.map(Number)).toMatchObject(easyVotingParams)
     expect(createdPlugin).toBeTruthy()
-    expect(tokenTradePlugin).toBeInstanceOf(TokenTrade)
-    expect(tokenTradePlugin.coreState.name).toEqual('TokenTrade')
-    expect(tokenTradePlugin.coreState.pluginParams.voteParams).toMatchObject({
+    expect(createdPlugin[0]).toBeInstanceOf(TokenTrade)
+    expect(createdPlugin[0].coreState.name).toEqual('TokenTrade')
+    expect(createdPlugin[0].coreState.pluginParams.voteParams).toMatchObject({
       boostedVotePeriodLimit: 129600,
       daoBountyConst: 10,
       preBoostedVotePeriodLimit: 43200,
@@ -91,7 +91,9 @@ describe('TokenTrade', () => {
       votersReputationLossRatio: 1,
       activationTime: 0
     })
-  
+
+    const tokenTradePlugin = (await dao.plugins({ where: { isRegistered: true } }).pipe(first()).toPromise()).find((plugin: AnyPlugin) => plugin.coreState!.name === "TokenTrade") as TokenTrade
+
     // Verify user has 150 'DutchX Tokens' to trade with
 
     const dutchX = (await DAO.search(arc, { where: { name: 'DutchX DAO'}}).pipe(first()).toPromise())[0]
@@ -108,7 +110,7 @@ describe('TokenTrade', () => {
     const userGenTokenBalance = new BN(await firstResult(arc.GENToken().balanceOf(userAddress)))
     const daoDutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(dao.id)))
     // Propose exchanging 150 'DutchX Tokens' for 50 'GEN Tokens'
-    await dutchXToken.approveForStaking(tokenTradePlugin.coreState.address, new BN(250)).send()
+    await dutchXToken.approveForStaking(tokenTradePlugin.coreState!.address, new BN(250)).send()
 
     const tokenTradeProposalOptions: IProposalCreateOptionsTokenTrade = {
       dao: dao.id,
