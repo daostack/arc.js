@@ -146,7 +146,7 @@ export class TokenTrade extends ProposalPlugin<
     await this.context.approveTokens(options.sendTokenAddress, pluginAddress, new BN(options.sendTokenAmount)).send()
 
     return {
-      contract: this.context.getContract(options.plugin),
+      contract: this.context.getContract(pluginAddress),
       method: 'proposeTokenTrade',
       args: [
         options.sendTokenAddress,
