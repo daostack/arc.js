@@ -5,24 +5,18 @@ import {
   DAO,
   IProposalStage,
   Proposal,
-  TokenTrade,
   IProposalCreateOptionsTokenTrade,
   ITokenTradeProposalState,
   TokenTradeProposal,
   fromWei,
   Token,
-  IInitParamsCR,
-  PluginManagerPlugin,
-  LATEST_ARC_VERSION,
-  IProposalCreateOptionsPM,
-  AnyPlugin
+  TokenTrade
 } from '../src'
 import {
   newArc,
   voteToPassProposal,
   waitUntilTrue,
-  firstResult,
-  createAddProposal
+  firstResult
  } from './utils'
 
 
@@ -40,67 +34,15 @@ describe('TokenTrade', () => {
 
   it('Create a proposal and trade tokens between user and DAO', async () => {
 
-    const dao = (await DAO.search(arc, { where: { name: 'My DAO'}}).pipe(first()).toPromise())[0]
-        
-    const plugin = (await dao.proposalPlugins({ where: { name: 'SchemeFactory'}}).pipe(first()).toPromise())[0] as PluginManagerPlugin
-    const easyVotingParams = [
-      50,
-      604800,
-      129600,
-      43200, 
-      1200,
-      86400, 
-      10, 
-      1, 
-      50,
-      10,
-      0
-    ];
-    
-    const initData: IInitParamsCR = {
-      daoId: dao.id,
-      votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
-      votingParams: easyVotingParams,
-      voteOnBehalf: "0x0000000000000000000000000000000000000000",
-      voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000'
-    }
-
-    const options: IProposalCreateOptionsPM = {
-      dao: dao.id,
-      add: {
-        permissions: '0x0000001f',
-        pluginName: 'TokenTrade',
-        pluginInitParams: initData
-      }
-    }
-    
-    const createdPlugin = await createAddProposal(arc, dao, plugin, options)
-
-    if(!createdPlugin[0].coreState) throw new Error('New Plugin has no state set')
-    expect(createdPlugin[1].pluginToRegisterDecodedData.params[2].value.map(Number)).toMatchObject(easyVotingParams)
-    expect(createdPlugin).toBeTruthy()
-    expect(createdPlugin[0]).toBeInstanceOf(TokenTrade)
-    expect(createdPlugin[0].coreState.name).toEqual('TokenTrade')
-    expect(createdPlugin[0].coreState.pluginParams.voteParams).toMatchObject({
-      boostedVotePeriodLimit: 129600,
-      daoBountyConst: 10,
-      preBoostedVotePeriodLimit: 43200,
-      queuedVotePeriodLimit: 604800,
-      queuedVoteRequiredPercentage: 50,
-      quietEndingPeriod: 86400,
-      votersReputationLossRatio: 1,
-      activationTime: 0
-    })
-
+    const dao = (await DAO.search(arc, { where: { name: 'DAO For Testing'}}).pipe(first()).toPromise())[0]
+    const tokenTradePlugin = (await dao.proposalPlugins({ where: { name: 'TokenTrade'}}).pipe(first()).toPromise())[0] as TokenTrade
     // Verify user has 150 'DutchX Tokens' to trade with
-
     const dutchX = (await DAO.search(arc, { where: { name: 'DutchX DAO'}}).pipe(first()).toPromise())[0]
     const dutchXToken = (await Token.search(arc, { where: { dao: dutchX.id}}).pipe(first()).toPromise())[0]
     
-
     const genToken = arc.GENToken().contract()
     await genToken.mint(dao.id, 1000000)
-
+    
     const userAddress = await (await arc.getSigner().pipe(first()).toPromise()).getAddress()
     const newUserBalance = new BN(fromWei(await dutchXToken.balanceOf(userAddress).pipe(first()).toPromise()))
     expect(newUserBalance.gte(new BN(150)))
@@ -119,26 +61,6 @@ describe('TokenTrade', () => {
     }
 
 
-    const pluginNames: string[][] = []
-    const getLatestPluginNames = () => {
-      if(pluginNames.length > 0) {
-        return pluginNames.slice(-1)[0]
-      }
-      return []
-    }
-
-    dao.plugins().subscribe((plugins: Array<AnyPlugin>) => {
-      if(plugins && plugins.length > 0) {
-        pluginNames.push(plugins.map(p => p.coreState!.name))
-      }
-    })
-
-    await waitUntilTrue(() => {
-      const plugins = getLatestPluginNames()
-      return plugins.includes('TokenTrade')
-    })
-
-    const tokenTradePlugin = (await dao.plugins({ where: { isRegistered: true } }).pipe(first()).toPromise()).find((plugin: AnyPlugin) => plugin.coreState!.name === "TokenTrade") as TokenTrade
     await dutchXToken.approveForStaking(tokenTradePlugin.coreState!.address, new BN(250)).send()
     const tx = await tokenTradePlugin.createProposal(tokenTradeProposalOptions).send()
     if (!tx.result) { throw new Error('Create proposal yielded no results') }
