@@ -14,7 +14,7 @@ import { firstResult, getTestDAO,
   newArc, voteToPassProposal, waitUntilTrue, getTestScheme } from './utils'
 import { Wallet } from 'ethers'
 
-jest.setTimeout(120000)
+jest.setTimeout(60000)
 
 /**
  * Proposal test

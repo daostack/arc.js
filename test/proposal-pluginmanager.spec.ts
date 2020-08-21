@@ -5,6 +5,7 @@ import {
   PluginManagerProposal,
   IPluginManagerProposalState,
   DAO,
+  IProposalOutcome,
   LATEST_ARC_VERSION,
   ContributionRewardPlugin,
   IInitParamsCR,
@@ -14,9 +15,7 @@ import {
 } from '../src/index'
 import {
   newArc,
-  waitUntilTrue,
-  createAddProposal,
-  voteProposal
+  waitUntilTrue
 } from './utils'
 import { first } from 'rxjs/operators'
 
@@ -36,6 +35,68 @@ const easyVotingParams = [
   0
 ];
 
+const createAddProposal = async (arc: Arc, dao: DAO, plugin: PluginManagerPlugin, options: IProposalCreateOptionsPM) => {
+  const pluginAddresses = (await dao.plugins().pipe(first()).toPromise()).map( p => {
+    if(!p.coreState) throw new Error('Could not set Plugin state')
+    return p.coreState.address
+  })
+  const addProposalStates: IPluginManagerProposalState[] = []
+  const lastAddProposalState = () => addProposalStates[addProposalStates.length - 1]
+
+  const tx = await plugin.createProposal(options).send()
+  if(!tx.result) throw new Error("Create proposal yielded no results")
+
+  const addProposal = new PluginManagerProposal(arc, tx.result.id)
+
+  addProposal.state({}).subscribe((pState) => {
+    if(pState) {
+      addProposalStates.push(pState)
+    }
+  })
+
+  //Wait for indexation
+  await waitUntilTrue(() => addProposalStates.length > 0)
+
+  //Vote for proposal to pass
+  await voteProposal(arc, addProposal, dao)
+
+  //Wait for execution
+  await waitUntilTrue(() => lastAddProposalState().executionState === 1)
+
+  //Wait for indexation
+  let newPlugins: ContributionRewardPlugin[] = []
+
+  dao.plugins().subscribe(plugins => {
+    const result = plugins.find( np => {
+      if(!np.coreState) throw new Error('Could not set Plugin State')
+      return !pluginAddresses.includes(np.coreState.address)
+    })
+
+    if(result) newPlugins.push(result as ContributionRewardPlugin)
+  })
+
+  //Wait until plugin is indexed
+  await waitUntilTrue(() => newPlugins.length > 0)
+ 
+  return [newPlugins[0], addProposalStates[0]] as any
+}
+
+const voteProposal = async (arc: Arc, proposal: PluginManagerProposal, dao: DAO) => {
+
+  const memberAddresses = (await dao.members().pipe(first()).toPromise()).map(m => m.coreState?.address) as string[]
+
+  if(!arc.web3) throw new Error('Web3 Provider not set')
+
+  for(let i = 0; i < memberAddresses.length; i++) {
+    try{
+      arc.setAccount(memberAddresses[i])
+      await proposal.vote(IProposalOutcome.Pass).send()
+    } catch(err) { }
+    finally {
+      arc.setAccount((await arc.web3.listAccounts())[0])
+    }
+  }
+}
 
 describe('Plugin Manager', () => {
   let arc: Arc
