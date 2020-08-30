@@ -317,3 +317,13 @@ it('plugin contractInfo should contain alias', async () => {
 
   expect(contractInfo.alias).toEqual("ContributionRewardExt")
 })
+
+it('arc.approveToken should return tx with status one', async () => {
+  const arc = await newArc()
+  const addresses = getTestAddresses()
+  const tokenAddress = addresses.dao.DAOToken
+  const account = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
+  const approval = await arc.approveTokens(tokenAddress, account, new BN(1)).send();
+  expect(approval.transactionHash).toBeDefined();
+  expect(approval.receipt!.status).toEqual(1);
+})
