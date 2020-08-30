@@ -42,7 +42,6 @@ import {
   Web3Client,
   Web3Provider
 } from './index'
-import { LATEST_ARC_VERSION } from './settings'
 
 const abis = require('./abis/abis.json')
 
@@ -631,9 +630,22 @@ export class Arc extends GraphNodeObserver {
   }
 
   public approveTokens(tokenAddress: Address, spender: Address, amount: BN) {
-    const erc20Abi = this.getABI({ abiName: 'ERC20Mock', version: LATEST_ARC_VERSION })
     const signer =  (this.web3 as JsonRpcProvider).getSigner(this.defaultAccount as any)
-    const tokenContract = new Contract(tokenAddress, erc20Abi, signer)
+    const abi = [
+      {
+        constant: false,
+        inputs: [
+          { name: '_spender', type: 'address' },
+          { name: '_value', type: 'uint256' }
+        ],
+        name: 'approve',
+        outputs: [{ name: '', type: 'bool' }],
+        payable: false,
+        stateMutability: 'nonpayable',
+        type: 'function'
+      }
+    ]
+    const tokenContract = new Contract(tokenAddress, abi, signer)
 
     return this.sendTransaction({
       contract: tokenContract,
