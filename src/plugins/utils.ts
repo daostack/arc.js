@@ -42,6 +42,7 @@ import {
   UnknownPlugin,
   UnknownProposal
 } from '../index'
+import { IInitParamsTT, IProposalCreateOptionsTokenTrade, TokenTrade, TokenTradeProposal } from './tokenTrade'
 
 export const ProposalPlugins = {
   FundingRequest,
@@ -52,6 +53,7 @@ export const ProposalPlugins = {
   ContributionRewardExt: ContributionRewardExtPlugin,
   Competition: CompetitionPlugin,
   SchemeFactory: PluginManagerPlugin,
+  TokenTrade,
   Unknown: UnknownPlugin
 }
 
@@ -69,6 +71,7 @@ export const Proposals = {
   Competition: CompetitionProposal,
   ContributionRewardExt: ContributionRewardExtProposal,
   FundingRequest: FundingRequestProposal,
+  TokenTrade: TokenTradeProposal,
   Join: JoinProposal,
   SchemeRegistrar: PluginRegistrarProposal,
   SchemeRegistrarAdd: PluginRegistrarProposal,
@@ -83,6 +86,7 @@ export interface IInitParams {
   Competition: IInitParamsCompetition,
   ContributionRewardExt: IInitParamsCRExt,
   FundingRequest: IInitParamsFR,
+  TokenTrade: IInitParamsTT,
   Join: IInitParamsJQ,
   SchemeRegistrar: IInitParamsSR,
   SchemeFactory: IInitParamsPM,
@@ -99,6 +103,7 @@ export type ProposalCreateOptions =
   IProposalCreateOptionsCR |
   IProposalCreateOptionsFundingRequest |
   IProposalCreateOptionsJoin |
+  IProposalCreateOptionsTokenTrade |
   IProposalCreateOptionsPM
 
 export abstract class AnyProposal extends Proposal<IProposalState> { }

@@ -47,7 +47,8 @@ export type IProposalCreateOptionsPM =
   IProposalCreateOptions<'Join'> |
   IProposalCreateOptions<'SchemeRegistrar'> |
   IProposalCreateOptions<'SchemeFactory'> |
-  IProposalCreateOptions<'ReputationFromToken'>
+  IProposalCreateOptions<'ReputationFromToken'> |
+  IProposalCreateOptions<'TokenTrade'>
 
 export interface IProposalCreateOptions<TName extends keyof IInitParams>
 extends IProposalBaseCreateOptions {

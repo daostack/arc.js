@@ -2,6 +2,7 @@ import BN from 'bn.js'
 import { Contract, Signer } from 'ethers'
 import { providers } from 'ethers'
 import 'ethers/dist/shims'
+import { JsonRpcProvider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
@@ -626,6 +627,31 @@ export class Arc extends GraphNodeObserver {
     await this.ipfs.pinHash(descriptionHash)
     Logger.debug(`Data saved successfully as ${descriptionHash}`)
     return descriptionHash
+  }
+
+  public approveTokens(tokenAddress: Address, spender: Address, amount: BN) {
+    const signer =  (this.web3 as JsonRpcProvider).getSigner(this.defaultAccount as any)
+    const abi = [
+      {
+        constant: false,
+        inputs: [
+          { name: '_spender', type: 'address' },
+          { name: '_value', type: 'uint256' }
+        ],
+        name: 'approve',
+        outputs: [{ name: '', type: 'bool' }],
+        payable: false,
+        stateMutability: 'nonpayable',
+        type: 'function'
+      }
+    ]
+    const tokenContract = new Contract(tokenAddress, abi, signer)
+
+    return this.sendTransaction({
+      contract: tokenContract,
+      method: 'approve',
+      args: [spender, amount.toString()]
+    })
   }
 }
 

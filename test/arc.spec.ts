@@ -8,7 +8,8 @@ import {
   Address,
   Arc,
   Plugin,
-  REDEEMER_CONTRACT_VERSIONS
+  REDEEMER_CONTRACT_VERSIONS,
+  Token
 } from '../src/index'
 import {
   fromWei,
@@ -316,4 +317,24 @@ it('plugin contractInfo should contain alias', async () => {
   const contractInfo = arc.getContractInfo(pluginId)
 
   expect(contractInfo.alias).toEqual("ContributionRewardExt")
+})
+
+it('arc.approveToken should return tx with status one', async () => {
+  const arc = await newArc()
+  const addresses = getTestAddresses()
+  const tokenAddress = addresses.dao.DAOToken
+  const spender = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
+  const amount = toWei('31415')
+  const approval = await arc.approveTokens(tokenAddress, spender, amount).send();
+  expect(approval.transactionHash).toBeDefined();
+  expect(approval.receipt!.status).toEqual(1);
+  const token = new Token(arc, tokenAddress);
+  const signer = (arc.web3 as JsonRpcProvider).getSigner(arc.defaultAccount as any)
+  const allowances: Array<BN> = []
+  const lastAllowance = () => allowances[allowances.length - 1]
+  await token.allowance(await signer.getAddress(), spender).subscribe(
+    (next: any) => allowances.push(next)
+  )
+  await waitUntilTrue(() => allowances.length > 0 && lastAllowance().gte(amount))
+  expect(lastAllowance()).toMatchObject(amount)
 })
