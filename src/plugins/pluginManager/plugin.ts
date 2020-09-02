@@ -190,7 +190,7 @@ export class PluginManagerPlugin extends ProposalPlugin<
 
       args.push(
         // NOTE: The next line is a workaround
-        this.context.getContractInfo(pluginAddress).version.charAt(4) <= '2' ? [0, 1, 2] : PACKAGE_VERSION,
+        this.context.getContractInfo(pluginAddress).version.substring(9) <= '2' ? [0, 1, 2] : PACKAGE_VERSION,
         options.add.pluginName === 'Competition' ? 'ContributionRewardExt' : options.add.pluginName,
         pluginData,
         options.add.permissions
