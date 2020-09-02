@@ -165,6 +165,7 @@ export class PluginManagerPlugin extends ProposalPlugin<
 
   public async createProposalTransaction(options: IProposalCreateOptionsPM): Promise<ITransaction> {
     const args = []
+    const { address: pluginAddress } = (await this.fetchState())
 
     if (options.add) {
 
@@ -188,7 +189,8 @@ export class PluginManagerPlugin extends ProposalPlugin<
       const pluginData = abiInterface.functions.initialize.encode(initializeParams)
 
       args.push(
-        PACKAGE_VERSION,
+        // NOTE: The next line is a workaround
+        this.context.getContractInfo(pluginAddress).version.substring(9) <= '2' ? [0, 1, 2] : PACKAGE_VERSION,
         options.add.pluginName === 'Competition' ? 'ContributionRewardExt' : options.add.pluginName,
         pluginData,
         options.add.permissions
@@ -201,8 +203,6 @@ export class PluginManagerPlugin extends ProposalPlugin<
         '0x00000000'
       )
     }
-
-    const { address: pluginAddress } = (await this.fetchState())
 
     if (!options.descriptionHash) {
       options.descriptionHash = await this.context.saveIPFSData(options)
