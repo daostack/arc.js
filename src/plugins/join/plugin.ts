@@ -1,5 +1,4 @@
 import BN from 'bn.js'
-import { BigNumber } from 'ethers/utils'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
@@ -125,7 +124,7 @@ export class Join extends ProposalPlugin<
       throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as Join Plugin`)
     }
 
-    const baseState = Plugin.itemMapToBaseState(context, item)
+   const baseState = Plugin.itemMapToBaseState(context, item)
 
     const fundingRequestParams = {
       voteParams: mapGenesisProtocolParams(item.joinParams.voteParams),
@@ -155,7 +154,7 @@ export class Join extends ProposalPlugin<
     let opts
     if ((await state).pluginParams.fundingToken === NULL_ADDRESS) {
       // if we have no funding token, we shoudl send the fee as ETH
-      opts = { value: new BigNumber(options.fee.toString()) }
+      opts = { value: new BN(options.fee.toString()) }
     } else  {
       opts = {}
     }
