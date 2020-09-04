@@ -124,7 +124,7 @@ export class Join extends ProposalPlugin<
       throw new Error(`Plugin ${queriedId ? `with id '${queriedId}'` : ''}wrongly instantiated as Join Plugin`)
     }
 
-   const baseState = Plugin.itemMapToBaseState(context, item)
+    const baseState = Plugin.itemMapToBaseState(context, item)
 
     const fundingRequestParams = {
       voteParams: mapGenesisProtocolParams(item.joinParams.voteParams),
