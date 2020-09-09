@@ -4,10 +4,10 @@ import {
   Event as ITransactionEvent
 } from 'ethers/contract'
 import { TransactionResponse } from 'ethers/providers'
-import { BigNumber } from 'ethers/utils'
 import { Observable, Observer } from 'rxjs'
 import { first, take } from 'rxjs/operators'
 import { Arc, Logger } from '../index'
+import { BigNumber } from './bignumber'
 
 export interface ITransaction {
   contract: Contract
