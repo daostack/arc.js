@@ -15,8 +15,8 @@ export interface ITransaction {
   args: any[]
   opts?: {
     gasLimit?: number
-    gasPrice?: BigNumber
-    value?: BigNumber
+    gasPrice?: BN
+    value?: BN
     nonce?: number
   }
 }
