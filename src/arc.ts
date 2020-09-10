@@ -44,6 +44,7 @@ import {
 } from './index'
 
 const abis = require('./abis/abis.json')
+const MAX_BATCH_QUERY = 1000
 
 export type IArcOptions = IApolloClientOptions & {
   /** Information about the contracts. Cf. [[setContractInfos]] and [[fetchContractInfos]] */
@@ -203,20 +204,20 @@ export class Arc extends GraphNodeObserver {
 
   /**
    * fetch contractInfos from the subgraph
-   * we skip first 1000 in the query each iteration to avoid hitting limit of 1000 from subgraph
+   * we skip the first max batch query each iteration to avoid hitting subgraph limit
    * @return a list of IContractInfo instances
    */
   public async fetchContractInfos(
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Promise<IContractInfo[]> {
     const allContractInfos = []
-    let contractInfos = null
+    let contractInfos = []
     let skip = 0
 
     do {
       const query = gql`
       query AllContractInfos {
-        contractInfos(first: 1000 skip: ${skip * 1000}) {
+        contractInfos(first: ${MAX_BATCH_QUERY} skip: ${skip * MAX_BATCH_QUERY}) {
           id
           name
           version
@@ -229,9 +230,8 @@ export class Arc extends GraphNodeObserver {
       contractInfos = response.data.contractInfos as IContractInfo[]
       allContractInfos.push(...contractInfos)
       skip++
-    } while (contractInfos && (contractInfos as any).length > 0)
+    } while (contractInfos.length === MAX_BATCH_QUERY)
 
-    // const result = await this.getObservableList(query, itemMap, apolloQueryOptions).pipe(first()).toPromise()
     const universalContractInfos = await this.fetchUniversalContractInfos()
     allContractInfos.push(...universalContractInfos)
     this.setContractInfos(allContractInfos)
@@ -240,20 +240,20 @@ export class Arc extends GraphNodeObserver {
 
   /**
    * fetch universalContractInfos from the subgraph
-   * we skip first 1000 in the query each iteration to avoid hitting limit of 1000 from subgraph
+   * we skip the first max batch query each iteration to avoid hitting subgraph limit
    * @return a list of IContractInfo instances
    */
   public async fetchUniversalContractInfos(
     apolloQueryOptions: IApolloQueryOptions = {}
   ): Promise<IContractInfo[]> {
     const allUniversalContractInfos = []
-    let universalContractInfos = null
+    let universalContractInfos = []
     let skip = 0
 
     do {
       const query = gql`
       query AllUniversalContractInfos {
-        universalContractInfos(first: 1000 skip: ${skip * 1000}) {
+        universalContractInfos(first: ${MAX_BATCH_QUERY} skip: ${skip * MAX_BATCH_QUERY}) {
           id
           name
           version
@@ -266,7 +266,7 @@ export class Arc extends GraphNodeObserver {
       universalContractInfos = response.data.universalContractInfos as IContractInfo[]
       allUniversalContractInfos.push(...universalContractInfos)
       skip++
-    } while (universalContractInfos && (universalContractInfos as any).length > 0)
+    } while (universalContractInfos.length === MAX_BATCH_QUERY)
 
     return allUniversalContractInfos
   }
