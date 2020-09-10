@@ -228,7 +228,9 @@ export class Arc extends GraphNodeObserver {
     `
       const response = await this.sendQuery(query, apolloQueryOptions)
       contractInfos = response.data.contractInfos as IContractInfo[]
-      allContractInfos.push(...contractInfos)
+      if (contractInfos.length > 0) {
+        allContractInfos.push(...contractInfos)
+      }
       skip++
     } while (contractInfos.length === MAX_BATCH_QUERY)
 
@@ -264,7 +266,9 @@ export class Arc extends GraphNodeObserver {
     `
       const response = await this.sendQuery(query, apolloQueryOptions)
       universalContractInfos = response.data.universalContractInfos as IContractInfo[]
-      allUniversalContractInfos.push(...universalContractInfos)
+      if (universalContractInfos.length > 0) {
+        allUniversalContractInfos.push(...universalContractInfos)
+      }
       skip++
     } while (universalContractInfos.length === MAX_BATCH_QUERY)
 
