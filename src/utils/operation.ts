@@ -1,3 +1,4 @@
+import { utils } from 'ethers'
 import {
   Contract,
   ContractReceipt as ITransactionReceipt,
@@ -7,7 +8,6 @@ import { TransactionResponse } from 'ethers/providers'
 import { Observable, Observer } from 'rxjs'
 import { first, take } from 'rxjs/operators'
 import { Arc, Logger } from '../index'
-import { BigNumber } from './bignumber'
 
 export interface ITransaction {
   contract: Contract
@@ -15,8 +15,8 @@ export interface ITransaction {
   args: any[]
   opts?: {
     gasLimit?: number
-    gasPrice?: BigNumber
-    value?: BigNumber
+    gasPrice?: utils.BigNumber
+    value?: utils.BigNumber
     nonce?: number
   }
 }

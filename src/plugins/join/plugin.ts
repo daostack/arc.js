@@ -1,4 +1,5 @@
 import BN from 'bn.js'
+import { utils } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
@@ -19,7 +20,6 @@ import {
   transactionResultHandler
 } from '../../index'
 import { NULL_ADDRESS, secondSinceEpochToDate } from '../../utils'
-import { BigNumber } from '../../utils/bignumber'
 
 export interface IJoinState extends IPluginState {
   pluginParams: {
@@ -155,7 +155,7 @@ export class Join extends ProposalPlugin<
     let opts
     if ((await state).pluginParams.fundingToken === NULL_ADDRESS) {
       // if we have no funding token, we shoudl send the fee as ETH
-      opts = { value: new BigNumber(options.fee.toString()) }
+      opts = { value: new utils.BigNumber(options.fee.toString()) }
     } else  {
       opts = {}
     }
