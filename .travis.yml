@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "10.14.1"
+  - "12.18.3"
 cache: npm
 
 sudo: required
@@ -28,9 +28,21 @@ script:
   - echo -en 'travis_fold:end:script.3\\r'
   - echo -en 'travis_fold:end:script.2\\r'
   - ./scripts/wait-for-subgraph.sh
-  - npm run lint
-  - npm run test
-  - npm run build
+
+jobs:
+  include:
+      - stage: tests
+        name: "Unit tests"
+        script: npm run test
+
+      - stage: tests
+        name: "ts/es Lint"
+        script: npm run lint
+
+      - stage: coverage
+        name: "Test Coverage"
+        if: branch = master-2
+        script: npm run coveralls
 
 after_success:
   # - npm run report-coverage
