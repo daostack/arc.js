@@ -154,7 +154,7 @@ export class Join extends ProposalPlugin<
     let opts
     if ((await state).pluginParams.fundingToken === NULL_ADDRESS) {
       // if we have no funding token, we shoudl send the fee as ETH
-      opts = { value: new BN(options.fee.toString()) }
+      opts = { value: '0x'+options.fee.toString(16) }
     } else  {
       opts = {}
     }
