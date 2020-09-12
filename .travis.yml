@@ -34,16 +34,11 @@ jobs:
           - echo -en 'travis_fold:end:script.2\\r'
           - ./scripts/wait-for-subgraph.sh
           - npm run test
+          - npm run report-coverage
 
       - stage: tests
         name: "ts/es Lint"
         script: npm run lint
-
-      - stage: coverage
-        name: "Test Coverage"
-        if: branch = master-2
-        script:
-          - npm run report-coverage
 
 after_success:
   # - npm run report-coverage
