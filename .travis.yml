@@ -42,7 +42,7 @@ jobs:
       - stage: coverage
         name: "Test Coverage"
         if: branch = master-2
-        script: npm run coveralls
+        script: npm run report-coverage
 
 after_success:
   # - npm run report-coverage
