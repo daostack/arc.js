@@ -8,7 +8,7 @@ echo -en 'travis_fold:end:script.1\\r'
 docker-compose up -d graph-node
 ./wait-for-it.sh 127.0.0.1:8545
 ./wait-for-it.sh 127.0.0.1:8000
-./scripts/wait-for-it.sh 127.0.0.1:8020
+./wait-for-it.sh 127.0.0.1:8020
 
 echo 'Debug info:' && echo -en 'travis_fold:start:script.3\\r'
 docker-compose logs ganache
