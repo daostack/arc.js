@@ -12,28 +12,14 @@ notifications:
 
 before_install:
   - sudo apt-get install libsecret-1-dev
-script:
-  - echo 'npm ci:' && echo -en 'travis_fold:start:script.1\\r'
-  - npm ci
-  - echo -en 'travis_fold:end:script.1\\r'
-
-  - docker-compose up -d graph-node
-  - ./scripts/wait-for-it.sh 127.0.0.1:8545
-  - ./scripts/wait-for-it.sh 127.0.0.1:8000
-  - ./scripts/wait-for-it.sh 127.0.0.1:8020
-
-  - echo 'Debug info:' && echo -en 'travis_fold:start:script.3\\r'
-  - docker-compose logs ganache
-  - docker-compose logs graph-node
-  - echo -en 'travis_fold:end:script.3\\r'
-  - echo -en 'travis_fold:end:script.2\\r'
-  - ./scripts/wait-for-subgraph.sh
 
 jobs:
   include:
       - stage: tests
         name: "Unit tests"
-        script: npm run test
+        script:
+          - ./scripts/travis-prepare.sh
+          - npm run test
 
       - stage: tests
         name: "ts/es Lint"
@@ -42,7 +28,9 @@ jobs:
       - stage: coverage
         name: "Test Coverage"
         if: branch = master-2
-        script: npm run report-coverage
+        script:
+          - ./scripts/travis-prepare.sh
+          - npm run report-coverage
 
 after_success:
   # - npm run report-coverage
