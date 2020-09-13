@@ -14,7 +14,7 @@ import {
   IInitParamsCRExt,
   IInitParamsFR,
   IInitParamsGS,
-  IInitParamsJQ,
+  IInitParamsJ,
   IInitParamsPM,
   IInitParamsRT,
   IInitParamsSR,
@@ -87,7 +87,7 @@ export interface IInitParams {
   ContributionRewardExt: IInitParamsCRExt,
   FundingRequest: IInitParamsFR,
   TokenTrade: IInitParamsTT,
-  Join: IInitParamsJQ,
+  Join: IInitParamsJ,
   SchemeRegistrar: IInitParamsSR,
   SchemeFactory: IInitParamsPM,
   ReputationFromToken: IInitParamsRT
