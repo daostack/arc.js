@@ -36,7 +36,7 @@ export interface IProposalCreateOptionsJoin extends IProposalBaseCreateOptions {
   fee: BN
 }
 
-export interface IInitParamsJ {
+export interface IInitParamsJoin {
   daoId: string
   votingMachine: string
   votingParams: number[]
@@ -91,7 +91,7 @@ export class Join extends ProposalPlugin<
     return this.fragmentField
   }
 
-  public static initializeParamsMap(initParams: IInitParamsJ) {
+  public static initializeParamsMap(initParams: IInitParamsJoin) {
 
     Object.keys(initParams).forEach((key) => {
       if (initParams[key] === undefined) {
