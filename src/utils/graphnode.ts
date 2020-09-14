@@ -22,7 +22,8 @@ import { Arc, Logger, zenToRxjsObservable } from '../index'
 export interface IApolloQueryOptions {
   fetchPolicy?: 'cache-first' | 'network-only' | 'cache-only' | 'no-cache' | 'standby'
   subscribe?: true | false
-  fetchAllData?: true | false
+  fetchAllData?: true | false,
+  pollInterval?: number
 }
 
 export interface IObservable<T> extends Observable<T> {
@@ -256,9 +257,10 @@ export class GraphNodeObserver {
 
       const sub = zenToRxjsObservable(
         apolloClient.watchQuery({
-          fetchPolicy: apolloQueryOptions.fetchPolicy,
+          fetchPolicy: apolloQueryOptions.pollInterval ? 'network-only' : apolloQueryOptions.fetchPolicy,
           fetchResults: true,
-          query
+          query,
+          pollInterval: apolloQueryOptions.pollInterval
         })
       )
         .pipe(
