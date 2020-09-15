@@ -235,7 +235,13 @@ export class GraphNodeObserver {
       }
 
       let subscriptionSubscription: any
-      if (apolloQueryOptions.subscribe || graphqlSubscribeToQueries) {
+      let subscribe: boolean | undefined
+      if (apolloQueryOptions.subscribe !== undefined) {
+        subscribe = apolloQueryOptions.subscribe
+      } else if (graphqlSubscribeToQueries !== undefined) {
+        subscribe = graphqlSubscribeToQueries
+      }
+      if (subscribe) {
         // subscriptionQuery subscribes to get notified of updates to the query
         let subscriptionQuery
         if (query.loc.source.body.trim().startsWith('query')) {
