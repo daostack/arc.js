@@ -97,3 +97,5 @@ arc.daos({}, { polling: true, pollInterval: 10000 })
 Note that the following will generate errors:
 - setting both `polling` and `subscribe` to `true`
 - setting `pollInterval` without setting `polling` or with setting `polling` to `false`
+
+**NOTE:** When setting `polling: true` the `fetchPolicy` is automatically set to `network-only` even if you set other `fetchPolicy`.
