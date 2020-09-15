@@ -22,7 +22,8 @@ import { Arc, Logger, zenToRxjsObservable } from '../index'
 export interface IApolloQueryOptions {
   fetchPolicy?: 'cache-first' | 'network-only' | 'cache-only' | 'no-cache' | 'standby'
   subscribe?: true | false
-  fetchAllData?: true | false,
+  fetchAllData?: true | false
+  polling?: true | false
   pollInterval?: number
 }
 
@@ -39,6 +40,8 @@ export interface IApolloClientOptions {
   /** an apollo-retry-link instance as https://www.apollographql.com/docs/link/links/retry/#default-configuration */
   retryLink?: RetryLink // apollo retry link instance
 }
+
+const DEFAULT_GRAPH_POLL_INTERVAL: number = 15000
 
 export function createApolloClient(options: IApolloClientOptions) {
   const httpLink = new HttpLink({
@@ -207,7 +210,16 @@ export class GraphNodeObserver {
         `No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`
       )
     }
-
+    if (apolloQueryOptions.subscribe && apolloQueryOptions.polling) {
+      throw Error(
+        `Subscribe and polling can't be both true`
+      )
+    }
+    if (!apolloQueryOptions.polling && apolloQueryOptions.pollInterval !== undefined) {
+      throw Error(
+        `Can't set poll interval if polling set to false or undefined`
+      )
+    }
     const apolloClient = this.apolloClient as ApolloClient<object>
     const graphqlSubscribeToQueries = this.graphqlSubscribeToQueries
     const observable = Observable.create((observer: Observer<ApolloQueryResult<any>>) => {
@@ -215,15 +227,15 @@ export class GraphNodeObserver {
       if (!apolloQueryOptions.fetchPolicy) {
         apolloQueryOptions.fetchPolicy = 'cache-first'
       }
+      if (apolloQueryOptions.polling) {
+        apolloQueryOptions.fetchPolicy = 'network-only'
+        if (apolloQueryOptions.pollInterval === undefined || apolloQueryOptions.pollInterval === 0) {
+          apolloQueryOptions.pollInterval = DEFAULT_GRAPH_POLL_INTERVAL
+        }
+      }
 
       let subscriptionSubscription: any
-      let subscribe: boolean = true
-      if (apolloQueryOptions.subscribe !== undefined) {
-        subscribe = apolloQueryOptions.subscribe
-      } else if (graphqlSubscribeToQueries !== undefined) {
-        subscribe = graphqlSubscribeToQueries
-      }
-      if (subscribe) {
+      if (apolloQueryOptions.subscribe || graphqlSubscribeToQueries) {
         // subscriptionQuery subscribes to get notified of updates to the query
         let subscriptionQuery
         if (query.loc.source.body.trim().startsWith('query')) {
@@ -243,7 +255,6 @@ export class GraphNodeObserver {
           Record<string, any>
         >> = apolloClient.subscribe<object[]>({
           fetchPolicy: 'cache-first',
-          // fetchPolicy: 'network-only',
           query: subscriptionQuery
         })
         // subscribe to the results
@@ -257,7 +268,7 @@ export class GraphNodeObserver {
 
       const sub = zenToRxjsObservable(
         apolloClient.watchQuery({
-          fetchPolicy: apolloQueryOptions.pollInterval ? 'network-only' : apolloQueryOptions.fetchPolicy,
+          fetchPolicy: apolloQueryOptions.fetchPolicy,
           fetchResults: true,
           query,
           pollInterval: apolloQueryOptions.pollInterval
