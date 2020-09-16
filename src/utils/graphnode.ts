@@ -344,6 +344,7 @@ export class GraphNodeObserver {
     return observable
   }
 
+  // Until further notice, this function is commented out since it's not in use
   /**
    * Returns an observable that:
    * - sends a query over http and returns the current list of results
@@ -364,24 +365,24 @@ export class GraphNodeObserver {
    * @param filter filter the results
    * @return
    */
-  public getObservableListWithFilter(
-    query: any,
-    itemMap: (o: object) => object | null = (o) => o,
-    filterFunc: (o: object) => boolean,
-    apolloQueryOptions: IApolloQueryOptions = {}
-  ) {
-    const entity = query.definitions[0].selectionSet.selections[0].name.value
-    return this.getObservable(query, apolloQueryOptions).pipe(
-      map((r: ApolloQueryResult<object[]>) => {
-        if (!r.data[entity]) {
-          throw Error(`Could not find ${entity} in ${r.data}\n${query.loc.source.body}`)
-        }
-        return r.data[entity]
-      }),
-      filter(filterFunc),
-      map((rs: object[]) => rs.map(itemMap))
-    )
-  }
+  // public getObservableListWithFilter(
+  //   query: any,
+  //   itemMap: (o: object) => object | null = (o) => o,
+  //   filterFunc: (o: object) => boolean,
+  //   apolloQueryOptions: IApolloQueryOptions = {}
+  // ) {
+  //   const entity = query.definitions[0].selectionSet.selections[0].name.value
+  //   return this.getObservable(query, apolloQueryOptions).pipe(
+  //     map((r: ApolloQueryResult<object[]>) => {
+  //       if (!r.data[entity]) {
+  //         throw Error(`Could not find ${entity} in ${r.data}\n${query.loc.source.body}`)
+  //       }
+  //       return r.data[entity]
+  //     }),
+  //     filter(filterFunc),
+  //     map((rs: object[]) => rs.map(itemMap))
+  //   )
+  // }
 
   public getObservableObject(
     context: Arc,
