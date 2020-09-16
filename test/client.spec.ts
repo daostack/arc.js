@@ -119,6 +119,10 @@ describe('apolloClient', () => {
 
     expect(() => { arc.getObservable(query, { subscribe: true, polling: true }) }).toThrowError(`Subscribe and polling can't be both true`)
     expect(() => { arc.getObservable(query, { pollInterval: 500 }) }).toThrowError(`Can't set poll interval if polling set to false or undefined`)
+
+    const pollObservable = arc.getObservable(query, { polling: true })
+    const pollSubscription = pollObservable.subscribe()
+    pollSubscription.unsubscribe()
   })
 
   it('subscribe manually', async () => {
