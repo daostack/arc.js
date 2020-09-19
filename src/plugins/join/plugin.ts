@@ -36,7 +36,7 @@ export interface IProposalCreateOptionsJoin extends IProposalBaseCreateOptions {
   fee: BigNumber
 }
 
-export interface IInitParamsJQ {
+export interface IInitParamsJoin {
   daoId: string
   votingMachine: string
   votingParams: number[]
@@ -47,7 +47,6 @@ export interface IInitParamsJQ {
   memberReputation: number
   fundingGoal: number
   fundingGoalDeadline: number
-  rageQuitEnable: boolean
 }
 
 export class Join extends ProposalPlugin<
@@ -92,7 +91,7 @@ export class Join extends ProposalPlugin<
     return this.fragmentField
   }
 
-  public static initializeParamsMap(initParams: IInitParamsJQ) {
+  public static initializeParamsMap(initParams: IInitParamsJoin) {
 
     Object.keys(initParams).forEach((key) => {
       if (initParams[key] === undefined) {
@@ -110,8 +109,7 @@ export class Join extends ProposalPlugin<
       initParams.minFeeToJoin,
       initParams.memberReputation,
       initParams.fundingGoal,
-      initParams.fundingGoalDeadline,
-      initParams.rageQuitEnable
+      initParams.fundingGoalDeadline
     ]
   }
 
@@ -126,7 +124,7 @@ export class Join extends ProposalPlugin<
 
     const baseState = Plugin.itemMapToBaseState(context, item)
 
-    const fundingRequestParams = {
+    const joinParams = {
       voteParams: mapGenesisProtocolParams(item.joinParams.voteParams),
       votingMachine: item.joinParams.votingMachine,
       fundingToken: item.joinParams.fundingToken,
@@ -138,7 +136,7 @@ export class Join extends ProposalPlugin<
 
     return {
         ...baseState,
-        pluginParams: fundingRequestParams
+        pluginParams: joinParams
       }
   }
 
@@ -154,7 +152,7 @@ export class Join extends ProposalPlugin<
     let opts
     if ((await state).pluginParams.fundingToken === NULL_ADDRESS) {
       // if we have no funding token, we shoudl send the fee as ETH
-      opts = { value: BigNumber.from(options.fee.toString()) }
+      opts = { value: '0x' + options.fee.toString(16) }
     } else  {
       opts = {}
     }

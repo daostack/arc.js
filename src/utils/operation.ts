@@ -1,5 +1,4 @@
 import { 
-  BigNumber,
   providers,
   Contract,
   ContractReceipt as ITransactionReceipt,
@@ -15,8 +14,8 @@ export interface ITransaction {
   args: any[]
   opts?: {
     gasLimit?: number
-    gasPrice?: BigNumber
-    value?: BigNumber
+    gasPrice?: string
+    value?: string
     nonce?: number
   }
 }
