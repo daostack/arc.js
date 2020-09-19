@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
@@ -22,9 +22,9 @@ import {
 export interface IJoinProposalState extends IProposalState {
   proposedMember: Address
   dao: IEntityRef<DAO>
-  funding: BN,
+  funding: BigNumber,
   executed: boolean,
-  reputationMinted: BN
+  reputationMinted: BigNumber
 }
 
 export class JoinProposal extends Proposal<IJoinProposalState> {
@@ -75,9 +75,9 @@ export class JoinProposal extends Proposal<IJoinProposalState> {
     return {
       ...baseState,
       proposedMember: item.join.proposedMember,
-      funding: new BN(item.join.funding),
+      funding: BigNumber.from(item.join.funding),
       executed: item.join.executed,
-      reputationMinted: new BN(item.join.reputationMinted)
+      reputationMinted: BigNumber.from(item.join.reputationMinted)
     }
   }
 

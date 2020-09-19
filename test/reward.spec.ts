@@ -1,4 +1,4 @@
-import { getAddress } from 'ethers/utils'
+import { utils } from 'ethers'
 import { first } from 'rxjs/operators'
 import { Arc, DAO, IProposalCreateOptionsCR, IRewardState, Reward } from '../src'
 import { createCRProposal, getTestDAO, getTestScheme, newArc, toWei } from './utils'
@@ -51,7 +51,7 @@ describe('Reward', () => {
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(0)
 
-    result = await Reward.search(arc, { where: {beneficiary: getAddress(beneficiary)}})
+    result = await Reward.search(arc, { where: {beneficiary: utils.getAddress(beneficiary)}})
         .pipe(first()).toPromise()
     expect(result.length).toBeGreaterThan(0)
 

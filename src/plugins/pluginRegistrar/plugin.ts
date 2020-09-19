@@ -171,7 +171,7 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
 
         return {
           contract: this.context.getContract(options.plugin as string),
-          method: 'proposeScheme',
+          method: 'proposeScheme(address,bytes4,string)',
           args: [options.pluginToRegister, options.permissions, options.descriptionHash]
         }
       case 'SchemeRegistrarRemove':
@@ -181,7 +181,7 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
 
         return {
           contract: this.context.getContract(options.plugin as string),
-          method: 'proposeToRemoveScheme',
+          method: 'proposeToRemoveScheme(address,string)',
           args: [options.pluginToRegister, options.descriptionHash]
         }
       default:

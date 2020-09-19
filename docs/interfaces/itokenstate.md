@@ -52,6 +52,6 @@ ___
 
 ###  totalSupply
 
-• **totalSupply**: *BN*
+• **totalSupply**: *BigNumber*
 
 *Defined in [src/token.ts:16](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L16)*

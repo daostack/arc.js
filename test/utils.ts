@@ -1,6 +1,6 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { utils } from 'ethers'
-import { JsonRpcProvider } from 'ethers/providers'
+import { providers } from 'ethers'
 import { Observable } from 'rxjs'
 import { first } from 'rxjs/operators'
 import {
@@ -24,21 +24,21 @@ export const graphqlWsProvider: string = 'http://127.0.0.1:8001/subgraphs/name/d
 export const web3Provider: string = 'http://127.0.0.1:8545'
 export const ipfsProvider: string = 'http://127.0.0.1:5001/api/v0'
 
-export { BN }
+export { BigNumber }
 
 export function padZeros(str: string, max = 36): string {
   str = str.toString()
   return str.length < max ? padZeros('0' + str, max) : str
 }
 
-export function fromWei(amount: BN): string {
+export function fromWei(amount: BigNumber): string {
   const etherAmount = utils.formatEther(amount.toString())
   return etherAmount.toString()
 }
 
-export function toWei(amount: string | number): BN {
+export function toWei(amount: string | number): BigNumber {
   const weiAmount = utils.parseEther(amount.toString())
-  return new BN(weiAmount.toString())
+  return BigNumber.from(weiAmount.toString())
 }
 
 export interface ITestAddresses {
@@ -90,7 +90,7 @@ export function getTestScheme(name: PluginName): Address {
   return plugin.address
 }
 
-export async function getOptions(web3: JsonRpcProvider) {
+export async function getOptions(web3: providers.JsonRpcProvider) {
   const block = await web3.getBlock('latest')
   return {
     from: await web3.getSigner().getAddress(),
@@ -208,7 +208,7 @@ export async function mintSomeReputation(version: string = LATEST_ARC_VERSION) {
   const token = new Reputation(arc, addresses.organs.DemoReputation)
   if (!arc.web3) { throw new Error('Web3 provider not set') }
   const accounts = await arc.web3.listAccounts()
-  await token.mint(accounts[1], new BN('99')).send()
+  await token.mint(accounts[1], BigNumber.from('99')).send()
 }
 
 export function mineANewBlock() {
@@ -248,7 +248,7 @@ export async function voteToPassProposal(proposal: AnyProposal) {
   return
 }
 
-const web3 = new JsonRpcProvider('http://127.0.0.1:8545')
+const web3 = new providers.JsonRpcProvider('http://127.0.0.1:8545')
 
 export const advanceTime = async (time: number) => await web3.send('evm_increaseTime', [time])
 

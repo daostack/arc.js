@@ -186,7 +186,8 @@ export class PluginManagerPlugin extends ProposalPlugin<
       const initializeParams = Plugins[options.add.pluginName].initializeParamsMap(
         options.add.pluginInitParams as any
       )
-      const pluginData = abiInterface.functions.initialize.encode(initializeParams)
+      //const pluginData = abiInterface.functions.initialize.encode(initializeParams)
+      const pluginData = abiInterface.encodeFunctionData('transfer(address,uint256)', initializeParams)
 
       args.push(
         // NOTE: The next line is a workaround
@@ -210,7 +211,7 @@ export class PluginManagerPlugin extends ProposalPlugin<
 
     return {
       contract: this.context.getContract(pluginAddress),
-      method: 'proposeScheme',
+      method: 'proposeScheme(address,bytes4,string)',
       args: [
         ...args,
         options.remove ? options.remove.plugin : '0x0000000000000000000000000000000000000000',

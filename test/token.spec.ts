@@ -1,7 +1,7 @@
 import { first} from 'rxjs/operators'
 import { Arc, Token  } from '../src'
 import { Address } from '../src/'
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { fromWei, getTestAddresses, ITestAddresses,
    newArc, toWei, waitUntilTrue } from './utils'
 
@@ -62,9 +62,9 @@ describe('Token', () => {
     const token = new Token(arc, addresses.organs.DemoDAOToken)
     const account = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
     // check if the currentAccount is the owner of the contract
-    const balances: Array<BN> = []
-    const amount = new BN('1234')
-    token.balanceOf(account).subscribe((next: BN) => balances.push(next))
+    const balances: Array<BigNumber> = []
+    const amount = BigNumber.from('1234')
+    token.balanceOf(account).subscribe((next: BigNumber) => balances.push(next))
     await token.mint(account, amount).send()
     await waitUntilTrue(() => balances.length > 1)
     expect(balances[1].sub(balances[0]).toString()).toEqual(amount.toString())
@@ -73,15 +73,15 @@ describe('Token', () => {
   it('balanceOf GEN token works', async () => {
     const token = arc.GENToken()
     const account = '0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1'
-    const balances: Array<BN> = []
-    const amountToMint = new BN('12345')
-    token.balanceOf(account).subscribe((next: BN) => balances.push(next))
+    const balances: Array<BigNumber> = []
+    const amountToMint = BigNumber.from('12345')
+    token.balanceOf(account).subscribe((next: BigNumber) => balances.push(next))
     await waitUntilTrue(() => balances.length > 0)
-    expect(typeof balances[0]).toEqual(typeof new BN(0))
+    expect(typeof balances[0]).toEqual(typeof BigNumber.from(0))
     await token.mint(account, amountToMint).send()
     await waitUntilTrue(() => balances.length > 1)
     expect(balances[1].sub(balances[0]).toString()).toEqual(amountToMint.toString())
-    const amountToSend = new BN('23456')
+    const amountToSend = BigNumber.from('23456')
     await token.transfer('0x72939947e7a1c4ac94bb840e3304b322237ad1a8', amountToSend).send()
     await waitUntilTrue(() => balances.length > 2)
     expect(balances[1].sub(balances[2]).toString()).toEqual(amountToSend.toString())
@@ -90,7 +90,7 @@ describe('Token', () => {
   it('approveForStaking() and allowance() work', async () => {
     const token = arc.GENToken()
     const amount = toWei('31415')
-    const allowances: Array<BN> = []
+    const allowances: Array<BigNumber> = []
     const lastAllowance = () => allowances[allowances.length - 1]
     const someAddress = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
 

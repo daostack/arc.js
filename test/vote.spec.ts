@@ -1,7 +1,7 @@
 import { first } from 'rxjs/operators'
 import { IProposalOutcome, ContributionRewardProposal, Arc, Vote } from '../src/'
 import { createAProposal, getTestDAO, newArc, toWei, waitUntilTrue } from './utils'
-import { getAddress } from 'ethers/utils'
+import { utils } from 'ethers'
 
 jest.setTimeout(60000)
 
@@ -68,7 +68,7 @@ describe('vote', () => {
     expect(result.length).toEqual(1)
 
     const voteState = await vote.fetchState()
-    result = await Vote.search(arc, {where: {id: vote.id, voter: getAddress(voteState.voter)}})
+    result = await Vote.search(arc, {where: {id: vote.id, voter: utils.getAddress(voteState.voter)}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
   })

@@ -143,7 +143,7 @@ ___
 
 ###  totalVotes
 
-• **totalVotes**: *BN*
+• **totalVotes**: *BigNumber*
 
 *Defined in [src/schemes/competition.ts:84](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L84)*
 

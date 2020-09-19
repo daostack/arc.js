@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { first, map } from 'rxjs/operators'
@@ -43,14 +43,14 @@ export interface IDAOState {
   tokenName: string
   tokenSymbol: string
   memberCount: number
-  reputationTotalSupply: BN
-  tokenTotalSupply: BN
+  reputationTotalSupply: BigNumber
+  tokenTotalSupply: BigNumber
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
   metadata: string
   metadataHash: string
-  ethBalance: BN
+  ethBalance: BigNumber
 }
 
 export interface IDAOQueryOptions extends ICommonQueryOptions {
@@ -160,7 +160,7 @@ export class DAO extends Entity<IDAOState> {
         id: item.nativeReputation.id,
         entity: new Reputation(context, item.nativeReputation.id)
       },
-      reputationTotalSupply: new BN(item.nativeReputation.totalSupply),
+      reputationTotalSupply: BigNumber.from(item.nativeReputation.totalSupply),
       token: {
         id: item.nativeToken.id,
         entity: new Token(context, item.nativeToken.id)
@@ -190,7 +190,7 @@ export class DAO extends Entity<IDAOState> {
       .pipe(map((r) => r.reputation.entity))
   }
 
-  public async ethBalance(): Promise<Observable<BN>> {
+  public async ethBalance(): Promise<Observable<BigNumber>> {
     const avatar = this.context.getContract(this.id)
     return this.context.ethBalance(await avatar.vault())
   }

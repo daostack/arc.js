@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
@@ -25,15 +25,15 @@ export interface IJoinState extends IPluginState {
     votingMachine: Address
     voteParams: IGenesisProtocolParams
     fundingToken: Address
-    minFeeToJoin: BN
-    memberReputation: BN
-    fundingGoal: BN
+    minFeeToJoin: BigNumber
+    memberReputation: BigNumber
+    fundingGoal: BigNumber
     fundingGoalDeadline: Date
    }
 }
 
 export interface IProposalCreateOptionsJoin extends IProposalBaseCreateOptions {
-  fee: BN
+  fee: BigNumber
 }
 
 export interface IInitParamsJoin {
@@ -128,9 +128,9 @@ export class Join extends ProposalPlugin<
       voteParams: mapGenesisProtocolParams(item.joinParams.voteParams),
       votingMachine: item.joinParams.votingMachine,
       fundingToken: item.joinParams.fundingToken,
-      minFeeToJoin: new BN(item.joinParams.minFeeToJoin),
-      memberReputation: new BN(item.joinParams.memberReputation),
-      fundingGoal: new BN(item.joinParams.fundingGoal),
+      minFeeToJoin: BigNumber.from(item.joinParams.minFeeToJoin),
+      memberReputation: BigNumber.from(item.joinParams.memberReputation),
+      fundingGoal: BigNumber.from(item.joinParams.fundingGoal),
       fundingGoalDeadline: secondSinceEpochToDate(item.joinParams.fundingGoalDeadline)
     }
 
@@ -162,7 +162,7 @@ export class Join extends ProposalPlugin<
 
     return {
       contract: this.context.getContract(options.plugin),
-      method: 'proposeToJoin',
+      method: 'proposeToJoin(string,uint256)',
       args: [
         options.descriptionHash,
         options.fee.toString()

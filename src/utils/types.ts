@@ -1,17 +1,17 @@
-import { Signer } from 'ethers'
-import {
-  AsyncSendable,
-  JsonRpcProvider,
-  Web3Provider as EthersWeb3JsProvider
-} from 'ethers/providers'
+import { Signer, providers } from 'ethers'
+// import {
+//   AsyncSendable,
+  
+//   Web3Provider as EthersWeb3JsProvider
+// } from 'ethers/providers'
 import { Observable } from 'rxjs'
 import { IApolloQueryOptions } from '../index'
 
 export type Address = string
 export type Date = number
 export type Hash = string
-export type Web3Provider = string | AsyncSendable | Signer
-export type Web3Client = JsonRpcProvider | EthersWeb3JsProvider
+export type Web3Provider = string | Signer // AsyncSendable
+export type Web3Client = providers.JsonRpcProvider | providers.Web3Provider //| EthersWeb3JsProvider
 export type IPFSProvider = string
 
 export interface IStateful<T> {

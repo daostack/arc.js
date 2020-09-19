@@ -57,7 +57,7 @@ export class ReputationFromTokenPlugin extends Plugin<IPluginState> {
     const createTransaction = async (): Promise<ITransaction> => {
       return {
         contract: await this.getContract(),
-        method: 'redeem',
+        method: 'redeem(bytes32,bool[4])',
         args: [beneficiary]
       }
     }

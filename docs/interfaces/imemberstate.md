@@ -52,6 +52,6 @@ ___
 
 ###  reputation
 
-• **reputation**: *BN*
+• **reputation**: *BigNumber*
 
 *Defined in [src/member.ts:21](https://github.com/daostack/arc.js/blob/6c661ff/src/member.ts#L21)*

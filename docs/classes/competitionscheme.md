@@ -197,15 +197,15 @@ ___
 
 ###  ethBalance
 
-▸ **ethBalance**(): *Promise‹Observable‹BN››*
+▸ **ethBalance**(): *Promise‹Observable‹BigNumber››*
 
 *Defined in [src/schemes/competition.ts:323](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L323)*
 
 get (an observable of) the Ether balance of the Competition from the web3Provider
 
-**Returns:** *Promise‹Observable‹BN››*
+**Returns:** *Promise‹Observable‹BigNumber››*
 
-an observable stream of BN number instances
+an observable stream of BigNumber number instances
 
 ___
 

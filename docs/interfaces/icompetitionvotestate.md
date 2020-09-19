@@ -45,7 +45,7 @@ ___
 
 ###  reputation
 
-• **reputation**: *BN*
+• **reputation**: *BigNumber*
 
 *Defined in [src/schemes/competition.ts:98](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L98)*
 

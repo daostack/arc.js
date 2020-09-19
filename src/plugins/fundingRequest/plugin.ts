@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
@@ -31,7 +31,7 @@ export interface IFundingRequestState extends IPluginState {
 
 export interface IProposalCreateOptionsFundingRequest extends IProposalBaseCreateOptions {
   beneficiary: Address
-  amount: BN,
+  amount: BigNumber,
   descriptionHash: string
 }
 
@@ -135,7 +135,7 @@ export class FundingRequest
 
     return {
       contract: this.context.getContract(options.plugin),
-      method: 'propose',
+      method: 'propose(address,uint256,string)',
       args: [
         options.beneficiary,
         options.amount.toString(),

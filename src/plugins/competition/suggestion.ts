@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { utils } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
@@ -34,7 +34,7 @@ export interface ICompetitionSuggestionState {
   beneficiary: Address
   // votes: [CompetitionVote!] @derivedFrom(field: "suggestion")
   tags: string[]
-  totalVotes: BN
+  totalVotes: BigNumber
   createdAt: Date
   redeemedAt: Date | null
   rewardPercentage: number
@@ -186,7 +186,7 @@ export class CompetitionSuggestion extends Entity<ICompetitionSuggestionState> {
       suggestionId: item.suggestionId,
       tags: item.tags.map((tag: any) => tag.id),
       title: item.title,
-      totalVotes: new BN(item.totalVotes),
+      totalVotes: BigNumber.from(item.totalVotes),
       url: item.url
     }
   }

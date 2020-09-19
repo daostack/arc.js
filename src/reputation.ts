@@ -1,5 +1,5 @@
 import { ApolloQueryResult } from 'apollo-client'
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
@@ -20,7 +20,7 @@ import {
 export interface IReputationState {
   id: Address
   address: Address
-  totalSupply: BN
+  totalSupply: BigNumber
   dao: IEntityRef<DAO>
 }
 
@@ -88,7 +88,7 @@ export class Reputation extends Entity<IReputationState> {
         id: item.dao.id,
         entity: new DAO(context, item.dao.id)
       },
-      totalSupply: new BN(item.totalSupply)
+      totalSupply: BigNumber.from(item.totalSupply)
     }
   }
 
@@ -129,7 +129,7 @@ export class Reputation extends Entity<IReputationState> {
     ) as Observable<IReputationState>
   }
 
-  public reputationOf(address: Address): Observable<BN> {
+  public reputationOf(address: Address): Observable<BigNumber> {
     isAddress(address)
 
     const query = gql`query ReputationHolderReputation {
@@ -145,7 +145,7 @@ export class Reputation extends Entity<IReputationState> {
       map((r: ApolloQueryResult<any>) => r.data.reputationHolders),
       map((items: any[]) => {
         const item = items.length > 0 && items[0]
-        return item.balance !== undefined ? new BN(item.balance) : new BN(0)
+        return item.balance !== undefined ? BigNumber.from(item.balance) : BigNumber.from(0)
       })
     )
   }
@@ -154,7 +154,7 @@ export class Reputation extends Entity<IReputationState> {
     return this.context.getContract(this.address)
   }
 
-  public mint(beneficiary: Address, amount: BN): Operation<undefined> {
+  public mint(beneficiary: Address, amount: BigNumber): Operation<undefined> {
     const mapReceipt = (receipt: ITransactionReceipt) => undefined
 
     const errorHandler = async (err: Error) => {
@@ -172,7 +172,7 @@ export class Reputation extends Entity<IReputationState> {
 
     const transaction = {
       contract: this.contract(),
-      method: 'mint',
+      method: 'mint(address,uint256)',
       args: [beneficiary, amount.toString()]
     }
 

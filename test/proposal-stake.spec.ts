@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { first } from 'rxjs/operators'
 import { Stake, Arc, DAO, IProposalOutcome, IProposalStage, ContributionRewardProposal } from '../src/'
 import { createAProposal,
@@ -34,7 +34,7 @@ describe('Stake on a ContributionReward', () => {
     const votingMachine = await proposal.votingMachine()
     await stakingToken.approveForStaking(votingMachine.address, toWei('100')).send()
 
-    const stake = await proposal.stake(IProposalOutcome.Pass, new BN(100)).send()
+    const stake = await proposal.stake(IProposalOutcome.Pass, BigNumber.from(100)).send()
 
     const state =  (stake.result as Stake).coreState
     expect(state).toMatchObject({
@@ -82,7 +82,7 @@ describe('Stake on a ContributionReward', () => {
     )
 
     proposal.context.defaultAccount = accounts[2]
-    await expect(proposal.stake(IProposalOutcome.Pass, new BN(10000000)).send()).rejects.toThrow(
+    await expect(proposal.stake(IProposalOutcome.Pass, BigNumber.from(10000000)).send()).rejects.toThrow(
       /Fetch state returned null. Entity not indexed yet or does not exist with this id/i
     )
   })
@@ -96,7 +96,7 @@ describe('Stake on a ContributionReward', () => {
     const boostedProposal = boostedProposals[0]
     const state = await boostedProposal.fetchState()
     expect(state.stage).toEqual(IProposalStage.Boosted)
-    await expect(boostedProposal.stake(IProposalOutcome.Pass, new BN(10000000)).send()).rejects.toThrow(
+    await expect(boostedProposal.stake(IProposalOutcome.Pass, BigNumber.from(10000000)).send()).rejects.toThrow(
       /boosted/i
     )
   })
@@ -115,7 +115,7 @@ describe('Stake on a ContributionReward', () => {
        return []
      }
     }
-    await proposal.stake(IProposalOutcome.Pass, new BN(100)).send()
+    await proposal.stake(IProposalOutcome.Pass, BigNumber.from(100)).send()
     await waitUntilTrue(() => {
       const ls = lastStake()
       return ls.length > 0

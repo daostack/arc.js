@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { utils } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
@@ -130,13 +130,13 @@ export interface IProposalState {
   resolvedAt: number
   tags?: string[]
   title?: string
-  totalRepWhenCreated: BN
-  totalRepWhenExecuted: BN
+  totalRepWhenCreated: BigNumber
+  totalRepWhenExecuted: BigNumber
   type: ProposalName
   url?: string
   votes: Array<IEntityRef<Vote>>
-  votesFor: BN
-  votesAgainst: BN
+  votesFor: BigNumber
+  votesAgainst: BigNumber
   votesCount: number
   voteOnBehalf: Address
   winningOutcome: IProposalOutcome
@@ -147,14 +147,14 @@ export interface IProposalState {
   stage: IProposalStage
   accountsWithUnclaimedRewards: Address[]
   boostedAt: number
-  upstakeNeededToPreBoost: BN
-  stakesFor: BN
-  stakesAgainst: BN
+  upstakeNeededToPreBoost: BigNumber
+  stakesFor: BigNumber
+  stakesAgainst: BigNumber
   preBoostedAt: number
   genesisProtocolParams: IGenesisProtocolParams
   executionState: IExecutionState
   expiresInQueueAt: number
-  downStakeNeededToQueue: BN
+  downStakeNeededToQueue: BigNumber
   confidenceThreshold: number
 }
 
@@ -399,11 +399,11 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     // (S+/S-) > AlphaConstant^NumberOfBoostedProposal.
     // (stakesFor/stakesAgainst) > gpQueue.threshold
     const stage: any = IProposalStage[item.stage]
-    const threshold = realMathToNumber(new BN(item.gpQueue.threshold))
-    const stakesFor = new BN(item.stakesFor)
-    const stakesAgainst = new BN(item.stakesAgainst)
+    const threshold = realMathToNumber(BigNumber.from(item.gpQueue.threshold))
+    const stakesFor = BigNumber.from(item.stakesFor)
+    const stakesAgainst = BigNumber.from(item.stakesAgainst)
     /**
-     * for doing multiplication between floating point (threshold) and BN numbers
+     * for doing multiplication between floating point (threshold) and BigNumber numbers
      */
     const PRECISION = Math.pow(2, 40)
     /**
@@ -420,11 +420,11 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
      *        to move the proposal to the preboost queue
      * <  0 : then the proposal ought already to be pre-boosted
      */
-    let upstakeNeededToPreBoost: BN = new BN(0)
+    let upstakeNeededToPreBoost: BigNumber = BigNumber.from(0)
     if (stage === IProposalStage.Queued) {
-      upstakeNeededToPreBoost = new BN(threshold * PRECISION)
+      upstakeNeededToPreBoost = BigNumber.from(threshold * PRECISION)
         .mul(stakesAgainst)
-        .div(new BN(PRECISION))
+        .div(BigNumber.from(PRECISION))
         .sub(stakesFor)
     }
     /**
@@ -440,11 +440,11 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
      *        to move the proposal to the Queued queue
      * <= 0 : then the proposal ought to already be in the Queued queue
      */
-    let downStakeNeededToQueue: BN = new BN(0)
+    let downStakeNeededToQueue: BigNumber = BigNumber.from(0)
     if (stage === IProposalStage.PreBoosted) {
       downStakeNeededToQueue = stakesFor
-        .mul(new BN(PRECISION))
-        .div(new BN(threshold * PRECISION))
+        .mul(BigNumber.from(PRECISION))
+        .div(BigNumber.from(threshold * PRECISION))
         .sub(stakesAgainst)
     }
 
@@ -509,8 +509,8 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       stakesFor,
       tags: item.tags.map((t: any) => t.id),
       title: item.title,
-      totalRepWhenCreated: new BN(item.totalRepWhenCreated),
-      totalRepWhenExecuted: new BN(item.totalRepWhenExecuted),
+      totalRepWhenCreated: BigNumber.from(item.totalRepWhenCreated),
+      totalRepWhenExecuted: BigNumber.from(item.totalRepWhenExecuted),
       type,
       upstakeNeededToPreBoost,
       url: item.url,
@@ -521,9 +521,9 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
         }
       }),
       voteOnBehalf: item.voteOnBehalf,
-      votesAgainst: new BN(item.votesAgainst),
+      votesAgainst: BigNumber.from(item.votesAgainst),
       votesCount: item.votes.length,
-      votesFor: new BN(item.votesFor),
+      votesFor: BigNumber.from(item.votesFor),
       votingMachine: item.votingMachine,
       winningOutcome: IProposalOutcome[item.winningOutcome] as any
     }
@@ -570,7 +570,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
     return this.context.GENToken()
   }
 
-  public stake(outcome: IProposalOutcome, amount: BN): Operation<Stake> {
+  public stake(outcome: IProposalOutcome, amount: BigNumber): Operation<Stake> {
     const mapReceipt = (receipt: ITransactionReceipt) => {
       const [event, args] = getEventAndArgs(receipt, 'Stake', 'Proposal.stake')
 
@@ -598,8 +598,8 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       }
       // staker has sufficient balance
       const defaultAccount = await this.context.getAccount().pipe(first()).toPromise()
-      const balance = new BN(await stakingToken.contract().balanceOf(defaultAccount).toString())
-      const amountBN = new BN(amount)
+      const balance = BigNumber.from(await stakingToken.contract().balanceOf(defaultAccount).toString())
+      const amountBN = BigNumber.from(amount)
       if (balance.lt(amountBN)) {
         const msg = `Staker ${defaultAccount} has insufficient balance to stake ${amount.toString()}
           (balance is ${balance.toString()})`
@@ -607,7 +607,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
       }
 
       // staker has approved the token spend
-      const allowance = new BN(
+      const allowance = BigNumber.from(
         await stakingToken.contract().allowance(defaultAccount, votingMachine.address)
       )
       if (allowance.lt(amountBN)) {
@@ -629,7 +629,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
 
     const createTransaction = async (): Promise<ITransaction> => ({
       contract: await this.votingMachine(),
-      method: 'stake',
+      method: 'stake(bytes32,uint256,uint256)',
       args: [
         this.id, // proposalId
         outcome, // a value between 0 to and the proposal number of choices.
@@ -699,7 +699,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
 
     const createTransaction = async (): Promise<ITransaction> => ({
       contract: await this.votingMachine(),
-      method: 'execute',
+      method: 'execute(bytes32)',
       args: [this.id]
     })
 
@@ -754,7 +754,7 @@ export abstract class Proposal<TProposalState extends IProposalState> extends En
 
     const createTransaction = async (): Promise<ITransaction> => ({
       contract: await this.votingMachine(),
-      method: 'vote',
+      method: 'vote(bytes32,uint256,uint256,address)',
       args: [
         this.id, // proposalId
         outcome, // a value between 0 to and the proposal number of choices.

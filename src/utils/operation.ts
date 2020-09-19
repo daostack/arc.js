@@ -1,9 +1,9 @@
-import {
+import { 
+  providers,
   Contract,
   ContractReceipt as ITransactionReceipt,
-  Event as ITransactionEvent
-} from 'ethers/contract'
-import { TransactionResponse } from 'ethers/providers'
+  Event as ITransactionEvent 
+} from 'ethers'
 import { Observable, Observer } from 'rxjs'
 import { first, take } from 'rxjs/operators'
 import { Arc, Logger } from '../index'
@@ -93,6 +93,8 @@ export function sendTransaction<T>(
   mapReceipt: transactionResultHandler<T>,
   errorHandler: transactionErrorHandler
 ): Operation<T> {
+  //console.log("info",tx.contract.interface.functions)
+  //console.log("tx.method",tx.method)
   const methodInfo = tx.contract.interface.functions[tx.method]
 
   if (methodInfo === undefined) {
@@ -140,7 +142,9 @@ export function sendTransaction<T>(
       gasLimit = tx.opts.gasLimit
     } else {
       try {
-        gasLimit = (await contract.estimate[tx.method](...tx.args, tx.opts)).toNumber()
+        //console.log("a",contract)
+        gasLimit = (await contract.estimateGas[tx.method](...tx.args, tx.opts)).toNumber()
+        //console.log("b")
         gasLimit *= 2
       } catch (error) {
         await catchHandler(error, tx, await signer.getAddress())
@@ -152,7 +156,7 @@ export function sendTransaction<T>(
       gasLimit: gasLimit ? gasLimit : 1000000
     }
 
-    let response: TransactionResponse
+    let response: providers.TransactionResponse
     let hash: string = ''
     let result: T | undefined
 
@@ -161,7 +165,9 @@ export function sendTransaction<T>(
     })
 
     try {
+      //console.log("c")
       response = await contract[tx.method](...tx.args, overrides)
+      //console.log("d")
     } catch (error) {
       await catchHandler(error, tx, await signer.getAddress())
       return
@@ -289,5 +295,5 @@ export function getEventAndArgs(
     throw Error(`${codeScope}: missing ${eventName} event args`)
   }
 
-  return [event, event.args]
+  return [event, event.args as any]
 }

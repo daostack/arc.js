@@ -1,12 +1,11 @@
 import { first } from 'rxjs/operators'
 import { Arc, DAO, IProposalOutcome, IProposalStage, IProposalState, IProposalCreateOptionsCR, LATEST_ARC_VERSION, GenericPlugin, GenericPluginProposal, IGenericPluginProposalState } from '../src'
 
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import {
   createAProposal, firstResult, getTestAddresses, getTestDAO, ITestAddresses, newArc,
   toWei, voteToPassProposal, waitUntilTrue, createCRProposal, getTestScheme
 } from './utils'
-import { BigNumber } from 'ethers/utils'
 import { ethers } from 'ethers'
 import { ContributionRewardProposal } from '../src'
 
@@ -25,7 +24,7 @@ describe('Claim rewards', () => {
 
   it('works for ether and native token', async () => {
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    const ethReward = new BN(12345)
+    const ethReward = BigNumber.from(12345)
     const nativeTokenReward = toWei('271828')
     const reputationReward = toWei('8008')
     const states: IProposalState[] = []
@@ -38,12 +37,12 @@ describe('Claim rewards', () => {
       gasLimit: 4000000,
       gasPrice: 100000000000,
       to: dao.id,
-      value: new BigNumber(ethReward.toString()).toHexString()
+      value: BigNumber.from(ethReward.toString()).toHexString()
     })
 
     const daoBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
 
-    const daoEthBalance = new BN(daoBalance.toString())
+    const daoEthBalance = BigNumber.from(daoBalance.toString())
     expect(Number(daoEthBalance.toString())).toBeGreaterThanOrEqual(Number(ethReward.toString()))
 
     const options: IProposalCreateOptionsCR = {
@@ -69,14 +68,14 @@ describe('Claim rewards', () => {
 
     const daoState = await dao.fetchState()
     const prevNativeTokenBalance = await firstResult(daoState.token.entity.balanceOf(beneficiary))
-    const reputationBalances: Array<BN> = []
+    const reputationBalances: Array<BigNumber> = []
 
-    daoState.reputation.entity.reputationOf(beneficiary).subscribe((next: BN) => {
+    daoState.reputation.entity.reputationOf(beneficiary).subscribe((next: BigNumber) => {
       reputationBalances.push(next)
     })
 
     const prevBalance = await arc.web3.getBalance(beneficiary)
-    const prevEthBalance = new BN(prevBalance.toString())
+    const prevEthBalance = BigNumber.from(prevBalance.toString())
 
     await proposal.redeemRewards(beneficiary).send()
 
@@ -84,7 +83,7 @@ describe('Claim rewards', () => {
     expect(newNativeTokenBalance.sub(prevNativeTokenBalance).toString()).toEqual(nativeTokenReward.toString())
 
     const newBalance = await arc.web3.getBalance(beneficiary)
-    const newethBalance = new BN(newBalance.toString())
+    const newethBalance = BigNumber.from(newBalance.toString())
     expect(newethBalance.sub(prevEthBalance).toString()).toEqual(ethReward.toString())
     // no rewards were claimable yet
     await waitUntilTrue(() => reputationBalances.length === 2)
@@ -96,7 +95,7 @@ describe('Claim rewards', () => {
 
   it('works for external token', async () => {
     const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-    const externalTokenReward = new BN(12345)
+    const externalTokenReward = BigNumber.from(12345)
 
     const gen = arc.GENToken()
     await gen.transfer(dao.id, externalTokenReward).send()
@@ -105,11 +104,11 @@ describe('Claim rewards', () => {
     const options: IProposalCreateOptionsCR = {
       beneficiary,
       dao: dao.id,
-      ethReward: new BN(0),
+      ethReward: BigNumber.from(0),
       externalTokenAddress: gen.address,
       externalTokenReward,
-      nativeTokenReward: new BN(0),
-      reputationReward: new BN(0),
+      nativeTokenReward: BigNumber.from(0),
+      reputationReward: BigNumber.from(0),
       plugin: getTestScheme("ContributionReward")
     }
 
@@ -157,19 +156,20 @@ describe('Claim rewards', () => {
     dao = new DAO(arc, genericSchemeState.dao.id)
 
     const beneficiary = await arc.getAccount().pipe(first()).toPromise()
-    const stakeAmount = new BN(123456789)
+    const stakeAmount = BigNumber.from(123456789)
     await arc.GENToken().transfer(dao.id, stakeAmount).send()
     const actionMockABI = arc.getABI({ abiName: 'ActionMock', version: LATEST_ARC_VERSION })
 
     if (!arc.web3) throw new Error("Web3 provider not set")
 
-    const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
+    //const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
+    const callData = new ethers.utils.Interface(actionMockABI).encodeFunctionData('transfer(address,uint256)', [dao.id])
 
     const tx = await genericScheme.createProposal({
       callData,
       dao: dao.id,
       plugin: genericSchemeState.address,
-      value: new BN("0")
+      value: BigNumber.from("0")
     }).send()
 
     if (!tx.result) throw new Error('Response yielded no result')

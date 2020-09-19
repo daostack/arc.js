@@ -292,7 +292,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       const contract = await CompetitionPlugin.getCompetitionContract(this.context, pluginState)
       return {
         contract,
-        method: 'vote',
+        method: 'vote(bytes32,uint256,uint256,address)',
         args: [options.suggestionId]
       }
     }
@@ -336,7 +336,7 @@ export class CompetitionProposal extends Proposal<ICompetitionProposalState> {
       const contract = await CompetitionPlugin.getCompetitionContract(this.context, pluginState)
       return {
         contract,
-        method: 'redeem',
+        method: 'redeem(bytes32,bool[4])',
         args: [options.suggestionId]
       }
     }

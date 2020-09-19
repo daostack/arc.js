@@ -1,5 +1,4 @@
-import BN from 'bn.js'
-import { BigNumber } from 'ethers/utils'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
 import { inspect } from 'util'
@@ -37,8 +36,8 @@ describe.skip('Competition Proposal', () => {
   let contributionRewardExtAddress: string
   let address0: string
   let address1: string
-  const ethReward = new BN('300')
-  const reputationReward = new BN('10111')
+  const ethReward = BigNumber.from('300')
+  const reputationReward = BigNumber.from('10111')
 
   function addSeconds(date: Date, seconds: number) {
     if (!(date instanceof Date)) {
@@ -97,10 +96,10 @@ describe.skip('Competition Proposal', () => {
       gasLimit: 4000000,
       gasPrice: 100000000000,
       to: dao.id,
-      value: new BigNumber(ethReward.toString()).toHexString()
+      value: BigNumber.from(ethReward.toString()).toHexString()
     })
-    const externalTokenReward = new BN(0)
-    const nativeTokenReward = new BN(0)
+    const externalTokenReward = BigNumber.from(0)
+    const nativeTokenReward = BigNumber.from(0)
     const now = await getBlockTime(arc.web3)
     const startTime = addSeconds(now, 2)
     const rewardSplit = options.rewardSplit || [80, 20]
@@ -261,10 +260,10 @@ describe.skip('Competition Proposal', () => {
       gasLimit: 4000000,
       gasPrice: 100000000000,
       to: dao.id,
-      value: new BigNumber(ethReward.toString()).toHexString()
+      value: BigNumber.from(ethReward.toString()).toHexString()
     })
-    const externalTokenReward = new BN(0)
-    const nativeTokenReward = new BN(0)
+    const externalTokenReward = BigNumber.from(0)
+    const nativeTokenReward = BigNumber.from(0)
 
     // TODO: test error handling for all these params
     // - all args are present
@@ -289,7 +288,7 @@ describe.skip('Competition Proposal', () => {
     const pluginState = await plugin.fetchState()
 
     const beforeBalanceBigNum = await arc.web3.getBalance(address1)
-    const balanceBefore = new BN(beforeBalanceBigNum.toString())
+    const balanceBefore = BigNumber.from(beforeBalanceBigNum.toString())
 
     // CREATE PROPOSAL
     const tx = await plugin.createProposal(proposalOptions).send()
@@ -381,7 +380,7 @@ describe.skip('Competition Proposal', () => {
     expect(suggestion1State.suggester).toEqual(address0)
     expect(suggestion1State.tags).toEqual(['tag1', 'tag2'])
     expect(suggestion1State.title).toEqual('title')
-    expect(suggestion1State.totalVotes).toEqual(new BN(0))
+    expect(suggestion1State.totalVotes).toEqual(BigNumber.from(0))
     expect(suggestion1State.description).toEqual(suggestion1Options.description)
     expect(suggestion1State.url).toEqual(suggestion1Options.url)
     expect(suggestion1State.proposal.id).toEqual(suggestion1Options.proposal)
@@ -439,7 +438,7 @@ describe.skip('Competition Proposal', () => {
     await suggestion1.redeem().send()
 
     const afterBalanceBigNum = await arc.web3.getBalance(address1)
-    const balanceAfter = new BN(afterBalanceBigNum.toString())
+    const balanceAfter = BigNumber.from(afterBalanceBigNum.toString())
     const balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).not.toEqual('0')
   })
@@ -466,8 +465,8 @@ describe.skip('Competition Proposal', () => {
     })
 
     expect(competitionState.ethRewardLeft).toEqual(ethReward)
-    expect(competitionState.externalTokenRewardLeft).toEqual(new BN(0))
-    expect(competitionState.nativeTokenRewardLeft).toEqual(new BN(0))
+    expect(competitionState.externalTokenRewardLeft).toEqual(BigNumber.from(0))
+    expect(competitionState.nativeTokenRewardLeft).toEqual(BigNumber.from(0))
     expect(competitionState.reputationChangeLeft).toEqual(reputationReward)
 
     sub.unsubscribe()
@@ -516,7 +515,7 @@ describe.skip('Competition Proposal', () => {
 
     const beneficiary = address1
     const beforeBalanceBigNum = (await arc.web3.getBalance(beneficiary)).toString()
-    let balanceBefore = new BN(beforeBalanceBigNum)
+    let balanceBefore = BigNumber.from(beforeBalanceBigNum)
 
     // vote and wait until it is indexed
     await suggestions[0].vote().send()
@@ -553,12 +552,12 @@ describe.skip('Competition Proposal', () => {
     await suggestions[0].redeem().send()
 
     const afterBalanceBigNum = (await arc.web3.getBalance(beneficiary)).toString()
-    let balanceAfter = new BN(afterBalanceBigNum)
+    let balanceAfter = BigNumber.from(afterBalanceBigNum)
     let balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual('150')
 
     const crExtBalanceAfter = await (await contributionRewardExt.ethBalance()).pipe(first()).toPromise()
-    const crExtBalanceDelta = new BN(crExtBalanceBefore).sub(new BN(crExtBalanceAfter))
+    const crExtBalanceDelta = BigNumber.from(crExtBalanceBefore).sub(BigNumber.from(crExtBalanceAfter))
     expect(crExtBalanceDelta.toString()).toEqual('150')
 
     // the reward _is_ redeemed
@@ -567,11 +566,11 @@ describe.skip('Competition Proposal', () => {
     )
 
     const beforeBalanceBigNum2 = await arc.web3.getBalance(beneficiary)
-    balanceBefore = new BN(beforeBalanceBigNum2.toString())
+    balanceBefore = BigNumber.from(beforeBalanceBigNum2.toString())
     await suggestions[1].redeem().send()
 
     const afterBalanceBigNum2 = await arc.web3.getBalance(beneficiary)
-    balanceAfter = new BN(afterBalanceBigNum2.toString())
+    balanceAfter = BigNumber.from(afterBalanceBigNum2.toString())
     balanceDelta = balanceAfter.sub(balanceBefore)
     expect(balanceDelta.toString()).toEqual('150')
 
@@ -611,20 +610,20 @@ describe.skip('Competition Proposal', () => {
     if (!arc.web3) { throw new Error('Web3 provider not set') }
 
     const beforeBalanceBigNum = await arc.web3.getBalance(beneficiary)
-    let balanceBefore = new BN(beforeBalanceBigNum.toString())
+    let balanceBefore = BigNumber.from(beforeBalanceBigNum.toString())
     await suggestions[2].redeem().send()
 
     const afterBalanceBigNum = await arc.web3.getBalance(beneficiary)
-    let balanceAfter = new BN(afterBalanceBigNum.toString())
+    let balanceAfter = BigNumber.from(afterBalanceBigNum.toString())
     let balanceDelta = balanceAfter.sub(balanceBefore)
-    expect(balanceDelta.toString()).toEqual((new BN(240)).toString())
+    expect(balanceDelta.toString()).toEqual((BigNumber.from(240)).toString())
 
     const beforeBalanceBigNum2 = await arc.web3.getBalance(beneficiary)
-    balanceBefore = new BN(beforeBalanceBigNum2.toString())
+    balanceBefore = BigNumber.from(beforeBalanceBigNum2.toString())
     await suggestions[0].redeem().send()
 
     const afterBalanceBigNum2 = await arc.web3.getBalance(beneficiary)
-    balanceAfter = new BN(afterBalanceBigNum2.toString())
+    balanceAfter = BigNumber.from(afterBalanceBigNum2.toString())
     balanceDelta = balanceAfter.sub(balanceBefore)
 
     expect(suggestions[3].redeem().send()).rejects.toThrow(
@@ -658,21 +657,21 @@ describe.skip('Competition Proposal', () => {
 
     const suggestion1State = await suggestions[0].fetchState()
     expect(suggestion1State.positionInWinnerList).toEqual(0)
-    expect(suggestion1State.totalVotes).not.toEqual(new BN(0))
+    expect(suggestion1State.totalVotes).not.toEqual(BigNumber.from(0))
     expect(suggestion1State.isWinner).toEqual(true)
 
     const suggestion2State = await suggestions[1].fetchState()
     expect(suggestion2State.positionInWinnerList).toEqual(null)
-    expect(suggestion2State.totalVotes).toEqual(new BN(0))
+    expect(suggestion2State.totalVotes).toEqual(BigNumber.from(0))
 
     const suggestion3State = await suggestions[2].fetchState()
     expect(suggestion3State.positionInWinnerList).toEqual(null)
-    expect(suggestion3State.totalVotes).toEqual(new BN(0))
+    expect(suggestion3State.totalVotes).toEqual(BigNumber.from(0))
     expect(suggestion3State.isWinner).toEqual(false)
 
     const suggestion4State = await suggestions[3].fetchState()
     expect(suggestion4State.positionInWinnerList).toEqual(null)
-    expect(suggestion4State.totalVotes).toEqual(new BN(0))
+    expect(suggestion4State.totalVotes).toEqual(BigNumber.from(0))
   })
 
   it('Can create a proposal using dao.createProposal', async () => {
@@ -742,7 +741,7 @@ describe.skip('Competition Proposal', () => {
       redeemedAt: null,
       rewardPercentage: 0,
       suggester: address0,
-      totalVotes: new BN(0)
+      totalVotes: BigNumber.from(0)
     })
   })
 

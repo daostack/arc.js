@@ -19,7 +19,7 @@
 
 ###  amount
 
-• **amount**: *BN*
+• **amount**: *BigNumber*
 
 *Defined in [src/token.ts:42](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L42)*
 

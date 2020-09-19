@@ -75,7 +75,7 @@ ___
 
 ### `Optional` ethReward
 
-• **ethReward**? : *BN*
+• **ethReward**? : *BigNumber*
 
 *Defined in [src/schemes/competition.ts:58](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L58)*
 
@@ -91,7 +91,7 @@ ___
 
 ### `Optional` externalTokenReward
 
-• **externalTokenReward**? : *BN*
+• **externalTokenReward**? : *BigNumber*
 
 *Defined in [src/schemes/competition.ts:59](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L59)*
 
@@ -99,7 +99,7 @@ ___
 
 ### `Optional` nativeTokenReward
 
-• **nativeTokenReward**? : *BN*
+• **nativeTokenReward**? : *BigNumber*
 
 *Defined in [src/schemes/competition.ts:63](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L63)*
 
@@ -133,7 +133,7 @@ ___
 
 ### `Optional` reputationReward
 
-• **reputationReward**? : *BN*
+• **reputationReward**? : *BigNumber*
 
 *Defined in [src/schemes/competition.ts:57](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/competition.ts#L57)*
 
