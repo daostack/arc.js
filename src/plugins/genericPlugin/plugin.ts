@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -28,7 +28,7 @@ export interface IGenericPluginState extends IPluginState {
 
 export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
   callData?: string
-  value?: BN
+  value?: BigNumber
 }
 
 export interface IInitParamsGS {

@@ -1,4 +1,4 @@
-import { first} from 'rxjs/operators'
+import { first } from 'rxjs/operators'
 import { 
   Arc,
   DAO,
@@ -14,7 +14,7 @@ import {
   IExecutionState
   } from '../src'
 
-import BN from 'bn.js'
+import { BigNumber, utils } from 'ethers'
 import { createAProposal,
   fromWei,
   getTestAddresses,
@@ -26,7 +26,6 @@ import { createAProposal,
   waitUntilTrue,
   createCRProposal
 } from './utils'
-import { getAddress } from 'ethers/utils'
 
 jest.setTimeout(20000)
 /**
@@ -130,12 +129,12 @@ describe('Proposal', () => {
     expect(result.length).toEqual(1)
 
     result = await Proposal
-      .search(arc, { where: {proposer: getAddress(proposer), id: queuedProposal.id}})
+      .search(arc, { where: {proposer: utils.getAddress(proposer), id: queuedProposal.id}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
 
     result = await Proposal
-      .search(arc, {where: {dao: getAddress(proposalState.dao.id), id: queuedProposal.id}})
+      .search(arc, {where: {dao: utils.getAddress(proposalState.dao.id), id: queuedProposal.id}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
   })
@@ -226,7 +225,7 @@ describe('Proposal', () => {
         boostedAt: 0,
         description: '',
         descriptionHash: '0x000000000000000000000000000000000000000000000000000000000000efgh',
-        // downStakeNeededToQueue: new BN(0),
+        // downStakeNeededToQueue: BigNumber.from(0),
         executedAt: 0,
         executionState: IExecutionState.None,
         genesisProtocolParams: {
@@ -234,9 +233,9 @@ describe('Proposal', () => {
           boostedVotePeriodLimit: 600,
           daoBountyConst: 10,
           limitExponentValue: 172,
-          minimumDaoBounty: new BN('100000000000000000000'),
+          minimumDaoBounty: BigNumber.from('100000000000000000000'),
           preBoostedVotePeriodLimit: 600,
-          proposingRepReward: new BN('5000000000000000000'),
+          proposingRepReward: BigNumber.from('5000000000000000000'),
           queuedVotePeriodLimit: 1800,
           queuedVoteRequiredPercentage: 50,
           quietEndingPeriod: 300,
@@ -288,7 +287,7 @@ describe('Proposal', () => {
     const pState = await proposal.fetchState()
     expect(proposal).toBeInstanceOf(Proposal)
 
-    expect(pState.upstakeNeededToPreBoost).toEqual(new BN(0))
+    expect(pState.upstakeNeededToPreBoost).toEqual(BigNumber.from(0))
     // check if the upstakeNeededToPreBoost value is correct
     //  (S+/S-) > AlphaConstant^NumberOfBoostedProposal.
     const boostedProposals = await pState.dao.entity
@@ -363,7 +362,7 @@ describe('Proposal', () => {
 
     // wait until all transactions are indexed
     await waitUntilTrue(() => {
-      if (states.length > 1 && states[states.length - 1].votesFor.gt(new BN(0))) {
+      if (states.length > 1 && states[states.length - 1].votesFor.gt(BigNumber.from(0))) {
         return true
       } else {
         return false

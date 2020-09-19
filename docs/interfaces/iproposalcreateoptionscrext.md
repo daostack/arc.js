@@ -70,7 +70,7 @@ ___
 
 ### `Optional` ethReward
 
-• **ethReward**? : *BN*
+• **ethReward**? : *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:32](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L32)*
 
@@ -86,7 +86,7 @@ ___
 
 ### `Optional` externalTokenReward
 
-• **externalTokenReward**? : *BN*
+• **externalTokenReward**? : *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:33](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L33)*
 
@@ -94,7 +94,7 @@ ___
 
 ### `Optional` nativeTokenReward
 
-• **nativeTokenReward**? : *BN*
+• **nativeTokenReward**? : *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:30](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L30)*
 
@@ -120,7 +120,7 @@ ___
 
 ### `Optional` reputationReward
 
-• **reputationReward**? : *BN*
+• **reputationReward**? : *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:31](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L31)*
 

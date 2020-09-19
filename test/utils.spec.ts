@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { IContractInfo, realMathToNumber } from '../src'
 import { advanceTimeAndBlock, getContractAddressesFromMigration, newArc } from './utils'
 
@@ -9,7 +9,7 @@ describe('Utils', () => {
 
   it('realMathToNumber works', () => {
 
-    expect(realMathToNumber(new BN('4727698744810')).toFixed(5))
+    expect(realMathToNumber(BigNumber.from('4727698744810')).toFixed(5))
       .toEqual(Math.pow(1.2, 8).toFixed(5))
   })
 

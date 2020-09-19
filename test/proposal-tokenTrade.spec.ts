@@ -1,5 +1,5 @@
 import { first } from 'rxjs/operators'
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import {
   Arc,
   DAO,
@@ -44,11 +44,11 @@ describe('TokenTrade', () => {
     await genToken.mint(dao.id, 1000000)
     
     const userAddress = await (await arc.getSigner().pipe(first()).toPromise()).getAddress()
-    const newUserBalance = new BN(fromWei(await dutchXToken.balanceOf(userAddress).pipe(first()).toPromise()))
-    expect(newUserBalance.gte(new BN(150)))
+    const newUserBalance = BigNumber.from(fromWei(await dutchXToken.balanceOf(userAddress).pipe(first()).toPromise()))
+    expect(newUserBalance.gte(BigNumber.from(150)))
 
-    const userGenTokenBalance = new BN(await firstResult(arc.GENToken().balanceOf(userAddress)))
-    const daoDutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(dao.id)))
+    const userGenTokenBalance = BigNumber.from(await firstResult(arc.GENToken().balanceOf(userAddress)))
+    const daoDutchTokenBalance = BigNumber.from(await firstResult(await dutchXToken.balanceOf(dao.id)))
     // Propose exchanging 150 'DutchX Tokens' for 50 'GEN Tokens'
 
     const tokenTradeProposalOptions: IProposalCreateOptionsTokenTrade = {
@@ -61,7 +61,7 @@ describe('TokenTrade', () => {
     }
 
 
-    await dutchXToken.approveForStaking(tokenTradePlugin.coreState!.address, new BN(250)).send()
+    await dutchXToken.approveForStaking(tokenTradePlugin.coreState!.address, BigNumber.from(250)).send()
     const tx = await tokenTradePlugin.createProposal(tokenTradeProposalOptions).send()
     if (!tx.result) { throw new Error('Create proposal yielded no results') }
 
@@ -97,10 +97,10 @@ describe('TokenTrade', () => {
     await proposal.redeem().send()
 
     await waitUntilTrue(async () => {
-      const updatedUserGenTokenBalance = new BN(await firstResult(arc.GENToken().balanceOf(userAddress)))
-      const updateDAODutchTokenBalance = new BN(await firstResult(await dutchXToken.balanceOf(dao.id)))
-      const expectedUserBalance = new BN(userGenTokenBalance.add(new BN(50)))
-      const expectedDaoBalance = new BN(daoDutchTokenBalance.add(new BN(150)))
+      const updatedUserGenTokenBalance = BigNumber.from(await firstResult(arc.GENToken().balanceOf(userAddress)))
+      const updateDAODutchTokenBalance = BigNumber.from(await firstResult(await dutchXToken.balanceOf(dao.id)))
+      const expectedUserBalance = BigNumber.from(userGenTokenBalance.add(BigNumber.from(50)))
+      const expectedDaoBalance = BigNumber.from(daoDutchTokenBalance.add(BigNumber.from(150)))
 
       return (
         updatedUserGenTokenBalance.eq(expectedUserBalance) &&

@@ -1,5 +1,4 @@
-import BN from 'bn.js'
-import { BigNumber } from 'ethers/utils'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
 import { first } from 'rxjs/operators'
@@ -20,7 +19,7 @@ export interface ITokenState {
   name: string
   owner: Address
   symbol: string
-  totalSupply: BN
+  totalSupply: BigNumber
 }
 
 export interface ITokenQueryOptions extends ICommonQueryOptions {
@@ -39,14 +38,14 @@ export interface IApproval {
   contract: Address
   owner: Address
   spender: Address
-  value: BN
+  value: BigNumber
 }
 
 export interface IAllowance {
   token: Address
   owner: Address
   spender: Address
-  amount: BN
+  amount: BigNumber
 }
 
 export class Token extends Entity<ITokenState> {
@@ -105,7 +104,7 @@ export class Token extends Entity<ITokenState> {
       name: item.name,
       owner: item.dao.id,
       symbol: item.symbol,
-      totalSupply: new BN(item.totalSupply)
+      totalSupply: BigNumber.from(item.totalSupply)
     }
   }
 
@@ -151,7 +150,7 @@ export class Token extends Entity<ITokenState> {
     return this.context.getContract(this.address)
   }
 
-  public balanceOf(owner: string): Observable<BN> {
+  public balanceOf(owner: string): Observable<BigNumber> {
     const errHandler = async (err: Error) => {
       if (err.message.match(/Returned values aren't valid/g) && this.context.web3) {
         // check if there is actually a contract deployed there
@@ -164,21 +163,21 @@ export class Token extends Entity<ITokenState> {
       }
       return err
     }
-    const observable = Observable.create(async (observer: Observer<BN>) => {
+    const observable = Observable.create(async (observer: Observer<BigNumber>) => {
       try {
         const contract = this.contract()
 
         const toFilter = contract.filters.Transfer(null, owner)
         const onTransferTo = (data: any) => {
           contract.balanceOf(owner).then((newBalance: BigNumber) => {
-            observer.next(new BN(newBalance.toString()))
+            observer.next(BigNumber.from(newBalance.toString()))
           })
         }
 
         const fromFilter = contract.filters.Transfer(owner)
         const onTransferFrom = (data: any) => {
           contract.balanceOf(owner).then((newBalance: number) => {
-            observer.next(new BN(newBalance.toString()))
+            observer.next(BigNumber.from(newBalance.toString()))
           })
         }
 
@@ -193,7 +192,7 @@ export class Token extends Entity<ITokenState> {
               if (!balance) {
                 observer.error(`balanceOf ${owner} returned null`)
               }
-              observer.next(new BN(balance.toString()))
+              observer.next(BigNumber.from(balance.toString()))
               contract.on(toFilter, onTransferTo)
               contract.on(fromFilter, onTransferFrom)
             })
@@ -214,15 +213,15 @@ export class Token extends Entity<ITokenState> {
     return observable
   }
 
-  public allowance(owner: Address, spender: Address): Observable<BN> {
-    return Observable.create(async (observer: Observer<BN>) => {
+  public allowance(owner: Address, spender: Address): Observable<BigNumber> {
+    return Observable.create(async (observer: Observer<BigNumber>) => {
       const contract = this.contract()
 
       const filter = contract.filters.Approval(owner)
       const onApproval = () => {
         // const newBalance = data.returnValues.value
         contract.allowance(owner, spender).then((newBalance: number) => {
-          observer.next(new BN(newBalance.toString()))
+          observer.next(BigNumber.from(newBalance.toString()))
         })
       }
 
@@ -232,7 +231,7 @@ export class Token extends Entity<ITokenState> {
           if (!balance) {
             observer.error(`balanceOf ${owner} returned null`)
           }
-          observer.next(new BN(balance.toString()))
+          observer.next(BigNumber.from(balance.toString()))
           contract.on(filter, onApproval)
         })
         .catch((err: Error) => {
@@ -244,26 +243,26 @@ export class Token extends Entity<ITokenState> {
     })
   }
 
-  public mint(beneficiary: Address, amount: BN) {
+  public mint(beneficiary: Address, amount: BigNumber) {
     return this.context.sendTransaction({
       contract: this.contract(),
-      method: 'mint',
+      method: 'mint(address,uint256)',
       args: [beneficiary, amount.toString()]
     })
   }
 
-  public transfer(beneficiary: Address, amount: BN) {
+  public transfer(beneficiary: Address, amount: BigNumber) {
     return this.context.sendTransaction({
       contract: this.contract(),
-      method: 'transfer',
+      method: 'transfer(address,uint256)',
       args: [beneficiary, amount.toString()]
     })
   }
 
-  public approveForStaking(spender: Address, amount: BN) {
+  public approveForStaking(spender: Address, amount: BigNumber) {
     return this.context.sendTransaction({
       contract: this.contract(),
-      method: 'approve',
+      method: 'approve(address,uint256)',
       args: [spender, amount.toString()]
     })
   }

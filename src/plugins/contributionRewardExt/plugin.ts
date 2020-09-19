@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
@@ -29,10 +29,10 @@ export interface IContributionRewardExtState extends IPluginState {
 
 export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions {
   beneficiary: Address
-  nativeTokenReward?: BN
-  reputationReward?: BN
-  ethReward?: BN
-  externalTokenReward?: BN
+  nativeTokenReward?: BigNumber
+  reputationReward?: BigNumber
+  ethReward?: BigNumber
+  externalTokenReward?: BigNumber
   externalTokenAddress?: Address
   proposer: Address
 }
@@ -142,7 +142,7 @@ export class ContributionRewardExtPlugin extends ProposalPlugin<
 
     return {
       contract: this.context.getContract(options.plugin as string),
-      method: 'proposeContributionReward',
+      method: 'proposeContributionReward(string,int256,uint256[5],address,address)',
       args: [
         options.descriptionHash || '',
         (options.reputationReward && options.reputationReward.toString()) || 0,
@@ -170,7 +170,7 @@ export class ContributionRewardExtPlugin extends ProposalPlugin<
     }
   }
 
-  public async ethBalance(): Promise<Observable<BN>> {
+  public async ethBalance(): Promise<Observable<BigNumber>> {
     let state
 
     if (!this.coreState) {

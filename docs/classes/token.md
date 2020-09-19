@@ -79,7 +79,7 @@ ___
 
 ###  allowance
 
-▸ **allowance**(`owner`: [Address](../globals.md#address), `spender`: [Address](../globals.md#address)): *Observable‹BN›*
+▸ **allowance**(`owner`: [Address](../globals.md#address), `spender`: [Address](../globals.md#address)): *Observable‹BigNumber›*
 
 *Defined in [src/token.ts:195](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L195)*
 
@@ -90,13 +90,13 @@ Name | Type |
 `owner` | [Address](../globals.md#address) |
 `spender` | [Address](../globals.md#address) |
 
-**Returns:** *Observable‹BN›*
+**Returns:** *Observable‹BigNumber›*
 
 ___
 
 ###  approveForStaking
 
-▸ **approveForStaking**(`spender`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
+▸ **approveForStaking**(`spender`: [Address](../globals.md#address), `amount`: BigNumber): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
 *Defined in [src/token.ts:238](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L238)*
 
@@ -105,7 +105,7 @@ ___
 Name | Type |
 ------ | ------ |
 `spender` | [Address](../globals.md#address) |
-`amount` | BN |
+`amount` | BigNumber |
 
 **Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
@@ -113,7 +113,7 @@ ___
 
 ###  balanceOf
 
-▸ **balanceOf**(`owner`: string): *Observable‹BN›*
+▸ **balanceOf**(`owner`: string): *Observable‹BigNumber›*
 
 *Defined in [src/token.ts:140](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L140)*
 
@@ -123,7 +123,7 @@ Name | Type |
 ------ | ------ |
 `owner` | string |
 
-**Returns:** *Observable‹BN›*
+**Returns:** *Observable‹BigNumber›*
 
 ___
 
@@ -155,7 +155,7 @@ ___
 
 ###  mint
 
-▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
+▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BigNumber): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
 *Defined in [src/token.ts:222](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L222)*
 
@@ -164,7 +164,7 @@ ___
 Name | Type |
 ------ | ------ |
 `beneficiary` | [Address](../globals.md#address) |
-`amount` | BN |
+`amount` | BigNumber |
 
 **Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
@@ -188,7 +188,7 @@ ___
 
 ###  transfer
 
-▸ **transfer**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
+▸ **transfer**(`beneficiary`: [Address](../globals.md#address), `amount`: BigNumber): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
 *Defined in [src/token.ts:230](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L230)*
 
@@ -197,7 +197,7 @@ ___
 Name | Type |
 ------ | ------ |
 `beneficiary` | [Address](../globals.md#address) |
-`amount` | BN |
+`amount` | BigNumber |
 
 **Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 

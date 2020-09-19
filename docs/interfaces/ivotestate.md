@@ -22,7 +22,7 @@
 
 ###  amount
 
-• **amount**: *BN*
+• **amount**: *BigNumber*
 
 *Defined in [src/vote.ts:15](https://github.com/daostack/arc.js/blob/6c661ff/src/vote.ts#L15)*
 

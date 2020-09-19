@@ -44,7 +44,7 @@ ___
 
 ###  daoBountyForStaker
 
-• **daoBountyForStaker**: *BN*
+• **daoBountyForStaker**: *BigNumber*
 
 *Defined in [src/reward.ts:16](https://github.com/daostack/arc.js/blob/6c661ff/src/reward.ts#L16)*
 
@@ -76,7 +76,7 @@ ___
 
 ###  reputationForProposer
 
-• **reputationForProposer**: *BN*
+• **reputationForProposer**: *BigNumber*
 
 *Defined in [src/reward.ts:17](https://github.com/daostack/arc.js/blob/6c661ff/src/reward.ts#L17)*
 
@@ -92,7 +92,7 @@ ___
 
 ###  reputationForVoter
 
-• **reputationForVoter**: *BN*
+• **reputationForVoter**: *BigNumber*
 
 *Defined in [src/reward.ts:14](https://github.com/daostack/arc.js/blob/6c661ff/src/reward.ts#L14)*
 
@@ -116,7 +116,7 @@ ___
 
 ###  tokensForStaker
 
-• **tokensForStaker**: *BN*
+• **tokensForStaker**: *BigNumber*
 
 *Defined in [src/reward.ts:15](https://github.com/daostack/arc.js/blob/6c661ff/src/reward.ts#L15)*
 

@@ -71,7 +71,7 @@ ___
 
 ###  ethReward
 
-• **ethReward**: *BN*
+• **ethReward**: *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:13](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L13)*
 
@@ -79,7 +79,7 @@ ___
 
 ###  ethRewardLeft
 
-• **ethRewardLeft**: *BN*
+• **ethRewardLeft**: *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:24](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L24)*
 
@@ -95,7 +95,7 @@ ___
 
 ###  externalTokenReward
 
-• **externalTokenReward**: *BN*
+• **externalTokenReward**: *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:11](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L11)*
 
@@ -103,7 +103,7 @@ ___
 
 ###  externalTokenRewardLeft
 
-• **externalTokenRewardLeft**: *BN*
+• **externalTokenRewardLeft**: *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:25](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L25)*
 
@@ -111,7 +111,7 @@ ___
 
 ###  nativeTokenReward
 
-• **nativeTokenReward**: *BN*
+• **nativeTokenReward**: *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:14](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L14)*
 
@@ -119,7 +119,7 @@ ___
 
 ###  nativeTokenRewardLeft
 
-• **nativeTokenRewardLeft**: *BN*
+• **nativeTokenRewardLeft**: *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:23](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L23)*
 
@@ -143,7 +143,7 @@ ___
 
 ###  reputationChangeLeft
 
-• **reputationChangeLeft**: *BN*
+• **reputationChangeLeft**: *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:22](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L22)*
 
@@ -151,6 +151,6 @@ ___
 
 ###  reputationReward
 
-• **reputationReward**: *BN*
+• **reputationReward**: *BigNumber*
 
 *Defined in [src/schemes/contributionRewardExt.ts:17](https://github.com/daostack/arc.js/blob/6c661ff/src/schemes/contributionRewardExt.ts#L17)*

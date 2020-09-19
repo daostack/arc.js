@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { first} from 'rxjs/operators'
 import { Address } from '../src/'
 import { Arc } from '../src/arc'
@@ -59,13 +59,13 @@ describe('Reputation', () => {
 
   it('mint() works', async () => {
     const reputation = new Reputation(arc, addresses.organs.DemoReputation)
-    const reputationBefore = new BN((await reputation.contract().balanceOf(accounts[3])).toString())
+    const reputationBefore = BigNumber.from((await reputation.contract().balanceOf(accounts[3])).toString())
     await reputation.mint(accounts[3], toWei(1)).send()
-    await reputation.mint(accounts[3], new BN('1')).send()
-    await reputation.mint(accounts[3], new BN('1e18')).send()
-    await reputation.mint(accounts[3], new BN('3000e18')).send()
+    await reputation.mint(accounts[3], BigNumber.from('1')).send()
+    await reputation.mint(accounts[3], BigNumber.from('1e18')).send()
+    await reputation.mint(accounts[3], BigNumber.from('3000e18')).send()
 
-    const reputationAfter = new BN((await reputation.contract().balanceOf(accounts[3])).toString())
+    const reputationAfter = BigNumber.from((await reputation.contract().balanceOf(accounts[3])).toString())
     const difference = reputationAfter.sub(reputationBefore)
     expect(difference.toString()).toEqual('1000000000003003837')
   })

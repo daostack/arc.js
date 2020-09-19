@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
@@ -18,7 +18,7 @@ export interface IGenericPluginProposalState extends IProposalState {
   callData: string
   executed: boolean
   returnValue: string
-  value: BN
+  value: BigNumber
 }
 
 export class GenericPluginProposal extends Proposal<IGenericPluginProposalState> {
@@ -75,7 +75,7 @@ export class GenericPluginProposal extends Proposal<IGenericPluginProposalState>
       contractToCall: item.genericScheme.contractToCall,
       executed: item.genericScheme.executed,
       returnValue: item.genericScheme.returnValue,
-      value: new BN(item.genericScheme.value)
+      value: BigNumber.from(item.genericScheme.value)
     }
   }
 

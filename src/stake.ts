@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
@@ -23,7 +23,7 @@ export interface IStakeState {
   staker: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome
-  amount: BN // amount staked
+  amount: BigNumber // amount staked
   // TODO: Any type of proposal?
   proposal: IEntityRef<AnyProposal>
 }
@@ -196,7 +196,7 @@ export class Stake extends Entity<IStakeState> {
     }
 
     return {
-      amount: new BN(item.amount),
+      amount: BigNumber.from(item.amount),
       createdAt: item.createdAt,
       id: item.id,
       outcome,

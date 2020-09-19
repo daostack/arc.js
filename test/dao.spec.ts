@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { first } from 'rxjs/operators'
 import { Arc, IProposalCreateOptionsCR, AnyProposal } from '../src'
 import { DAO } from '../src'
@@ -12,7 +13,6 @@ import {
   waitUntilTrue,
   createCRProposal
 } from './utils'
-import { BigNumber } from 'ethers/utils'
 jest.setTimeout(20000)
 
 /**
@@ -210,7 +210,7 @@ describe('DAO', () => {
       gasLimit: 4000000,
       gasPrice: 100000000000,
       to: dao.id,
-      value: new BigNumber(toWei('1').toString()).toHexString()
+      value: BigNumber.from(toWei('1').toString()).toHexString()
     })
     const newBalance = await (await dao.ethBalance()).pipe(first()).toPromise()
     expect(Number(fromWei(newBalance.sub(previousBalance)))).toBe(1)

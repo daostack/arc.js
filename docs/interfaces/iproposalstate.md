@@ -138,7 +138,7 @@ ___
 
 ###  downStakeNeededToQueue
 
-• **downStakeNeededToQueue**: *BN*
+• **downStakeNeededToQueue**: *BigNumber*
 
 *Defined in [src/proposal.ts:77](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L77)*
 
@@ -282,7 +282,7 @@ ___
 
 ###  stakesAgainst
 
-• **stakesAgainst**: *BN*
+• **stakesAgainst**: *BigNumber*
 
 *Defined in [src/proposal.ts:94](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L94)*
 
@@ -290,7 +290,7 @@ ___
 
 ###  stakesFor
 
-• **stakesFor**: *BN*
+• **stakesFor**: *BigNumber*
 
 *Defined in [src/proposal.ts:93](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L93)*
 
@@ -314,7 +314,7 @@ ___
 
 ###  totalRepWhenCreated
 
-• **totalRepWhenCreated**: *BN*
+• **totalRepWhenCreated**: *BigNumber*
 
 *Defined in [src/proposal.ts:97](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L97)*
 
@@ -322,7 +322,7 @@ ___
 
 ###  totalRepWhenExecuted
 
-• **totalRepWhenExecuted**: *BN*
+• **totalRepWhenExecuted**: *BigNumber*
 
 *Defined in [src/proposal.ts:98](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L98)*
 
@@ -338,7 +338,7 @@ ___
 
 ###  upstakeNeededToPreBoost
 
-• **upstakeNeededToPreBoost**: *BN*
+• **upstakeNeededToPreBoost**: *BigNumber*
 
 *Defined in [src/proposal.ts:100](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L100)*
 
@@ -362,7 +362,7 @@ ___
 
 ###  votesAgainst
 
-• **votesAgainst**: *BN*
+• **votesAgainst**: *BigNumber*
 
 *Defined in [src/proposal.ts:103](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L103)*
 
@@ -378,7 +378,7 @@ ___
 
 ###  votesFor
 
-• **votesFor**: *BN*
+• **votesFor**: *BigNumber*
 
 *Defined in [src/proposal.ts:102](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L102)*
 

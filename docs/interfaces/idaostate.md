@@ -110,7 +110,7 @@ ___
 
 ###  reputationTotalSupply
 
-• **reputationTotalSupply**: *BN*
+• **reputationTotalSupply**: *BigNumber*
 
 *Defined in [src/dao.ts:30](https://github.com/daostack/arc.js/blob/6c661ff/src/dao.ts#L30)*
 
@@ -142,6 +142,6 @@ ___
 
 ###  tokenTotalSupply
 
-• **tokenTotalSupply**: *BN*
+• **tokenTotalSupply**: *BigNumber*
 
 *Defined in [src/dao.ts:31](https://github.com/daostack/arc.js/blob/6c661ff/src/dao.ts#L31)*

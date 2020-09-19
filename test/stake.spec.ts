@@ -3,7 +3,7 @@ import { Arc } from '../src/arc'
 import { IProposalOutcome, ContributionRewardProposal} from '../src'
 import { Stake } from '../src/stake'
 import { createAProposal, newArc, toWei, waitUntilTrue } from './utils'
-import { getAddress } from 'ethers/utils'
+import { utils } from 'ethers'
 
 jest.setTimeout(60000)
 
@@ -74,7 +74,7 @@ describe('Stake', () => {
     expect(result.length).toEqual(1)
 
     result = await Stake
-      .search(arc, {where:  {staker: getAddress(state.staker), proposal: proposal.id}})
+      .search(arc, {where:  {staker: utils.getAddress(state.staker), proposal: proposal.id}})
       .pipe(first()).toPromise()
     expect(result.length).toEqual(1)
   })

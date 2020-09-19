@@ -1,9 +1,6 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { Contract, Signer } from 'ethers'
 import { providers } from 'ethers'
-import 'ethers/dist/shims'
-import { JsonRpcProvider } from 'ethers/providers'
-import { BigNumber } from 'ethers/utils'
 import gql from 'graphql-tag'
 import { Observable, Observer, of } from 'rxjs'
 import { first } from 'rxjs/operators'
@@ -90,8 +87,8 @@ export class Arc extends GraphNodeObserver {
   // accounts observed by ethBalance
   public observedAccounts: {
     [address: string]: {
-      observable?: Observable<BN>
-      observer?: Observer<BN>
+      observable?: Observable<BigNumber>
+      observer?: Observer<BigNumber>
       lastBalance?: string
       subscriptionsCount: number
     }
@@ -333,7 +330,7 @@ export class Arc extends GraphNodeObserver {
     return Stake.search(this, options, apolloQueryOptions)
   }
 
-  public ethBalance(owner: Address): Observable<BN> {
+  public ethBalance(owner: Address): Observable<BigNumber> {
     if (!this.observedAccounts[owner]) {
       this.observedAccounts[owner] = {
         subscriptionsCount: 1
@@ -341,10 +338,10 @@ export class Arc extends GraphNodeObserver {
     }
     if (this.observedAccounts[owner].observable) {
       this.observedAccounts[owner].subscriptionsCount += 1
-      return this.observedAccounts[owner].observable as Observable<BN>
+      return this.observedAccounts[owner].observable as Observable<BigNumber>
     }
 
-    const observable: Observable<BN> = Observable.create((observer: Observer<BN>) => {
+    const observable: Observable<BigNumber> = Observable.create((observer: Observer<BigNumber>) => {
       this.observedAccounts[owner].observer = observer
 
       // get the current balance and return it
@@ -356,21 +353,25 @@ export class Arc extends GraphNodeObserver {
         .getBalance(owner)
         .then((currentBalance: BigNumber) => {
           const balance = currentBalance.toString()
-          const obs = this.observedAccounts[owner].observer as Observer<BN>
-          obs.next(new BN(balance))
+          const obs = this.observedAccounts[owner].observer as Observer<BigNumber>
+          obs.next(BigNumber.from(balance))
           this.observedAccounts[owner].lastBalance = balance
         })
         .catch((err: Error) => observer.error(err))
 
       // called whenever the account balance changes
       const onBalanceChange = (balance: BigNumber) => {
+        console.log("6666666666")
         const accInfo = this.observedAccounts[owner]
         if (accInfo && balance.toString() !== accInfo.lastBalance) {
-          (accInfo.observer as Observer<BN>).next(new BN(balance.toString()))
+          (accInfo.observer as Observer<BigNumber>).next(BigNumber.from(balance.toString()))
           accInfo.lastBalance = balance.toString()
+          console.log("77777777")
         }
       }
+
       this.web3.on(owner, onBalanceChange)
+      console.log("onc")
 
       // unsubscribe
       return () => {
@@ -457,16 +458,35 @@ export class Arc extends GraphNodeObserver {
     if (!abi) {
       abi = this.getABI({ address })
     }
+    
     if (!this.web3) {
       throw new Error('Web3 provider not set')
     }
 
+    if (address === "0xd833215cbcc3f914bd1c9ece3ee7bf8b14f841bb") {
+      //console.log(this.defaultAccount)
+    }
+
+    
+
     if (Signer.isSigner(this.defaultAccount)) {
+      if (address === "0xd833215cbcc3f914bd1c9ece3ee7bf8b14f841bb") {
+        //console.log(1)
+      }
       return new Contract(address, abi, this.defaultAccount)
     } else if (this.isInfuraProvider) {
+      if (address === "0xd833215cbcc3f914bd1c9ece3ee7bf8b14f841bb") {
+        //console.log(2)
+      }
       return new Contract(address, abi, this.web3)
     } else {
-      return new Contract(address, abi, this.web3.getSigner(this.defaultAccount))
+      let c = new Contract(address, abi, this.web3.getSigner(this.defaultAccount));
+      if (address === "0xd833215cbcc3f914bd1c9ece3ee7bf8b14f841bb") {
+        //console.log(3)
+
+      }
+      
+      return c
     }
   }
 
@@ -532,6 +552,7 @@ export class Arc extends GraphNodeObserver {
   }
 
   public setAccount(address: Address) {
+  //console.log("setAccount", address)
     if (Signer.isSigner(this.defaultAccount)) {
       throw Error(
         'The account cannot be set post-initialization when a custom Signer is being used'
@@ -564,7 +585,7 @@ export class Arc extends GraphNodeObserver {
     })
   }
 
-  public approveForStaking(spender: Address, amount: BN) {
+  public approveForStaking(spender: Address, amount: BigNumber) {
     return this.GENToken().approveForStaking(spender, amount)
   }
 
@@ -574,7 +595,7 @@ export class Arc extends GraphNodeObserver {
    * @param  spender Address of the spender
    * @return
    */
-  public allowance(owner: Address, spender: Address): Observable<BN> {
+  public allowance(owner: Address, spender: Address): Observable<BigNumber> {
     return this.GENToken().allowance(owner, spender)
   }
 
@@ -629,8 +650,8 @@ export class Arc extends GraphNodeObserver {
     return descriptionHash
   }
 
-  public approveTokens(tokenAddress: Address, spender: Address, amount: BN) {
-    const signer =  (this.web3 as JsonRpcProvider).getSigner(this.defaultAccount as any)
+  public approveTokens(tokenAddress: Address, spender: Address, amount: BigNumber) {
+    const signer =  (this.web3 as providers.JsonRpcProvider).getSigner(this.defaultAccount as any)
     const abi = [
       {
         constant: false,
@@ -638,7 +659,7 @@ export class Arc extends GraphNodeObserver {
           { name: '_spender', type: 'address' },
           { name: '_value', type: 'uint256' }
         ],
-        name: 'approve',
+        name: 'approve(address,uint256)',
         outputs: [{ name: '', type: 'bool' }],
         payable: false,
         stateMutability: 'nonpayable',
@@ -649,7 +670,7 @@ export class Arc extends GraphNodeObserver {
 
     return this.sendTransaction({
       contract: tokenContract,
-      method: 'approve',
+      method: 'approve(address,uint256)',
       args: [spender, amount.toString()]
     })
   }

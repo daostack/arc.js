@@ -194,9 +194,9 @@ ___
 
 * **lastBalance**? : *undefined | string*
 
-* **observable**? : *Observable‹BN›*
+* **observable**? : *Observable‹BigNumber›*
 
-* **observer**? : *Observer‹BN›*
+* **observer**? : *Observer‹BigNumber›*
 
 * **subscriptionsCount**: *number*
 
@@ -242,7 +242,7 @@ ___
 
 ###  allowance
 
-▸ **allowance**(`owner`: [Address](../globals.md#address), `spender`: [Address](../globals.md#address)): *Observable‹BN›*
+▸ **allowance**(`owner`: [Address](../globals.md#address), `spender`: [Address](../globals.md#address)): *Observable‹BigNumber›*
 
 *Defined in [src/arc.ts:402](https://github.com/daostack/arc.js/blob/6c661ff/src/arc.ts#L402)*
 
@@ -255,13 +255,13 @@ Name | Type | Description |
 `owner` | [Address](../globals.md#address) | Address of the owner of the tokens |
 `spender` | [Address](../globals.md#address) | Address of the spender |
 
-**Returns:** *Observable‹BN›*
+**Returns:** *Observable‹BigNumber›*
 
 ___
 
 ###  approveForStaking
 
-▸ **approveForStaking**(`spender`: [Address](../globals.md#address), `amount`: BN): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
+▸ **approveForStaking**(`spender`: [Address](../globals.md#address), `amount`: BigNumber): *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
 *Defined in [src/arc.ts:392](https://github.com/daostack/arc.js/blob/6c661ff/src/arc.ts#L392)*
 
@@ -270,7 +270,7 @@ ___
 Name | Type |
 ------ | ------ |
 `spender` | [Address](../globals.md#address) |
-`amount` | BN |
+`amount` | BigNumber |
 
 **Returns:** *[IOperationObservable](../interfaces/ioperationobservable.md)‹[ITransactionUpdate](../interfaces/itransactionupdate.md)‹undefined››*
 
@@ -317,7 +317,7 @@ ___
 
 ###  ethBalance
 
-▸ **ethBalance**(`owner`: [Address](../globals.md#address)): *Observable‹BN›*
+▸ **ethBalance**(`owner`: [Address](../globals.md#address)): *Observable‹BigNumber›*
 
 *Defined in [src/arc.ts:202](https://github.com/daostack/arc.js/blob/6c661ff/src/arc.ts#L202)*
 
@@ -327,7 +327,7 @@ Name | Type |
 ------ | ------ |
 `owner` | [Address](../globals.md#address) |
 
-**Returns:** *Observable‹BN›*
+**Returns:** *Observable‹BigNumber›*
 
 ___
 

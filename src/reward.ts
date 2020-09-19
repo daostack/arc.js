@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
@@ -17,10 +17,10 @@ export interface IRewardState {
   beneficiary: Address
   createdAt: Date
   proposalId: string
-  reputationForVoter: BN
-  tokensForStaker: BN
-  daoBountyForStaker: BN
-  reputationForProposer: BN
+  reputationForVoter: BigNumber
+  tokensForStaker: BigNumber
+  daoBountyForStaker: BigNumber
+  reputationForProposer: BigNumber
   tokenAddress: Address
   reputationForVoterRedeemedAt: number
   tokensForStakerRedeemedAt: number
@@ -170,16 +170,16 @@ export class Reward extends Entity<IRewardState> {
     return {
       beneficiary: item.beneficiary,
       createdAt: item.createdAt,
-      daoBountyForStaker: new BN(item.daoBountyForStaker),
+      daoBountyForStaker: BigNumber.from(item.daoBountyForStaker),
       daoBountyForStakerRedeemedAt: Number(item.daoBountyForStakerRedeemedAt),
       id: item.id,
       proposalId: item.proposal.id,
-      reputationForProposer: new BN(item.reputationForProposer),
+      reputationForProposer: BigNumber.from(item.reputationForProposer),
       reputationForProposerRedeemedAt: Number(item.reputationForProposerRedeemedAt),
-      reputationForVoter: new BN(item.reputationForVoter),
+      reputationForVoter: BigNumber.from(item.reputationForVoter),
       reputationForVoterRedeemedAt: Number(item.reputationForVoterRedeemedAt),
       tokenAddress: item.tokenAddress,
-      tokensForStaker: new BN(item.tokensForStaker),
+      tokensForStaker: BigNumber.from(item.tokensForStaker),
       tokensForStakerRedeemedAt: Number(item.tokensForStakerRedeemedAt)
     }
   }

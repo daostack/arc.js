@@ -59,7 +59,7 @@ ___
 
 ###  minimumDaoBounty
 
-• **minimumDaoBounty**: *BN*
+• **minimumDaoBounty**: *BigNumber*
 
 *Defined in [src/genesisProtocol.ts:9](https://github.com/daostack/arc.js/blob/6c661ff/src/genesisProtocol.ts#L9)*
 
@@ -75,7 +75,7 @@ ___
 
 ###  proposingRepReward
 
-• **proposingRepReward**: *BN*
+• **proposingRepReward**: *BigNumber*
 
 *Defined in [src/genesisProtocol.ts:11](https://github.com/daostack/arc.js/blob/6c661ff/src/genesisProtocol.ts#L11)*
 

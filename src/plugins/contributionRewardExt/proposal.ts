@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
@@ -14,21 +14,21 @@ import {
 
 export interface IContributionRewardExtProposalState extends IProposalState {
   beneficiary: Address
-  externalTokenReward: BN
+  externalTokenReward: BigNumber
   externalToken: Address
-  ethReward: BN
-  nativeTokenReward: BN
+  ethReward: BigNumber
+  nativeTokenReward: BigNumber
   periods: number
   periodLength: number
-  reputationReward: BN
+  reputationReward: BigNumber
   alreadyRedeemedNativeTokenPeriods: number
   alreadyRedeemedReputationPeriods: number
   alreadyRedeemedExternalTokenPeriods: number
   alreadyRedeemedEthPeriods: number
-  reputationChangeLeft: BN | null
-  nativeTokenRewardLeft: BN | null
-  ethRewardLeft: BN | null
-  externalTokenRewardLeft: BN | null
+  reputationChangeLeft: BigNumber | null
+  nativeTokenRewardLeft: BigNumber | null
+  ethRewardLeft: BigNumber | null
+  externalTokenRewardLeft: BigNumber | null
 }
 
 export class ContributionRewardExtProposal extends Proposal<IContributionRewardExtProposalState> {
@@ -47,19 +47,19 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
 
     const ethRewardLeft =
       (item.contributionReward.ethRewardLeft !== null &&
-        new BN(item.contributionReward.ethRewardLeft)) ||
+        BigNumber.from(item.contributionReward.ethRewardLeft)) ||
       null
     const externalTokenRewardLeft =
       (item.contributionReward.externalTokenRewardLeft !== null &&
-        new BN(item.contributionReward.externalTokenRewardLeft)) ||
+        BigNumber.from(item.contributionReward.externalTokenRewardLeft)) ||
       null
     const nativeTokenRewardLeft =
       (item.contributionReward.nativeTokenRewardLeft !== null &&
-        new BN(item.contributionReward.nativeTokenRewardLeft)) ||
+        BigNumber.from(item.contributionReward.nativeTokenRewardLeft)) ||
       null
     const reputationChangeLeft =
       (item.contributionReward.reputationChangeLeft !== null &&
-        new BN(item.contributionReward.reputationChangeLeft)) ||
+        BigNumber.from(item.contributionReward.reputationChangeLeft)) ||
       null
 
     const contributionRewardExtState = ContributionRewardExtPlugin.itemMap(context, item.scheme, queriedId)
@@ -96,17 +96,17 @@ export class ContributionRewardExtProposal extends Proposal<IContributionRewardE
         item.contributionReward.alreadyRedeemedReputationPeriods
       ),
       beneficiary: item.contributionReward.beneficiary,
-      ethReward: new BN(item.contributionReward.ethReward),
+      ethReward: BigNumber.from(item.contributionReward.ethReward),
       ethRewardLeft,
       externalToken: item.contributionReward.externalToken,
-      externalTokenReward: new BN(item.contributionReward.externalTokenReward),
+      externalTokenReward: BigNumber.from(item.contributionReward.externalTokenReward),
       externalTokenRewardLeft,
-      nativeTokenReward: new BN(item.contributionReward.nativeTokenReward),
+      nativeTokenReward: BigNumber.from(item.contributionReward.nativeTokenReward),
       nativeTokenRewardLeft,
       periodLength: Number(item.contributionReward.periodLength),
       periods: Number(item.contributionReward.periods),
       reputationChangeLeft,
-      reputationReward: new BN(item.contributionReward.reputationReward)
+      reputationReward: BigNumber.from(item.contributionReward.reputationReward)
     }
   }
 

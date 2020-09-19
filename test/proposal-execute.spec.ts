@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { IProposalOutcome, DAO, Arc, IProposalStage, IProposalState, ContributionRewardProposal, IProposalCreateOptionsCR } from '../src'
 import { advanceTime, createAProposal, fromWei, getTestAddresses, getTestDAO,
   ITestAddresses, newArc, toWei,
@@ -65,7 +65,7 @@ describe('Proposal execute()', () => {
     await proposal.vote(IProposalOutcome.Pass).send()
 
     // wait until the votes have been counted
-    await waitUntilTrue(() => lastState().votesFor.gt(new BN(0)))
+    await waitUntilTrue(() => lastState().votesFor.gt(BigNumber.from(0)))
     proposalState = lastState()
     expect(proposalState.stage).toEqual(IProposalStage.Queued)
     expect(Number(fromWei(proposalState.votesFor))).toBeGreaterThan(0)
@@ -74,13 +74,13 @@ describe('Proposal execute()', () => {
     const amountToStakeFor = toWei(10000)
     await proposal.stakingToken().mint(accounts[0], amountToStakeFor).send()
     await proposal.stakingToken()
-      .approveForStaking(proposalState.votingMachine, amountToStakeFor.add(new BN(1000))).send()
+      .approveForStaking(proposalState.votingMachine, amountToStakeFor.add(BigNumber.from(1000))).send()
 
     await proposal.execute().send()
 
     await proposal.stake(IProposalOutcome.Pass, amountToStakeFor).send()
 
-    await waitUntilTrue(() => lastState().stakesFor.gt(new BN(0)))
+    await waitUntilTrue(() => lastState().stakesFor.gt(BigNumber.from(0)))
     proposalState = lastState()
 
     expect(Number(fromWei(proposalState.stakesFor))).toBeGreaterThan(0)
@@ -115,7 +115,7 @@ describe('Proposal execute()', () => {
     const repTotalSupply = daoState.reputationTotalSupply
     const proposalStates: IProposalState[] = []
     const lastState = () => proposalStates[proposalStates.length - 1]
-    const proposal = await createAProposal(dao,  { ethReward: new BN(0)})
+    const proposal = await createAProposal(dao,  { ethReward: BigNumber.from(0)})
     proposal.state({}).subscribe((state: IProposalState) => {
       proposalStates.push(state)
     })
@@ -132,7 +132,7 @@ describe('Proposal execute()', () => {
     await waitUntilTrue(() => {
       return lastState().executedAt !== 0
     })
-    expect(Number(lastState().votesFor.toString())).toBeGreaterThan(Number(repTotalSupply.div(new BN(2)).toString()))
+    expect(Number(lastState().votesFor.toString())).toBeGreaterThan(Number(repTotalSupply.div(BigNumber.from(2)).toString()))
 
     /// with the last (winning) vote, the proposal is already executed
     await expect(proposal.execute().send()).rejects.toThrow(

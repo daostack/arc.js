@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { realMathToNumber } from './index'
 
 export interface IGenesisProtocolParams {
@@ -6,9 +6,9 @@ export interface IGenesisProtocolParams {
   boostedVotePeriodLimit: number
   daoBountyConst: number // ?
   limitExponentValue: number
-  minimumDaoBounty: BN // in GEN
+  minimumDaoBounty: BigNumber // in GEN
   preBoostedVotePeriodLimit: number
-  proposingRepReward: BN // in REP
+  proposingRepReward: BigNumber // in REP
   queuedVoteRequiredPercentage: number
   queuedVotePeriodLimit: number // in seconds (?)
   quietEndingPeriod: number
@@ -22,13 +22,13 @@ export function mapGenesisProtocolParams(params: IGenesisProtocolParams) {
     boostedVotePeriodLimit: Number(params.boostedVotePeriodLimit),
     daoBountyConst: Number(params.daoBountyConst),
     limitExponentValue: Number(params.limitExponentValue),
-    minimumDaoBounty: new BN(params.minimumDaoBounty),
+    minimumDaoBounty: BigNumber.from(params.minimumDaoBounty),
     preBoostedVotePeriodLimit: Number(params.preBoostedVotePeriodLimit),
-    proposingRepReward: new BN(params.proposingRepReward),
+    proposingRepReward: BigNumber.from(params.proposingRepReward),
     queuedVotePeriodLimit: Number(params.queuedVotePeriodLimit),
     queuedVoteRequiredPercentage: Number(params.queuedVoteRequiredPercentage),
     quietEndingPeriod: Number(params.quietEndingPeriod),
-    thresholdConst: realMathToNumber(new BN(params.thresholdConst)),
+    thresholdConst: realMathToNumber(BigNumber.from(params.thresholdConst)),
     votersReputationLossRatio: Number(params.votersReputationLossRatio)
   }
 }

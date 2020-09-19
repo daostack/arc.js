@@ -8,7 +8,7 @@ import {
   GenericPluginProposal,
   LATEST_ARC_VERSION
 } from '../src'
-import { newArc, voteToPassProposal, waitUntilTrue, getTestScheme, BN } from './utils'
+import { newArc, voteToPassProposal, waitUntilTrue, getTestScheme, BigNumber } from './utils'
 import { ethers } from 'ethers'
 
 jest.setTimeout(60000)
@@ -36,7 +36,8 @@ describe('Proposal', () => {
 
     if (!arc.web3) throw new Error('Web3 provider not set')
 
-    const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
+    //const callData = new ethers.utils.Interface(actionMockABI).functions.test2.encode([dao.id])
+    const callData = new ethers.utils.Interface(actionMockABI).encodeFunctionData('transfer(address,uint256)', [dao.id])
 
     const plugins = await dao.plugins({ where: { name: 'GenericScheme' } }).pipe(first()).toPromise() as GenericPlugin[]
     const genericScheme = plugins[0]
@@ -44,7 +45,7 @@ describe('Proposal', () => {
     const tx = await genericScheme.createProposal({
       dao: dao.id,
       callData,
-      value: new BN('1'),
+      value: BigNumber.from('1'),
       plugin: getTestScheme('GenericScheme')
     }).send()
 
@@ -65,7 +66,7 @@ describe('Proposal', () => {
       callData,
       executed: false,
       returnValue: null,
-      value: new BN('1')
+      value: BigNumber.from('1')
     })
 
     // accept the proposal by voting the hell out of it

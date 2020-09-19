@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { Observable } from 'rxjs'
 import {
   Address,
@@ -33,12 +33,12 @@ import {
 
 export interface IProposalCreateOptionsComp extends IProposalBaseCreateOptions {
   endTime: Date
-  reputationReward?: BN
-  ethReward?: BN
-  externalTokenReward?: BN
+  reputationReward?: BigNumber
+  ethReward?: BigNumber
+  externalTokenReward?: BigNumber
   externalTokenAddress?: Address
   rewardSplit: number[]
-  nativeTokenReward?: BN
+  nativeTokenReward?: BigNumber
   numberOfVotesPerVoter: number
   proposerIsAdmin?: boolean // true if new suggestions are limited to the proposer
   startTime: Date | null
@@ -251,7 +251,7 @@ export class CompetitionPlugin extends ProposalPlugin<
     }
   }
 
-  public async ethBalance(): Promise<Observable<BN>> {
+  public async ethBalance(): Promise<Observable<BigNumber>> {
     let state
 
     if (!this.coreState) {

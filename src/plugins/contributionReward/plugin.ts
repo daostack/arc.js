@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import {
   Address,
@@ -28,10 +28,10 @@ export interface IContributionRewardState extends IPluginState {
 
 export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
   beneficiary: Address
-  nativeTokenReward?: BN
-  reputationReward?: BN
-  ethReward?: BN
-  externalTokenReward?: BN
+  nativeTokenReward?: BigNumber
+  reputationReward?: BigNumber
+  ethReward?: BigNumber
+  externalTokenReward?: BigNumber
   externalTokenAddress?: Address
   periodLength?: number
   periods?: any
@@ -130,7 +130,7 @@ export class ContributionRewardPlugin extends ProposalPlugin<
 
     return {
       contract: this.context.getContract(options.plugin as string),
-      method: 'proposeContributionReward',
+      method: 'proposeContributionReward(string,int256,uint256[5],address,address)',
       args: [
         options.descriptionHash || '',
         (options.reputationReward && options.reputationReward.toString()) || 0,

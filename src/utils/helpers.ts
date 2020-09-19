@@ -1,5 +1,5 @@
 import { Observable as ZenObservable } from 'apollo-link'
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { utils } from 'ethers'
 import WebSocket from 'isomorphic-ws'
 import { Observable, Observer } from 'rxjs'
@@ -24,14 +24,14 @@ const checkAddress = (address: string) => {
   }
 }
 
-export function fromWei(amount: BN): string {
+export function fromWei(amount: BigNumber): string {
   const etherAmount = utils.formatEther(amount.toString())
   return etherAmount.toString()
 }
 
-export function toWei(amount: string | number): BN {
+export function toWei(amount: string | number): BigNumber {
   const weiAmount = utils.parseEther(amount.toString())
-  return new BN(weiAmount.toString())
+  return BigNumber.from(weiAmount.toString())
 }
 
 export function checkWebsocket(options: { url: string }) {
@@ -117,13 +117,13 @@ export function zenToRxjsObservable(zenObservable: ZenObservable<any>) {
 }
 
 /** convert the number representation of RealMath.sol representations to real real numbers
- * @param  t a BN instance of a real number in the RealMath representation
- * @return  a BN
+ * @param  t a BigNumber instance of a real number in the RealMath representation
+ * @return  a BigNumber
  */
-export function realMathToNumber(t: BN): number {
+export function realMathToNumber(t: BigNumber): number {
   const REAL_FBITS = 40
-  const fraction = t.maskn(REAL_FBITS).toNumber() / Math.pow(2, REAL_FBITS)
-  return t.shrn(REAL_FBITS).toNumber() + fraction
+  const fraction = t.mask(REAL_FBITS).toNumber() / Math.pow(2, REAL_FBITS)
+  return t.shr(REAL_FBITS).toNumber() + fraction
 }
 
 export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'

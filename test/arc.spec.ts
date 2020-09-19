@@ -1,7 +1,6 @@
-import BN from 'bn.js'
+import { BigNumber, ethers } from 'ethers'
 import { Wallet } from 'ethers'
-import { JsonRpcProvider } from 'ethers/providers'
-import { BigNumber } from 'ethers/utils'
+import { providers } from 'ethers'
 import gql from 'graphql-tag'
 import { first } from 'rxjs/operators'
 import {
@@ -57,7 +56,7 @@ describe('Arc ', () => {
   it('arc.allowances() should work', async () => {
     const arc = await newArc()
 
-    const allowances: BN[] = []
+    const allowances: BigNumber[] = []
     const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
     const amount = toWei(1001)
     await arc.approveForStaking(spender, amount).send()
@@ -70,7 +69,7 @@ describe('Arc ', () => {
     }
 
     arc.allowance(defaultAccount, spender).subscribe(
-      (next: BN) => {
+      (next: BigNumber) => {
         allowances.push(next)
       }
     )
@@ -82,7 +81,7 @@ describe('Arc ', () => {
   it('arc.allowance() should work', async () => {
     const arc = await newArc()
 
-    const allowances: BN[] = []
+    const allowances: BigNumber[] = []
     const spender = '0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15'
     const amount = toWei(1001)
     await arc.approveForStaking(spender, amount).send()
@@ -95,7 +94,7 @@ describe('Arc ', () => {
     }
 
     arc.allowance(defaultAccount, spender).subscribe(
-      (next: BN) => {
+      (next: BigNumber) => {
         allowances.push(next)
       }
     )
@@ -124,16 +123,16 @@ describe('Arc ', () => {
   it('arc.ethBalance() works with an account with 0 balance', async () => {
     const arc = await newArc()
     const balance = await arc.ethBalance('0x90f8bf6a479f320ead074411a4b0e7944ea81111').pipe(first()).toPromise()
-    expect(balance).toEqual(new BN(0))
+    expect(balance).toEqual(BigNumber.from(0))
 
   })
 
   it('arc.ethBalance() works with multiple subscriptions', async () => {
     const arc = await newArc()
     // observe two balances
-    const balances1: BN[] = []
-    const balances2: BN[] = []
-    const balances3: BN[] = []
+    const balances1: BigNumber[] = []
+    const balances2: BigNumber[] = []
+    const balances3: BigNumber[] = []
 
     if (!arc.web3) { throw new Error('Web3 provider not set') }
 
@@ -148,24 +147,41 @@ describe('Arc ', () => {
     })
     //
     // send some ether to the test accounts
-    async function sendEth(address: Address, amount: BN) {
+    async function sendEth(address: Address, amount: BigNumber) {
 
       if (!arc.web3) { throw new Error('Web3 provider not set') }
 
-      await arc.web3.getSigner().sendTransaction({
-        gasPrice: 100000000000,
+      //console.log(BigNumber.from(amount.toString()), amount.toString())
+      //console.log("bbs",await arc.ethBalance(address).pipe(first()).toPromise())
+      console.log(address)
+      console.log(amount)
+      const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545')
+      const signer = provider.getSigner()
+      await signer.sendTransaction({
+        gasPrice: BigNumber.from('100000000000'),
         to: address,
-        value: new BigNumber(amount.toString())
+        value: amount
       })
 
-    }
-    const amount1 = new BN('123456')
-    const amount2 = new BN('456677')
-    await sendEth(address1, amount1)
-    await sendEth(address2, amount2)
+      console.log("55")
 
+      //console.log("bs",await arc.ethBalance(address).pipe(first()).toPromise())
+
+    }
+    const amount1 = BigNumber.from('123456')
+    const amount2 = BigNumber.from('456677')
+    console.log("balance before send",await arc.web3.getBalance(address1))
+    await sendEth(address1, amount1)
+    console.log("balance after send",await arc.web3.getBalance(address1))
+    console.log("11")
+    await sendEth(address2, amount2)
+    console.log("22")
+    console.log("balances1", balances1)
     await waitUntilTrue(() => balances1.length > 1)
+    
+    console.log("33")
     await waitUntilTrue(() => balances2.length > 1)
+    console.log("44")
 
     expect(balances1.length).toEqual(2)
     expect(balances2.length).toEqual(2)
@@ -178,6 +194,7 @@ describe('Arc ', () => {
     })
 
     await waitUntilTrue(() => balances3.length >= 1)
+
     expect(balances3[balances3.length - 1].toString()).toEqual(balances2[balances2.length - 1].toString())
     await subscription2.unsubscribe()
     // expect(Object.keys(arc.observedAccounts)).toEqual([address1])
@@ -186,7 +203,7 @@ describe('Arc ', () => {
     // we have unsubscribed from subscription2, but we are still observing the account with subscription3
     expect(Object.keys(arc.observedAccounts).length).toEqual(1)
 
-    const amount3 = new BN('333333')
+    const amount3 = BigNumber.from('333333')
     expect(balances3.length).toEqual(1)
     await sendEth(address2, amount3)
     await waitUntilTrue(() => balances3.length >= 2)
@@ -249,7 +266,7 @@ describe('Arc ', () => {
   it('arc.getContract uses the custom signer', async () => {
     const signer = new Wallet(
       '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
-      new JsonRpcProvider('http://127.0.0.1:8545')
+      new providers.JsonRpcProvider('http://127.0.0.1:8545')
     )
 
     const arc = await newArc({
@@ -265,7 +282,7 @@ describe('Arc ', () => {
   it('arc.getAccount works with a custom signer', async () => {
     const signer = new Wallet(
       '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
-      new JsonRpcProvider('http://127.0.0.1:8545')
+      new providers.JsonRpcProvider('http://127.0.0.1:8545')
     )
 
     const arc = await newArc({
@@ -279,7 +296,7 @@ describe('Arc ', () => {
   it('arc.setAccount fails when a custom signer is used', async () => {
     const signer = new Wallet(
       '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
-      new JsonRpcProvider('http://127.0.0.1:8545')
+      new providers.JsonRpcProvider('http://127.0.0.1:8545')
     )
 
     const arc = await newArc({
@@ -298,7 +315,7 @@ describe('Arc ', () => {
   it('arc.getSigner returns the custom signer', async () => {
     const signer = new Wallet(
       '0xe485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52',
-      new JsonRpcProvider('http://127.0.0.1:8545')
+      new providers.JsonRpcProvider('http://127.0.0.1:8545')
     )
 
     const arc = await newArc({
@@ -329,8 +346,8 @@ it('arc.approveToken should return tx with status one', async () => {
   expect(approval.transactionHash).toBeDefined();
   expect(approval.receipt!.status).toEqual(1);
   const token = new Token(arc, tokenAddress);
-  const signer = (arc.web3 as JsonRpcProvider).getSigner(arc.defaultAccount as any)
-  const allowances: Array<BN> = []
+  const signer = (arc.web3 as providers.JsonRpcProvider).getSigner(arc.defaultAccount as any)
+  const allowances: Array<BigNumber> = []
   const lastAllowance = () => allowances[allowances.length - 1]
   await token.allowance(await signer.getAddress(), spender).subscribe(
     (next: any) => allowances.push(next)

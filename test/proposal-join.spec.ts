@@ -10,7 +10,7 @@ import {
   Proposal,
   } from '../src'
 import {
-  BN,
+  BigNumber,
   newArc,
   voteToPassProposal,
   waitUntilTrue
@@ -40,16 +40,16 @@ describe('Join', () => {
 
     expect(joinState.pluginParams).toMatchObject({
       fundingToken: NULL_ADDRESS,
-      fundingGoal: new BN(1000),
-      minFeeToJoin: new BN(100),
-      memberReputation: new BN(1000)
+      fundingGoal: BigNumber.from(1000),
+      minFeeToJoin: BigNumber.from(100),
+      memberReputation: BigNumber.from(1000)
     })
     expect(Object.prototype.toString.call(joinState.pluginParams.fundingGoalDeadline)).toBe('[object Date]')
 
     const dao = new DAO(arc, joinState.dao.id)
     const daoState = await dao.fetchState()
 
-    const fee = new BN(1000)
+    const fee = BigNumber.from(1000)
     const descriptionHash = 'hello'
     const proposedMember = accounts[daoState.memberCount].toLowerCase()
     arc.setAccount(proposedMember)
@@ -85,7 +85,7 @@ describe('Join', () => {
       proposedMember,
       funding: fee,
       executed: false,
-      reputationMinted: new BN(0)
+      reputationMinted: BigNumber.from(0)
     })
 
     await voteToPassProposal(proposal)

@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { from, Observable } from 'rxjs'
@@ -23,9 +23,9 @@ import {
 export interface IFundingRequestProposalState extends IProposalState {
   dao: IEntityRef<DAO>
   beneficiary: Address
-  amount: BN
+  amount: BigNumber
   executed: Date
-  amountRedeemed: BN
+  amountRedeemed: BigNumber
 }
 
 export class FundingRequestProposal extends Proposal<IFundingRequestProposalState> {
@@ -78,9 +78,9 @@ export class FundingRequestProposal extends Proposal<IFundingRequestProposalStat
         entity: new DAO(context, item.fundingRequest.dao.id)
       },
       beneficiary: item.fundingRequest.beneficiary,
-      amount: new BN(item.fundingRequest.amount),
+      amount: BigNumber.from(item.fundingRequest.amount),
       executed: secondSinceEpochToDate(item.fundingRequest.executed),
-      amountRedeemed: new BN(item.fundingRequest.amountRedeemed)
+      amountRedeemed: BigNumber.from(item.fundingRequest.amountRedeemed)
     }
   }
 

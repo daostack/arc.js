@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
@@ -96,7 +96,7 @@ export class Queue extends Entity<IQueueState> {
     if (!item) {
       throw Error(`Queue ItemMap failed. ${queriedId ? `Could not find Queue with id '${queriedId}'` : ''}`)
     }
-    const threshold = realMathToNumber(new BN(item.threshold))
+    const threshold = realMathToNumber(BigNumber.from(item.threshold))
 
     const pluginState: IPluginState = Plugins[item.scheme.name].itemMap(
       context,

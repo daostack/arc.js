@@ -10,7 +10,7 @@ import {
   Proposal
   } from '../src'
 import {
-  BN,
+  BigNumber,
   newArc,
   voteToPassProposal,
   waitUntilTrue
@@ -44,7 +44,7 @@ describe('FundingRequest', () => {
     })
 
     expect(fundingRequest.createProposal({
-      amount: new BN(1000),
+      amount: BigNumber.from(1000),
       beneficiary: '0xffcf8fdee72ac11b5c542428b35eef5769c409f0',
       dao: dao.id,
       descriptionHash: 'hello',
@@ -85,7 +85,7 @@ describe('FundingRequest', () => {
       const value = await daoContract.db('FUNDED_BEFORE_DEADLINE')
       expect(value).toEqual('TRUE')
       const beneficiary = '0xffcf8fdee72ac11b5c542428b35eef5769c409f0'
-      const amount = new BN(1000)
+      const amount = BigNumber.from(1000)
 
       const tx = await fundingRequest.createProposal({
         amount,
@@ -111,7 +111,7 @@ describe('FundingRequest', () => {
       expect(proposalState).toMatchObject({
         amount,
         beneficiary,
-        amountRedeemed: new BN(0),
+        amountRedeemed: BigNumber.from(0),
         stage: IProposalStage.Queued
       })
       await voteToPassProposal(proposal)
@@ -127,7 +127,7 @@ describe('FundingRequest', () => {
         // for some reason that I cannot fathom, amountRedeemed is not updated from the subscripton
         // so we fetch the state
         proposalState  = await proposal.fetchState({fetchPolicy: 'no-cache'}, true)
-        return proposalState.amountRedeemed.gt(new BN(0))
+        return proposalState.amountRedeemed.gt(BigNumber.from(0))
       })
       expect(proposalState.amountRedeemed).toEqual(amount)
 

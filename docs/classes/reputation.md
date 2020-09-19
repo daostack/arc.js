@@ -102,7 +102,7 @@ ___
 
 ###  mint
 
-▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BN): *[Operation](../globals.md#operation)‹undefined›*
+▸ **mint**(`beneficiary`: [Address](../globals.md#address), `amount`: BigNumber): *[Operation](../globals.md#operation)‹undefined›*
 
 *Defined in [src/reputation.ts:130](https://github.com/daostack/arc.js/blob/6c661ff/src/reputation.ts#L130)*
 
@@ -111,7 +111,7 @@ ___
 Name | Type |
 ------ | ------ |
 `beneficiary` | [Address](../globals.md#address) |
-`amount` | BN |
+`amount` | BigNumber |
 
 **Returns:** *[Operation](../globals.md#operation)‹undefined›*
 
@@ -119,7 +119,7 @@ ___
 
 ###  reputationOf
 
-▸ **reputationOf**(`address`: [Address](../globals.md#address)): *Observable‹BN›*
+▸ **reputationOf**(`address`: [Address](../globals.md#address)): *Observable‹BigNumber›*
 
 *Defined in [src/reputation.ts:102](https://github.com/daostack/arc.js/blob/6c661ff/src/reputation.ts#L102)*
 
@@ -129,7 +129,7 @@ Name | Type |
 ------ | ------ |
 `address` | [Address](../globals.md#address) |
 
-**Returns:** *Observable‹BN›*
+**Returns:** *Observable‹BigNumber›*
 
 ___
 

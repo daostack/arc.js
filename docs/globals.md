@@ -516,7 +516,7 @@ ___
 
 ###  fromWei
 
-▸ **fromWei**(`amount`: BN): *string*
+▸ **fromWei**(`amount`: BigNumber): *string*
 
 *Defined in [src/utils.ts:28](https://github.com/daostack/arc.js/blob/6c661ff/src/utils.ts#L28)*
 
@@ -524,7 +524,7 @@ ___
 
 Name | Type |
 ------ | ------ |
-`amount` | BN |
+`amount` | BigNumber |
 
 **Returns:** *string*
 
@@ -716,11 +716,11 @@ Name | Type |
 
 * **limitExponentValue**: *number* =  Number(params.limitExponentValue)
 
-* **minimumDaoBounty**: *BN‹›* =  new BN(params.minimumDaoBounty)
+* **minimumDaoBounty**: *BigNumber‹›* =  BigNumber.from(params.minimumDaoBounty)
 
 * **preBoostedVotePeriodLimit**: *number* =  Number(params.preBoostedVotePeriodLimit)
 
-* **proposingRepReward**: *BN‹›* =  new BN(params.proposingRepReward)
+* **proposingRepReward**: *BigNumber‹›* =  BigNumber.from(params.proposingRepReward)
 
 * **queuedVotePeriodLimit**: *number* =  Number(params.queuedVotePeriodLimit)
 
@@ -728,7 +728,7 @@ Name | Type |
 
 * **quietEndingPeriod**: *number* =  Number(params.quietEndingPeriod)
 
-* **thresholdConst**: *number* =  realMathToNumber(new BN(params.thresholdConst))
+* **thresholdConst**: *number* =  realMathToNumber(BigNumber.from(params.thresholdConst))
 
 * **votersReputationLossRatio**: *number* =  Number(params.votersReputationLossRatio)
 
@@ -736,7 +736,7 @@ ___
 
 ###  realMathToNumber
 
-▸ **realMathToNumber**(`t`: BN): *number*
+▸ **realMathToNumber**(`t`: BigNumber): *number*
 
 *Defined in [src/utils.ts:126](https://github.com/daostack/arc.js/blob/6c661ff/src/utils.ts#L126)*
 
@@ -746,11 +746,11 @@ convert the number representation of RealMath.sol representations to real real n
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`t` | BN | a BN instance of a real number in the RealMath representation |
+`t` | BigNumber | a BigNumber instance of a real number in the RealMath representation |
 
 **Returns:** *number*
 
-a BN
+a BigNumber
 
 ___
 
@@ -852,7 +852,7 @@ ___
 
 ###  toWei
 
-▸ **toWei**(`amount`: string | number): *BN*
+▸ **toWei**(`amount`: string | number): *BigNumber*
 
 *Defined in [src/utils.ts:33](https://github.com/daostack/arc.js/blob/6c661ff/src/utils.ts#L33)*
 
@@ -862,7 +862,7 @@ Name | Type |
 ------ | ------ |
 `amount` | string &#124; number |
 
-**Returns:** *BN*
+**Returns:** *BigNumber*
 
 ___
 

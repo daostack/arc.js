@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
 import {
@@ -17,7 +17,7 @@ export interface ICompetitionVoteState {
   suggestion: string
   voter: Address
   createdAt?: Date
-  reputation: BN
+  reputation: BigNumber
 }
 
 export interface ICompetitionVoteQueryOptions extends ICommonQueryOptions {

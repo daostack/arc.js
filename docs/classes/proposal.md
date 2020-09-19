@@ -213,7 +213,7 @@ ___
 
 ###  stake
 
-▸ **stake**(`outcome`: [IProposalOutcome](../enums/iproposaloutcome.md), `amount`: BN): *[Operation](../globals.md#operation)‹[Stake](stake.md)›*
+▸ **stake**(`outcome`: [IProposalOutcome](../enums/iproposaloutcome.md), `amount`: BigNumber): *[Operation](../globals.md#operation)‹[Stake](stake.md)›*
 
 *Defined in [src/proposal.ts:715](https://github.com/daostack/arc.js/blob/6c661ff/src/proposal.ts#L715)*
 
@@ -224,7 +224,7 @@ Stake on this proposal
 Name | Type | Description |
 ------ | ------ | ------ |
 `outcome` | [IProposalOutcome](../enums/iproposaloutcome.md) | the outcome that is staked on, of type IProposalOutcome |
-`amount` | BN | the amount, in GEN, to stake |
+`amount` | BigNumber | the amount, in GEN, to stake |
 
 **Returns:** *[Operation](../globals.md#operation)‹[Stake](stake.md)›*
 

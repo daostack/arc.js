@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import { Observable } from 'rxjs'
@@ -24,7 +24,7 @@ export interface IVoteState {
   voter: Address
   createdAt: Date | undefined
   outcome: IProposalOutcome
-  amount: BN // amount of reputation that was voted with
+  amount: BigNumber // amount of reputation that was voted with
   proposal: IEntityRef<AnyProposal>
   dao?: Address
 }
@@ -202,7 +202,7 @@ export class Vote extends Entity<IVoteState> {
     }
 
     return {
-      amount: new BN(item.reputation || 0),
+      amount: BigNumber.from(item.reputation || 0),
       createdAt: item.createdAt,
       dao: item.dao.id,
       id: item.id,

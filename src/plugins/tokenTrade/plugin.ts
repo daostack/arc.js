@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { DocumentNode } from 'graphql'
 import gql from 'graphql-tag'
 import {
@@ -143,7 +143,7 @@ export class TokenTrade extends ProposalPlugin<
 
     const { address: pluginAddress } = await this.fetchState()
 
-    await this.context.approveTokens(options.sendTokenAddress, pluginAddress, new BN(options.sendTokenAmount)).send()
+    await this.context.approveTokens(options.sendTokenAddress, pluginAddress, BigNumber.from(options.sendTokenAmount)).send()
 
     return {
       contract: this.context.getContract(pluginAddress),

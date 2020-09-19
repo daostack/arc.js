@@ -34,6 +34,6 @@ ___
 
 ###  totalSupply
 
-• **totalSupply**: *BN*
+• **totalSupply**: *BigNumber*
 
 *Defined in [src/reputation.ts:13](https://github.com/daostack/arc.js/blob/6c661ff/src/reputation.ts#L13)*

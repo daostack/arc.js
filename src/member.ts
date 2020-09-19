@@ -1,4 +1,4 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 import { utils } from 'ethers'
 import gql from 'graphql-tag'
 import { Observable, Observer } from 'rxjs'
@@ -33,7 +33,7 @@ export interface IMemberState {
   contract?: Address
   createdAt: Date
   dao: IEntityRef<DAO>
-  reputation: BN
+  reputation: BigNumber
 }
 
 export interface IMemberQueryOptions extends ICommonQueryOptions {
@@ -135,7 +135,7 @@ export class Member extends Entity<IMemberState> {
         entity: new DAO(context, item.dao.id)
       },
       contract: item.contract,
-      reputation: new BN(item.balance)
+      reputation: BigNumber.from(item.balance)
     }
   }
 
@@ -174,7 +174,7 @@ export class Member extends Entity<IMemberState> {
                 id: this.coreState.id,
                 address: this.coreState.address,
                 dao: this.coreState.dao,
-                reputation: new BN(0)
+                reputation: BigNumber.from(0)
               }
             } else {
               throw Error(`No member with id ${this.id} was found`)
@@ -219,7 +219,7 @@ export class Member extends Entity<IMemberState> {
           return {
             address: this.coreState.address,
             dao: this.coreState.dao,
-            reputaion: new BN(0)
+            reputaion: BigNumber.from(0)
           }
         } else {
           return Member.itemMap(arc, items[0], queriedId)

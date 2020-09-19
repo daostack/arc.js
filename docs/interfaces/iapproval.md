@@ -61,6 +61,6 @@ ___
 
 ###  value
 
-• **value**: *BN*
+• **value**: *BigNumber*
 
 *Defined in [src/token.ts:35](https://github.com/daostack/arc.js/blob/6c661ff/src/token.ts#L35)*
