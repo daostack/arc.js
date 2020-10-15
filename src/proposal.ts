@@ -82,6 +82,7 @@ export interface IProposalState extends IProposalStaticState {
   executionState: IExecutionState
   expiresInQueueAt: Date
   genericScheme: GenericScheme.IGenericScheme | null
+  genericSchemeMultiCall: GenericScheme.IGenericSchemeMultiCall | null
   genesisProtocolParams: IGenesisProtocolParams
   organizationId: string
   paramsHash: string
@@ -174,6 +175,14 @@ export class Proposal implements IStateful<IProposalState> {
         executed
         returnValue
         value
+      }
+      genericSchemeMultiCall {
+        id
+        contractsToCall
+        callsData
+        executed
+        returnValue
+        values
       }
       genesisProtocolParams {
         id
@@ -983,6 +992,7 @@ export interface IProposalBaseCreateOptions {
 }
 
 export type IProposalCreateOptions = (
+  (IProposalBaseCreateOptions & GenericSchemeMultiCall.IProposalCreateOptionsGSMultiCall) |
   (IProposalBaseCreateOptions & GenericScheme.IProposalCreateOptionsGS) |
   (IProposalBaseCreateOptions & SchemeRegistrar.IProposalCreateOptionsSR) |
   (IProposalBaseCreateOptions & ContributionReward.IProposalCreateOptionsCR) |
