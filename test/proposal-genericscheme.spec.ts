@@ -1,3 +1,4 @@
+import { bindCallback } from "rxjs"
 import { first } from 'rxjs/operators'
 import {
   Arc,
@@ -44,7 +45,7 @@ describe('Proposal', () => {
       callData,
       scheme: genericScheme.address,
       schemeToRegister: actionMock.options.address,
-      value: '1'
+      value: new BN('1')
     })
     expect(proposal).toBeInstanceOf(Proposal)
 
