@@ -49,13 +49,15 @@ describe('Plugin', () => {
       pluginStates.push(state)
     }))
 
-    //TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it. 
+    //TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it.
     // Its interface is unknown. This test is failing because of this
 
     expect((pluginStates.map((r) => r.name)).sort()).toEqual([
       'ContributionReward',
       'DAOFactoryInstance',
+      'FundingRequest',
       'GenericScheme',
+      'Join',
       'SchemeRegistrar'
     ].sort())
     result = await Plugin.search(arc, {where: {dao: dao.id, name: 'ContributionReward'}})
@@ -161,7 +163,7 @@ describe('Plugin', () => {
     expect(pluginState.numberOfBoostedProposals).toEqual(boostedProposals.length)
   })
 
-  //TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it. 
+  //TODO: DAOFactoryInstance is a plugin not registered, therefore the ItemMap in the search method wont map it.
   // Its interface is unknown. This test is failing because of this
 
   it('paging and sorting works', async () => {
