@@ -43,7 +43,7 @@ describe('Competition Proposal', () => {
   let suggestion4: any
   const ethReward = new BN('300')
   const reputationReward = new BN('10111')
-  const competitionDuration = 21
+  const competitionDuration = 25
   const suggestionsStart = 3
   const suggestionsEnd = 10
   const votingStart = 11
@@ -238,7 +238,7 @@ describe('Competition Proposal', () => {
     expect((lastState().competition as ICompetitionProposalState).startTime).toBeDefined()
   })
 
-  it('Create a competition proposal, compete, win the competition..', async () => {
+  it('Create a competition proposal, compete, win the competition', async () => {
     // const scheme = new CompetitionScheme(contributionRewardExtState.id, arc)
     expect(contributionRewardExt).toBeInstanceOf(CompetitionScheme)
     const scheme = new CompetitionScheme(contributionRewardExt.id, arc)
@@ -313,7 +313,7 @@ describe('Competition Proposal', () => {
       // name: 'Competition'
     })
 
-    // accept the proposal by voting for et
+    // accept the proposal by voting for it
     await voteToPassProposal(proposal)
 
     await waitUntilTrue(() => (lastState().stage === IProposalStage.Executed))
