@@ -65,10 +65,10 @@ describe('Competition Proposal', () => {
     return state.positionInWinnerList
   }
 
-  // async function isWinner(suggestion: CompetitionSuggestion) {
-  //   const state = await suggestion.state({fetchPolicy: 'no-cache'}).pipe(first()).toPromise()
-  //   return state.isWinner
-  // }
+  async function isWinner(suggestion: CompetitionSuggestion) {
+    const state = await suggestion.state({ fetchPolicy: 'no-cache' }).pipe(first()).toPromise()
+    return state.isWinner
+  }
 
   beforeEach(async () => {
     // @ts-ignore
@@ -435,57 +435,59 @@ describe('Competition Proposal', () => {
     expect(balanceDelta.toString()).not.toEqual('0')
   })
 
-  // it.skip(`Rewards left are updated correctly`, async () => {
-  //   // before any votes are cast, all suggesitons are winnners
-  //   const competition = await createCompetition()
-  //   const proposal = new Proposal(competition.id, arc)
-  //   let competitionState: any
+  it(`Rewards left are updated correctly`, async () => {
+    // before any votes are cast, all suggesitons are winnners
+    const competition = await createCompetition()
+    const proposal = new Proposal(competition.id, arc)
+    let competitionState: any
 
-  //   await proposal.state().subscribe(
-  //     (state) => competitionState = state
-  //   )
-  //   await waitUntilTrue(() => !!competitionState)
-  //   expect(competitionState.contributionReward).toMatchObject({
-  //     ethRewardLeft: null,
-  //     externalTokenRewardLeft: null,
-  //     nativeTokenRewardLeft: null,
-  //     reputationChangeLeft: null
-  //   })
-  //   // redeem the proposal
-  //   await proposal.claimRewards().send()
-  //   // wait for indexing to be done
-  //   await waitUntilTrue(() => {
-  //     return competitionState.contributionReward.ethRewardLeft !== null
-  //   })
-  //   expect(competitionState.contributionReward).toMatchObject({
-  //     ethRewardLeft: ethReward,
-  //     externalTokenRewardLeft: new BN(0),
-  //     nativeTokenRewardLeft: new BN(0),
-  //     reputationChangeLeft: reputationReward
-  //   })
-  // })
+    await proposal.state().subscribe(
+      (state) => competitionState = state
+    )
+    await waitUntilTrue(() => !!competitionState)
+    expect(competitionState.contributionReward).toMatchObject({
+      ethRewardLeft: null,
+      externalTokenRewardLeft: null,
+      nativeTokenRewardLeft: null,
+      reputationChangeLeft: null
+    })
+    // redeem the proposal
+    await proposal.claimRewards().send()
+    // wait for indexing to be done
+    await waitUntilTrue(() => {
+      return competitionState.contributionReward.ethRewardLeft !== null
+    })
+    expect(competitionState.contributionReward).toMatchObject({
+      ethRewardLeft: ethReward,
+      externalTokenRewardLeft: new BN(0),
+      nativeTokenRewardLeft: new BN(0),
+      reputationChangeLeft: reputationReward
+    })
+  })
 
-  // it.skip('Vote state works', async () => {
-  //   const competition = await createCompetition()
+  it('Vote state works', async () => {
+    const competition = await createCompetition()
 
-  //   await suggestion1.vote().send()
-  //   let voteIsIndexed = false
-  //   suggestion1.state().subscribe((s: ICompetitionSuggestionState) => {
-  //     voteIsIndexed = (s.positionInWinnerList !== null)
-  //   })
-  //   await waitUntilTrue(() => voteIsIndexed)
+    await advanceTimeAndBlock(votingStart)
 
-  //   const votes = await competition.votes().pipe(first()).toPromise()
-  //   expect(votes.length).toEqual(1)
-  //   const vote = votes[0]
-  //   const voteState = await vote.state().pipe(first()).toPromise()
-  //   // expect(vote.id).toEqual(vote1.id)
-  //   expect(voteState).toMatchObject({
-  //     id: vote.id,
-  //     proposal: competition.id,
-  //     suggestion: suggestion1.id
-  //   })
-  // })
+    await suggestion1.vote().send()
+    let voteIsIndexed = false
+    suggestion1.state().subscribe((s: ICompetitionSuggestionState) => {
+      voteIsIndexed = (s.positionInWinnerList !== null)
+    })
+    await waitUntilTrue(() => voteIsIndexed)
+
+    const votes = await competition.votes().pipe(first()).toPromise()
+    expect(votes.length).toEqual(1)
+    const vote = votes[0]
+    const voteState = await vote.state().pipe(first()).toPromise()
+    // expect(vote.id).toEqual(vote1.id)
+    expect(voteState).toMatchObject({
+      id: vote.id,
+      proposal: competition.id,
+      suggestion: suggestion1.id
+    })
+  })
 
   it(`No votes is no winners`, async () => {
     // before any votes are cast, all suggesitons are winnners
@@ -497,156 +499,154 @@ describe('Competition Proposal', () => {
     expect(suggestion1.redeem().send()).rejects.toThrow('not in winners list')
   })
 
-  // it.skip('position is calculated correctly and redemptions work', async () => {
-  //   let voteIsIndexed: boolean
-  //   await createCompetition()
+  it.skip('position is calculated correctly and redemptions work', async () => {
+    let voteIsIndexed: boolean
+    await createCompetition()
 
-  //   await advanceTimeAndBlock(votingStart)
+    await advanceTimeAndBlock(votingStart)
 
-  //   // vote and wait until it is indexed
-  //   await suggestion1.vote().send()
-  //   voteIsIndexed = false
-  //   suggestion1.state().subscribe((s: ICompetitionSuggestionState) => {
-  //     voteIsIndexed = (s.positionInWinnerList !== null)
-  //   })
-  //   await waitUntilTrue(() => voteIsIndexed)
+    // vote and wait until it is indexed
+    await suggestion1.vote().send()
+    voteIsIndexed = false
+    suggestion1.state().subscribe((s: ICompetitionSuggestionState) => {
+      voteIsIndexed = (s.positionInWinnerList !== null)
+    })
+    await waitUntilTrue(() => voteIsIndexed)
 
-  //   expect(await getPosition(suggestion1)).toEqual(0)
-  //   expect(await getPosition(suggestion4)).toEqual(null)
+    expect(await getPosition(suggestion1)).toEqual(0)
+    expect(await getPosition(suggestion4)).toEqual(null)
 
-  //   // vote and wait until it is indexed
-  //   voteIsIndexed = false
-  //   await suggestion2.vote().send()
-  //   suggestion2.state().subscribe((s: ICompetitionSuggestionState) => {
-  //     voteIsIndexed = (s.positionInWinnerList !== null)
-  //   })
-  //   await waitUntilTrue(() => voteIsIndexed)
+    // vote and wait until it is indexed
+    voteIsIndexed = false
+    await suggestion2.vote().send()
+    suggestion2.state().subscribe((s: ICompetitionSuggestionState) => {
+      voteIsIndexed = (s.positionInWinnerList !== null)
+    })
+    await waitUntilTrue(() => voteIsIndexed)
 
-  //   expect(await getPosition(suggestion1)).toEqual(0)
-  //   expect(await getPosition(suggestion2)).toEqual(0)
-  //   expect(await getPosition(suggestion3)).toEqual(null)
-  //   expect(await getPosition(suggestion4)).toEqual(null)
+    expect(await getPosition(suggestion1)).toEqual(0)
+    expect(await getPosition(suggestion2)).toEqual(0)
+    expect(await getPosition(suggestion3)).toEqual(null)
+    expect(await getPosition(suggestion4)).toEqual(null)
 
-  //   await advanceTimeAndBlock(votingDuration)
+    await advanceTimeAndBlock(votingDuration)
 
-  //   const crextContractAddress = contributionRewardExtState.address
-  //   const crExtBalanceBefore = await arc.web3.eth.getBalance(crextContractAddress)
-  //   const beneficiary = address1
+    const crextContractAddress = contributionRewardExtState.address
+    const crExtBalanceBefore = await arc.web3.eth.getBalance(crextContractAddress)
+    const beneficiary = address1
 
-  //   let balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
-  //   await suggestion1.redeem().send()
-  //   let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
-  //   let balanceDelta = balanceAfter.sub(balanceBefore)
-  //   expect(balanceDelta.toString()).toEqual('150')
-  //   const crExtBalanceAfter = await arc.web3.eth.getBalance(crextContractAddress)
-  //   const crExtBalanceDelta = new BN(crExtBalanceBefore).sub(new BN(crExtBalanceAfter))
-  //   expect(crExtBalanceDelta.toString()).toEqual('150')
+    let balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
+    await suggestion1.redeem().send()
+    let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
+    let balanceDelta = balanceAfter.sub(balanceBefore)
+    expect(balanceDelta.toString()).toEqual('150')
+    const crExtBalanceAfter = await arc.web3.eth.getBalance(crextContractAddress)
+    const crExtBalanceDelta = new BN(crExtBalanceBefore).sub(new BN(crExtBalanceAfter))
+    expect(crExtBalanceDelta.toString()).toEqual('150')
 
-  //   // the reward _is_ redeemed
-  //   await expect(suggestion1.redeem().send()).rejects.toThrow('suggestion was already redeemed')
+    // the reward _is_ redeemed
+    await expect(suggestion1.redeem().send()).rejects.toThrow('suggestion was already redeemed')
 
-  //   balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
-  //   await suggestion2.redeem(beneficiary).send()
-  //   balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
-  //   balanceDelta = balanceAfter.sub(balanceBefore)
-  //   expect(balanceDelta.toString()).toEqual('150')
+    balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
+    await suggestion2.redeem(beneficiary).send()
+    balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
+    balanceDelta = balanceAfter.sub(balanceBefore)
+    expect(balanceDelta.toString()).toEqual('150')
 
-  //   expect(await isWinner(suggestion1)).toEqual(true)
-  //   expect(await isWinner(suggestion2)).toEqual(true)
-  //   expect(await isWinner(suggestion3)).toEqual(false)
-  //   expect(await isWinner(suggestion4)).toEqual(false)
-  // })
+    expect(await isWinner(suggestion1)).toEqual(true)
+    expect(await isWinner(suggestion2)).toEqual(true)
+    expect(await isWinner(suggestion3)).toEqual(false)
+    expect(await isWinner(suggestion4)).toEqual(false)
+  })
 
-  // it.skip('position is calculated correctly (2)', async () => {
-  //   const competition = await createCompetition()
+  it.skip('position is calculated correctly (2)', async () => {
+    const competition = await createCompetition()
 
-  //   await advanceTimeAndBlock(votingStart)
+    await advanceTimeAndBlock(votingStart)
 
-  //   await suggestion1.vote().send()
-  //   arc.setAccount(address0)
-  //   await suggestion3.vote().send()
-  //   arc.setAccount(address1)
-  //   await suggestion3.vote().send()
-  //   arc.setAccount(address0)
-  //   await suggestion2.vote().send()
+    await suggestion1.vote().send()
+    arc.setAccount(address0)
+    await suggestion3.vote().send()
+    arc.setAccount(address1)
+    await suggestion3.vote().send()
+    arc.setAccount(address0)
+    await suggestion2.vote().send()
 
-  //   // wait until last vote is indexed
-  //   let voteIsIndexed = false
-  //   suggestion2.state().subscribe((s: ICompetitionSuggestionState) => {
-  //     voteIsIndexed = (s.positionInWinnerList !== null)
-  //   })
-  //   await waitUntilTrue(() => voteIsIndexed)
+    // wait until last vote is indexed
+    let voteIsIndexed = false
+    suggestion2.state().subscribe((s: ICompetitionSuggestionState) => {
+      voteIsIndexed = (s.positionInWinnerList !== null)
+    })
+    await waitUntilTrue(() => voteIsIndexed)
 
-  //   await waitUntilTrue(() => voteIsIndexed)
+    expect(await getPosition(suggestion2)).toEqual(1)
+    expect(await getPosition(suggestion1)).toEqual(1)
+    expect(await getPosition(suggestion3)).toEqual(0)
+    expect(await getPosition(suggestion4)).toEqual(null)
 
-  //   expect(await getPosition(suggestion2)).toEqual(1)
-  //   expect(await getPosition(suggestion1)).toEqual(1)
-  //   expect(await getPosition(suggestion3)).toEqual(0)
-  //   expect(await getPosition(suggestion4)).toEqual(null)
+    await advanceTimeAndBlock(votingDuration)
 
-  //   await advanceTimeAndBlock(votingDuration)
+    const beneficiary = address1
 
-  //   const beneficiary = address1
+    let balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
+    await suggestion3.redeem(beneficiary).send()
+    let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
+    let balanceDelta = balanceAfter.sub(balanceBefore)
+    expect(balanceDelta.toString()).toEqual((new BN(240)).toString())
 
-  //   let balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
-  //   await suggestion3.redeem(beneficiary).send()
-  //   let balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
-  //   let balanceDelta = balanceAfter.sub(balanceBefore)
-  //   expect(balanceDelta.toString()).toEqual((new BN(240)).toString())
+    balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
+    await suggestion1.redeem().send()
+    balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
+    balanceDelta = balanceAfter.sub(balanceBefore)
 
-  //   balanceBefore = new BN(await arc.web3.eth.getBalance(beneficiary))
-  //   await suggestion1.redeem().send()
-  //   balanceAfter = new BN(await arc.web3.eth.getBalance(beneficiary))
-  //   balanceDelta = balanceAfter.sub(balanceBefore)
+    expect(suggestion4.redeem().send()).rejects.toThrow('not in winners list')
 
-  //   expect(suggestion4.redeem().send()).rejects.toThrow('not in winners list')
+    expect(await isWinner(suggestion1)).toEqual(true)
+    expect(await isWinner(suggestion2)).toEqual(true)
+    expect(await isWinner(suggestion3)).toEqual(true)
+    expect(await isWinner(suggestion4)).toEqual(false)
 
-  //   expect(await isWinner(suggestion1)).toEqual(true)
-  //   expect(await isWinner(suggestion2)).toEqual(true)
-  //   expect(await isWinner(suggestion3)).toEqual(true)
-  //   expect(await isWinner(suggestion4)).toEqual(false)
+    // if we get the list of winners, it should contain exactly these 3 suggestions
+    const winnerList = await competition.suggestions({ where: { positionInWinnerList_not: null } })
+      .pipe(first()).toPromise()
+    expect(winnerList.map((s: CompetitionSuggestion) => s.id).sort()).toEqual(
+      [suggestion1.id, suggestion2.id, suggestion3.id].sort()
+    )
 
-  //   // if we get the list of winners, it should contain exactly these 3 suggestions
-  //   const winnerList = await competition.suggestions({ where: { positionInWinnerList_not: null } })
-  //     .pipe(first()).toPromise()
-  //   expect(winnerList.map((s: CompetitionSuggestion) => s.id).sort()).toEqual(
-  //     [suggestion1.id, suggestion2.id, suggestion3.id].sort()
-  //   )
+  })
 
-  // })
+  it.skip('winner is identified correctly also if there are less actual than possible winners', async () => {
+    await createCompetition({ rewardSplit: [40, 40, 20] })
 
-  // it.skip('winner is identified correctly also if there are less actual than possible winners', async () => {
-  //   await createCompetition({ rewardSplit: [40, 40, 20] })
+    await advanceTimeAndBlock(votingStart)
 
-  //   await advanceTimeAndBlock(votingStart)
+    await suggestion1.vote().send()
+    // wait until the vote is indexed
+    let voteIsIndexed = false
+    suggestion1.state().subscribe((s: ICompetitionSuggestionState) => {
+      voteIsIndexed = (s.positionInWinnerList !== null)
+    })
+    await waitUntilTrue(() => voteIsIndexed)
 
-  //   await suggestion1.vote().send()
-  //   // wait until the vote is indexed
-  //   let voteIsIndexed = false
-  //   suggestion1.state().subscribe((s: ICompetitionSuggestionState) => {
-  //     voteIsIndexed = (s.positionInWinnerList !== null)
-  //   })
-  //   await waitUntilTrue(() => voteIsIndexed)
+    const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
+    expect(suggestion1State.positionInWinnerList).toEqual(0)
+    expect(suggestion1State.totalVotes).not.toEqual(new BN(0))
+    expect(suggestion1State.isWinner).toEqual(true)
 
-  //   const suggestion1State = await suggestion1.state().pipe(first()).toPromise()
-  //   expect(suggestion1State.positionInWinnerList).toEqual(0)
-  //   expect(suggestion1State.totalVotes).not.toEqual(new BN(0))
-  //   expect(suggestion1State.isWinner).toEqual(true)
+    const suggestion2State = await suggestion2.state().pipe(first()).toPromise()
+    expect(suggestion2State.positionInWinnerList).toEqual(null)
+    expect(suggestion2State.totalVotes).toEqual(new BN(0))
 
-  //   const suggestion2State = await suggestion2.state().pipe(first()).toPromise()
-  //   expect(suggestion2State.positionInWinnerList).toEqual(null)
-  //   expect(suggestion2State.totalVotes).toEqual(new BN(0))
+    const suggestion3State = await suggestion3.state().pipe(first()).toPromise()
+    expect(suggestion3State.positionInWinnerList).toEqual(null)
+    expect(suggestion3State.totalVotes).toEqual(new BN(0))
+    expect(suggestion3State.isWinner).toEqual(false)
 
-  //   const suggestion3State = await suggestion3.state().pipe(first()).toPromise()
-  //   expect(suggestion3State.positionInWinnerList).toEqual(null)
-  //   expect(suggestion3State.totalVotes).toEqual(new BN(0))
-  //   expect(suggestion3State.isWinner).toEqual(false)
+    const suggestion4State = await suggestion4.state().pipe(first()).toPromise()
+    expect(suggestion4State.positionInWinnerList).toEqual(null)
+    expect(suggestion4State.totalVotes).toEqual(new BN(0))
 
-  //   const suggestion4State = await suggestion4.state().pipe(first()).toPromise()
-  //   expect(suggestion4State.positionInWinnerList).toEqual(null)
-  //   expect(suggestion4State.totalVotes).toEqual(new BN(0))
-
-  // })
+  })
 
   it('CompetionScheme is recognized', async () => {
     // we'll get a `ContributionRewardExt` contract that has a Compietion contract as a rewarder
@@ -660,32 +660,32 @@ describe('Competition Proposal', () => {
     expect(scheme).toBeInstanceOf(CompetitionScheme)
   })
 
-  // it.skip('Can create a propsal using dao.createProposal', async () => {
-  //   const now = await getBlockTime(arc.web3)
-  //   const startTime = addSeconds(now, suggestionsStart)
-  //   const proposalOptions = {
-  //     dao: dao.id,
-  //     endTime: addSeconds(startTime, competitionDuration),
-  //     ethReward,
-  //     externalTokenAddress: undefined,
-  //     externalTokenReward: toWei('0'),
-  //     nativeTokenReward: toWei('1'),
-  //     numberOfVotesPerVoter: 3,
-  //     proposalType: 'competition',
-  //     reputationReward: toWei('10'),
-  //     rewardSplit: [10, 10, 80],
-  //     scheme: contributionRewardExtState.address,
-  //     startTime,
-  //     suggestionsEndTime: addSeconds(startTime, suggestionsEnd),
-  //     value: 0,
-  //     votingStartTime: addSeconds(startTime, votingStart)
-  //   }
+  it('Can create a propsal using dao.createProposal', async () => {
+    const now = await getBlockTime(arc.web3)
+    const startTime = addSeconds(now, suggestionsStart)
+    const proposalOptions = {
+      dao: dao.id,
+      endTime: addSeconds(startTime, competitionDuration),
+      ethReward,
+      externalTokenAddress: undefined,
+      externalTokenReward: toWei('0'),
+      nativeTokenReward: toWei('1'),
+      numberOfVotesPerVoter: 3,
+      proposalType: 'competition',
+      reputationReward: toWei('10'),
+      rewardSplit: [10, 10, 80],
+      scheme: contributionRewardExtState.address,
+      startTime,
+      suggestionsEndTime: addSeconds(startTime, suggestionsEnd),
+      value: 0,
+      votingStartTime: addSeconds(startTime, votingStart)
+    }
 
-  //   const tx = await dao.createProposal(proposalOptions).send()
-  //   proposal = tx.result
-  //   expect(proposal).toBeInstanceOf(Proposal)
+    const tx = await dao.createProposal(proposalOptions).send()
+    proposal = tx.result
+    expect(proposal).toBeInstanceOf(Proposal)
 
-  // })
+  })
 
   it(`Beneficiary is recognized and different from suggestor`, async () => {
     // lets create some suggestions
@@ -731,99 +731,99 @@ describe('Competition Proposal', () => {
     arc.setAccount(address0)
   })
 
-  // describe('pre-fetching competition.suggestions part 1', () => {
-  //   it.skip('pre-fetching competition.suggestions works', async () => {
-  //     // find a proposal in a scheme that has > 1 votes
-  //     const competition =  await createCompetition()
-  //     // check if the competition has indeed some suggestions
+  describe('pre-fetching competition.suggestions part 1', () => {
+    it.skip('pre-fetching competition.suggestions works', async () => {
+      // find a proposal in a scheme that has > 1 votes
+      const competition = await createCompetition()
+      // check if the competition has indeed some suggestions
 
-  //     const suggestions = await competition.suggestions().pipe(first()).toPromise()
-  //     expect(suggestions.length).toBeGreaterThan(0)
+      const suggestions = await competition.suggestions().pipe(first()).toPromise()
+      expect(suggestions.length).toBeGreaterThan(0)
 
-  //       // now we have our objects, reset the cache
-  //     await (arc.apolloClient as any).cache.reset()
-  //     expect((arc.apolloClient as any).cache.data.data).toEqual({})
+      // now we have our objects, reset the cache
+      await (arc.apolloClient as any).cache.reset()
+      expect((arc.apolloClient as any).cache.data.data).toEqual({})
 
-  //       // // construct our superquery that will fill the cache
-  //     const query = gql`query {
-  //         proposals (where: { id: "${competition.id}"}) {
-  //           ...ProposalFields
-  //           id
-  //           competition {
-  //             id
-  //             suggestions {
-  //               ...CompetitionSuggestionFields
-  //               }
-  //           }
-  //         }
-  //       }
-  //       ${Proposal.fragments.ProposalFields}
-  //       ${Scheme.fragments.SchemeFields}
-  //       ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
-  //       `
+      // // construct our superquery that will fill the cache
+      const query = gql`query {
+          proposals (where: { id: "${competition.id}"}) {
+            ...ProposalFields
+            id
+            competition {
+              id
+              suggestions {
+                ...CompetitionSuggestionFields
+                }
+            }
+          }
+        }
+        ${Proposal.fragments.ProposalFields}
+        ${Scheme.fragments.SchemeFields}
+        ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
+        `
 
-  //     await arc.sendQuery(query)
+      await arc.sendQuery(query)
 
-  //       // now see if we can get our informatino directly from the cache
-  //     const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
-  //         .pipe(first()).toPromise()
-  //     expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))
-  //         .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
+      // now see if we can get our informatino directly from the cache
+      const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only' })
+        .pipe(first()).toPromise()
+      expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))
+        .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
 
-  //     const cachedSuggestionState = await cachedSuggestions[0]
-  //       .state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
-  //     expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
+      const cachedSuggestionState = await cachedSuggestions[0]
+        .state({ fetchPolicy: 'cache-only' }).pipe(first()).toPromise()
+      expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
 
-  //   })
-  // })
+    })
+  })
 
-  // describe('pre-fetching competition.suggestions part 2', () => {
-  //   it.skip('pre-fetching competition.suggestions works also without resetting the cache', async () => {
-  //     // find a proposal in a scheme that has > 1 votes
-  //     const competition =  await createCompetition()
-  //     // check if the competition has indeed some suggestions
+  describe('pre-fetching competition.suggestions part 2', () => {
+    it.skip('pre-fetching competition.suggestions works also without resetting the cache', async () => {
+      // find a proposal in a scheme that has > 1 votes
+      const competition = await createCompetition()
+      // check if the competition has indeed some suggestions
 
-  //     const suggestions = await competition.suggestions().pipe(first()).toPromise()
-  //     expect(suggestions.length).toBeGreaterThan(0)
+      const suggestions = await competition.suggestions().pipe(first()).toPromise()
+      expect(suggestions.length).toBeGreaterThan(0)
 
-  //     // add some exiting data to the cache to seeif we can mess things up
-  //     await  arc.proposal(competition.id).state().pipe(first()).toPromise()
+      // add some exiting data to the cache to seeif we can mess things up
+      await arc.proposal(competition.id).state().pipe(first()).toPromise()
 
-  //     // construct our superquery that will fill the cache
-  //     const query = gql`query {
-  //         proposals (where: { id: "${competition.id}"}) {
-  //           # id
-  //           ...ProposalFields
-  //           competition {
-  //             id
-  //             suggestions {
-  //               ...CompetitionSuggestionFields
-  //               }
-  //           }
-  //         }
-  //       }
-  //       ${Proposal.fragments.ProposalFields}
-  //       ${Scheme.fragments.SchemeFields}
-  //       ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
-  //       `
+      // construct our superquery that will fill the cache
+      const query = gql`query {
+          proposals (where: { id: "${competition.id}"}) {
+            # id
+            ...ProposalFields
+            competition {
+              id
+              suggestions {
+                ...CompetitionSuggestionFields
+                }
+            }
+          }
+        }
+        ${Proposal.fragments.ProposalFields}
+        ${Scheme.fragments.SchemeFields}
+        ${CompetitionSuggestion.fragments.CompetitionSuggestionFields}
+        `
 
-  //     await arc.sendQuery(query)
+      await arc.sendQuery(query)
 
-  //       // now see if we can get our informatino directly from the cache
-  //     const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only'})
-  //         .pipe(first()).toPromise()
-  //     expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))
-  //         .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
+      // now see if we can get our informatino directly from the cache
+      const cachedSuggestions = await competition.suggestions({}, { fetchPolicy: 'cache-only' })
+        .pipe(first()).toPromise()
+      expect(cachedSuggestions.map((v: CompetitionSuggestion) => v.id))
+        .toEqual(suggestions.map((v: CompetitionSuggestion) => v.id))
 
-  //     const cachedSuggestionState = await cachedSuggestions[0]
-  //       .state({ fetchPolicy: 'cache-only'}).pipe(first()).toPromise()
-  //     expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
+      const cachedSuggestionState = await cachedSuggestions[0]
+        .state({ fetchPolicy: 'cache-only' }).pipe(first()).toPromise()
+      expect(cachedSuggestionState.id).toEqual(cachedSuggestions[0].id)
 
-  //   })
-  // })
+    })
+  })
 
   describe('pre-fetching suggestion.votes', () => {
-    it('pre-fetching suggestion.votes works', async () => {
+    it.skip('pre-fetching suggestion.votes works', async () => {
       // find a proposal in a scheme that has > 1 votes
       await createCompetition()
 
