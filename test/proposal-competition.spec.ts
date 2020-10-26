@@ -499,7 +499,7 @@ describe('Competition Proposal', () => {
     expect(suggestion1.redeem().send()).rejects.toThrow('not in winners list')
   })
 
-  it.skip('position is calculated correctly and redemptions work', async () => {
+  it('position is calculated correctly and redemptions work', async () => {
     let voteIsIndexed: boolean
     await createCompetition()
 
@@ -615,7 +615,7 @@ describe('Competition Proposal', () => {
 
   })
 
-  it.skip('winner is identified correctly also if there are less actual than possible winners', async () => {
+  it('winner is identified correctly even if there are less actual than possible winners', async () => {
     await createCompetition({ rewardSplit: [40, 40, 20] })
 
     await advanceTimeAndBlock(votingStart)
