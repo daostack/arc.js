@@ -33,6 +33,7 @@ export interface IPluginState {
   numberOfQueuedProposals: number
   numberOfPreBoostedProposals: number
   numberOfBoostedProposals: number
+  isRegistered: boolean
 }
 
 export interface IPluginQueryOptions extends ICommonQueryOptions {
@@ -66,6 +67,7 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
           numberOfPreBoostedProposals
           numberOfBoostedProposals
           version
+          isRegistered
           ${Object.values(Plugins)
             .filter((plugin) => plugin.fragment)
             .map((plugin) => '...' + plugin.fragment?.name)
@@ -181,7 +183,8 @@ export abstract class Plugin<TPluginState extends IPluginState> extends Entity<T
       numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
       numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
       numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-      version: item.version
+      version: item.version,
+      isRegistered: item.isRegistered
     }
   }
   private static baseFragmentField: DocumentNode | undefined

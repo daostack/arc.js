@@ -148,7 +148,8 @@ export class PluginRegistrarPlugin extends ProposalPlugin<
       numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
       numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
       pluginParams: pluginRegistrarParams,
-      version: item.version
+      version: item.version,
+      isRegistered: item.isRegistered
     }
   }
 
