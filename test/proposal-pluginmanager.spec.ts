@@ -132,19 +132,19 @@ describe('Plugin Manager', () => {
 
     if(!createdPlugin[0].coreState) throw new Error('New Plugin has no state set')
 
-    expect(createdPlugin[1].pluginToRegisterDecodedData.params[2].value.map(Number)).toMatchObject(easyVotingParams)
+    expect(createdPlugin[1].pluginToRegisterDecodedData.params[2].value.map(String)).toMatchObject(easyVotingParams)
     expect(createdPlugin).toBeTruthy()
     expect(createdPlugin[0]).toBeInstanceOf(ContributionRewardPlugin)
     expect(createdPlugin[0].coreState.name).toEqual('ContributionReward')
     expect(createdPlugin[0].coreState.pluginParams.voteParams).toMatchObject({
-      boostedVotePeriodLimit: "129600",
-      daoBountyConst: "10",
-      preBoostedVotePeriodLimit: "43200",
-      queuedVotePeriodLimit: "604800",
-      queuedVoteRequiredPercentage: "50",
-      quietEndingPeriod: "86400",
-      votersReputationLossRatio: "1",
-      activationTime: "0"
+      boostedVotePeriodLimit: 129600,
+      daoBountyConst: 10,
+      preBoostedVotePeriodLimit: 43200,
+      queuedVotePeriodLimit: 604800,
+      queuedVoteRequiredPercentage: 50,
+      quietEndingPeriod: 86400,
+      votersReputationLossRatio: 1,
+      activationTime: 0
     })
   })
 
@@ -355,14 +355,14 @@ describe('Plugin Manager', () => {
     if (!replacingPlugin.coreState) throw new Error('Could not set Plugin State')
 
     expect(replacingPlugin.coreState.pluginParams.voteParams).toMatchObject({
-      boostedVotePeriodLimit: "129605",
-      daoBountyConst: "10",
-      preBoostedVotePeriodLimit: "43205",
-      queuedVotePeriodLimit: "604805",
-      queuedVoteRequiredPercentage: "50",
-      quietEndingPeriod: "86400",
-      votersReputationLossRatio: "1",
-      activationTime: "0"
+      boostedVotePeriodLimit: 129605,
+      daoBountyConst: 10,
+      preBoostedVotePeriodLimit: 43205,
+      queuedVotePeriodLimit: 604805,
+      queuedVoteRequiredPercentage: 50,
+      quietEndingPeriod: 86400,
+      votersReputationLossRatio: 1,
+      activationTime: 0
     })
 
     //@ts-ignore
