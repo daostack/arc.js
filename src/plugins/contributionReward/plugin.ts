@@ -40,7 +40,7 @@ export interface IProposalCreateOptionsCR extends IProposalBaseCreateOptions {
 export interface IInitParamsCR {
   daoId: string
   votingMachine: string
-  votingParams: number[]
+  votingParams: string[]
   voteOnBehalf: string
   voteParamsHash: string
 }

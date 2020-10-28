@@ -34,7 +34,7 @@ export interface IProposalCreateOptionsGS extends IProposalBaseCreateOptions {
 export interface IInitParamsGS {
   daoId: string
   votingMachine: string
-  votingParams: number[]
+  votingParams: string[]
   voteOnBehalf: string
   voteParamsHash: string
   contractToCall: string

@@ -22,17 +22,17 @@ import { first } from 'rxjs/operators'
 jest.setTimeout(60000)
 
 const easyVotingParams = [
-  50,
-  604800,
-  129600,
-  43200, 
-  1200,
-  86400, 
-  10, 
-  1, 
-  50,
-  10,
-  0
+  "50",
+  "604800",
+  "129600",
+  "43200", 
+  "1200",
+  "86400", 
+  "10", 
+  "1", 
+  "50",
+  "10",
+  "0"
 ];
 
 const createAddProposal = async (arc: Arc, dao: DAO, plugin: PluginManagerPlugin, options: IProposalCreateOptionsPM) => {
@@ -132,7 +132,7 @@ describe('Plugin Manager', () => {
 
     if(!createdPlugin[0].coreState) throw new Error('New Plugin has no state set')
 
-    expect(createdPlugin[1].pluginToRegisterDecodedData.params[2].value.map(Number)).toMatchObject(easyVotingParams)
+    expect(createdPlugin[1].pluginToRegisterDecodedData.params[2].value.map(String)).toMatchObject(easyVotingParams)
     expect(createdPlugin).toBeTruthy()
     expect(createdPlugin[0]).toBeInstanceOf(ContributionRewardPlugin)
     expect(createdPlugin[0].coreState.name).toEqual('ContributionReward')
@@ -266,17 +266,17 @@ describe('Plugin Manager', () => {
       daoId: dao.id,
       votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
       votingParams: [
-        50,
-        604805,
-        129605,
-        43205, 
-        1200,
-        86400, 
-        10, 
-        1, 
-        50,
-        10,
-        0
+        "50",
+        "604805",
+        "129605",
+        "43205", 
+        "1200",
+        "86400", 
+        "10", 
+        "1", 
+        "50",
+        "10",
+        "0"
       ],
       voteOnBehalf: "0x0000000000000000000000000000000000000000",
       voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000',

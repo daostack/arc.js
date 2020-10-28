@@ -26,10 +26,10 @@ export interface IPluginRegistrarState extends IPluginState {
 export interface IInitParamsSR {
   daoId: string
   votingMachine: string
-  votingParamsRegister: number[]
+  votingParamsRegister: string[]
   voteOnBehalfRegister: string
   voteRegisterParamsHash: string
-  votingParamsRemove: number[]
+  votingParamsRemove: string[]
   voteOnBehalfRemove: string
   voteRemoveParamsHash: string
 }
