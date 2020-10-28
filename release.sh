@@ -11,8 +11,8 @@ git tag -a $package_version -m "Release of version $package_version"
 git push --tags
 
 # publish to npm
-echo "publish to npm"
-npm publish --access public
+# echo "publish to npm"
+# npm publish --access public
 
 # done
 echo "Done"
