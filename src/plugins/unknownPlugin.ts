@@ -37,7 +37,8 @@ export class UnknownPlugin extends Plugin<IPluginState> {
       numberOfBoostedProposals: Number(item.numberOfBoostedProposals),
       numberOfPreBoostedProposals: Number(item.numberOfPreBoostedProposals),
       numberOfQueuedProposals: Number(item.numberOfQueuedProposals),
-      version: item.version
+      version: item.version,
+      isRegistered: item.isRegistered
     }
   }
 
