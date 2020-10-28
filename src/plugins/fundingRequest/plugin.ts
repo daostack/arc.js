@@ -38,7 +38,7 @@ export interface IProposalCreateOptionsFundingRequest extends IProposalBaseCreat
 export interface IInitParamsFR {
   daoId: string
   votingMachine: string
-  votingParams: number[]
+  votingParams: string[]
   voteOnBehalf: string
   voteParamsHash: string
   fundingToken: string

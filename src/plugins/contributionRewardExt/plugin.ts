@@ -40,7 +40,7 @@ export interface IProposalCreateOptionsCRExt extends IProposalBaseCreateOptions 
 export interface IInitParamsCRExt {
   daoId: string
   votingMachine: string
-  votingParams: number[]
+  votingParams: string[]
   voteOnBehalf: string
   voteParamsHash: string
   daoFactory: string,

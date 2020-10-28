@@ -36,7 +36,7 @@ export interface IProposalCreateOptionsTokenTrade extends IProposalBaseCreateOpt
 export interface IInitParamsTT {
   daoId: string
   votingMachine: string
-  votingParams: number[]
+  votingParams: string[]
   voteOnBehalf: string
   voteParamsHash: string
 }

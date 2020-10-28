@@ -39,7 +39,7 @@ export interface IProposalCreateOptionsJoin extends IProposalBaseCreateOptions {
 export interface IInitParamsJoin {
   daoId: string
   votingMachine: string
-  votingParams: number[]
+  votingParams: string[]
   voteOnBehalf: string
   voteParamsHash: string
   fundingToken: string,
