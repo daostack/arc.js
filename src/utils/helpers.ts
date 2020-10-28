@@ -161,6 +161,16 @@ export function createGraphQlQuery(options: ICommonQueryOptions, where: string =
   if (options.orderDirection) {
     queryString += `orderDirection: ${options.orderDirection}\n`
   }
+  if (options.block) {
+    if (typeof options.block === 'object') {
+      const blockOptionJson = JSON.stringify(options.block);
+      //Remove quotes from json properties
+      const unquotedJson = blockOptionJson.replace(/"([^"]+)":/g, '$1:');
+      queryString += `block: ${unquotedJson}\n`
+    } else {
+      throw Error('The option block must be an object.')
+    }
+  }
   if (queryString) {
     return `(${queryString})`
   } else {

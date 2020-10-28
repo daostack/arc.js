@@ -19,6 +19,10 @@ export interface IStateful<T> {
 }
 
 export interface ICommonQueryOptions {
+  block?: {
+    number?: number,
+    hash?: string
+  }
   skip?: number
   first?: number
   orderBy?: string
