@@ -22,17 +22,17 @@ import { first } from 'rxjs/operators'
 jest.setTimeout(60000)
 
 const easyVotingParams = [
-  50,
-  604800,
-  129600,
-  43200, 
-  1200,
-  86400, 
-  10, 
-  1, 
-  50,
-  10,
-  0
+  "50",
+  "604800",
+  "129600",
+  "43200", 
+  "1200",
+  "86400", 
+  "10", 
+  "1", 
+  "50",
+  "10",
+  "0"
 ];
 
 const createAddProposal = async (arc: Arc, dao: DAO, plugin: PluginManagerPlugin, options: IProposalCreateOptionsPM) => {
@@ -266,17 +266,17 @@ describe('Plugin Manager', () => {
       daoId: dao.id,
       votingMachine: arc.getContractInfoByName("GenesisProtocol", LATEST_ARC_VERSION).address,
       votingParams: [
-        50,
-        604805,
-        129605,
-        43205, 
-        1200,
-        86400, 
-        10, 
-        1, 
-        50,
-        10,
-        0
+        "50",
+        "604805",
+        "129605",
+        "43205", 
+        "1200",
+        "86400", 
+        "10", 
+        "1", 
+        "50",
+        "10",
+        "0"
       ],
       voteOnBehalf: "0x0000000000000000000000000000000000000000",
       voteParamsHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
