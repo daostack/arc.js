@@ -111,6 +111,11 @@ describe('Proposal', () => {
     expect(l1.length).toBeGreaterThan(0)
   })
 
+  it('proposal.search() accepts block argument', async () => {
+    const l1 = await Proposal.search(arc, { block: { number: 1 } }).pipe(first()).toPromise()
+    expect(l1.length).toBe(0)
+  })
+
   it('proposal.search() accepts type argument', async () => {
     let ls: AnyProposal[]
     ls = await Proposal.search(arc, { where: {type: "ContributionReward"}}).pipe(first()).toPromise()
