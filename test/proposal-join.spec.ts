@@ -35,7 +35,7 @@ describe('Join', () => {
     const joins = await arc
       .plugins({where: {name: 'Join'}}).pipe(first()).toPromise()
 
-    const join = joins[0] as Join
+    const join = joins[1] as Join
     const joinState = await join.fetchState()
 
     expect(joinState.pluginParams).toMatchObject({
