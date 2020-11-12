@@ -261,11 +261,11 @@ export class GraphNodeObserver {
         })
       }
 
-      const ERROR_RESPONSE_A = {
+      const ERROR_RESPONSE_B = {
         errors: [
           {
-            name: 'A something bad happened',
-            message: 'A resolver blew up',
+            name: 'B something bad happened',
+            message: 'B resolver blew up',
           },
         ],
       };
@@ -281,7 +281,8 @@ export class GraphNodeObserver {
           filter((r: ApolloQueryResult<any>) => {
             if (timesCalled === 0) {
                timesCalled++
-               return ERROR_RESPONSE_A
+               console.log("ERROR_RESPONSE_B")
+               return ERROR_RESPONSE_B
             }
             return !r.loading
           }), // filter empty results
@@ -378,11 +379,11 @@ export class GraphNodeObserver {
   //     map((rs: object[]) => rs.map(itemMap))
   //   )
   // }
-  let timesCalled = 0;
-  const ERROR_RESPONSE_B = {
+
+  const ERROR_RESPONSE_A = {
     errors: [
       {
-        name: 'B something bad happened',
+        name: 'A something bad happened',
         message: 'resolver blew up',
       },
     ],
@@ -402,6 +403,7 @@ export class GraphNodeObserver {
         }
         if (timesCalledA === 0) {
            timesCalledA++
+           console.log("ERROR_RESPONSE_A")
            return ERROR_RESPONSE_A
         } else {
            return r.data[entity]
