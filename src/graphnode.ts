@@ -9,8 +9,8 @@ import { getMainDefinition } from 'apollo-utilities'
 import gql from 'graphql-tag'
 import fetch from 'isomorphic-fetch'
 import * as WebSocket from 'isomorphic-ws'
-import { Observable, Observer  ,throwError,timer} from 'rxjs'
-import {   catchError ,filter, first, map,retryWhen,mergeMap, finalize } from 'rxjs/operators'
+import { Observable, Observer  , throwError, timer} from 'rxjs'
+import { catchError , filter, finalize, first, map, mergeMap, retryWhen } from 'rxjs/operators'
 import { Logger } from './logger'
 import { zenToRxjsObservable } from './utils'
 
@@ -79,6 +79,7 @@ export function createApolloClient(options: {
 
   if (!options.errHandler) {
     options.errHandler = (event) => {
+      console.log(`[graphql error]: message:`)
 
       if (event.graphQLErrors) {
         event.graphQLErrors.map((err: any) =>
@@ -187,7 +188,7 @@ export class GraphNodeObserver {
     }
   }
 
-  genericRetryStrategy = ({
+  public genericRetryStrategy = ({
       maxRetryAttempts = 10,
       scalingDuration = 5000,
       excludedStatusCodes = []
@@ -198,25 +199,25 @@ export class GraphNodeObserver {
   } = {}) => (attempts: Observable<any>) => {
   return attempts.pipe(
     mergeMap((error, i) => {
-      const retryAttempt = i + 1;
+      const retryAttempt = i + 1
       // if maximum number of retries have been met
       // or response is a status code we don't wish to retry, throw error
       if (
         retryAttempt > maxRetryAttempts ||
-        excludedStatusCodes.find(e => e === error.status)
+        excludedStatusCodes.find((e) => e === error.status)
       ) {
-        return throwError(error);
+        return throwError(error)
       }
-      let retryDuration = Math.random() * scalingDuration
+      const retryDuration = Math.random() * scalingDuration
       console.log(
         `Attempt ${retryAttempt}: retrying in ${retryDuration}ms`
-      );
+      )
       // retry after 1s, 2s, etc...
       return timer(Math.random() * retryDuration)
     }),
     finalize(() => console.log('We are done!'))
-  );
-};
+  )
+}
 
   /**
    * Given a gql query, will return an observable of query results
@@ -293,7 +294,7 @@ export class GraphNodeObserver {
             })
         })
       }
-        const sub = zenToRxjsObservable(
+      const sub = zenToRxjsObservable(
         apolloClient.watchQuery({
           fetchPolicy: apolloQueryOptions.fetchPolicy,
           fetchResults: true,
@@ -304,15 +305,15 @@ export class GraphNodeObserver {
           filter((r: ApolloQueryResult<any>) => {
             if (this.timesCalled < 2) {
                 this.timesCalled++
-                throw Error("ERROR_RESPONSE_B")
+                throw Error('ERROR_RESPONSE_B')
             }
-            console.log("now")
+            console.log('now')
             return !r.loading
           }), // filter empty results
           retryWhen(this.genericRetryStrategy()),
           catchError((err: Error) => {
             throw Error(`11. ${err.name}: ${err.message}\n${query.loc.source.body}`)
-        }),
+        })
         )
         .subscribe(observer)
       return () => {
