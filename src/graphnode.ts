@@ -295,23 +295,23 @@ export class GraphNodeObserver {
       }
         const sub = zenToRxjsObservable(
         apolloClient.watchQuery({
-          fetchPolicy: "network-only",
+          fetchPolicy: apolloQueryOptions.fetchPolicy,
           fetchResults: true,
           pollInterval: apolloQueryOptions.pollInterval,
-          errorPolicy: "all",
           query
         }))
         .pipe(
           filter((r: ApolloQueryResult<any>) => {
-            if (this.timesCalled < 4) {
+            if (this.timesCalled < 2) {
                 this.timesCalled++
                 throw Error("ERROR_RESPONSE_B")
             }
+            console.log("now")
             return !r.loading
           }), // filter empty results
           retryWhen(this.genericRetryStrategy()),
           catchError((err: Error) => {
-            throw Error(`11. xxx ${err.name}: ${err.message}\n${query.loc.source.body}`)
+            throw Error(`11. ${err.name}: ${err.message}\n${query.loc.source.body}`)
         }),
         )
         .subscribe(observer)
@@ -423,11 +423,11 @@ export class GraphNodeObserver {
   }
 
   public sendQuery(query: any, apolloQueryOptions: IApolloQueryOptions = {}) {
-     if (!this.apolloClient) {
-       throw Error(`No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`)
-     }
-     const apolloClient = this.apolloClient as ApolloClient<object>
-     return apolloClient.query({...apolloQueryOptions, ...{query}})
+    if (!this.apolloClient) {
+      throw Error(`No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`)
+    }
+    const apolloClient = this.apolloClient as ApolloClient<object>
+    return apolloClient.query({...apolloQueryOptions, ...{query}})
   }
 
 }
