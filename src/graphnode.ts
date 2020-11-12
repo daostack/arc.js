@@ -99,6 +99,7 @@ export function createApolloClient(options: {
     wsOrHttpLink
   ])
 
+
   const cache = new InMemoryCache({
     cacheRedirects: {
       Query: {
@@ -260,6 +261,15 @@ export class GraphNodeObserver {
         })
       }
 
+      const ERROR_RESPONSE_A = {
+        errors: [
+          {
+            name: 'A something bad happened',
+            message: 'A resolver blew up',
+          },
+        ],
+      };
+
       const sub = zenToRxjsObservable(
         apolloClient.watchQuery({
           fetchPolicy: apolloQueryOptions.fetchPolicy,
@@ -269,10 +279,14 @@ export class GraphNodeObserver {
         }))
         .pipe(
           filter((r: ApolloQueryResult<any>) => {
+            if (timesCalled === 0) {
+               timesCalled++
+               return ERROR_RESPONSE_A
+            }
             return !r.loading
           }), // filter empty results
           catchError((err: Error) => {
-            throw Error(`11. ${err.name}: ${err.message}\n${query.loc.source.body}`)
+            throw Error(`11. xxx ${err.name}: ${err.message}\n${query.loc.source.body}`)
           })
         )
         .subscribe(observer)
@@ -364,7 +378,16 @@ export class GraphNodeObserver {
   //     map((rs: object[]) => rs.map(itemMap))
   //   )
   // }
-
+  let timesCalled = 0;
+  const ERROR_RESPONSE_B = {
+    errors: [
+      {
+        name: 'B something bad happened',
+        message: 'resolver blew up',
+      },
+    ],
+  };
+  var timesCalledA = 0;
   public getObservableObject(
     query: any,
     itemMap: (o: object) => object | null = (o) => o,
@@ -377,7 +400,12 @@ export class GraphNodeObserver {
         if (!r.data) {
           return null
         }
-        return r.data[entity]
+        if (timesCalledA === 0) {
+           timesCalledA++
+           return ERROR_RESPONSE_A
+        } else {
+           return r.data[entity]
+        }
       }),
       map(itemMap)
     )
