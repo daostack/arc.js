@@ -9,8 +9,8 @@ import { getMainDefinition } from 'apollo-utilities'
 import gql from 'graphql-tag'
 import fetch from 'isomorphic-fetch'
 import * as WebSocket from 'isomorphic-ws'
-import { Observable, Observer } from 'rxjs'
-import { catchError, filter, first, map } from 'rxjs/operators'
+import { Observable, Observer  ,throwError,timer} from 'rxjs'
+import {   catchError ,filter, first, map,retryWhen,mergeMap, finalize } from 'rxjs/operators'
 import { Logger } from './logger'
 import { zenToRxjsObservable } from './utils'
 
@@ -79,7 +79,6 @@ export function createApolloClient(options: {
 
   if (!options.errHandler) {
     options.errHandler = (event) => {
-      console.log(`[rererere`)
 
       if (event.graphQLErrors) {
         event.graphQLErrors.map((err: any) =>
@@ -164,40 +163,7 @@ export class GraphNodeObserver {
   public Logger = Logger
   public apolloClient?: ApolloClient<object>
   public graphqlSubscribeToQueries?: boolean
-  public timesCalledA = 0
   public timesCalled = 0
-
-  public ERROR_RESPONSE_A = {
-    errors: [
-      {
-        message: 'resolver blew up',
-        name: 'A something bad happened',
-        locations: undefined,
-        path: undefined,
-        nodes: undefined,
-        source: undefined,
-        positions: undefined,
-        originalError: new Error("AAA"),
-        extensions: undefined
-      }
-    ]
-  }
-
-  public ERROR_RESPONSE_B = {
-    errors: [
-      {
-        message: 'B resolver blew up',
-        name: 'B something bad happened',
-        locations: undefined,
-        path: undefined,
-        nodes: undefined,
-        source: undefined,
-        positions: undefined,
-        originalError: new Error("BBB"),
-        extensions: undefined
-      }
-    ]
-  }
 
   constructor(options: {
     graphqlHttpProvider?: string
@@ -220,6 +186,37 @@ export class GraphNodeObserver {
       })
     }
   }
+
+  genericRetryStrategy = ({
+      maxRetryAttempts = 10,
+      scalingDuration = 5000,
+      excludedStatusCodes = []
+  }: {
+    maxRetryAttempts?: number,
+    scalingDuration?: number,
+    excludedStatusCodes?: number[]
+  } = {}) => (attempts: Observable<any>) => {
+  return attempts.pipe(
+    mergeMap((error, i) => {
+      const retryAttempt = i + 1;
+      // if maximum number of retries have been met
+      // or response is a status code we don't wish to retry, throw error
+      if (
+        retryAttempt > maxRetryAttempts ||
+        excludedStatusCodes.find(e => e === error.status)
+      ) {
+        return throwError(error);
+      }
+      let retryDuration = Math.random() * scalingDuration
+      console.log(
+        `Attempt ${retryAttempt}: retrying in ${retryDuration}ms`
+      );
+      // retry after 1s, 2s, etc...
+      return timer(Math.random() * retryDuration)
+    }),
+    finalize(() => console.log('We are done!'))
+  );
+};
 
   /**
    * Given a gql query, will return an observable of query results
@@ -296,28 +293,26 @@ export class GraphNodeObserver {
             })
         })
       }
-      const sub = zenToRxjsObservable(
+        const sub = zenToRxjsObservable(
         apolloClient.watchQuery({
-          fetchPolicy: apolloQueryOptions.fetchPolicy,
+          fetchPolicy: "network-only",
           fetchResults: true,
           pollInterval: apolloQueryOptions.pollInterval,
+          errorPolicy: "all",
           query
         }))
         .pipe(
           filter((r: ApolloQueryResult<any>) => {
-            if (this.timesCalled === 0) {
+            if (this.timesCalled < 4) {
                 this.timesCalled++
-                console.log(`ERROR_RESPONSE_B`,r.errors,r)
-                r.errors = this.ERROR_RESPONSE_B.errors
                 throw Error("ERROR_RESPONSE_B")
-            } else {
-              console.log(`ERROR_RESPONSE_B RETRY!!!`)
             }
             return !r.loading
           }), // filter empty results
+          retryWhen(this.genericRetryStrategy()),
           catchError((err: Error) => {
             throw Error(`11. xxx ${err.name}: ${err.message}\n${query.loc.source.body}`)
-          })
+        }),
         )
         .subscribe(observer)
       return () => {
@@ -419,11 +414,6 @@ export class GraphNodeObserver {
         if (!r.data) {
           return null
         }
-        // if (this.timesCalledA === 0) {
-        //    this.timesCalledA++
-        //    console.log(`ERROR_RESPONSE_A`)
-        //    r.errors = this.ERROR_RESPONSE_A.errors
-        // }
         return r.data[entity]
       }),
       map(itemMap)
