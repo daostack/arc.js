@@ -79,11 +79,14 @@ export function createApolloClient(options: {
 
   if (!options.errHandler) {
     options.errHandler = (event) => {
+      console.log(`[rererere`)
+
       if (event.graphQLErrors) {
         event.graphQLErrors.map((err: any) =>
-          Logger.error(
-            `[graphql error]: message: ${err.message}, location: ${err.locations}, path: ${err.path}`
-          )
+          // Logger.error(
+          //   `[graphql error]: message: ${err.message}, location: ${err.locations}, path: ${err.path}`
+          // )
+          console.log(`[graphql error]: message: ${err.message}, location: ${err.locations}, path: ${err.path}`)
         )
       }
       if (event.networkError) {
@@ -304,8 +307,11 @@ export class GraphNodeObserver {
           filter((r: ApolloQueryResult<any>) => {
             if (this.timesCalled === 0) {
                 this.timesCalled++
-                console.log(`ERROR_RESPONSE_B`)
+                console.log(`ERROR_RESPONSE_B`,r.errors,r)
                 r.errors = this.ERROR_RESPONSE_B.errors
+                throw Error("ERROR_RESPONSE_B")
+            } else {
+              console.log(`ERROR_RESPONSE_B RETRY!!!`)
             }
             return !r.loading
           }), // filter empty results
@@ -413,11 +419,11 @@ export class GraphNodeObserver {
         if (!r.data) {
           return null
         }
-        if (this.timesCalledA === 0) {
-           this.timesCalledA++
-           console.log(`ERROR_RESPONSE_A`)
-           r.errors = this.ERROR_RESPONSE_A.errors
-        }
+        // if (this.timesCalledA === 0) {
+        //    this.timesCalledA++
+        //    console.log(`ERROR_RESPONSE_A`)
+        //    r.errors = this.ERROR_RESPONSE_A.errors
+        // }
         return r.data[entity]
       }),
       map(itemMap)
