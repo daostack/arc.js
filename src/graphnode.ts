@@ -99,7 +99,6 @@ export function createApolloClient(options: {
     wsOrHttpLink
   ])
 
-
   const cache = new InMemoryCache({
     cacheRedirects: {
       Query: {
@@ -162,6 +161,40 @@ export class GraphNodeObserver {
   public Logger = Logger
   public apolloClient?: ApolloClient<object>
   public graphqlSubscribeToQueries?: boolean
+  public timesCalledA = 0
+  public timesCalled = 0
+
+  public ERROR_RESPONSE_A = {
+    errors: [
+      {
+        message: 'resolver blew up',
+        name: 'A something bad happened',
+        locations: undefined,
+        path: undefined,
+        nodes: undefined,
+        source: undefined,
+        positions: undefined,
+        originalError: new Error("AAA"),
+        extensions: undefined
+      }
+    ]
+  }
+
+  public ERROR_RESPONSE_B = {
+    errors: [
+      {
+        message: 'B resolver blew up',
+        name: 'B something bad happened',
+        locations: undefined,
+        path: undefined,
+        nodes: undefined,
+        source: undefined,
+        positions: undefined,
+        originalError: new Error("BBB"),
+        extensions: undefined
+      }
+    ]
+  }
 
   constructor(options: {
     graphqlHttpProvider?: string
@@ -235,7 +268,7 @@ export class GraphNodeObserver {
         // subscriptionQuery subscribes to get notified of updates to the query
         let subscriptionQuery
         if (query.loc.source.body.trim().startsWith('query')) {
-          // remove the "query" part from the string
+          // remove the `query` part from the string
           subscriptionQuery = gql`
             subscription ${query.loc.source.body.trim().substring('query'.length)}
           `
@@ -260,16 +293,6 @@ export class GraphNodeObserver {
             })
         })
       }
-
-      const ERROR_RESPONSE_B = {
-        errors: [
-          {
-            name: 'B something bad happened',
-            message: 'B resolver blew up',
-          },
-        ],
-      };
-
       const sub = zenToRxjsObservable(
         apolloClient.watchQuery({
           fetchPolicy: apolloQueryOptions.fetchPolicy,
@@ -279,10 +302,10 @@ export class GraphNodeObserver {
         }))
         .pipe(
           filter((r: ApolloQueryResult<any>) => {
-            if (timesCalled === 0) {
-               timesCalled++
-               console.log("ERROR_RESPONSE_B")
-               return ERROR_RESPONSE_B
+            if (this.timesCalled === 0) {
+                this.timesCalled++
+                console.log(`ERROR_RESPONSE_B`)
+                r.errors = this.ERROR_RESPONSE_B.errors
             }
             return !r.loading
           }), // filter empty results
@@ -355,7 +378,7 @@ export class GraphNodeObserver {
    *        address
    *      }
    *    }`
-   *    getObservableList(query, (r:any) => new DAO(r.address), filter((r:any) => r.address === "0x1234..."))
+   *    getObservableList(query, (r:any) => new DAO(r.address), filter((r:any) => r.address === `0x1234...`))
    *
    * @param query The query to be run
    * @param  entity  name of the graphql entity to be queried.
@@ -379,35 +402,23 @@ export class GraphNodeObserver {
   //     map((rs: object[]) => rs.map(itemMap))
   //   )
   // }
-
-  const ERROR_RESPONSE_A = {
-    errors: [
-      {
-        name: 'A something bad happened',
-        message: 'resolver blew up',
-      },
-    ],
-  };
-  var timesCalledA = 0;
   public getObservableObject(
     query: any,
     itemMap: (o: object) => object | null = (o) => o,
     apolloQueryOptions: IApolloQueryOptions = {}
   ) {
     const entity = query.definitions[0].selectionSet.selections[0].name.value
-
     const observable = this.getObservable(query, apolloQueryOptions).pipe(
       map((r: ApolloQueryResult<any>) => {
         if (!r.data) {
           return null
         }
-        if (timesCalledA === 0) {
-           timesCalledA++
-           console.log("ERROR_RESPONSE_A")
-           return ERROR_RESPONSE_A
-        } else {
-           return r.data[entity]
+        if (this.timesCalledA === 0) {
+           this.timesCalledA++
+           console.log(`ERROR_RESPONSE_A`)
+           r.errors = this.ERROR_RESPONSE_A.errors
         }
+        return r.data[entity]
       }),
       map(itemMap)
     )
@@ -416,11 +427,11 @@ export class GraphNodeObserver {
   }
 
   public sendQuery(query: any, apolloQueryOptions: IApolloQueryOptions = {}) {
-    if (!this.apolloClient) {
-      throw Error(`No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`)
-    }
-    const apolloClient = this.apolloClient as ApolloClient<object>
-    return apolloClient.query({...apolloQueryOptions, ...{query}})
+     if (!this.apolloClient) {
+       throw Error(`No connection to the graph - did you set graphqlHttpProvider and graphqlWsProvider?`)
+     }
+     const apolloClient = this.apolloClient as ApolloClient<object>
+     return apolloClient.query({...apolloQueryOptions, ...{query}})
   }
 
 }
