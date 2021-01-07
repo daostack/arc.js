@@ -37,20 +37,6 @@ export class CTL4RScheme {
     return reputation
   }
 
-  // return the reputation rewards for a period per lockingId
-  // To get the sum of reputation rewards of a beneficiary for the whole batchIndex
-  // use getReputationRewardForLockingIds
-  public async getReputationRewardForLockingId(lockingId: number,
-                                               batchIndex: number,
-                                               repuationRewardForPeriod: BN)
-                                                : Promise<BN> {
-    const contract = await this.getContract()
-    const lockingIdScore = new BN(await contract.methods.getLockingIdScore(batchIndex, lockingId).call())
-    const lockingTotalScore = new BN(await contract.methods.batches(batchIndex).call())
-    const reputation = lockingIdScore.div(lockingTotalScore).mul(repuationRewardForPeriod)
-    return reputation
-  }
-
   public lock(amount: BN, period: number, batchIndexToLockIn: number, agreementHash: string): Operation<any> {
     const mapReceipt = (receipt: any) => {
       return receipt
