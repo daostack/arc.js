@@ -1,6 +1,6 @@
 {
   "name": "@daostack/arc.js",
-  "version": "0.2.82",
+  "version": "0.2.84",
   "description": "",
   "keywords": [],
   "main": "dist/lib/index.js",
@@ -33,6 +33,7 @@
     "test": "jest --runInBand --forceExit",
     "test:watch": "jest --watch",
     "tslint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "lint-fix": "tslint --fix --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "test-env-up": "./test-env-up.sh"
   },
   "jest": {
@@ -67,7 +68,7 @@
     ]
   },
   "devDependencies": {
-    "@daostack/migration": "0.0.1-rc.53-v0",
+    "@daostack/migration": "0.0.1-rc.55-v1",
     "@daostack/subgraph-test-env": "0.0.39-8",
     "@types/graphql": "^14.2.2",
     "@types/isomorphic-fetch": "^0.0.34",
