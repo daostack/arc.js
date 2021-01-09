@@ -1,6 +1,7 @@
 import BN = require('bn.js')
 import { from } from 'rxjs'
 import { concatMap } from 'rxjs/operators'
+import { realMathToBN, realMathToNumber } from '../utils'
 
 import {
   Operation,
@@ -17,6 +18,27 @@ export class CTL4RScheme {
 
   }
 
+  /**
+   * getRepuationRewardForBatch
+   * according to the formula
+   * repPerBatch = _repRewardConstA * ((_repRewardConstB/1000) ** batchIndex)
+   * @param  repRewardConstA
+   * @param  repRewardConstB
+   * @param  batchIndex the batchIndex to calculate
+   * @return     RepuationRewardForBatch
+   */
+  public async getRepuationRewardForBatch(repRewardConstA: string,
+                                          repRewardConstB: string,
+                                          batchIndex: number)
+                                          : Promise<BN> {
+    // repRewardConstB is alway a realNumber value < 1 and > 0 so lets convert it to numnber between 0 to 1000
+    const constBMull1000 = new BN(Math.round((realMathToNumber(new BN(repRewardConstB)) + Number.EPSILON) * 100) * 10)
+    // (repRewardConstA *  (repRewardConstB ** batchIndex) / (1000 ** batchIndex)
+    return realMathToBN(new BN(repRewardConstA))
+           .mul(constBMull1000.pow(new BN(batchIndex)))
+           .div((new BN(1000)).pow(new BN(batchIndex)))
+  }
+
   public async getAgreementHash(): Promise<string> {
     const contract = await this.getContract()
     const result = await contract.methods.getAgreementHash().call()
@@ -30,6 +52,10 @@ export class CTL4RScheme {
     let reputation = new BN('0')
     const contract = await this.getContract()
     const lockingTotalScore = new BN(await contract.methods.batches(batchIndex).call())
+
+    if (lockingTotalScore.isZero()) {
+      return lockingTotalScore
+    }
     for (const lockingId of lockingIds) {
       const lockingIdScore = new BN(await contract.methods.getLockingIdScore(batchIndex, lockingId).call())
       reputation = reputation.add(lockingIdScore.div(lockingTotalScore).mul(repuationRewardForPeriod))
