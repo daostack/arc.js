@@ -13,7 +13,7 @@ import { Address } from '../types'
 
 import { Scheme } from '../scheme'
 
-//same address for all networks (mainnet,kovan,xdai,rinkeby)
+// same address for all networks (mainnet,kovan,xdai,rinkeby)
 const CT4RRedeemerAddress = '0x829BDfd41d517f57E5eBf13AD0E181351cb16a96'
 
 const CT4RRedeemerABI = [
