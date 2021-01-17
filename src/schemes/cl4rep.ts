@@ -190,8 +190,8 @@ export class CL4RScheme {
      * redeem redeem reputation for a beneficiary for all is lockingIds
      * @param  beneficiary
      * @param  lockingIds
-     * @param  network network is a optional.
-     * @return     RepuationRewardForBatch
+     * @param  ct4rRedeemerAddress ct4rRedeemerAddress is a optional.
+     * @return transaction promise
      */
     public redeem(beneficiary: Address, lockingIds: number[], ct4rRedeemerAddress?: Address): Operation<any> {
       const mapReceipt = (receipt: any) => {
