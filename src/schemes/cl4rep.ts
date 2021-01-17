@@ -13,13 +13,8 @@ import { Address } from '../types'
 
 import { Scheme } from '../scheme'
 
-const CT4RRedeemerAddresses = {
-  kovan: '0x685e1594EfF5dCa50dd3cd1fC58f1E38432343FB',
-  mainnet: '0x685e1594EfF5dCa50dd3cd1fC58f1E38432343FB',
-  private: '0xdc23B1dd1c3e5634Da9fE273EEDf1A4fc1Dd5e16',
-  rinkeby: '0x829BDfd41d517f57E5eBf13AD0E181351cb16a96',
-  xdai: '0x829BDfd41d517f57E5eBf13AD0E181351cb16a96'
-}
+//same address for all networks (mainnet,kovan,xdai,rinkeby)
+const CT4RRedeemerAddress = '0x829BDfd41d517f57E5eBf13AD0E181351cb16a96'
 
 const CT4RRedeemerABI = [
     {
@@ -195,10 +190,10 @@ export class CL4RScheme {
      * redeem redeem reputation for a beneficiary for all is lockingIds
      * @param  beneficiary
      * @param  lockingIds
-     * @param  network network is a temporary workaround till we will have the redeemer indexed.
+     * @param  network network is a optional.
      * @return     RepuationRewardForBatch
      */
-    public redeem(beneficiary: Address, lockingIds: number[], network: string): Operation<any> {
+    public redeem(beneficiary: Address, lockingIds: number[], ct4rRedeemerAddress?: Address): Operation<any> {
       const mapReceipt = (receipt: any) => {
         return receipt
       }
@@ -208,7 +203,7 @@ export class CL4RScheme {
          ctl4rReedeems.push({beneficiary, id: lockingId.toString()})
       }
 
-      const observable = from(this.getCT4RRedeemer(network))
+      const observable = from(this.getCT4RRedeemer(ct4rRedeemerAddress ? ct4rRedeemerAddress : CT4RRedeemerAddress))
         .pipe(
         concatMap((contract) => {
           let transaction: any
@@ -241,8 +236,8 @@ export class CL4RScheme {
     return (await this.scheme.fetchStaticState()).address
   }
 
-  public async getCT4RRedeemer(network: string) {
-    return await new this.scheme.context.web3.eth.Contract(CT4RRedeemerABI, CT4RRedeemerAddresses[network])
+  public async getCT4RRedeemer(ct4rRedeemerAddress?: Address) {
+    return await new this.scheme.context.web3.eth.Contract(CT4RRedeemerABI, ct4rRedeemerAddress)
   }
 
   public getScheme() {
