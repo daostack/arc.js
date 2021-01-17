@@ -13,6 +13,49 @@ import { Address } from '../types'
 
 import { Scheme } from '../scheme'
 
+const CT4RRedeemerAddresses = {
+  kovan: '0x685e1594EfF5dCa50dd3cd1fC58f1E38432343FB',
+  mainnet: '0x685e1594EfF5dCa50dd3cd1fC58f1E38432343FB',
+  private: '0xdc23B1dd1c3e5634Da9fE273EEDf1A4fc1Dd5e16',
+  rinkeby: '0x829BDfd41d517f57E5eBf13AD0E181351cb16a96',
+  xdai: '0x829BDfd41d517f57E5eBf13AD0E181351cb16a96'
+}
+
+const CT4RRedeemerABI = [
+    {
+      constant: false,
+      inputs: [
+        {
+          internalType: 'contract ContinuousLocking4Reputation',
+          name: 'clt4Reputation',
+          type: 'address'
+        },
+        {
+          components: [
+            {
+              internalType: 'address',
+              name: 'beneficiary',
+              type: 'address'
+            },
+            {
+              internalType: 'uint256',
+              name: 'id',
+              type: 'uint256'
+            }
+          ],
+          internalType: 'struct NectarReputationRedeemer.Redeem[]',
+          name: 'clt4rRedeems',
+          type: 'tuple[]'
+        }
+      ],
+      name: 'redeemContinuousLocking4Reputation',
+      outputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      type: 'function'
+    }
+  ]
+
 export class CL4RScheme {
 
   constructor(public scheme: Scheme) {
@@ -148,18 +191,30 @@ export class CL4RScheme {
       return toIOperationObservable(observable)
     }
 
-    public redeem(beneficiary: Address, lockingId: number): Operation<any> {
+    /**
+     * redeem redeem reputation for a beneficiary for all is lockingIds
+     * @param  beneficiary
+     * @param  lockingIds
+     * @param  network network is a temporary workaround till we will have the redeemer indexed.
+     * @return     RepuationRewardForBatch
+     */
+    public redeem(beneficiary: Address, lockingIds: number[], network: string): Operation<any> {
       const mapReceipt = (receipt: any) => {
         return receipt
       }
 
-      const observable = from(this.getContract())
+      const ctl4rReedeems: any = []
+      for (const lockingId of lockingIds) {
+         ctl4rReedeems.push({beneficiary, id: lockingId.toString()})
+      }
+
+      const observable = from(this.getCT4RRedeemer(network))
         .pipe(
         concatMap((contract) => {
           let transaction: any
-          transaction = contract.methods.redeem(
-            beneficiary,
-            lockingId
+          transaction = contract.methods.redeemContinuousLocking4Reputation(
+            (this.scheme.staticState as any).address,
+            ctl4rReedeems
           )
           const errorHandler = async (error: Error) => {
             try {
@@ -176,10 +231,18 @@ export class CL4RScheme {
     }
 
   public async getContract() {
-    const state = await this.scheme.fetchStaticState()
+    const address = await this.getContractAddress()
     await this.scheme.context.fetchContractInfos({fetchPolicy: 'network-only'})
-    const contract = this.scheme.context.getContract(state.address)
+    const contract = this.scheme.context.getContract(address)
     return contract
+  }
+
+  public async getContractAddress() {
+    return (await this.scheme.fetchStaticState()).address
+  }
+
+  public async getCT4RRedeemer(network: string) {
+    return await new this.scheme.context.web3.eth.Contract(CT4RRedeemerABI, CT4RRedeemerAddresses[network])
   }
 
   public getScheme() {
