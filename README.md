@@ -1,3 +1,6 @@
+***DEVELOPMENT OF THIS PACKAGE HAS MOVED TO: https://github.com/daostack/alchemy-monorepo/tree/dev/packages/arc.js***
+
+
 [![Build Status](https://travis-ci.com/daostack/client.svg?token=aXt9zApRNkfx8zDMypWx&branch=master)](https://travis-ci.com/daostack/client)
 
 # DAOstack Client
